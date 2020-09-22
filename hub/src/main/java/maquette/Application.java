@@ -1,6 +1,8 @@
 package maquette;
 
-import maquette.adapters.DockerInfrastructureProvider;
+import maquette.adapters.infrastructure.DockerInfrastructureProvider;
+import maquette.adapters.infrastructure.InMemoryInfrastructureRepository;
+import maquette.adapters.projects.InMemoryProjectsRepository;
 import maquette.core.CoreApp;
 import maquette.core.config.ApplicationConfiguration;
 
@@ -8,9 +10,12 @@ public class Application {
 
     public static void main(String[] args) {
         var config = ApplicationConfiguration.apply();
-        var infrastructure = DockerInfrastructureProvider.apply();
 
-        // CoreApp.apply(config, infrastructure).run();
+        var infrastructureProvider = DockerInfrastructureProvider.apply();
+        var infrastructureRepository = InMemoryInfrastructureRepository.apply();
+        var projectsRepository = InMemoryProjectsRepository.apply();
+
+        CoreApp.apply(config, infrastructureProvider, infrastructureRepository, projectsRepository);
     }
 
 }

@@ -1,10 +1,12 @@
 package maquette.core;
 
 import akka.actor.ActorSystem;
+import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.ObjectMapperFactory;
+import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.infrastructure.InfrastructureManager;
@@ -28,12 +30,22 @@ public class CoreApp {
 
     MaquetteServer server;
 
-    public void run() {
-        /*
+    public void stop() {
+        server.stop();
+    }
+
+    public static CoreApp apply(
+            ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
+            InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository) {
+
+        LOG.info("Starting Maquette Hub Server");
+
         var system = ActorSystem.apply("maquette");
 
         var app = Javalin
-                .create()
+                .create(config -> {
+                    config.showJavalinBanner = false;
+                })
                 .start(configuration.getServer().getHost(), configuration.getServer().getPort());
 
         var om = ObjectMapperFactory.apply().create(true);
@@ -44,25 +56,15 @@ public class CoreApp {
         var runtime = RuntimeConfiguration.apply(app, system, om, infrastructureManager, processManager, projects);
         var services = ApplicationServices.apply(runtime);
 
-        MaquetteServer.apply(configuration, runtime, services);
+        var server = MaquetteServer.apply(configuration, runtime, services);
 
-        /*
-        var runtime = RuntimeConfiguration.apply(
-                app, system, om,
-                infrastructureProvider, infrastructureRepository, projectsRepository);
-    */
+        var map = Maps.<String, Object>newHashMap();
+        map.put("version", configuration.getVersion());
+        map.put("environment", configuration.getEnvironment());
+        var banner = Templates.renderTemplateFromResources("banner.twig", map);
+        LOG.info("Started Maquette Hub Server {}", banner);
 
-
-
-
-        System.out.println("-------------");
-    }
-
-    public static CoreApp apply(
-            ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
-            InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository) {
-
-        return null;
+        return CoreApp.apply(runtime, server);
     }
 
 }

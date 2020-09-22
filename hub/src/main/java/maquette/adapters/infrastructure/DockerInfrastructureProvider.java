@@ -1,4 +1,4 @@
-package maquette.adapters;
+package maquette.adapters.infrastructure;
 
 import akka.Done;
 import com.github.dockerjava.api.DockerClient;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class DockerInfrastructureProvider implements InfrastructureProvider {
+public final class DockerInfrastructureProvider implements InfrastructureProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(DockerInfrastructureProvider.class);
 
