@@ -2,22 +2,25 @@ package maquette.adapters;
 
 import akka.Done;
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.PullResponseItem;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
+import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
-import maquette.core.ports.InfrastructureProviderPort;
+import maquette.core.entities.infrastructure.Container;
+import maquette.core.entities.infrastructure.model.ContainerConfig;
+import maquette.core.entities.infrastructure.model.ContainerStatus;
+import maquette.core.ports.InfrastructureProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class DockerInfrastructureProvider implements InfrastructureProviderPort {
+public class DockerInfrastructureProvider implements InfrastructureProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(DockerInfrastructureProvider.class);
 
@@ -36,6 +39,7 @@ public class DockerInfrastructureProvider implements InfrastructureProviderPort 
         return apply(DockerClientImpl.getInstance(config, httpClient));
     }
 
+    /*
     @Override
     public CompletionStage<Container> createContainer(String image) {
         var callback = CompletionStageResultCallback.<PullResponseItem>apply("docker pull hello-world", LOG);
@@ -64,15 +68,54 @@ public class DockerInfrastructureProvider implements InfrastructureProviderPort 
                 });
     }
 
+     */
+
+    @Override
+    public CompletionStage<Container> createContainer(ContainerConfig config) {
+        return null;
+    }
+
     @AllArgsConstructor(staticName = "apply")
     public static class DockerContainer implements Container {
 
         private final DockerClient client;
 
+        private final ContainerConfig config;
+
         private final String containerId;
 
         @Override
+        public ContainerConfig getConfig() {
+            return config;
+        }
+
+        @Override
+        public ContainerStatus getStatus() {
+            return ContainerStatus.CREATED;
+        }
+
+        @Override
+        public Map<Integer, Integer> getMappedPorts() {
+            return Maps.newHashMap();
+        }
+
+        @Override
+        public String getLogs() {
+            return "";
+        }
+
+        @Override
+        public CompletionStage<Done> start() {
+            return null;
+        }
+
+        @Override
         public CompletionStage<Done> stop() {
+            return null;
+        }
+
+        @Override
+        public CompletionStage<Done> remove() {
             return null;
         }
 

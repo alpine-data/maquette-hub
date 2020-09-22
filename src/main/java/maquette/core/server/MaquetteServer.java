@@ -2,12 +2,13 @@ package maquette.core.server;
 
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
+import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.plugin.json.JavalinJackson;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.core.api.Projects;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
 
@@ -19,19 +20,24 @@ public final class MaquetteServer {
     public static MaquetteServer apply(
             ApplicationConfiguration config,
             RuntimeConfiguration runtime,
-            Projects projects) {
+            ApplicationServices services) {
 
         JavalinJackson.configure(runtime.getObjectMapper());
 
         var adminResource = new AdminResource(config);
-        var projectsResource = new ProjectsResource(projects);
+        var commandResource = new CommandResource(runtime, services);
 
         runtime.getApp()
                 .before(handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
-                .get("/api/v1/projects", projectsResource.getProjects())
+
+                .get("/api/v1/command", commandResource.getCommand())
 
                 .get("/api/v1/about", adminResource.getAbout())
-                .get("/api/v1/admin/user", adminResource.getUserInfo());
+                .get("/api/v1/admin/user", adminResource.getUserInfo())
+
+                .exception(Exception.class, (e, ctx) -> {
+                    throw new InternalServerErrorResponse(e.getMessage());
+                });
 
         return apply(runtime.getApp());
     }

@@ -1,7 +1,10 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.ProjectMemento;
+import maquette.core.entities.project.model.ProjectSummary;
+import maquette.core.values.ActionMetadata;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,13 +12,21 @@ import java.util.concurrent.CompletionStage;
 
 public interface ProjectsRepository {
 
+    CompletionStage<Done> addGrantedAuthorization(String projectId, GrantedAuthorization authorization);
+
+    CompletionStage<List<GrantedAuthorization>> getGrantedAuthorizations(String projectId);
+
+    CompletionStage<Done> removeGrantedAuthorization(String projectId, Authorization authorization);
+
     /**
      * Search for a project by a given project id.
      *
      * @param id The project's unique id
      * @return An optional project-memento; None of no project with id has been found
      */
-    CompletionStage<Optional<ProjectMemento>> findProjectById(String id);
+    CompletionStage<Optional<ProjectSummary>> findProjectById(String id);
+
+    CompletionStage<Optional<ProjectSummary>> findProjectByName(String name);
 
     /**
      * Same as {@link ProjectsRepository#findProjectById(String)} except that it will throw
@@ -24,7 +35,7 @@ public interface ProjectsRepository {
      * @param id The project's unique id
      * @return The project's memento
      */
-    CompletionStage<ProjectMemento> getProjectById(String id);
+    CompletionStage<ProjectSummary> getProjectById(String id);
 
     /**
      * Inserts or updates a project in the repository (decision based on id).
@@ -32,13 +43,15 @@ public interface ProjectsRepository {
      * @param project The project to store
      * @return Done if db update was successful
      */
-    CompletionStage<Done> insertOrUpdateProject(ProjectMemento project);
+    CompletionStage<Done> insertOrUpdateProject(ProjectSummary project);
 
     /**
      * Retrieve a list of all available projects.
      *
      * @return A list of projects
      */
-    CompletionStage<List<ProjectMemento>> getProjects();
+    CompletionStage<List<ProjectSummary>> getProjects();
+
+    CompletionStage<Done> updateLastModified(String projectId, ActionMetadata modified);
 
 }

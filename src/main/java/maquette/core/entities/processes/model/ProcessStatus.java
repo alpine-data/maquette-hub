@@ -1,4 +1,4 @@
-package maquette.core.entities.processes;
+package maquette.core.entities.processes.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -7,6 +7,8 @@ import maquette.core.values.ActionMetadata;
 import java.time.Instant;
 
 public interface ProcessStatus {
+
+    ActionMetadata getCreated();
 
     @Value
     @AllArgsConstructor(staticName = "apply")

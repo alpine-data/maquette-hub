@@ -1,15 +1,17 @@
-package maquette.core.api;
+package maquette.core.services;
 
 import akka.Done;
+import maquette.core.entities.project.model.ProjectSummary;
 import maquette.core.values.user.User;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-public interface Projects {
+public interface ProjectServices {
 
     CompletionStage<Integer> create(User user, String name);
 
-    CompletionStage<Done> list(User user);
+    CompletionStage<List<ProjectSummary>> list(User user);
 
     CompletionStage<Done> remove(User user, String name);
 

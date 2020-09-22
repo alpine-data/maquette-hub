@@ -10,7 +10,7 @@ public class Application {
         var config = ApplicationConfiguration.apply();
         var infrastructure = DockerInfrastructureProvider.apply();
 
-        CoreApp.apply(config, infrastructure).run();
+        // CoreApp.apply(config, infrastructure).run();
     }
 
 }
