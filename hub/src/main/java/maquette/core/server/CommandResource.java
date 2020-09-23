@@ -1,6 +1,7 @@
 package maquette.core.server;
 
 import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
+import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
@@ -47,15 +48,16 @@ public final class CommandResource {
         return OpenApiBuilder.documented(docs, ctx -> {
             var command = ctx.bodyAsClass(Command.class);
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+
             var result = command.run(user, runtime, services).toCompletableFuture();
 
             var acceptRaw = ctx.header("Accept");
             var accept = acceptRaw != null ? acceptRaw : "application/json";
 
             if (accept.equals("text/plain")) {
-                ctx.result(result.thenApply(r -> r.toPlainText(runtime)));
+                ctx.result(result.thenApply(r -> r.toPlainText(runtime)).toCompletableFuture());
             } else {
-                ctx.json(result);
+                ctx.json(result.toCompletableFuture());
             }
         });
     }
