@@ -1,6 +1,7 @@
 package maquette.core;
 
 import akka.actor.ActorSystem;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
@@ -35,8 +36,9 @@ public class CoreApp {
     }
 
     public static CoreApp apply(
-            ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
-            InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository) {
+       ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
+       InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
+       ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -47,8 +49,6 @@ public class CoreApp {
                     config.showJavalinBanner = false;
                 })
                 .start(configuration.getServer().getHost(), configuration.getServer().getPort());
-
-        var om = ObjectMapperFactory.apply().create(true);
 
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
         var processManager = ProcessManager.apply();

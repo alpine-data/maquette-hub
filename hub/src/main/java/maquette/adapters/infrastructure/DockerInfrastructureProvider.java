@@ -2,6 +2,7 @@ package maquette.adapters.infrastructure;
 
 import akka.Done;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.PullResponseItem;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -16,6 +17,7 @@ import maquette.core.ports.InfrastructureProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
@@ -39,40 +41,34 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
         return apply(DockerClientImpl.getInstance(config, httpClient));
     }
 
-    /*
     @Override
-    public CompletionStage<Container> createContainer(String image) {
-        var callback = CompletionStageResultCallback.<PullResponseItem>apply("docker pull hello-world", LOG);
+    public CompletionStage<Container> createContainer(ContainerConfig config) {
+        var callback = CompletionStageResultCallback.<PullResponseItem>apply(
+           String.format("docker pull %s", config.getImage()), LOG);
+
         client.pullImageCmd("hello-world").exec(callback);
 
         return callback
-                .result()
-                .thenApply(done -> client
-                        .createContainerCmd("hello-world")
-                        .withName("my-container-123")
-                        .exec())
-                .thenApply(createContainerResponse -> {
-                    Arrays
-                            .stream(createContainerResponse.getWarnings())
-                            .map(s -> String.format("`docker create %s/%s` - %s", image, "latest", s))
-                            .forEach(LOG::warn);
+           .result()
+           .thenApply(done -> client
+              .createContainerCmd(config.getImage())
+              .withName(config.getName())
+              .exec())
+           .thenApply(createContainerResponse -> {
+               Arrays
+                  .stream(createContainerResponse.getWarnings())
+                  .map(s -> String.format("`docker create %s` - %s", config.getImage(), s))
+                  .forEach(LOG::warn);
 
-                    LOG.info("`docker create {}/{}` - Completed with id `{}`", image, "latest", createContainerResponse.getId());
+               LOG.info("`docker create {}` - Completed with id `{}`", config.getImage(), createContainerResponse.getId());
 
-                    return createContainerResponse.getId();
-                })
-                .thenApply(containerId -> {
-                    client.startContainerCmd(containerId).exec();
-                    LOG.info("`docker start {}` - Container started", containerId);
-                    return DockerContainer.apply(client, containerId);
-                });
-    }
-
-     */
-
-    @Override
-    public CompletionStage<Container> createContainer(ContainerConfig config) {
-        return null;
+               return createContainerResponse.getId();
+           })
+           .thenApply(containerId -> {
+               client.startContainerCmd(containerId).exec();
+               LOG.info("`docker start {}` - Container started", containerId);
+               return DockerContainer.apply(client, config, containerId);
+           });
     }
 
     @AllArgsConstructor(staticName = "apply")

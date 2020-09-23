@@ -1,7 +1,5 @@
 package maquette.core.server.commands;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -34,5 +32,10 @@ public class CreateProjectCommand implements Command {
                 .getProjectServices()
                 .create(user, name)
                 .thenApply(pid -> MessageResult.apply("Successfully created project"));
+    }
+
+    @Override
+    public Command example() {
+        return CreateProjectCommand.apply("my-funny-project");
     }
 }

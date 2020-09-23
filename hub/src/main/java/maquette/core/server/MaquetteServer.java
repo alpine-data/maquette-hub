@@ -30,12 +30,15 @@ public final class MaquetteServer {
         runtime.getApp()
                 .before(handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
 
-                .get("/api/v1/command", commandResource.getCommand())
+                .post("/api/commands", commandResource.getCommand())
+                .get("/api/commands", commandResource.getCommands())
+                .post("/api/commands/example", commandResource.getCommandExample())
 
                 .get("/api/v1/about", adminResource.getAbout())
                 .get("/api/v1/admin/user", adminResource.getUserInfo())
 
                 .exception(Exception.class, (e, ctx) -> {
+                    e.printStackTrace();
                     throw new InternalServerErrorResponse(e.getMessage());
                 });
 
