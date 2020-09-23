@@ -1,6 +1,6 @@
 package maquette;
 
-import maquette.adapters.infrastructure.DockerInfrastructureProvider;
+import maquette.adapters.infrastructure.InfrastructureProviders;
 import maquette.adapters.infrastructure.InfrastructureRepositories;
 import maquette.adapters.projects.ProjectsRepositories;
 import maquette.common.ObjectMapperFactory;
@@ -13,7 +13,7 @@ public class Application {
         var config = ApplicationConfiguration.apply();
         var om = ObjectMapperFactory.apply().create(true);
 
-        var infrastructureProvider = DockerInfrastructureProvider.apply();
+        var infrastructureProvider = InfrastructureProviders.create();
         var infrastructureRepository = InfrastructureRepositories.create(om);
         var projectsRepository = ProjectsRepositories.create(om);
 

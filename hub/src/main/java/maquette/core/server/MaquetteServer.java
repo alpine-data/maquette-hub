@@ -37,7 +37,10 @@ public final class MaquetteServer {
                 .get("/api/v1/about", adminResource.getAbout())
                 .get("/api/v1/admin/user", adminResource.getUserInfo())
 
+
+
                 .exception(Exception.class, (e, ctx) -> {
+                    System.out.println("huhuuuuu");
                     e.printStackTrace();
                     throw new InternalServerErrorResponse(e.getMessage());
                 });
