@@ -1,7 +1,9 @@
 import click
 
-from .__client import Client
-from .__user_config import UserConfiguration
+print(__name__)
+
+from maquette_cli.__client import Client
+from maquette_cli.__user_config import UserConfiguration
 
 client = Client.from_config(UserConfiguration('/home'))
 
