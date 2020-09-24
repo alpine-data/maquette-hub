@@ -113,4 +113,10 @@ public final class InMemoryProjectsRepository implements ProjectsRepository {
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
+    @Override
+    public CompletionStage<Done> removeProject(String projectId) {
+        projects.remove(projectId);
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
+
 }

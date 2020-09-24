@@ -11,6 +11,7 @@ import maquette.core.entities.infrastructure.model.DeploymentStatus;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,10 @@ public final class Deployment {
 
     public static Deployment apply(DeploymentConfig config, List<Container> containers, Instant created) {
         return new Deployment(config, List.copyOf(containers), Instant.now(), DeploymentStatus.STARTED);
+    }
+
+    public Optional<Container> getContainer(String name) {
+       return containers.stream().filter(c -> c.getConfig().getName().equals(name)).findFirst();
     }
 
     public CompletionStage<Done> stop() {

@@ -2,13 +2,12 @@ package maquette.core.server;
 
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
-import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.plugin.json.JavalinJackson;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.server.views.MessageResult;
+import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;

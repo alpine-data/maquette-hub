@@ -4,6 +4,7 @@ import akka.Done;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerStatus;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
@@ -13,7 +14,7 @@ public interface Container {
 
     ContainerStatus getStatus();
 
-    Map<Integer, Integer> getMappedPorts();
+    Map<Integer, URL> getMappedPortUrls();
 
     String getLogs();
 

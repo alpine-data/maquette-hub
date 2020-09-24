@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -32,7 +33,16 @@ public final class InfrastructureManager {
         HashMap<String, Deployment> deployments = Maps.newHashMap();
 
         InfrastructureManager mgr = new InfrastructureManager(infrastructureProvider, repository, deployments);
-        mgr.initialize().thenRun(() -> LOG.info("init complete"));
+        mgr
+           .initialize()
+           .thenApply(done -> {
+               LOG.info("Infrastructure initialization complete");
+               return Done.getInstance();
+           })
+           .exceptionally(ex -> {
+               LOG.warn("Exception during infrastructure initialization", ex);
+               return Done.getInstance();
+           });
 
         return mgr;
     }
@@ -55,7 +65,7 @@ public final class InfrastructureManager {
                 .allOf(config
                         .getContainers()
                         .stream()
-                        .map(infrastructureProvider::createContainer)
+                        .map(infrastructureProvider::runContainer)
                         .collect(Collectors.toList()))
                 .thenApply(containers -> Deployment.apply(config, containers, created));
     }
@@ -74,6 +84,14 @@ public final class InfrastructureManager {
                         deployments.put(deployment.getConfig().getName(), deployment);
                         return Done.getInstance();
                     });
+        }
+    }
+
+    public Optional<Deployment> getDeployment(String name) {
+        if (deployments.containsKey(name)) {
+            return Optional.of(deployments.get(name));
+        } else {
+            return Optional.empty();
         }
     }
 

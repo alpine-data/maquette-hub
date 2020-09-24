@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.common.ObjectMapperFactory;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
@@ -17,6 +16,7 @@ import maquette.core.ports.InfrastructureProvider;
 import maquette.core.ports.InfrastructureRepository;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.server.MaquetteServer;
+import maquette.core.server.OpenApiResource;
 import maquette.core.services.ApplicationServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +47,7 @@ public class CoreApp {
         var app = Javalin
                 .create(config -> {
                     config.showJavalinBanner = false;
+                    config.registerPlugin(OpenApiResource.apply(configuration));
                 })
                 .start(configuration.getServer().getHost(), configuration.getServer().getPort());
 

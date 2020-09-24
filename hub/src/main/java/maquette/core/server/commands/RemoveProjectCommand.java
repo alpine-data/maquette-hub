@@ -18,7 +18,7 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CreateProjectCommand implements Command {
+public class RemoveProjectCommand implements Command {
 
     String name;
 
@@ -30,12 +30,12 @@ public class CreateProjectCommand implements Command {
 
         return services
                 .getProjectServices()
-                .create(user, name)
-                .thenApply(pid -> MessageResult.apply("Successfully created project"));
+                .remove(user, name)
+                .thenApply(pid -> MessageResult.apply("Successfully removed project and all related resources."));
     }
 
     @Override
     public Command example() {
-        return CreateProjectCommand.apply("my-funny-project");
+        return RemoveProjectCommand.apply("my-funny-project");
     }
 }

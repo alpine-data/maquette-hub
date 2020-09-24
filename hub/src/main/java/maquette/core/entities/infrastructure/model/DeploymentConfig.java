@@ -2,6 +2,7 @@ package maquette.core.entities.infrastructure.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.apache.commons.compress.utils.Lists;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +15,8 @@ public class DeploymentConfig {
 
     List<ContainerConfig> containers;
 
-    public static DeploymentConfig apply(String name, ContainerConfig ...containers) {
-        return apply(name, Arrays.asList(containers));
+    public static DeploymentConfigBuilder builder(String name) {
+        return DeploymentConfigBuilder.apply(name);
     }
 
 }

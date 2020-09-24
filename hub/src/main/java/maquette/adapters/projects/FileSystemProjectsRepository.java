@@ -160,4 +160,11 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
+   @Override
+   public CompletionStage<Done> removeProject(String projectId) {
+      var file = getProjectFile(projectId);
+      Operators.ignoreExceptions(() -> Files.deleteIfExists(file));
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
 }

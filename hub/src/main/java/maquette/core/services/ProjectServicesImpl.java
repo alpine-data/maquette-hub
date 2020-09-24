@@ -1,6 +1,7 @@
 package maquette.core.services;
 
 import akka.Done;
+import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
@@ -10,48 +11,106 @@ import maquette.core.entities.project.model.ProjectSummary;
 import maquette.core.values.user.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ProjectServicesImpl implements ProjectServices {
 
-    ProcessManager processManager;
+   ProcessManager processManager;
 
-    maquette.core.entities.project.Projects projects;
+   maquette.core.entities.project.Projects projects;
 
-    InfrastructureManager infrastructure;
+   InfrastructureManager infrastructure;
 
-    @Override
-    public CompletionStage<Integer> create(User executor, String name) {
-        return projects
-                .createProject(executor, name)
-                .thenCompose(projectId -> {
-                    var processDescription = String.format("initialize project `%s`", name);
-                    return processManager.schedule(executor, processDescription, log -> {
-                        var deploymentName = String.format("%s__nginx", projectId);
-                        var deploymentConfig = DeploymentConfig.apply(deploymentName, ContainerConfig.apply(deploymentName, "nginxdemos/hello"));
+   private DeploymentConfig createProjectBaseDeployment(String projectId) {
+      var postgresContainerCfg = ContainerConfig
+         .builder(String.format("mq__%s__psql", projectId), "postgres:12.4")
+         .withEnvironmentVariable("POSTGRES_USER", "postgres")
+         .withEnvironmentVariable("POSTGRES_PASSWORD", "password")
+         .withEnvironmentVariable("PGDATA", "/data")
+         .withPort(5432)
+         .build();
 
-                        log.debug("Deploying %s ...", deploymentName);
+      var minioContainerCfg = ContainerConfig
+         .builder(String.format("mq__%s__minio", projectId), "minio/minio:latest")
+         .withEnvironmentVariable("MINIO_ACCESS_KEY", "maquette")
+         .withEnvironmentVariable("MINIO_SECRET_KEY", "password")
+         .withPort(9000)
+         .withCommand("server /data")
+         .build();
 
-                        return infrastructure
-                                .applyConfig(deploymentConfig)
-                                .thenApply(done -> {
-                                    log.debug("Finished deployment of %", deploymentName);
-                                    return done;
-                                });
-                    });
-                });
-    }
+      return DeploymentConfig
+         .builder(String.format("mq__%s", projectId))
+         .withContainerConfig(postgresContainerCfg)
+         .withContainerConfig(minioContainerCfg)
+         .build();
+   }
 
-    @Override
-    public CompletionStage<List<ProjectSummary>> list(User user) {
-        return projects.getProjects();
-    }
+   @Override
+   public CompletionStage<Integer> create(User executor, String name) {
+      return projects
+         .createProject(executor, name)
+         .thenCompose(projectId -> {
+            var processDescription = String.format("initialize project `%s`", name);
+            return processManager.schedule(executor, processDescription, log -> {
+               var deploymentConfig = createProjectBaseDeployment(projectId);
+               log.debug("Deploying %s ...", deploymentConfig.getName());
 
-    @Override
-    public CompletionStage<Done> remove(User user, String name) {
-        return CompletableFuture.completedFuture(Done.getInstance());
-    }
+               return infrastructure
+                  .applyConfig(deploymentConfig)
+                  .thenApply(done -> {
+                     log.debug("Finished deployment of %", deploymentConfig.getName());
+                     return done;
+                  });
+            });
+         });
+   }
+
+   @Override
+   public CompletionStage<Map<String, String>> environment(User user, String name) {
+      return projects
+         .findProjectByName(name)
+         .thenApply(maybeProject -> {
+            if (maybeProject.isEmpty()) {
+               throw new RuntimeException(String.format("No project found with name `%s`", name));
+            }
+
+            var project = maybeProject.get();
+            var result = Maps.<String, String>newHashMap();
+
+            result.put("MQ_PROJECT_ID", project.getId());
+
+            infrastructure
+               .getDeployment(String.format("mq__%s", project.getId()))
+               .flatMap(d -> d.getContainer(String.format("mq__%s__minio", project.getId())))
+               .ifPresent(c -> result.put("MINIO_URL", c.getMappedPortUrls().get(9000).toString()));
+
+            return result;
+         });
+   }
+
+   @Override
+   public CompletionStage<List<ProjectSummary>> list(User user) {
+      return projects.getProjects();
+   }
+
+   @Override
+   public CompletionStage<Done> remove(User user, String name) {
+      return projects
+         .findProjectByName(name)
+         .thenCompose(maybeProject -> {
+            if (maybeProject.isPresent()) {
+               var projectId = maybeProject.get().getId();
+
+               return projects
+                  .removeProject(projectId)
+                  .thenCompose(done -> infrastructure.removeDeployment(String.format("mq__%s", projectId)));
+            } else {
+               return CompletableFuture.completedFuture(Done.getInstance());
+            }
+         });
+   }
 
 }
