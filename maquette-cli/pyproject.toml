@@ -6,7 +6,7 @@ authors = ["Michael Wellner <michaelwellner@kpmg.com>"]
 license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
-python = "3.8+"
+python = "~3.8"
 click = "^7.1.2"
 requests = "^2.24.0"
 

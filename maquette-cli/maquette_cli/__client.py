@@ -1,6 +1,5 @@
 import requests
 
-from io import StringIO
 from typing import List
 
 from .__user_config import UserConfiguration

@@ -22,7 +22,7 @@ def deactivate():
     "Deactivate Maquette project environment"
     print('Deactivate project')
 
-@click.group()
+@main.group()
 def projects():
     """
     Commands for managing projects
@@ -30,23 +30,23 @@ def projects():
     pass
 
 
-@click.command("create")
-@click.argument('name')
+@projects.command("create")
+@click.argument('name', help='the name of the project to be created')
 def projects_init(name):
     response = client.command(cmd='projects create', args={'name': name})
     print(response)
 
-@click.command("ls")
+@projects.command("ls")
 def projects_list():
     response = client.command(cmd='projects create')
     print(response)
 
-projects.add_command(projects_init)
-projects.add_command(projects_list)
-
-main.add_command(activate)
-main.add_command(deactivate)
-main.add_command(projects)
+# projects.add_command(projects_init)
+# projects.add_command(projects_list)
+#
+# main.add_command(activate)
+# main.add_command(deactivate)
+# main.add_command(projects)
 
 if __name__ == '__main__':
     main()
