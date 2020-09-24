@@ -79,3 +79,5 @@ gradle-app.setting
 ### IntelliJ ###
 .idea
 
+### InMemoryFiles ###
+/data/

@@ -1,6 +1,5 @@
 import click
-
-print(__name__)
+import pandas as pd
 
 from maquette_cli.__client import Client
 from maquette_cli.__user_config import UserConfiguration
@@ -33,22 +32,26 @@ def projects():
 
 
 @projects.command("create")
-@click.argument('name', help='the name of the project to be created')
+@click.argument('name')
 def projects_init(name):
-    response = client.command(cmd='projects create', args={'name': name})
-    print(response)
+    status, response = client.command(cmd='projects create', args={'name': name})
+    if status == 200:
+        print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)')
+    else:
+        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                           'status code: ' + str(status) + ', content:\n' + response)
+
 
 @projects.command("ls")
 def projects_list():
-    response = client.command(cmd='projects create')
-    print(response)
+    status, response = client.command(cmd='projects list')
+    if status == 200:
+        table_df = pd.json_normalize(response)
+        print(table_df)
+    else:
+        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                           'status code: ' + str(status) + ', content:\n' + response)
 
-# projects.add_command(projects_init)
-# projects.add_command(projects_list)
-#
-# main.add_command(activate)
-# main.add_command(deactivate)
-# main.add_command(projects)
 
 if __name__ == '__main__':
     main()
