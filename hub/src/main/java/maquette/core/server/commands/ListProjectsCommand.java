@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.views.TableResult;
+import maquette.core.server.results.TableResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 import tech.tablesaw.api.StringColumn;

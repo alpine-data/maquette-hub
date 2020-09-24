@@ -1,4 +1,4 @@
-package maquette.core.server.views;
+package maquette.core.server.results;
 
 public final class ErrorMessage {
 

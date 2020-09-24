@@ -56,4 +56,8 @@ public final class Projects {
         return repository.getProjects();
     }
 
+    public CompletionStage<Done> removeProject(String projectId) {
+        return repository.removeProject(projectId);
+    }
+
 }

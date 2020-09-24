@@ -1,4 +1,4 @@
-package maquette.adapters.infrastructure;
+package maquette.common;
 
 import akka.Done;
 import com.github.dockerjava.api.async.ResultCallback;

@@ -54,4 +54,6 @@ public interface ProjectsRepository {
 
     CompletionStage<Done> updateLastModified(String projectId, ActionMetadata modified);
 
+    CompletionStage<Done> removeProject(String projectId);
+
 }

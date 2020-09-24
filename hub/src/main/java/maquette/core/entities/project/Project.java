@@ -66,6 +66,10 @@ public final class Project {
                                 .apply(id, summary.getName(), summary.getCreated(), summary.getModified(), authorizations));
     }
 
+    public String getId() {
+       return id;
+    }
+
     public CompletionStage<ProjectSummary> getSummary() {
         return repository
                 .findProjectById(id)

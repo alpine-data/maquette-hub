@@ -7,6 +7,6 @@ import java.util.concurrent.CompletionStage;
 
 public interface InfrastructureProvider {
 
-    CompletionStage<Container> createContainer(ContainerConfig config);
+    CompletionStage<Container> runContainer(ContainerConfig config);
 
 }
