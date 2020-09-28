@@ -57,18 +57,18 @@ def projects_list():
 def projects_environment(name):
     status, response = client.command(cmd='projects environment', args={'name': name})
     if status == 200:
-        print("Something with environments")
-        print(response)
+        table_df = pd.json_normalize(response)
+        print(table_df)
     else:
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
 
 @projects.command("rm")
+@click.argument('name')
 def projects_remove(name):
     status, response = client.command(cmd='projects remove', args={'name': name})
     if status == 200:
-        print("You successfully killed the project " + name + " and removed all evidences ̿' ̿'\̵͇̿̿\з=(◕_◕)=ε/̵͇̿̿/'̿'̿ ̿")
-        print(response)
+        print("You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
     else:
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
