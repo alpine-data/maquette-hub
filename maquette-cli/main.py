@@ -52,6 +52,27 @@ def projects_list():
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
 
+@projects.command("env")
+@click.argument('name')
+def projects_environment(name):
+    status, response = client.command(cmd='projects environment', args={'name': name})
+    if status == 200:
+        print("Something with environments")
+        print(response)
+    else:
+        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                           'status code: ' + str(status) + ', content:\n' + response)
+
+@projects.command("rm")
+def projects_remove(name):
+    status, response = client.command(cmd='projects remove', args={'name': name})
+    if status == 200:
+        print("You successfully killed the project " + name + " and removed all evidences ̿' ̿'\̵͇̿̿\з=(◕_◕)=ε/̵͇̿̿/'̿'̿ ̿")
+        print(response)
+    else:
+        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                           'status code: ' + str(status) + ', content:\n' + response)
+
 
 if __name__ == '__main__':
     main()
