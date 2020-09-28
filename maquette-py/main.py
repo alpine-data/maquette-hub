@@ -1,10 +1,9 @@
 import click
 import pandas as pd
-import pipes
 import os
 
-from maquette_cli.__client import Client
-from maquette_cli.__user_config import UserConfiguration
+from maquette_lib.__client import Client
+from maquette_lib.__user_config import UserConfiguration
 from maquette_cli.__environment import MqEnvironment
 
 client = Client.from_config(UserConfiguration('/home'))

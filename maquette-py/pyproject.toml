@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "maquette-cli"
+name = "maquette-py"
 version = "0.1.0"
 description = "A command line interface for Maquette Data Science and Machine Learning Platform."
 authors = ["Michael Wellner <michaelwellner@kpmg.com>"]
