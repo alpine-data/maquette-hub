@@ -14,7 +14,6 @@ def main():
     """
     Maquette CLI main routine.
     """
-    env.init_process_envs()
     pass
 
 
@@ -28,15 +27,12 @@ def projects():
 
 @projects.command("create")
 @click.argument('name')
-@click.option('--deactivated', default=False, required=False, is_flag=True)
-@click.pass_context
-def projects_init(ctx, name, deactivated):
+def projects_init(ctx, name):
     status, response = client.command(cmd='projects create', args={'name': name})
     if status == 200:
-        print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)')
-        if not deactivated:
-            print("DEBUG")
-            ctx.invoke(activate, name=name)
+        print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
+               '\n'                                                 
+              'To activate th project type: python main.py activate ' + name)
     else:
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
@@ -60,19 +56,25 @@ def activate(name):
         env_variables = response['data']
         for (env_key, env_value) in env_variables.items():
             env.add_process_env(env_key, env_value)
-        env.init_process_envs()
-        print('Activated project ' + name + '  c[○┬●]כ ')
-        #ENV SAFETY CHECK, can be removed
-        for env_key in env_variables:
-            print(env_key, ": ", os.environ[env_key])
+        if os.name == 'posix':
+            print('You are on a Unix based  system  c[○┬●]כ \n'
+                  'Please copy and run the command: eval $(python unix_env.py)')
+        else:
+            for (env_key, env_value) in env._config.items():
+                os.system("SETX {0} {1}".format(env_key, env_value))
+            print('Congrats you are on a Windows machine \n'
+                  'I activated your project \t\t~~\n'
+                  'Now relax and enjoy a hot cup of coffee \t C|__|')
+
     else:
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
 
 @projects.command("deactivate")
 def deactivate():
+    ### Currently only removes the environment variables from the config, no default env needed or available
     env.remove_process_env()
-    print('Deactivated current project')
+    print('Removed Environment from Config')
 
 @projects.command("rm")
 @click.argument('name')
