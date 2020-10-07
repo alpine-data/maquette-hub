@@ -79,5 +79,8 @@ gradle-app.setting
 ### IntelliJ ###
 .idea
 
-### InMemoryFiles ###
+### Application Runtime Files ###
 /data/
+
+### Python ###
+env
