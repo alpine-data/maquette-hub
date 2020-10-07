@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "maquette-cli"
+name = "maquette-py"
 version = "0.1.0"
 description = "A command line interface for Maquette Data Science and Machine Learning Platform."
 authors = ["Michael Wellner <michaelwellner@kpmg.com>"]
@@ -9,6 +9,8 @@ license = "Apache License 2.0"
 python = "~3.8"
 click = "^7.1.2"
 requests = "^2.24.0"
+pandas = "^1.1.0"
+pandavro = "^1.5.2"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.0"

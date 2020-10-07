@@ -1,11 +1,11 @@
 import requests
 
-from typing import List
+from typing import List, Tuple
 
 from .__user_config import UserConfiguration
 
-class Client:
 
+class Client:
     __base_url: str = None
     __headers: dict
 
@@ -20,21 +20,16 @@ class Client:
     def from_config(config: UserConfiguration) -> 'Client':
         return Client(config.url(), config.user(), [])
 
-    def command(self, cmd: str, args: dict = None) -> dict:
+    def command(self, cmd: str, args: dict = None) -> Tuple[int,dict]:
         request_body = { 'command': cmd }
-
         if args is not None:
             request_body.update(args)
-
-        response = requests.post(self.__base_url + '/command', json = request_body, headers = self.__headers)
-
+        response = requests.post(self.__base_url + 'commands', json = request_body, headers = self.__headers)
         if response.status_code < 200 or response.status_code > 299:
 
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
-        elif response.json()['error'] is not None:
-            raise RuntimeError(response.json()['error'])
         else:
             result = response.json()
-            return result
+            return response.status_code, result
 
