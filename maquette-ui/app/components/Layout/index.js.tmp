@@ -1,0 +1,43 @@
+import Logo from './muster.png';
+import { Link } from 'react-router-dom';
+import { Container, Dropdown, Image, Menu } from 'semantic-ui-react'
+
+import React from 'react';
+// import PropTypes from 'prop-types';
+// import styled from 'styled-components';
+
+function MainMenu(props) {
+  return <>
+    <Menu fixed='top'>
+      <Container fluid>
+        <Menu.Item as={Link} to="/">
+          <Image size='mini' src={Logo} style={{ marginRight: '1.5em' }} />
+          <strong>Maquette <small><em>Data &amp; Machine Learning Platform</em></small></strong>
+        </Menu.Item>
+
+        <Menu.Item as={Link} to="/dashboard">Dashboard</Menu.Item>
+        <Menu.Item as={Link} to="/datashop">Data Shop</Menu.Item>
+        <Menu.Item as={Link} to="/projects">Projects</Menu.Item>
+
+        <Menu.Menu position="right">
+          <Dropdown text='Michael Wellner' className='link item'>
+                  <Dropdown.Menu>
+                    <Dropdown.Item>My Profile</Dropdown.Item>
+                    <Dropdown.Item>My Settings</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item>Logout</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+        </Menu.Menu>
+      </Container>
+    </Menu>
+
+    <div style={{ marginTop: '7em' }}>
+      { props.children }
+    </div>
+  </>;
+}
+
+MainMenu.propTypes = {};
+
+export default MainMenu;

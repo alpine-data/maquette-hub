@@ -31,15 +31,47 @@ module.exports = options => ({
         // Preprocess our own .css files
         // This is the place to add your own loaders (e.g. sass/less etc.)
         // for a list of loaders, see https://webpack.js.org/loaders/#styling
-        test: /\.css$/,
+        test: /\.(less|css)$/,
         exclude: /node_modules/,
-        use: ['style-loader', 'css-loader'],
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+            },
+          },
+          {
+            loader: "less-loader",
+            options: {
+              lessOptions: {
+                javascriptEnabled: true
+              }
+            }
+          }
+        ],
       },
       {
-        // Preprocess 3rd party .css files located in node_modules
-        test: /\.css$/,
+        // Preprocess 3rd party .css + .less files located in node_modules
+        test: /\.(less|css)$/,
         include: /node_modules/,
-        use: ['style-loader', 'css-loader'],
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+            },
+          },
+          {
+            loader: "less-loader",
+            options: {
+              lessOptions: {
+                javascriptEnabled: true
+              }
+            }
+          }
+        ],
       },
       {
         test: /\.(eot|otf|ttf|woff|woff2)$/,

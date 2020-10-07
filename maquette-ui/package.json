@@ -89,7 +89,10 @@
     "redux": "4.0.1",
     "redux-saga": "1.0.2",
     "reselect": "4.0.0",
+    "rsuite": "^4.8.2",
     "sanitize.css": "8.0.0",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^1.3.0",
     "styled-components": "4.2.0"
   },
   "devDependencies": {
@@ -136,6 +139,8 @@
     "jest-cli": "24.7.1",
     "jest-dom": "3.1.3",
     "jest-styled-components": "6.3.1",
+    "less": "^3.12.2",
+    "less-loader": "^7.0.1",
     "lint-staged": "8.1.5",
     "ngrok": "3.1.1",
     "node-plop": "0.18.0",

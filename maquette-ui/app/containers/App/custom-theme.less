@@ -1,0 +1,112 @@
+@import '~rsuite/lib/styles/themes/default/index.less';
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap');
+
+
+@text-color: @B900;
+@primary-color: #00338D;
+@primary-medium-color: #005EB8;
+
+
+@base-color: @primary-medium-color;
+@font-family-base: 'Open Sans', sans-serif;
+
+// General
+body {
+    font-family: @font-family-base;
+    background-color: @H050;
+}
+
+// Subtle Button color set;
+@btn-subtle-color: @H200;
+@btn-subtle-hover-bg: @H800;
+@btn-subtle-default-hover-color: @B050;
+@btn-subtle-active-default-bg: @H100;
+@btn-subtle-active-default-color: @B000;
+
+//== Dropdown
+@dropdown-bg: @primary-color;
+@dropdown-link-color: @B000;
+@dropdown-link-hover-color: @B000;
+@dropdown-link-hover-bg: @btn-subtle-hover-bg;
+
+//** Active dropdown menu item text color.
+@dropdown-link-active-color: @H500;
+//** Active dropdown menu item background color.
+@dropdown-link-active-bg: fade(@H900, 20);
+@dropdown-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2), 0 4px 4px 3px rgba(0, 0, 0, 0.24);
+@dropdown-divider-bg: @divider-border-color;
+
+//== Nav
+@nav-item-font-default-color: @B700;
+@nav-item-default-hover-bg: @btn-subtle-hover-bg;
+@nav-item-click-bg: @btn-subtle-active-default-bg;
+@nav-tab-waterline-color: @B600;
+@nav-subtle-hover-bg: @B700;
+@nav-subtle-waterline-default-color: @nav-tab-waterline-color;
+
+//== Navbar
+@nav-bar-default-bg: @primary-color;
+@nav-bar-default-font-color: @B000;
+@nav-bar-default-active-color: @H500;
+@nav-bar-subtle-bg: transparent;
+@nav-bar-subtle-font-color: @nav-bar-default-font-color;
+@nav-bar-subtle-font-active-color: @nav-bar-default-active-color;
+@nav-bar-subtle-hover-bg: #ff0000; // @H500;
+@nav-bar-subtle-hover-font-color: @B050;
+@nav-bar-inverse-bg: @H700;
+@nav-bar-inverse-active-bg: @H400;
+
+.rs-navbar .rs-divider {
+    background-color: @nav-bar-default-font-color;
+}
+
+//== Badged Button
+.mq-badged-button .mq-label {
+    color: @primary-color;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+//== Summary 
+.rs-panel-footer {
+    padding: 20px;
+    padding-top: 0px;
+    font-size: 0.9em;
+    color: @B800;
+}
+
+.mq-summary {
+    display: block;
+    max-width: 800px;
+}
+
+.mq-summary--type {
+    color: @B800;
+    font-size: .8em;
+    padding-bottom: 0.5em;
+}
+
+a.mq-summary {
+    color: @B900;
+    text-decoration: none;
+}
+
+a.mq-summary:hover {
+    background-color: @B050;
+    text-decoration: none;
+}
+
+//== Content Header
+.mq-content-header--subtitle {
+    color: @B800;
+    font-size: .8em;
+    padding-bottom: 0.3em;
+}
+
+.mq-content-header > h3 {
+    padding-bottom: .3em;
+}
+
+.mq-content-header {
+    padding-bottom: .5em;
+}
