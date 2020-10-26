@@ -9,9 +9,11 @@ import lombok.Value;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
-import maquette.core.entities.project.Projects;
+import maquette.core.entities.projects.Projects;
+import maquette.core.ports.DatasetsRepository;
 import maquette.core.ports.InfrastructureProvider;
 import maquette.core.ports.InfrastructureRepository;
 import maquette.core.ports.ProjectsRepository;
@@ -38,7 +40,7 @@ public class CoreApp {
     public static CoreApp apply(
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
-       ObjectMapper om) {
+       DatasetsRepository datasetsRepository, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -54,7 +56,8 @@ public class CoreApp {
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
         var processManager = ProcessManager.apply();
         var projects = Projects.apply(projectsRepository);
-        var runtime = RuntimeConfiguration.apply(app, system, om, infrastructureManager, processManager, projects);
+        var datasets = Datasets.apply(datasetsRepository);
+        var runtime = RuntimeConfiguration.apply(app, system, om, datasets, infrastructureManager, processManager, projects);
         var services = ApplicationServices.apply(runtime);
 
         var server = MaquetteServer.apply(configuration, runtime, services);

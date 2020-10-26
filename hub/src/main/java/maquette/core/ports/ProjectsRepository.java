@@ -1,7 +1,7 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.project.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectSummary;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;

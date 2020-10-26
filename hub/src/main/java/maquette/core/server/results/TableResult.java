@@ -17,9 +17,15 @@ import java.io.StringWriter;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @JsonSerialize(using = TableResult.Serializer.class)
-public class TableResult implements CommandResult {
+public class TableResult<T> implements CommandResult {
 
     Table table;
+
+    T data;
+
+    public static TableResult<Object> apply(Table table) {
+        return apply(table, null);
+    }
 
     @Override
     public String toPlainText(RuntimeConfiguration runtime) {

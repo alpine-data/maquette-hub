@@ -1,9 +1,9 @@
-package maquette.core.entities.project;
+package maquette.core.entities.projects;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.project.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectSummary;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.user.User;
@@ -11,7 +11,6 @@ import maquette.core.values.user.User;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")

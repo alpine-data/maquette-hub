@@ -1,5 +1,6 @@
 package maquette;
 
+import maquette.adapters.datasets.DatasetsRepositories;
 import maquette.adapters.infrastructure.InfrastructureProviders;
 import maquette.adapters.infrastructure.InfrastructureRepositories;
 import maquette.adapters.projects.ProjectsRepositories;
@@ -16,8 +17,9 @@ public class Application {
         var infrastructureProvider = InfrastructureProviders.create();
         var infrastructureRepository = InfrastructureRepositories.create(om);
         var projectsRepository = ProjectsRepositories.create(om);
+        var datasetsRepository = DatasetsRepositories.create(om);
 
-        CoreApp.apply(config, infrastructureProvider, infrastructureRepository, projectsRepository, om);
+        CoreApp.apply(config, infrastructureProvider, infrastructureRepository, projectsRepository, datasetsRepository, om);
     }
 
 }

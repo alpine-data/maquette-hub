@@ -1,10 +1,10 @@
-package maquette.core.entities.project;
+package maquette.core.entities.projects;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.project.model.ProjectDetails;
-import maquette.core.entities.project.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectDetails;
+import maquette.core.entities.projects.model.ProjectSummary;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
@@ -25,7 +25,7 @@ public final class Project {
 
     public CompletionStage<GrantedAuthorization> grant(User executor, Authorization authorization) {
         return repository
-                .getGrantedAuthorizations("id")
+                .getGrantedAuthorizations(id)
                 .thenCompose(authorizations -> {
                     var existing = authorizations
                             .stream()
@@ -35,7 +35,7 @@ public final class Project {
                     if (existing.isPresent()) {
                         return CompletableFuture.completedFuture(existing.get());
                     } else {
-                        var modified = ActionMetadata.apply(executor.getDisplayName(), Instant.now());
+                        var modified = ActionMetadata.apply(executor, Instant.now());
                         var granted = GrantedAuthorization.apply(
                                 modified,
                                 authorization);
@@ -52,7 +52,7 @@ public final class Project {
         return repository
                 .removeGrantedAuthorization(id, authorization)
                 .thenCompose(done -> {
-                    var modified = ActionMetadata.apply(executor.getDisplayName(), Instant.now());
+                    var modified = ActionMetadata.apply(executor, Instant.now());
                     return repository.updateLastModified(id, modified);
                 });
     }

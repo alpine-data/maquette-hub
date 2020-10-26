@@ -20,19 +20,19 @@ public final class ListProjectsCommand implements Command {
         return services
                 .getProjectServices()
                 .list(user)
-                .thenApply(summary -> {
+                .thenApply(projects -> {
                     var table = Table
                             .create()
                             .addColumns(StringColumn.create("id"))
                             .addColumns(StringColumn.create("name"));
 
-                    summary.forEach(s -> {
+                    projects.forEach(p -> {
                         var row = table.appendRow();
-                        row.setString("id", s.getId());
-                        row.setString("name", s.getName());
+                        row.setString("id", p.getId());
+                        row.setString("name", p.getName());
                     });
 
-                    return TableResult.apply(table.sortOn("name"));
+                   return TableResult.apply(table.sortOn("name"), projects);
                 });
     }
 

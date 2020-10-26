@@ -7,7 +7,7 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
-import maquette.core.entities.project.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectSummary;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    ProcessManager processManager;
 
-   maquette.core.entities.project.Projects projects;
+   maquette.core.entities.projects.Projects projects;
 
    InfrastructureManager infrastructure;
 

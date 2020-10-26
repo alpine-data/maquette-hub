@@ -15,6 +15,8 @@ import DataShop from 'containers/DataShop/Loadable';
 import DatasetDetails from 'containers/DatasetDetails/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 
+import TestContainer from 'containers/TestComponent/Loadable'; 
+
 import GlobalStyle from '../../global-styles';
 
 import './custom-theme.less';
@@ -23,7 +25,7 @@ export default function App() {
   return (
     <div>
       <Switch>
-        <Route exact path="/" component={HomePage} />
+        <Route exact path="/" component={TestContainer} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/datashop" component={DataShop} />
         <Route path="/dataset" component={DatasetDetails} />

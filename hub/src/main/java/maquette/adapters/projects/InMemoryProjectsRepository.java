@@ -3,7 +3,7 @@ package maquette.adapters.projects;
 import akka.Done;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.project.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectSummary;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
