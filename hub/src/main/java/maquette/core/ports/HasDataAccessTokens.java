@@ -13,7 +13,7 @@ public interface HasDataAccessTokens {
 
    CompletionStage<Optional<DataAccessToken>> findDataAccessTokenByKey(String parentId, String key);
 
-   CompletionStage<List<DataAccessToken>> findAllDataAccessTokens(String parentId);
+   CompletionStage<List<DataAccessToken>> findDataAccessTokensByParent(String parentId);
 
    CompletionStage<Done> removeDataAccessToken(String parentId, String key);
 

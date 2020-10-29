@@ -25,7 +25,7 @@ public final class Projects {
                         throw new RuntimeException("Project already exists!");
                     } else {
                         var id = Operators.hash();
-                        var created = ActionMetadata.apply(executor.getDisplayName(), Instant.now());
+                        var created = ActionMetadata.apply(executor, Instant.now());
                         var summary = ProjectSummary.apply(id, name, created, created);
 
                         return repository

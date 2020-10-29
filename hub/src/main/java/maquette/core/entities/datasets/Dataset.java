@@ -30,6 +30,10 @@ public final class Dataset {
 
    private final DatasetsRepository repository;
 
+   private String getFullId() {
+      return String.format("%s/%s", projectId, id);
+   }
+
    public CompletionStage<DataAccessToken> createDataAccessToken(User executor, String name, String description) {
       var created = ActionMetadata.apply(executor);
       var key = UUID.randomUUID().toString();
@@ -37,7 +41,7 @@ public final class Dataset {
       var token = DataAccessToken.apply(created, name, description, key, secret);
 
       return repository
-         .insertDataAccessToken(id, token)
+         .insertDataAccessToken(getFullId(), token)
          .thenApply(done -> token);
    }
 
@@ -46,7 +50,7 @@ public final class Dataset {
       var request = DataAccessRequest.apply(created, forAuthorization, reason);
 
       return repository
-         .insertOrUpdateDataAccessRequest(id, request)
+         .insertOrUpdateDataAccessRequest(getFullId(), request)
          .thenApply(done -> request);
    }
 
@@ -54,7 +58,7 @@ public final class Dataset {
       var expired = Expired.apply(Instant.now());
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(expired);
-         return repository.insertOrUpdateDataAccessRequest(id, accessRequest);
+         return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
    }
 
@@ -64,7 +68,7 @@ public final class Dataset {
 
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(granted);
-         return repository.insertOrUpdateDataAccessRequest(id, accessRequest);
+         return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
    }
 
@@ -74,7 +78,7 @@ public final class Dataset {
 
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(rejected);
-         return repository.insertOrUpdateDataAccessRequest(id, accessRequest);
+         return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
    }
 
@@ -84,7 +88,7 @@ public final class Dataset {
 
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(requested);
-         return repository.insertOrUpdateDataAccessRequest(id, accessRequest);
+         return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
    }
 
@@ -94,35 +98,35 @@ public final class Dataset {
 
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(withdrawn);
-         return repository.insertOrUpdateDataAccessRequest(id, accessRequest);
+         return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
    }
 
    public CompletionStage<List<DataAccessToken>> getDataAccessTokens() {
-      return repository.findAllDataAccessTokens(id);
+      return repository.findDataAccessTokensByParent(getFullId());
    }
 
    public CompletionStage<Optional<DataAccessToken>> getDataAccessTokenById(String accessTokenKey) {
-      return repository.findDataAccessTokenByKey(id, accessTokenKey);
+      return repository.findDataAccessTokenByKey(getFullId(), accessTokenKey);
    }
 
    public CompletionStage<List<DataAccessRequest>> getDataAccessRequests() {
-      return repository.findDataAccessRequestsByParent(id);
+      return repository.findDataAccessRequestsByParent(getFullId());
    }
 
    public CompletionStage<Optional<DataAccessRequest>> getDataAccessRequestById(String accessRequestId) {
-      return repository.findDataAccessRequestById(id, accessRequestId);
+      return repository.findDataAccessRequestById(getFullId(), accessRequestId);
    }
 
    private <T> CompletionStage<T> withDataAccessRequest(String accessRequestId, Function<DataAccessRequest, CompletionStage<T>> func) {
       return repository
-         .findDataAccessRequestById(id, accessRequestId)
+         .findDataAccessRequestById(getFullId(), accessRequestId)
          .thenCompose(maybeAccessRequest -> {
             if (maybeAccessRequest.isPresent()) {
                var accessRequest = maybeAccessRequest.get();
                return func.apply(accessRequest);
             } else {
-               throw AccessRequestNotFoundException.apply(id, name, accessRequestId);
+               throw AccessRequestNotFoundException.apply(getFullId(), name, accessRequestId);
             }
          });
    }
