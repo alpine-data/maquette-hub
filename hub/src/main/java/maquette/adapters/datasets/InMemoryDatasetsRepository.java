@@ -7,6 +7,7 @@ import maquette.core.entities.datasets.model.DatasetDetails;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
+import maquette.core.values.authorization.UserAuthorization;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
@@ -169,6 +170,21 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
          .forEach(tokens::remove);
 
       return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<List<UserAuthorization>> findAllOwners(String parentId) {
+      return null;
+   }
+
+   @Override
+   public CompletionStage<Done> insertOwner(String parentId, UserAuthorization owner) {
+      return null;
+   }
+
+   @Override
+   public CompletionStage<Done> removeOwner(String parentId, String userId) {
+      return null;
    }
 
    @Value

@@ -8,6 +8,7 @@ import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.access.*;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 
 import javax.annotation.Nullable;
@@ -15,6 +16,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -32,6 +34,18 @@ public final class Dataset {
 
    private String getFullId() {
       return String.format("%s/%s", projectId, id);
+   }
+
+   public CompletionStage<Done> addOwner(User executor, UserAuthorization owner) {
+      return repository
+         .findAllOwners(getFullId())
+         .thenCompose(existing -> {
+            if (existing.contains(owner)) {
+               return CompletableFuture.completedFuture(Done.getInstance());
+            } else {
+               return repository.insertOwner(getFullId(), owner);
+            }
+         });
    }
 
    public CompletionStage<DataAccessToken> createDataAccessToken(User executor, String name, String description) {
@@ -80,6 +94,21 @@ public final class Dataset {
          accessRequest.addEvent(rejected);
          return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
+   }
+
+   public CompletionStage<Done> removeOwner(User executor, UserAuthorization owner) {
+      return repository
+         .findAllOwners(getFullId())
+         .thenCompose(owners -> {
+            if (owners.contains(owner) && owners.size() == 1) {
+               // TODO
+               throw new RuntimeException("Cannot remove last remaining owner from Project.");
+            } else if (owners.contains(owner)) {
+               return repository.removeOwner(getFullId(), owner.getUserId());
+            } else {
+               return CompletableFuture.completedFuture(Done.getInstance());
+            }
+         });
    }
 
    public CompletionStage<Done> updateDataAccessRequest(User executor, String accessRequestId, String reason) {

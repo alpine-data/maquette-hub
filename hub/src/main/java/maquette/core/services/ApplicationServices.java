@@ -14,12 +14,15 @@ public final class ApplicationServices {
 
     DatasetServices datasetServices;
 
+    UserServices userServices;
+
     public static ApplicationServices apply(RuntimeConfiguration runtime) {
         var projectServices = ProjectServicesImpl.apply(runtime.getProcessManager(), runtime.getProjects(), runtime.getInfrastructureManager());
         var processServices = ProcessServicesImpl.apply(runtime.getProcessManager());
-        var datasetServices = DatasetServicesImpl.apply(runtime.getDatasets(), runtime.getProjects());
+        var userServices = UserServicesImpl.apply(runtime.getUsers());
+        var datasetServices = DatasetServicesImpl.apply(runtime.getDatasets(), runtime.getProjects(), runtime.getUsers());
 
-        return apply(processServices, projectServices, datasetServices);
+        return apply(processServices, projectServices, datasetServices, userServices);
     }
 
 }

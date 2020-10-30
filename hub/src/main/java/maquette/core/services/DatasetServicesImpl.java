@@ -7,6 +7,7 @@ import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.datasets.model.DatasetDetails;
 import maquette.core.entities.projects.Project;
 import maquette.core.entities.projects.Projects;
+import maquette.core.entities.users.Users;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.access.DataAccessTokenNarrowed;
@@ -30,6 +31,8 @@ public class DatasetServicesImpl implements DatasetServices {
    private final Datasets datasets;
 
    private final Projects projects;
+
+   private final Users users;
 
    @Override
    public CompletionStage<DatasetDetails> createDataset(User executor, String projectName, String name, String summary, String description) {

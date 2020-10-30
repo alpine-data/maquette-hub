@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-public interface DatasetsRepository extends HasDataAccessRequests, HasDataAccessTokens {
+public interface DatasetsRepository extends HasDataAccessRequests, HasDataAccessTokens, HasDataOwner {
 
    CompletionStage<List<DatasetDetails>> findAllDatasets();
 

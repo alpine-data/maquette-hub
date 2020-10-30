@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
@@ -13,25 +13,25 @@ import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Projects;
-import maquette.core.ports.DatasetsRepository;
-import maquette.core.ports.InfrastructureProvider;
-import maquette.core.ports.InfrastructureRepository;
-import maquette.core.ports.ProjectsRepository;
+import maquette.core.entities.users.Users;
+import maquette.core.ports.*;
 import maquette.core.server.MaquetteServer;
 import maquette.core.server.OpenApiResource;
 import maquette.core.services.ApplicationServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Value
+@Getter
 @AllArgsConstructor(staticName = "apply")
 public class CoreApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoreApp.class);
 
-    RuntimeConfiguration runtime;
+    private final RuntimeConfiguration runtime;
 
-    MaquetteServer server;
+    private final ApplicationServices services;
+
+    private final MaquetteServer server;
 
     public void stop() {
         server.stop();
@@ -40,7 +40,7 @@ public class CoreApp {
     public static CoreApp apply(
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
-       DatasetsRepository datasetsRepository, ObjectMapper om) {
+       DatasetsRepository datasetsRepository, UsersRepository usersRepository, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -57,7 +57,9 @@ public class CoreApp {
         var processManager = ProcessManager.apply();
         var projects = Projects.apply(projectsRepository);
         var datasets = Datasets.apply(datasetsRepository);
-        var runtime = RuntimeConfiguration.apply(app, system, om, datasets, infrastructureManager, processManager, projects);
+        var users = Users.apply(usersRepository);
+
+        var runtime = RuntimeConfiguration.apply(app, system, om, datasets, infrastructureManager, processManager, projects, users);
         var services = ApplicationServices.apply(runtime);
 
         var server = MaquetteServer.apply(configuration, runtime, services);
@@ -68,7 +70,7 @@ public class CoreApp {
         var banner = Templates.renderTemplateFromResources("banner.twig", map);
         LOG.info("Started Maquette Hub Server {}", banner);
 
-        return CoreApp.apply(runtime, server);
+        return CoreApp.apply(runtime, services, server);
     }
 
 }

@@ -21,6 +21,7 @@ public final class Datasets {
    public CompletionStage<DatasetDetails> createDataset(User executor, String projectId, String name, String summary, String description) {
       var created = ActionMetadata.apply(executor);
       var dataset = DatasetDetails.apply(UUID.randomUUID().toString(), name, summary, description, created, created);
+
       return repository
          .insertOrUpdateDataset(projectId, dataset)
          .thenApply(d -> dataset);
