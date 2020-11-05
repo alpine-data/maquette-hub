@@ -1,5 +1,5 @@
 @import '~rsuite/lib/styles/themes/default/index.less';
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;400;500;600&display=swap');
 
 
 @text-color: @B900;
@@ -8,12 +8,36 @@
 
 
 @base-color: @primary-medium-color;
-@font-family-base: 'Open Sans', sans-serif;
+
+//== Typography
+//
+//## Font, line-height, and color for body text, headings, and more.
+@font-family-base: 'IBM Plex Sans', sans-serif;
+@font-family-icon: 'rsuite-icon-font';
+
+@font-size-large: 16px;
+@font-size-base: 14px;
+@font-size-small: 12px;
+@font-size-extra-small: 12px;
+
+@font-size-h1: 22px;
+@font-size-h2: 36px;
+@font-size-h3: 28px;
+@font-size-h4: 22px;
+@font-size-h5: 18px;
+@font-size-h6: 16px; // The same to font-size-base
+
+@line-height-h1: 22px;
+@line-height-h2: 36px;
+@line-height-h3: 28px;
+@line-height-h4: 22px;
+@line-height-h5: 18px;
+@line-height-h6: 16px;
 
 // General
 body {
     font-family: @font-family-base;
-    background-color: @H050;
+    background-color: #fff;
 }
 
 // Subtle Button color set;
@@ -68,16 +92,60 @@ body {
 }
 
 //== Summary 
-.rs-panel-footer {
-    padding: 20px;
-    padding-top: 0px;
-    font-size: 0.9em;
-    color: @B800;
+.mq--summaries {
+
+    border: 1px solid @B300;
+    margin: 20px 0;
+
+    .mq--summaries--header {
+        padding: 20px 10px;
+        background-color: @H050;
+
+        .rs-btn-default {
+            background-color: @B000;
+            border: 1px solid @B300;
+        }
+    
+        .rs-btn-default.rs-btn-active {
+            background-color: @B300;
+            border: 1px solid @B300;
+        }
+    }
+
+    .mq--summary--empty {
+        font-size: 20px;
+        margin: 10px;
+        background-color: @B100;
+        color: @B700;
+        text-align: center;
+
+        .rs-flex-box-grid {
+            min-height: 200px;
+        }
+    }
 }
 
 .mq-summary {
     display: block;
     max-width: 800px;
+
+    .rs-panel-body {
+        padding-top: 0px;
+    }
+    
+    .rs-panel-footer {
+        padding: 20px;
+        padding-top: 0px;
+        font-size: 0.9em;
+        color: @B800;
+    }
+
+    border-radius: 0;
+    border-bottom: 1px solid @B300;
+}
+
+.mq-summary:last-child {
+    border-bottom: none;
 }
 
 .mq-summary--type {
@@ -96,6 +164,42 @@ a.mq-summary:hover {
     text-decoration: none;
 }
 
+//== Page Title
+.mq--page-title {
+    background-color: @B050;
+
+    .rs-btn-default {
+        background-color: @B000;
+        border: 1px solid @B300;
+    }
+
+    .rs-btn-default.rs-btn-active {
+        background-color: @B300;
+        border: 1px solid @B300;
+    }
+
+    .mq--buttons {
+        text-align: right;
+    }
+
+    a {
+        color: @B900;
+    }
+}
+
+//== Navigation Tabs
+.mq--nav-tabs.rs-nav-subtle.rs-nav-horizontal {
+    margin-top: -20px;
+
+    ul {
+        margin: 10px;
+    }
+
+    div.rs-nav-waterline {
+        border-top: 2px solid @B300;
+    }
+}
+
 //== Content Header
 .mq-content-header--subtitle {
     color: @B800;
@@ -109,4 +213,25 @@ a.mq-summary:hover {
 
 .mq-content-header {
     padding-bottom: .5em;
+}
+
+//== Main Content
+.mq--main-content .mq--p-leading {
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+.mq--main-content p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+//== Forms
+.rs-form-group {
+    margin-bottom: 2em;
+}
+
+.rs-control-label {
+    font-weight: bold;
 }

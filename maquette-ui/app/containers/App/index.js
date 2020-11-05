@@ -1,71 +1,72 @@
-/**
- *
- * App.js
- *
- * This component is the skeleton around the actual pages, and should only
- * contain code that should be seen on all pages. (e.g. navigation bar)
- *
- */
 import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
+
+import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from 'utils/injectReducer';
+import { makeSelectApp }  from './selectors';
+import { changeUser } from './actions';
+import reducer from './reducer';
+import saga from './saga';
+
 import { Switch, Route } from 'react-router-dom';
 
-import HomePage from 'containers/HomePage/Loadable';
-import Dashboard from 'containers/Dashboard/Loadable';
-import DataShop from 'containers/DataShop/Loadable';
-import DatasetDetails from 'containers/DatasetDetails/Loadable';
-import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import Layout from 'components/Layout';
 
+import CreateProject from 'containers/CreateProject/Loadable';
+import CreateDataset from 'containers/CreateDataset/Loadable';
+import Dataset from 'containers/Dataset/Loadable';
 import TestContainer from 'containers/TestComponent/Loadable'; 
+import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import Project from 'containers/Project/Loadable';
+import Search from 'containers/Search/Loadable';
 
 import GlobalStyle from '../../global-styles';
-
 import './custom-theme.less';
 
-export default function App() {
-  return (
-    <div>
+export function App({ app, onUserChanged }) {
+  useInjectReducer({ key: 'app', reducer });
+  useInjectSaga({ key: 'app', saga });
+
+  return <Layout username={ app.currentUser.name } onUserChanged={ onUserChanged }>
       <Switch>
         <Route exact path="/" component={TestContainer} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/datashop" component={DataShop} />
-        <Route path="/dataset" component={DatasetDetails} />
-        <Route path="/projects" component={Dashboard} />
+        <Route path="/search" component={Search} />
+        <Route path="/new/project" component={CreateProject} />
+        <Route path="/new/dataset" component={CreateDataset} />
+        <Route path="/:name" exact component={Project} />
+        <Route path="/:name/:tab" exact component={Project} />
+        <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
+        <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />
-    </div>
-  );
+    </Layout>;
 }
 
-/*
-export default function App() {
-  return (
-    <Container>
-      <Header>
-        <Navbar appearance="default">
-          <Navbar.Header>
-            <a className="navbar-brand logo">BRAND</a>
-          </Navbar.Header>
-          <Navbar.Body>
-            <Nav>
-              <Nav.Item icon={<Icon icon="home" />}>Home</Nav.Item>
-              <Nav.Item>News</Nav.Item>
-              <Nav.Item>Products</Nav.Item>
-              <Dropdown title="About">
-                <Dropdown.Item>Company</Dropdown.Item>
-                <Dropdown.Item>Team</Dropdown.Item>
-                <Dropdown.Item>Contact</Dropdown.Item>
-              </Dropdown>
-            </Nav>
-            <Nav pullRight>
-              <Nav.Item icon={<Icon icon="cog" />}>Settings</Nav.Item>
-            </Nav>
-          </Navbar.Body>
-        </Navbar>
-      </Header>
-      <Content>Content</Content>
-      <Footer>Footer</Footer>
-    </Container>
-  );
-  
-}*/
+App.propTypes = {
+  app: PropTypes.object,
+  dispatch: PropTypes.func.isRequired,
+
+  onUserChanged: PropTypes.func
+};
+
+const mapStateToProps = createStructuredSelector({
+  app: makeSelectApp(),
+});
+
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch,
+    onUserChanged: id => dispatch(changeUser(id))
+  };
+}
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(withConnect)(App);

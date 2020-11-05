@@ -22,6 +22,8 @@ public class CreateProjectCommand implements Command {
 
     String name;
 
+    String summary;
+
     @Override
     public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
         if (Objects.isNull(name) || name.length() == 0) {
@@ -36,6 +38,7 @@ public class CreateProjectCommand implements Command {
 
     @Override
     public Command example() {
-        return CreateProjectCommand.apply("my-funny-project");
+        return CreateProjectCommand.apply("my-funny-project", "lorem ipsum");
     }
+
 }

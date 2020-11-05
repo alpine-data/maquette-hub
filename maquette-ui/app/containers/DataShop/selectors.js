@@ -22,4 +22,5 @@ const makeSelectDataShop = () =>
   );
 
 export default makeSelectDataShop;
+
 export { selectDataShopDomain };

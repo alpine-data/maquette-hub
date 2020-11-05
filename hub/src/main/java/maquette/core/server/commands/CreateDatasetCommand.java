@@ -20,7 +20,6 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDatasetCommand implements Command {
 
-
    String project;
 
    String dataset;
