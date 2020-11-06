@@ -8,11 +8,15 @@ import maquette.core.values.ActionMetadata;
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class ProjectSummary {
+public class ProjectProperties {
 
     String id;
 
     String name;
+
+    String title;
+
+    String summary;
 
     ActionMetadata created;
 

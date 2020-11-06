@@ -3,7 +3,7 @@ package maquette.core.entities.projects;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.projects.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.user.User;
@@ -18,7 +18,7 @@ public final class Projects {
 
     private final ProjectsRepository repository;
 
-    public CompletionStage<String> createProject(User executor, String name) {
+    public CompletionStage<String> createProject(User executor, String name, String title, String summary) {
         return findProjectByName(name)
                 .thenCompose(maybeProject -> {
                     if (maybeProject.isPresent()) {
@@ -26,10 +26,12 @@ public final class Projects {
                     } else {
                         var id = Operators.hash();
                         var created = ActionMetadata.apply(executor, Instant.now());
-                        var summary = ProjectSummary.apply(id, name, created, created);
+                        var projectSummary = ProjectProperties
+                           .apply(id, name, title, summary, created, created)
+                           .withSummary(summary);
 
                         return repository
-                                .insertOrUpdateProject(summary)
+                                .insertOrUpdateProject(projectSummary)
                                 .thenApply(done -> id);
                     }
                 });
@@ -51,7 +53,7 @@ public final class Projects {
         return findProjectById(id).thenApply(Optional::orElseThrow);
     }
 
-    public CompletionStage<List<ProjectSummary>> getProjects() {
+    public CompletionStage<List<ProjectProperties>> getProjects() {
         return repository.getProjects();
     }
 

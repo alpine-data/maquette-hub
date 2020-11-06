@@ -21,14 +21,14 @@ class CreateProjectForm extends React.Component {
       title: "",
       name: "",
       owner: props.user.id,
-      description: ""
+      summary: ""
     };  
 
     this.create_onClick = this.create_onClick.bind(this);
     this.owner_onChange = this.owner_onChange.bind(this);
     this.name_onChange = this.name_onChange.bind(this);
     this.title_onChange= this.title_onChange.bind(this);
-    this.description_onChange = this.description_onChange.bind(this);
+    this.summary_onChange = this.summary_onChange.bind(this);
   }
 
   create_onClick() {
@@ -36,7 +36,7 @@ class CreateProjectForm extends React.Component {
       title: this.state.title, 
       name: this.state.name, 
       owner: this.state.owner, 
-      description: this.state.description 
+      summary: this.state.summary
     });
   }
 
@@ -44,9 +44,9 @@ class CreateProjectForm extends React.Component {
     console.log(value);
   }
 
-  description_onChange(value) {
+  summary_onChange(value) {
     this.setState(produce(this.state, draft => {
-      draft.description = value;
+      draft.summary = value;
     }));
   }
 
@@ -102,8 +102,8 @@ class CreateProjectForm extends React.Component {
         <FlexboxGrid.Item colspan={ 24 }>
           <hr />
           <FormGroup>
-            <ControlLabel>Short Description</ControlLabel>
-            <FormControl name="description" onChange={ this.description_onChange } value={ this.state.description } />
+            <ControlLabel>Project Summary</ControlLabel>
+            <FormControl name="summary" onChange={ this.summary_onChange } value={ this.state.summary } />
           </FormGroup>
           <hr />
           <FormGroup>

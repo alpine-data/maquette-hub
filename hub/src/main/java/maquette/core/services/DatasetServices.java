@@ -1,11 +1,14 @@
 package maquette.core.services;
 
 import akka.Done;
-import maquette.core.entities.datasets.model.DatasetDetails;
+import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.access.DataAccessTokenNarrowed;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.DataClassification;
+import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
 import javax.annotation.Nullable;
@@ -16,7 +19,9 @@ import java.util.concurrent.CompletionStage;
 
 public interface DatasetServices {
 
-   CompletionStage<DatasetDetails> createDataset(User executor, String projectName, String name, String summary, String description);
+   CompletionStage<DatasetProperties> createDataset(
+      User executor, String projectName, String title, String name, String summary, String description,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
 
    CompletionStage<DataAccessToken> createDataAccessToken(User executor, String projectName, String datasetName, String tokenName, String description);
 

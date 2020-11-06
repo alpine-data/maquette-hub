@@ -7,7 +7,9 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
-import maquette.core.entities.projects.model.ProjectSummary;
+import maquette.core.entities.projects.Project;
+import maquette.core.entities.projects.model.ProjectDetails;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -49,9 +51,11 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    @Override
-   public CompletionStage<Integer> create(User executor, String name) {
+   public CompletionStage<Integer> create(User executor, String name, String title, String summary) {
       return projects
-         .createProject(executor, name)
+         .createProject(executor, name, title, summary)
+         .thenApply(s -> 0);
+         /*
          .thenCompose(projectId -> {
             var processDescription = String.format("initialize project `%s`", name);
             return processManager.schedule(executor, processDescription, log -> {
@@ -66,6 +70,7 @@ public final class ProjectServicesImpl implements ProjectServices {
                   });
             });
          });
+          */
    }
 
    @Override
@@ -92,8 +97,13 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    @Override
-   public CompletionStage<List<ProjectSummary>> list(User user) {
+   public CompletionStage<List<ProjectProperties>> list(User user) {
       return projects.getProjects();
+   }
+
+   @Override
+   public CompletionStage<ProjectDetails> get(User user, String name) {
+      return withProject(name).thenCompose(Project::getDetails);
    }
 
    @Override
@@ -109,6 +119,18 @@ public final class ProjectServicesImpl implements ProjectServices {
                   .thenCompose(done -> infrastructure.removeDeployment(String.format("mq__%s", projectId)));
             } else {
                return CompletableFuture.completedFuture(Done.getInstance());
+            }
+         });
+   }
+
+   private CompletionStage<Project> withProject(String name) {
+      return projects
+         .findProjectByName(name)
+         .thenApply(maybeProject -> {
+            if (maybeProject.isPresent()) {
+               return maybeProject.get();
+            } else {
+               throw new RuntimeException("Project not found"); // TODO
             }
          });
    }

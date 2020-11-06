@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.common.Operators;
-import maquette.core.entities.projects.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
@@ -35,7 +35,7 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
    @AllArgsConstructor(staticName = "apply")
    private static class ProjectMemento {
 
-      ProjectSummary summary;
+      ProjectProperties summary;
 
       Set<GrantedAuthorization> authorizations;
 
@@ -104,12 +104,12 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<ProjectSummary>> findProjectById(String id) {
+   public CompletionStage<Optional<ProjectProperties>> findProjectById(String id) {
       return CompletableFuture.completedFuture(loadProject(id).map(ProjectMemento::getSummary));
    }
 
    @Override
-   public CompletionStage<Optional<ProjectSummary>> findProjectByName(String name) {
+   public CompletionStage<Optional<ProjectProperties>> findProjectByName(String name) {
       return getProjects()
          .thenApply(projects -> projects
             .stream()
@@ -118,12 +118,12 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
    }
 
    @Override
-   public CompletionStage<ProjectSummary> getProjectById(String id) {
+   public CompletionStage<ProjectProperties> getProjectById(String id) {
       return findProjectById(id).thenApply(Optional::get);
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateProject(ProjectSummary project) {
+   public CompletionStage<Done> insertOrUpdateProject(ProjectProperties project) {
       var memento = loadProject(project.getId())
          .map(existing -> existing.withSummary(project))
          .orElse(ProjectMemento.apply(project, Sets.newHashSet()));
@@ -134,7 +134,7 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
    }
 
    @Override
-   public CompletionStage<List<ProjectSummary>> getProjects() {
+   public CompletionStage<List<ProjectProperties>> getProjects() {
       var result = Operators.suppressExceptions(() -> Files
          .list(config.getDirectory())
          .filter(Files::isRegularFile)

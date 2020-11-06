@@ -15,26 +15,27 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class ListProjectsCommand implements Command {
 
-    @Override
-    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-        return services
-                .getProjectServices()
-                .list(user)
-                .thenApply(projects -> {
-                    var table = Table
-                            .create()
-                            .addColumns(StringColumn.create("id"))
-                            .addColumns(StringColumn.create("name"));
+   @Override
+   public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
+      return services
+         .getProjectServices()
+         .list(user)
+         .thenApply(projects -> {
+            var table = Table
+               .create()
+               .addColumns(StringColumn.create("id"))
+               .addColumns(StringColumn.create("title"))
+               .addColumns(StringColumn.create("name"));
 
-                    projects.forEach(p -> {
-                        var row = table.appendRow();
-                        row.setString("id", p.getId());
-                        row.setString("name", p.getName());
-                    });
+            projects.forEach(p -> {
+               var row = table.appendRow();
+               row.setString("id", p.getId());
+               row.setString("name", p.getName());
+            });
 
-                   return TableResult.apply(table.sortOn("name"), projects);
-                });
-    }
+            return TableResult.apply(table.sortOn("name"), projects);
+         });
+   }
 
    @Override
    public Command example() {

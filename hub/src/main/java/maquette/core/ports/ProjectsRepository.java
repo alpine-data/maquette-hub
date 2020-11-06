@@ -1,7 +1,7 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.projects.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
@@ -24,9 +24,9 @@ public interface ProjectsRepository {
      * @param id The project's unique id
      * @return An optional project-memento; None of no project with id has been found
      */
-    CompletionStage<Optional<ProjectSummary>> findProjectById(String id);
+    CompletionStage<Optional<ProjectProperties>> findProjectById(String id);
 
-    CompletionStage<Optional<ProjectSummary>> findProjectByName(String name);
+    CompletionStage<Optional<ProjectProperties>> findProjectByName(String name);
 
     /**
      * Same as {@link ProjectsRepository#findProjectById(String)} except that it will throw
@@ -35,7 +35,7 @@ public interface ProjectsRepository {
      * @param id The project's unique id
      * @return The project's memento
      */
-    CompletionStage<ProjectSummary> getProjectById(String id);
+    CompletionStage<ProjectProperties> getProjectById(String id);
 
     /**
      * Inserts or updates a project in the repository (decision based on id).
@@ -43,14 +43,14 @@ public interface ProjectsRepository {
      * @param project The project to store
      * @return Done if db update was successful
      */
-    CompletionStage<Done> insertOrUpdateProject(ProjectSummary project);
+    CompletionStage<Done> insertOrUpdateProject(ProjectProperties project);
 
     /**
      * Retrieve a list of all available projects.
      *
      * @return A list of projects
      */
-    CompletionStage<List<ProjectSummary>> getProjects();
+    CompletionStage<List<ProjectProperties>> getProjects();
 
     CompletionStage<Done> updateLastModified(String projectId, ActionMetadata modified);
 

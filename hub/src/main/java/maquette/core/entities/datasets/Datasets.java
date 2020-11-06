@@ -2,9 +2,12 @@ package maquette.core.entities.datasets;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.datasets.model.DatasetDetails;
+import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.data.DataClassification;
+import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -18,9 +21,15 @@ public final class Datasets {
 
    private final DatasetsRepository repository;
 
-   public CompletionStage<DatasetDetails> createDataset(User executor, String projectId, String name, String summary, String description) {
+   public CompletionStage<DatasetProperties> createDataset(
+      User executor, String projectId,
+      String title, String name, String summary, String description,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+
       var created = ActionMetadata.apply(executor);
-      var dataset = DatasetDetails.apply(UUID.randomUUID().toString(), name, summary, description, created, created);
+      var dataset = DatasetProperties.apply(
+         UUID.randomUUID().toString(), title, name, summary, description,
+         visibility, classification, personalInformation, created, created);
 
       return repository
          .insertOrUpdateDataset(projectId, dataset)
@@ -39,7 +48,7 @@ public final class Datasets {
          .thenApply(maybeDataset -> maybeDataset.map(details -> Dataset.apply(details.getId(), projectId, details.getName(), repository)));
    }
 
-   public CompletionStage<List<DatasetDetails>> findDatasets(String projectId) {
+   public CompletionStage<List<DatasetProperties>> findDatasets(String projectId) {
       return repository.findAllDatasets(projectId);
    }
 

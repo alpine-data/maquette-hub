@@ -3,7 +3,7 @@ package maquette.adapters.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.datasets.model.DatasetDetails;
+import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
@@ -30,7 +30,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<List<DatasetDetails>> findAllDatasets() {
+   public CompletionStage<List<DatasetProperties>> findAllDatasets() {
       var result = datasets
          .stream()
          .map(StoredDataset::getDetails)
@@ -40,7 +40,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<List<DatasetDetails>> findAllDatasets(String projectId) {
+   public CompletionStage<List<DatasetProperties>> findAllDatasets(String projectId) {
       var result = datasets
          .stream()
          .filter(details -> details.parentId.equals(projectId))
@@ -51,7 +51,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<DatasetDetails>> findDatasetById(String projectId, String datasetId) {
+   public CompletionStage<Optional<DatasetProperties>> findDatasetById(String projectId, String datasetId) {
       var result = datasets
          .stream()
          .filter(details -> details.parentId.equals(projectId) && details.getDetails().getId().equals(datasetId))
@@ -62,7 +62,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<DatasetDetails>> findDatasetByName(String projectId, String datasetName) {
+   public CompletionStage<Optional<DatasetProperties>> findDatasetByName(String projectId, String datasetName) {
       var result = datasets
          .stream()
          .filter(details -> details.parentId.equals(projectId) && details.getDetails().getName().equals(datasetName))
@@ -73,7 +73,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetDetails dataset) {
+   public CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetProperties dataset) {
       datasets
          .stream()
          .filter(d -> d.parentId.equals(projectId) && d.getDetails().getId().equals(dataset.getId()))
@@ -193,7 +193,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
 
       String parentId;
 
-      DatasetDetails details;
+      DatasetProperties details;
 
    }
 

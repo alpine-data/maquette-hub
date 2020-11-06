@@ -3,7 +3,7 @@ package maquette.adapters.projects;
 import akka.Done;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.projects.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class InMemoryProjectsRepository implements ProjectsRepository {
 
-    private final Map<String, Pair<ProjectSummary, Set<GrantedAuthorization>>> projects;
+    private final Map<String, Pair<ProjectProperties, Set<GrantedAuthorization>>> projects;
 
     public static InMemoryProjectsRepository apply() {
         return apply(Maps.newHashMap());
@@ -61,7 +61,7 @@ public final class InMemoryProjectsRepository implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<Optional<ProjectSummary>> findProjectById(String id) {
+    public CompletionStage<Optional<ProjectProperties>> findProjectById(String id) {
         if (projects.containsKey(id)) {
             return CompletableFuture.completedFuture(Optional.of(projects.get(id).getLeft()));
         } else {
@@ -70,7 +70,7 @@ public final class InMemoryProjectsRepository implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<Optional<ProjectSummary>> findProjectByName(String name) {
+    public CompletionStage<Optional<ProjectProperties>> findProjectByName(String name) {
         var result = projects.values().stream()
            .map(Pair::getLeft)
            .filter(p -> p.getName().equals(name))
@@ -80,12 +80,12 @@ public final class InMemoryProjectsRepository implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<ProjectSummary> getProjectById(String id) {
+    public CompletionStage<ProjectProperties> getProjectById(String id) {
         return CompletableFuture.completedFuture(projects.get(id).getLeft());
     }
 
     @Override
-    public CompletionStage<Done> insertOrUpdateProject(ProjectSummary project) {
+    public CompletionStage<Done> insertOrUpdateProject(ProjectProperties project) {
         if (projects.containsKey(project.getId())) {
             var p = projects.get(project.getId());
             projects.put(project.getId(), Pair.of(project, p.getRight()));
@@ -97,7 +97,7 @@ public final class InMemoryProjectsRepository implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<List<ProjectSummary>> getProjects() {
+    public CompletionStage<List<ProjectProperties>> getProjects() {
         var result = projects.values().stream().map(Pair::getLeft).collect(Collectors.toList());
         return CompletableFuture.completedFuture(result);
     }

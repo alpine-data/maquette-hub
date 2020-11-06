@@ -7,13 +7,11 @@ import { makeSelectCurrentUser } from '../App/selectors';
 
 import { command } from 'utils/request';
 
-/**
- * Github repos request/response handler
- */
 export function* createProject(action) {
   try {
-    const user = makeSelectCurrentUser();
-    const data = yield call(command, 'projects create', { "name": action.name, "summary": action.summary }, user);
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'projects create', _.pick(action, 'title', 'name', 'summary'), user);
+    
     yield put(createProjectSuccess(action.name, data));
   } catch (err) {
     yield put(CreateProjectFailed(action.name, err));

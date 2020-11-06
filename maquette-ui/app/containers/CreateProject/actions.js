@@ -6,13 +6,13 @@
 
 import { CREATE_PROJECT, CREATE_PROJECT_FAILED, CREATE_PROJECT_SUCCESS } from './constants';
 
-export function createProject({ title, name, owner, description }) {
+export function createProject({ title, name, owner, summary }) {
   return {
     type: CREATE_PROJECT,
     title,
     name,
     owner,
-    description
+    summary
   };
 }
 

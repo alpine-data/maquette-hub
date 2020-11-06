@@ -15,6 +15,10 @@ public class ProjectDetails {
 
     String name;
 
+    String title;
+
+    String summary;
+
     ActionMetadata created;
 
     ActionMetadata modified;

@@ -14,8 +14,6 @@ const BrandLogo = styled.img`
 `;
 
 function Layout(props) {
-    console.log(props);
-
     return <Container>
         <Header>
             <Navbar appearance="default">

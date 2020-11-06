@@ -1,7 +1,7 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.datasets.model.DatasetDetails;
+import maquette.core.entities.datasets.model.DatasetProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,14 +9,14 @@ import java.util.concurrent.CompletionStage;
 
 public interface DatasetsRepository extends HasDataAccessRequests, HasDataAccessTokens, HasDataOwner {
 
-   CompletionStage<List<DatasetDetails>> findAllDatasets();
+   CompletionStage<List<DatasetProperties>> findAllDatasets();
 
-   CompletionStage<List<DatasetDetails>> findAllDatasets(String projectId);
+   CompletionStage<List<DatasetProperties>> findAllDatasets(String projectId);
 
-   CompletionStage<Optional<DatasetDetails>> findDatasetById(String projectId, String datasetId);
+   CompletionStage<Optional<DatasetProperties>> findDatasetById(String projectId, String datasetId);
 
-   CompletionStage<Optional<DatasetDetails>> findDatasetByName(String projectId, String datasetName);
+   CompletionStage<Optional<DatasetProperties>> findDatasetByName(String projectId, String datasetName);
 
-   CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetDetails dataset);
+   CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetProperties dataset);
 
 }

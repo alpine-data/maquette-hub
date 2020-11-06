@@ -39,6 +39,7 @@ public final class MaquetteServer {
 
                 .exception(Exception.class, (e, ctx) -> {
                     // TODO: Better error handling.
+                    e.printStackTrace();
                     ctx.status(500);
                     ctx.json(MessageResult.apply(String.format("Internal Server Error: %s", e.getMessage())));
                 });

@@ -40,9 +40,7 @@ public class TableResult<T> implements CommandResult {
 
         @Override
         public void serialize(TableResult value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-            var sw = new StringWriter();
-            value.getTable().write().usingOptions(JsonWriteOptions.builder(sw).asObjects(true).build());
-            gen.writeRaw(sw.toString());
+            gen.writeObject(value.data);
         }
 
     }

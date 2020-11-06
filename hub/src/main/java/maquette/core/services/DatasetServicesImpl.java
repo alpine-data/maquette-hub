@@ -4,7 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.datasets.Dataset;
 import maquette.core.entities.datasets.Datasets;
-import maquette.core.entities.datasets.model.DatasetDetails;
+import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.entities.projects.Project;
 import maquette.core.entities.projects.Projects;
 import maquette.core.entities.users.Users;
@@ -12,6 +12,9 @@ import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.access.DataAccessTokenNarrowed;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.DataClassification;
+import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.exceptions.DatasetNotFoundException;
 import maquette.core.values.exceptions.ProjectNotFoundException;
 import maquette.core.values.user.User;
@@ -35,8 +38,13 @@ public class DatasetServicesImpl implements DatasetServices {
    private final Users users;
 
    @Override
-   public CompletionStage<DatasetDetails> createDataset(User executor, String projectName, String name, String summary, String description) {
-      return withProjectByName(projectName, p -> datasets.createDataset(executor, p.getId(), name, summary, description));
+   public CompletionStage<DatasetProperties> createDataset(
+      User executor, String projectName, String title, String name, String summary, String description,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+
+      return withProjectByName(projectName, p -> datasets.createDataset(
+         executor, p.getId(), title, name, summary, description,
+         visibility, classification, personalInformation));
    }
 
    @Override

@@ -16,8 +16,8 @@ public class MessageResult implements CommandResult {
         return message;
     }
 
-    public static MessageResult apply(String s, Object arg1, Object ...args) {
-        return apply(String.format(String.format(s, arg1), args));
+    public static MessageResult apply(String s, Object ...args) {
+        return apply(String.format(s, args));
     }
 
 }

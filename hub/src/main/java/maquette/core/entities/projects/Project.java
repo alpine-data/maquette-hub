@@ -4,7 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.projects.model.ProjectDetails;
-import maquette.core.entities.projects.model.ProjectSummary;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
@@ -60,17 +60,18 @@ public final class Project {
     public CompletionStage<ProjectDetails> getDetails() {
         return Operators
                 .compose(
-                        getSummary(),
+                        getProperties(),
                         repository.getGrantedAuthorizations(id),
-                        (summary, authorizations) -> ProjectDetails
-                                .apply(id, summary.getName(), summary.getCreated(), summary.getModified(), authorizations));
+                        (props, authorizations) -> ProjectDetails.apply(
+                           id, props.getName(), props.getTitle(), props.getSummary(),
+                           props.getCreated(), props.getModified(), authorizations));
     }
 
     public String getId() {
        return id;
     }
 
-    public CompletionStage<ProjectSummary> getSummary() {
+    public CompletionStage<ProjectProperties> getProperties() {
         return repository
                 .findProjectById(id)
                 .thenApply(Optional::orElseThrow);

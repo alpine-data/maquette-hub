@@ -4,7 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.datasets.model.DatasetDetails;
+import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
@@ -50,11 +50,11 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
       return getRequestsDirectory().resolve(parentId).resolve(requestId + ".json");
    }
 
-   private Optional<DatasetDetails> loadDatasetDetails(String projectId, String datasetId) {
+   private Optional<DatasetProperties> loadDatasetDetails(String projectId, String datasetId) {
       var file = getDatasetFile(projectId, datasetId);
 
       if (Files.exists(file) && Files.isRegularFile(file)) {
-         return Optional.of(Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetDetails.class)));
+         return Optional.of(Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetProperties.class)));
       } else {
          return Optional.empty();
       }
@@ -81,13 +81,13 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<List<DatasetDetails>> findAllDatasets() {
+   public CompletionStage<List<DatasetProperties>> findAllDatasets() {
       var result = Operators.suppressExceptions(() -> Files
          .walk(getDatasetsDirectory())
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> Optional.of(om.readValue(file.toFile(), DatasetDetails.class)),
-            Optional.<DatasetDetails>empty()))
+            () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
+            Optional.<DatasetProperties>empty()))
          .filter(Optional::isPresent)
          .map(Optional::get)
          .collect(Collectors.toList()));
@@ -96,13 +96,13 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<List<DatasetDetails>> findAllDatasets(String projectId) {
+   public CompletionStage<List<DatasetProperties>> findAllDatasets(String projectId) {
       var result = Operators.suppressExceptions(() -> Files
          .list(getDatasetsDirectory().resolve(projectId))
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> Optional.of(om.readValue(file.toFile(), DatasetDetails.class)),
-            Optional.<DatasetDetails>empty()))
+            () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
+            Optional.<DatasetProperties>empty()))
          .filter(Optional::isPresent)
          .map(Optional::get)
          .collect(Collectors.toList()));
@@ -111,12 +111,12 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<DatasetDetails>> findDatasetById(String projectId, String datasetId) {
+   public CompletionStage<Optional<DatasetProperties>> findDatasetById(String projectId, String datasetId) {
       return CompletableFuture.completedFuture(loadDatasetDetails(projectId, datasetId));
    }
 
    @Override
-   public CompletionStage<Optional<DatasetDetails>> findDatasetByName(String projectId, String datasetName) {
+   public CompletionStage<Optional<DatasetProperties>> findDatasetByName(String projectId, String datasetName) {
       return findAllDatasets(projectId)
          .thenApply(all -> all
             .stream()
@@ -125,7 +125,7 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetDetails dataset) {
+   public CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetProperties dataset) {
       var file = getDatasetFile(projectId, dataset.getId());
 
       Operators.suppressExceptions(() -> {

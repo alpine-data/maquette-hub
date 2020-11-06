@@ -4,7 +4,7 @@
  *
  */
 import _ from 'lodash';
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -16,21 +16,22 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectProject from './selectors';
 import reducer from './reducer';
 import saga from './saga';
+import { getProject as getProjectAction } from './actions';
 
 import BadgedButton from 'components/BadgedButton';
 import Container from 'components/Container';
+import EditableParagraph from 'components/EditableParagraph';
 import Summary from 'components/Summary';
 
 import { Nav, Dropdown, ButtonToolbar, Icon, FlexboxGrid, Button } from 'rsuite';
 import { Link } from 'react-router-dom';
 
-const Resources = (props) => {
+function Resources(props) {
   let name = _.get(props, 'match.params.name') || 'Unknown Project';
+  const summary = _.get(props, 'project.project.summary');
 
   return <Container md className="mq--main-content">
-    <p className="mq--p-leading">
-      Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-    </p>
+    <EditableParagraph className="mq--p-leading" value={ summary } />
 
     <ButtonToolbar>
       <BadgedButton icon="table" label="8" size="sm">Sets</BadgedButton>
@@ -44,12 +45,6 @@ const Resources = (props) => {
         <Dropdown.Item>New Collection</Dropdown.Item>
       </Dropdown>
     </ButtonToolbar>
-
-    <Summary.Summaries>
-      <Summary.Empty>
-        ¯\_(ツ)_/¯<br />This project contains no sources yet.
-      </Summary.Empty>
-    </Summary.Summaries>
 
     <Summary.Summaries>
       <Summary to={ `${name}/resources/datasets/some-project` }>
@@ -79,12 +74,10 @@ const Resources = (props) => {
   </Container>;
 }
 
-export function Project(props) {
-  useInjectReducer({ key: 'project', reducer });
-  useInjectSaga({ key: 'project', saga });
-
-  let name = _.get(props, 'match.params.name') || 'Unknown Project';
-  let tab = _.get(props, 'match.params.tab') || 'resources';
+function Display(props) {
+  const name = _.get(props, 'match.params.name') || 'Unknown Project';
+  const tab = _.get(props, 'match.params.tab') || 'resources';
+  const title = _.get(props, 'project.project.title') || _.get(props, 'project.project.name');
 
   return (
     <div>
@@ -96,7 +89,7 @@ export function Project(props) {
       <div className="mq--page-title">
         <Container fluid>
           <FlexboxGrid align="middle">
-            <FlexboxGrid.Item colspan={ 20 }><h1>Foo Bar</h1></FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={ 20 }><h1><Link to={ `/${name}` }>{ title }</Link></h1></FlexboxGrid.Item>
             <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
               <Button size="sm" active><Icon icon="heart" /> 42</Button>
             </FlexboxGrid.Item>
@@ -114,6 +107,44 @@ export function Project(props) {
       { tab == 'resources' && <Resources { ...props} /> }
     </div>
   );
+}
+
+function Error(props) {
+  return <div>
+    <Helmet>
+      <title>Project</title>
+      <meta name="description" content="Description of Project" />
+    </Helmet>
+
+    <Container md className="mq--main-content">
+      <Summary.Summaries>
+        <Summary.Empty>
+          ¯\_(ツ)_/¯<br />{ props.project.error }
+        </Summary.Empty>
+      </Summary.Summaries>
+    </Container>
+  </div>;
+}
+
+export function Project(props) {
+  useInjectReducer({ key: 'project', reducer });
+  useInjectSaga({ key: 'project', saga });
+
+  let name = _.get(props, 'match.params.name') || 'Unknown Project';
+
+  useEffect(() => {
+    if (props.project.id != name) {
+      props.dispatch(getProjectAction(name));
+    }
+  });
+
+  if (props.project.loading) {
+    return <></>;
+  } else if (props.project.error) {
+    return <Error { ...props } />;
+  } else {
+    return <Display { ...props } />; 
+  }
 }
 
 Project.propTypes = {
