@@ -15,6 +15,10 @@ public interface HasDataAccessRequests {
 
    CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String parentId);
 
+   default CompletionStage<Integer> getDataAccessRequestsCountByParent(String parentId) {
+      return findDataAccessRequestsByParent(parentId).thenApply(List::size);
+   }
+
    CompletionStage<Done> removeDataAccessRequest(String parentId, String id);
 
 }

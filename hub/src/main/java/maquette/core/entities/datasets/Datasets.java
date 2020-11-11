@@ -2,6 +2,7 @@ package maquette.core.entities.datasets;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.ActionMetadata;
@@ -28,7 +29,7 @@ public final class Datasets {
 
       var created = ActionMetadata.apply(executor);
       var dataset = DatasetProperties.apply(
-         UUID.randomUUID().toString(), title, name, summary, description,
+         Operators.hash(), title, name, summary, description,
          visibility, classification, personalInformation, created, created);
 
       return repository

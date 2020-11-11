@@ -25,7 +25,7 @@ public class WithdrawDatasetDataAccessRequestCommand implements Command {
 
    String dataset;
 
-   String accessRequestId;
+   String id;
 
    String message;
 
@@ -35,15 +35,15 @@ public class WithdrawDatasetDataAccessRequestCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       } else if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(accessRequestId)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
+      } else if (Objects.isNull(id)) {
+         return CompletableFuture.failedFuture(new RuntimeException("`id` must be supplied"));
       }
 
       // TODO mw: Better validation process
 
       return services
          .getDatasetServices()
-         .withdrawDataAccessRequest(user, project, dataset, accessRequestId, message)
+         .withdrawDataAccessRequest(user, project, dataset, id, message)
          .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
    }
 

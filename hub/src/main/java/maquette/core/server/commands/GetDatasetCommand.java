@@ -18,15 +18,11 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CreateDatasetDataAccessRequestCommand implements Command {
+public class GetDatasetCommand implements Command {
 
    String project;
 
    String dataset;
-
-   String origin;
-
-   String reason;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -34,22 +30,17 @@ public class CreateDatasetDataAccessRequestCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       } else if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(origin) || origin.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`origin` must be supplied"));
-      } else if (Objects.isNull(reason) || reason.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`reason` must be supplied"));
       }
-
-      // TODO mw: Better validation process
 
       return services
          .getDatasetServices()
-         .createDataAccessRequest(user, project, dataset, origin, reason)
+         .getDataset(user, project, dataset)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return CreateDatasetDataAccessRequestCommand.apply("my-funny-project", "my-funny-dataset", "some-other-project", "Because he wants to.");
+      return GetDatasetCommand.apply("my-funny-project", "my-dataset");
    }
+
 }

@@ -7,10 +7,8 @@ import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.results.DataResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.authorization.Authorizations;
 import maquette.core.values.user.User;
 
 import java.time.Instant;
@@ -23,12 +21,11 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GrantDatasetDataAccessRequestCommand implements Command {
 
-
    String project;
 
    String dataset;
 
-   String accessRequestId;
+   String id;
 
    Instant until;
 
@@ -40,7 +37,7 @@ public class GrantDatasetDataAccessRequestCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       } else if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(accessRequestId)) {
+      } else if (Objects.isNull(id)) {
          return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
       }
 
@@ -48,7 +45,7 @@ public class GrantDatasetDataAccessRequestCommand implements Command {
 
       return services
          .getDatasetServices()
-         .grantDataAccessRequest(user, project, dataset, accessRequestId, until, message)
+         .grantDataAccessRequest(user, project, dataset, id, until, message)
          .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
    }
 

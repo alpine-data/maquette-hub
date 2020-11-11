@@ -18,6 +18,7 @@ import java.util.concurrent.CompletionStage;
       // Datasets
       @JsonSubTypes.Type(value = CreateDatasetCommand.class, name = "datasets create"),
       @JsonSubTypes.Type(value = CreateDatasetDataAccessRequestCommand.class, name = "datasets access-requests create"),
+      @JsonSubTypes.Type(value = GetDatasetCommand.class, name = "datasets get"),
       @JsonSubTypes.Type(value = GetDatasetDataAccessRequestCommand.class, name = "datasets access-requests get"),
       @JsonSubTypes.Type(value = GrantDatasetDataAccessRequestCommand.class, name = "datasets access-requests grant"),
       @JsonSubTypes.Type(value = ListDatasetDataAccessRequestsCommand.class, name = "datasets access-requests list"),
@@ -26,6 +27,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = WithdrawDatasetDataAccessRequestCommand.class, name = "datasets access-requests withdraw"),
       @JsonSubTypes.Type(value = CreateDatasetDataAccessTokenCommand.class, name = "datasets access-tokens create"),
       @JsonSubTypes.Type(value = ListDatasetDataAccessTokensCommand.class, name = "datasets access-tokens list"),
+      @JsonSubTypes.Type(value = ListDatasetsCommand.class, name = "datasets list"),
       @JsonSubTypes.Type(value = RemoveDatasetCommand.class, name = "datasets remove"),
 
       // Projects

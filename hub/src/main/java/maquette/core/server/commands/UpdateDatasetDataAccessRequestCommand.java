@@ -11,7 +11,6 @@ import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
-import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -26,7 +25,7 @@ public class UpdateDatasetDataAccessRequestCommand implements Command {
 
    String dataset;
 
-   String accessRequestId;
+   String id;
 
    String message;
 
@@ -36,15 +35,15 @@ public class UpdateDatasetDataAccessRequestCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       } else if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(accessRequestId)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
+      } else if (Objects.isNull(id)) {
+         return CompletableFuture.failedFuture(new RuntimeException("`id` must be supplied"));
       }
 
       // TODO mw: Better validation process
 
       return services
          .getDatasetServices()
-         .updateDataAccessRequest(user, project, dataset, accessRequestId, message)
+         .updateDataAccessRequest(user, project, dataset, id, message)
          .thenApply(done -> MessageResult.apply("Successfully updated data access request."));
    }
 

@@ -25,7 +25,7 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
 
    String dataset;
 
-   String accessRequestId;
+   String id;
 
    String reason;
 
@@ -35,7 +35,7 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       } else if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(accessRequestId)) {
+      } else if (Objects.isNull(id)) {
          return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
       }
 
@@ -43,7 +43,7 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
 
       return services
          .getDatasetServices()
-         .rejectDataAccessRequest(user, project, dataset, accessRequestId, reason)
+         .rejectDataAccessRequest(user, project, dataset, id, reason)
          .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
    }
 

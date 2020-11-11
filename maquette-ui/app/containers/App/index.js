@@ -17,6 +17,7 @@ import Layout from 'components/Layout';
 
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
+import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
 import TestContainer from 'containers/TestComponent/Loadable'; 
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
@@ -32,7 +33,7 @@ export function App({ app, onUserChanged }) {
 
   return <Layout username={ app.currentUser.name } onUserChanged={ onUserChanged }>
       <Switch>
-        <Route exact path="/" component={TestContainer} />
+        <Route exact path="/" component={Dashboard} />
         <Route path="/search" component={Search} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
@@ -40,6 +41,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/:name/:tab" exact component={Project} />
         <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
+        <Route path="/:name/resources/datasets/:dataset/:tab/:id" exact component={Dataset} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />

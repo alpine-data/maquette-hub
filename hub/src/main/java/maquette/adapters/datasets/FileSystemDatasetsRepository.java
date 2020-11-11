@@ -2,6 +2,7 @@ package maquette.adapters.datasets;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.datasets.model.DatasetProperties;
@@ -19,35 +20,63 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileSystemDatasetsRepository implements DatasetsRepository {
 
    private final FileSystemDatasetsRepositoryConfiguration config;
 
    private final ObjectMapper om;
 
-   private Path getDatasetsDirectory() {
-      return config.getDirectory().resolve("details");
+   public static FileSystemDatasetsRepository apply(FileSystemDatasetsRepositoryConfiguration config, ObjectMapper om) {
+      Operators.suppressExceptions(() -> {
+         Files.createDirectories(config.getDirectory());
+      });
+
+      return new FileSystemDatasetsRepository(config, om);
    }
 
-   private Path getTokensDirectory() {
-      return config.getDirectory().resolve("data-access-tokens");
+   private Path getProjectDirectory(String projectId) {
+      return config.getDirectory().resolve(projectId);
    }
 
-   private Path getRequestsDirectory() {
-      return config.getDirectory().resolve("data-access-requests");
+   private Path getDatasetsDirectory(String projectId) {
+      var path = getProjectDirectory(projectId).resolve("properties");
+      Operators.suppressExceptions(() -> Files.createDirectories(path));
+      return path;
+   }
+
+   private Path getTokensDirectory(String projectId) {
+      var path = getProjectDirectory(projectId).resolve("data-access-tokens");
+      Operators.suppressExceptions(() -> Files.createDirectories(path));
+      return path;
+   }
+
+   private Path getRequestsDirectory(String projectId) {
+      var path = getProjectDirectory(projectId).resolve("data-access-requests");
+      Operators.suppressExceptions(() -> Files.createDirectories(path));
+      return path;
+   }
+
+   private Path getOwnersDirectory(String projectId) {
+      var path = getProjectDirectory(projectId).resolve("owners");
+      Operators.suppressExceptions(() -> Files.createDirectories(path));
+      return path;
    }
 
    private Path getDatasetFile(String projectId, String datasetId) {
-      return getDatasetsDirectory().resolve(projectId).resolve(datasetId + ".json");
+      return getDatasetsDirectory(projectId).resolve(datasetId + ".json");
    }
 
    private Path getTokenFile(String parentId, String tokenKey) {
-      return getTokensDirectory().resolve(parentId).resolve(tokenKey + ".json");
+      return getTokensDirectory(parentId).resolve(tokenKey + ".json");
    }
 
    private Path getRequestFile(String parentId, String requestId) {
-      return getRequestsDirectory().resolve(parentId).resolve(requestId + ".json");
+      return getRequestsDirectory(parentId).resolve(requestId + ".json");
+   }
+
+   private Path getOwnerFile(String projectId, String owner) {
+      return getOwnersDirectory(projectId).resolve(owner + ".json");
    }
 
    private Optional<DatasetProperties> loadDatasetDetails(String projectId, String datasetId) {
@@ -83,8 +112,9 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    @Override
    public CompletionStage<List<DatasetProperties>> findAllDatasets() {
       var result = Operators.suppressExceptions(() -> Files
-         .walk(getDatasetsDirectory())
+         .walk(config.getDirectory())
          .filter(Files::isRegularFile)
+         .filter(p -> p.getParent().endsWith("properties"))
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
             Optional.<DatasetProperties>empty()))
@@ -98,7 +128,7 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    @Override
    public CompletionStage<List<DatasetProperties>> findAllDatasets(String projectId) {
       var result = Operators.suppressExceptions(() -> Files
-         .list(getDatasetsDirectory().resolve(projectId))
+         .list(getDatasetsDirectory(projectId))
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
@@ -158,13 +188,9 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    @Override
    public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String parentId) {
       var result = Operators.suppressExceptions(() -> Files
-         .list(getRequestsDirectory().resolve(parentId))
+         .list(getRequestsDirectory(parentId))
          .filter(Files::isRegularFile)
-         .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> Optional.of(om.readValue(file.toFile(), DataAccessRequest.class)),
-            Optional.<DataAccessRequest>empty()))
-         .filter(Optional::isPresent)
-         .map(Optional::get)
+         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)))
          .collect(Collectors.toList()));
 
       return CompletableFuture.completedFuture(result);
@@ -198,7 +224,7 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    @Override
    public CompletionStage<List<DataAccessToken>> findDataAccessTokensByParent(String parentId) {
       var result = Operators.suppressExceptions(() -> Files
-         .list(getTokensDirectory().resolve(parentId))
+         .list(getTokensDirectory(parentId))
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DataAccessToken.class)),
@@ -219,16 +245,26 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
 
    @Override
    public CompletionStage<List<UserAuthorization>> findAllOwners(String parentId) {
-      return null;
+      var owners = Operators.suppressExceptions(() -> Files
+         .list(getOwnersDirectory(parentId))
+         .filter(Files::isRegularFile)
+         .map(p -> Operators.suppressExceptions(() -> om.readValue(p.toFile(), UserAuthorization.class)))
+         .collect(Collectors.toList()));
+
+      return CompletableFuture.completedFuture(owners);
    }
 
    @Override
    public CompletionStage<Done> insertOwner(String parentId, UserAuthorization owner) {
-      return null;
+      var file = getOwnerFile(parentId, owner.getUserId());
+      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), owner));
+      return CompletableFuture.completedFuture(Done.getInstance());
    }
 
    @Override
    public CompletionStage<Done> removeOwner(String parentId, String userId) {
-      return null;
+      var file = getOwnerFile(parentId, userId);
+      Operators.suppressExceptions(() -> Files.deleteIfExists(file));
+      return CompletableFuture.completedFuture(Done.getInstance());
    }
 }

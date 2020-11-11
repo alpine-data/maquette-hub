@@ -26,9 +26,34 @@ import Summary from 'components/Summary';
 import { Nav, Dropdown, ButtonToolbar, Icon, FlexboxGrid, Button } from 'rsuite';
 import { Link } from 'react-router-dom';
 
+function mapPersonalInformationToLabel(personalInformation) {
+  switch (personalInformation) {
+    case "none":
+      return "no personal information";
+    case "pi":
+      return "personal information";
+    case "spi":
+      return "sensitive personal information";
+  }
+}
+
+function DatasetSummary({ project, ds }) {
+  return <Summary to={ `/${project}/resources/datasets/${ds.name}` }>
+      <Summary.Header icon="table" category="Dataset">{ ds.title }</Summary.Header>
+      <Summary.Body>
+        { ds.summary }
+      </Summary.Body>
+      <Summary.Footer>
+        { ds.visibility } &middot; { ds.classification } &middot; { mapPersonalInformationToLabel(ds.personalInformation) } 
+      </Summary.Footer>
+    </Summary>;
+}
+
 function Resources(props) {
-  let name = _.get(props, 'match.params.name') || 'Unknown Project';
+  const name = _.get(props, 'match.params.name') || 'Unknown Project';
   const summary = _.get(props, 'project.project.summary');
+
+  const datasets = _.get(props, 'project.datasets') || [];
 
   return <Container md className="mq--main-content">
     <EditableParagraph className="mq--p-leading" value={ summary } />
@@ -46,26 +71,8 @@ function Resources(props) {
       </Dropdown>
     </ButtonToolbar>
 
-    <Summary.Summaries>
-      <Summary to={ `${name}/resources/datasets/some-project` }>
-        <Summary.Header icon="table" category="Data Set">some-dataset/some-project</Summary.Header>
-        <Summary.Body>
-            Lorem ipsum dolor sit amet
-        </Summary.Body>
-        <Summary.Footer>
-          Hello World! &middot; Huhuuu!
-        </Summary.Footer>
-      </Summary>
-
-      <Summary>
-        <Summary.Header icon="table" category="Data Set">some-dataset/some-project</Summary.Header>
-        <Summary.Body>
-            Lorem ipsum dolor sit amet
-        </Summary.Body>
-        <Summary.Footer>
-          Hello World! &middot; Huhuuu!
-        </Summary.Footer>
-      </Summary>
+    <Summary.Summaries>      
+      { _.map(datasets, ds => <DatasetSummary key={ ds.id } project={ name } ds={ ds } />) }
     </Summary.Summaries>
 
     <p>

@@ -2,25 +2,27 @@ package maquette.core.values.access;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.With;
 import maquette.core.values.ActionMetadata;
-import maquette.core.values.authorization.Authorization;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+@With
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataAccessRequest {
 
    private static final String ID = "id";
    private static final String CREATED = "created";
-   private static final String FOR_AUTHORIZATION = "for";
+   private static final String ORIGIN = "origin";
    private static final String EVENTS = "events";
 
    @JsonProperty(ID)
@@ -29,8 +31,8 @@ public class DataAccessRequest {
    @JsonProperty(CREATED)
    private final ActionMetadata created;
 
-   @JsonProperty(FOR_AUTHORIZATION)
-   private final Authorization forAuthorization;
+   @JsonProperty(ORIGIN)
+   private final String origin;
 
    @JsonProperty(EVENTS)
    private final List<DataAccessRequestEvent> events;
@@ -39,7 +41,7 @@ public class DataAccessRequest {
    public static DataAccessRequest apply(
       @JsonProperty(ID) String id,
       @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(FOR_AUTHORIZATION) Authorization forAuthorization,
+      @JsonProperty(ORIGIN) String forProject,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 
       if (events.isEmpty()) {
@@ -51,14 +53,12 @@ public class DataAccessRequest {
          .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
          .collect(Collectors.toList());
 
-      return new DataAccessRequest(id, created, forAuthorization, eventsCopy);
+      return new DataAccessRequest(id, created, forProject, eventsCopy);
    }
 
-   public static DataAccessRequest apply(ActionMetadata created, Authorization forAuthorization, String reason) {
+   public static DataAccessRequest apply(String id, ActionMetadata created, String forProject, String reason) {
       var requested = Requested.apply(created, reason);
-      var id = UUID.randomUUID().toString();
-
-      return apply(id, created, forAuthorization, List.of(requested));
+      return apply(id, created, forProject, List.of(requested));
    }
 
    public void addEvent(DataAccessRequestEvent event) {
@@ -75,7 +75,7 @@ public class DataAccessRequest {
       return List.copyOf(events);
    }
 
-   @JsonIgnore
+   @JsonProperty("status")
    public DataAccessRequestStatus getStatus() {
       var latest = events.get(0);
 

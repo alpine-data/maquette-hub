@@ -44,6 +44,7 @@ public class ListDatasetDataAccessRequestsCommand implements Command {
             var table = Table
                .create()
                .addColumns(StringColumn.create("id"))
+               .addColumns(StringColumn.create("origin"))
                .addColumns(StringColumn.create("created by"))
                .addColumns(StringColumn.create("created"))
                .addColumns(StringColumn.create("status"));
@@ -52,6 +53,7 @@ public class ListDatasetDataAccessRequestsCommand implements Command {
                var row = table.appendRow();
 
                row.setString("id", r.getId());
+               row.setString("origin", r.getOrigin().getName());
                row.setString("created by", r.getCreated().getBy());
                row.setString("created", r.getCreated().getAt().toString()); // TODO format date time
                row.setString("status", r.getStatus().name());

@@ -4,6 +4,8 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.entities.datasets.exceptions.AccessRequestNotFoundException;
+import maquette.core.entities.datasets.exceptions.DatasetNotFoundException;
+import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.access.*;
@@ -59,13 +61,15 @@ public final class Dataset {
          .thenApply(done -> token);
    }
 
-   public CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, Authorization forAuthorization, String reason) {
+   public CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, String origin, String reason) {
       var created = ActionMetadata.apply(executor);
-      var request = DataAccessRequest.apply(created, forAuthorization, reason);
 
       return repository
-         .insertOrUpdateDataAccessRequest(getFullId(), request)
-         .thenApply(done -> request);
+         .getDataAccessRequestsCountByParent(getFullId())
+         .thenApply(count -> DataAccessRequest.apply(String.valueOf(count + 1), created, origin, reason))
+         .thenCompose(request -> repository
+            .insertOrUpdateDataAccessRequest(getFullId(), request)
+            .thenApply(done -> request));
    }
 
    public CompletionStage<Done> expireDataAccessRequest(String accessRequestId) {
@@ -74,6 +78,10 @@ public final class Dataset {
          accessRequest.addEvent(expired);
          return repository.insertOrUpdateDataAccessRequest(getFullId(), accessRequest);
       });
+   }
+
+   public CompletionStage<DatasetProperties> getDatasetProperties() {
+      return withDatasetProperties(CompletableFuture::completedFuture);
    }
 
    public CompletionStage<Done> grantDataAccessRequest(User executor, String accessRequestId, @Nullable Instant until, @Nullable String message) {
@@ -145,6 +153,18 @@ public final class Dataset {
 
    public CompletionStage<Optional<DataAccessRequest>> getDataAccessRequestById(String accessRequestId) {
       return repository.findDataAccessRequestById(getFullId(), accessRequestId);
+   }
+
+   private <T> CompletionStage<T> withDatasetProperties(Function<DatasetProperties, CompletionStage<T>> func) {
+      return repository
+         .findDatasetByName(projectId, name)
+         .thenCompose(maybeDataset -> {
+            if (maybeDataset.isPresent()) {
+               return func.apply(maybeDataset.get());
+            } else {
+               throw DatasetNotFoundException.apply(name);
+            }
+         });
    }
 
    private <T> CompletionStage<T> withDataAccessRequest(String accessRequestId, Function<DataAccessRequest, CompletionStage<T>> func) {

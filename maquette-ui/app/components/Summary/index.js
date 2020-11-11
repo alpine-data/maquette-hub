@@ -11,10 +11,16 @@ import { FlexboxGrid, Icon, Panel, Placeholder } from 'rsuite'
 import { Link } from 'react-router-dom';
 
 
-function Summary({children, to = '#', ...props}) {
-  return <Link to={ to } className="mq-summary rs-panel rs-panel-default rs-panel-in" { ...props }>
-    { children }
-  </Link>;
+function Summary({children, to = false, ...props}) {
+  if (to) {
+    return <Link to={ to } className="mq-summary rs-panel rs-panel-default rs-panel-in" { ...props }>
+      { children }
+    </Link>;
+  } else {
+    return <div  className="mq-summary rs-panel rs-panel-default rs-panel-in" { ...props }>
+      { children }
+    </div>;
+  }
 }
 
 Summary.propTypes = {
@@ -30,7 +36,7 @@ Summary.propTypes = {
 Summary.Empty = ({children, className,  ...props}) => {
   return <div className={ cx("mq-summary rs-panel rs-panel-default rs-panel-in mq--summary--empty", className) } { ...props }>
     <FlexboxGrid align="middle" justify="center">
-      <FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={ 24 }>
         { children }
       </FlexboxGrid.Item>
     </FlexboxGrid>
@@ -61,6 +67,12 @@ Summary.Footer = ({ children, className, ...props }) => {
 
 Summary.Summaries = ({ children, className, ...props }) => {
   return <div className={ cx("mq--summaries", className) } { ...props }>
+      { children }
+    </div>
+}
+
+Summary.Summaries.Header = ({ children, className, ...props }) => {
+    return <div className={ cx("mq--summaries--header", className) } { ...props }>
       { children }
     </div>
 }
