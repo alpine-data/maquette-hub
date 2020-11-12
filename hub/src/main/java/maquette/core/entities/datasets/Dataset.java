@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.entities.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.datasets.model.DatasetProperties;
-import maquette.core.ports.DatasetsDataStore;
+import maquette.core.ports.DatasetsStore;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -26,7 +26,7 @@ public final class Dataset {
 
    private final DatasetsRepository repository;
 
-   private final DatasetsDataStore store;
+   private final DatasetsStore store;
 
    private String getFullId() {
       return String.format("%s/%s", projectId, id);
@@ -53,7 +53,7 @@ public final class Dataset {
    }
 
    public Revisions revisions() {
-      return Revisions.apply(id, projectId, getFullId(), name, repository);
+      return Revisions.apply(id, projectId, getFullId(), name, repository, store);
    }
 
    public CompletionStage<DatasetProperties> getDatasetProperties() {

@@ -29,7 +29,7 @@ import DataAccessRequestForm from 'components/DataAccessRequestForm';
 import EditableParagraph from 'components/EditableParagraph';
 import Summary from '../../components/Summary';
 
-import { Nav, Icon, FlexboxGrid, Button, InputPicker, FormGroup, Form, FormControl, Message } from 'rsuite';
+import { Nav, Icon, FlexboxGrid, Button, InputPicker, FormGroup, Form, FormControl, Message, Uploader } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -51,6 +51,8 @@ function Overview(props) {
     <p>
       At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
     </p>
+
+    <Uploader action="/api/data/datasets/foo/bar" />
 
     <hr />
     <h4>Schema <InputPicker data={ [] } /></h4>

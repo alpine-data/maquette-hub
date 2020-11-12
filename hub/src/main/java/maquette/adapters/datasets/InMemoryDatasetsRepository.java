@@ -4,11 +4,15 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.entities.datasets.model.DatasetProperties;
+import maquette.core.entities.datasets.model.DatasetVersion;
+import maquette.core.entities.datasets.model.revisions.CommittedRevision;
+import maquette.core.entities.datasets.model.revisions.Revision;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.authorization.UserAuthorization;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +33,9 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
       return apply(Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
    }
 
+   /*
+    * Datasets
+    */
    @Override
    public CompletionStage<List<DatasetProperties>> findAllDatasets() {
       var result = datasets
@@ -84,6 +91,38 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
+   /*
+    * Revisions
+    */
+   @Override
+   public CompletionStage<List<Revision>> findAllRevisions(String projectId, String datasetId) {
+      throw new NotImplementedException();
+   }
+
+   @Override
+   public CompletionStage<List<CommittedRevision>> findAllVersions(String projectId, String datasetId) {
+      throw new NotImplementedException();
+   }
+
+   @Override
+   public CompletionStage<Optional<Revision>> findRevisionById(String projectId, String datasetId, String revisionId) {
+      throw new NotImplementedException();
+   }
+
+   @Override
+   public CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(String projectId, String datasetId, DatasetVersion version) {
+      throw new NotImplementedException();
+   }
+
+   @Override
+   public CompletionStage<Done> insertOrUpdateRevision(String projectId, String datasetId, Revision revision) {
+      throw new NotImplementedException();
+   }
+
+   /*
+    * Data Access Requests
+    */
+
    @Override
    public CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String parentId, String id) {
       var result = requests
@@ -127,6 +166,10 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
 
       return CompletableFuture.completedFuture(Done.getInstance());
    }
+
+   /*
+    * Data Access Tokens
+    */
 
    @Override
    public CompletionStage<Done> insertDataAccessToken(String parentId, DataAccessToken token) {
@@ -172,20 +215,28 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
+   /*
+    * Owners
+    */
+
    @Override
    public CompletionStage<List<UserAuthorization>> findAllOwners(String parentId) {
-      return null;
+      throw new NotImplementedException();
    }
 
    @Override
    public CompletionStage<Done> insertOwner(String parentId, UserAuthorization owner) {
-      return null;
+      throw new NotImplementedException();
    }
 
    @Override
    public CompletionStage<Done> removeOwner(String parentId, String userId) {
-      return null;
+      throw new NotImplementedException();
    }
+
+   /*
+    * Helpers
+    */
 
    @Value
    @AllArgsConstructor(staticName = "apply")

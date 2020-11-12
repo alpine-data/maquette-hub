@@ -40,7 +40,7 @@ public class CoreApp {
     public static CoreApp apply(
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
-       DatasetsRepository datasetsRepository, UsersRepository usersRepository, ObjectMapper om) {
+       DatasetsRepository datasetsRepository, DatasetsStore datasetsStore, UsersRepository usersRepository, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -56,7 +56,7 @@ public class CoreApp {
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
         var processManager = ProcessManager.apply();
         var projects = Projects.apply(projectsRepository);
-        var datasets = Datasets.apply(datasetsRepository);
+        var datasets = Datasets.apply(datasetsRepository, datasetsStore);
         var users = Users.apply(usersRepository);
 
         var runtime = RuntimeConfiguration.apply(app, system, om, datasets, infrastructureManager, processManager, projects, users);

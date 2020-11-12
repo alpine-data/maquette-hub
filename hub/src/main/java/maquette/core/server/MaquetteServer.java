@@ -26,6 +26,7 @@ public final class MaquetteServer {
 
         var adminResource = new AdminResource(config);
         var commandResource = new CommandResource(runtime, services);
+        var dataResource = new DataResource(services);
 
         runtime.getApp()
                 .before(handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
@@ -33,6 +34,8 @@ public final class MaquetteServer {
                 .post("/api/commands", commandResource.getCommand())
                 .get("/api/commands", commandResource.getCommands())
                 .post("/api/commands/example", commandResource.getCommandExample())
+
+                .post("/api/data/datasets/:project/:dataset", dataResource.upload())
 
                 .get("/api/v1/about", adminResource.getAbout())
                 .get("/api/v1/admin/user", adminResource.getUserInfo())

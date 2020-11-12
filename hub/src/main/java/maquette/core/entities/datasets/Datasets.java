@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsRepository;
+import maquette.core.ports.DatasetsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
@@ -13,7 +14,6 @@ import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -21,6 +21,8 @@ import java.util.concurrent.CompletionStage;
 public final class Datasets {
 
    private final DatasetsRepository repository;
+
+   private final DatasetsStore store;
 
    public CompletionStage<DatasetProperties> createDataset(
       User executor, String projectId,
@@ -40,13 +42,13 @@ public final class Datasets {
    public CompletionStage<Optional<Dataset>> findDatasetById(String projectId, String datasetId) {
       return repository
          .findDatasetById(projectId, datasetId)
-         .thenApply(maybeDataset -> maybeDataset.map(details -> Dataset.apply(details.getId(), projectId, details.getName(), repository)));
+         .thenApply(maybeDataset -> maybeDataset.map(details -> Dataset.apply(details.getId(), projectId, details.getName(), repository, store)));
    }
 
    public CompletionStage<Optional<Dataset>> findDatasetByName(String projectId, String datasetName) {
       return repository
          .findDatasetByName(projectId, datasetName)
-         .thenApply(maybeDataset -> maybeDataset.map(details -> Dataset.apply(details.getId(), projectId, details.getName(), repository)));
+         .thenApply(maybeDataset -> maybeDataset.map(details -> Dataset.apply(details.getId(), projectId, details.getName(), repository, store)));
    }
 
    public CompletionStage<List<DatasetProperties>> findDatasets(String projectId) {

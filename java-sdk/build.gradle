@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'ch.kpmg.maquette'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.typesafe.akka', name: 'akka-stream_2.13', version: '2.6.10'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25':
+
+    testCompile 'junit:junit:4.12'
+}

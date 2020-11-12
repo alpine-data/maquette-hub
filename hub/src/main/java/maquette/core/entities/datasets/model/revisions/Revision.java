@@ -1,10 +1,20 @@
 package maquette.core.entities.datasets.model.revisions;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.values.ActionMetadata;
 import org.apache.avro.Schema;
 
 import java.util.Optional;
 
+@JsonTypeInfo(
+   use = JsonTypeInfo.Id.NAME,
+   property = "state")
+@JsonSubTypes(
+   {
+      @JsonSubTypes.Type(value = OpenRevision.class, name = "open"),
+      @JsonSubTypes.Type(value = CommittedRevision.class, name = "committed")
+   })
 public interface Revision {
 
    String getId();

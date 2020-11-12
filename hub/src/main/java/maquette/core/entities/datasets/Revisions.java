@@ -11,7 +11,7 @@ import maquette.core.entities.datasets.model.records.Records;
 import maquette.core.entities.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.datasets.model.revisions.OpenRevision;
 import maquette.core.entities.datasets.model.revisions.Revision;
-import maquette.core.ports.DatasetsDataStore;
+import maquette.core.ports.DatasetsStore;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.user.User;
@@ -36,7 +36,7 @@ public final class Revisions {
 
    private final DatasetsRepository repository;
 
-   private final DatasetsDataStore store;
+   private final DatasetsStore store;
 
    public CompletionStage<CommittedRevision> commit(User executor, String revisionId, String message) {
       return repository
@@ -68,7 +68,7 @@ public final class Revisions {
          .thenApply(d -> revision);
    }
 
-   public CompletionStage<Records> download(User executor, String version) {
+   public CompletionStage<Records> download(User executor, DatasetVersion version) {
       return repository
          .findRevisionByVersion(projectId, id, version)
          .thenCompose(maybeRevision -> {
@@ -76,7 +76,7 @@ public final class Revisions {
                var revision = maybeRevision.get();
                return store.get(getRevisionKey(revision.getId()));
             } else {
-               throw VersionNotFoundException.apply(version);
+               throw VersionNotFoundException.apply(version.toString());
             }
          });
    }

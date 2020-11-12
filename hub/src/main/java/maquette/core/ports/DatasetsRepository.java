@@ -2,6 +2,7 @@ package maquette.core.ports;
 
 import akka.Done;
 import maquette.core.entities.datasets.model.DatasetProperties;
+import maquette.core.entities.datasets.model.DatasetVersion;
 import maquette.core.entities.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.datasets.model.revisions.Revision;
 
@@ -25,7 +26,7 @@ public interface DatasetsRepository extends HasDataAccessRequests, HasDataAccess
 
    CompletionStage<Optional<Revision>> findRevisionById(String projectId, String datasetId, String revisionId);
 
-   CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(String projectId, String datasetId, String version);
+   CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(String projectId, String datasetId, DatasetVersion version);
 
    CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetProperties dataset);
 
