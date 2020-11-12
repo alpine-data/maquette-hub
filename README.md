@@ -1,9 +1,12 @@
-# maquette plattform
+# Maquette Platform
 
-## Issues
+## Glossar
 
-### Direct communication from training runtime to MLflow's artifact store
+**Data Access Token**
+Data Access Tokens can be generated on behalf of a project to access data without user authentication, but with access tokens instead (just like API keys for usual APIs). The token can be used to consume or produce data automatically from running applications.
 
-Currently MLflow clients need direct access to the server's S3 storage, thus URL and credentials of the server need to be configured locally. There is a discussion within the community to provide a proxy API to upload artifacts w/o direct access (https://github.com/mlflow/mlflow/issues/629). But as of now this requires workarounds to simplify its usage.
+**Dataset**
+A dataset is a Maquette Data Resource. A dataset contains versioned sets of records. Each version must have a defined (Avro) schema.
 
-* Using presigned URL? (https://docs.min.io/docs/upload-files-from-browser-using-pre-signed-urls.html)
+**Revision**
+A revision is an uncommitted version of a dataset. A revision has a specified (Avro) schema. As long as the revision is not committed, records of data can be added or removed.

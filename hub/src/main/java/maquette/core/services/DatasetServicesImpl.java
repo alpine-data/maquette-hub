@@ -6,6 +6,9 @@ import maquette.common.Operators;
 import maquette.core.entities.datasets.Dataset;
 import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.datasets.model.DatasetProperties;
+import maquette.core.entities.datasets.model.records.Records;
+import maquette.core.entities.datasets.model.revisions.CommittedRevision;
+import maquette.core.entities.datasets.model.revisions.Revision;
 import maquette.core.entities.projects.Project;
 import maquette.core.entities.projects.Projects;
 import maquette.core.entities.users.Users;
@@ -19,6 +22,7 @@ import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.exceptions.DatasetNotFoundException;
 import maquette.core.values.exceptions.ProjectNotFoundException;
 import maquette.core.values.user.User;
+import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +47,10 @@ public class DatasetServicesImpl implements DatasetServices {
 
    private final Users users;
 
+   /*
+    * General
+    */
+
    @Override
    public CompletionStage<DatasetProperties> createDataset(
       User executor, String projectName, String title, String name, String summary, String description,
@@ -54,39 +62,8 @@ public class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<DataAccessToken> createDataAccessToken(User executor, String projectName, String datasetName, String tokenName, String description) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.createDataAccessToken(executor, tokenName, description));
-   }
-
-   @Override
-   public CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, String projectName, String datasetName, String origin, String reason) {
-      return withProjectByName(origin, target ->
-         withDatasetByName(projectName, datasetName, (p, d) -> d.createDataAccessRequest(executor, target.getId(), reason)));
-   }
-
-   @Override
    public CompletionStage<Done> deleteDataset(User executor, String projectName, String datasetName) {
       return withDatasetByName(projectName, datasetName, (p, d) -> datasets.removeDataset(p.getId(), d.getId()));
-   }
-
-   @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable Instant until, @Nullable String message) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.grantDataAccessRequest(executor, accessRequestId, until, message));
-   }
-
-   @Override
-   public CompletionStage<Done> rejectDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.rejectDataAccessRequest(executor, accessRequestId, reason));
-   }
-
-   @Override
-   public CompletionStage<Done> updateDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.updateDataAccessRequest(executor, accessRequestId, reason));
-   }
-
-   @Override
-   public CompletionStage<Done> withdrawDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable String reason) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.withdrawDataAccessRequest(executor, accessRequestId, reason));
    }
 
    @Override
@@ -99,15 +76,84 @@ public class DatasetServicesImpl implements DatasetServices {
       return withDatasetByName(projectName, datasetName, (p, d) -> d.getDatasetProperties());
    }
 
+   /*
+    * Access Tokens
+    */
+
+   @Override
+   public CompletionStage<DataAccessToken> createDataAccessToken(User executor, String projectName, String datasetName, String origin, String tokenName, String description) {
+      return withProjectByName(origin, originProject -> withDatasetByName(
+         projectName, datasetName, (p, d) -> d.accessTokens().createDataAccessToken(executor, originProject.getId(), tokenName, description)));
+   }
+
    @Override
    public CompletionStage<List<DataAccessTokenNarrowed>> getDataAccessTokens(User executor, String projectName, String datasetName) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.getDataAccessTokens())
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessTokens().getDataAccessTokens())
          .thenApply(tokens -> tokens.stream().map(DataAccessToken::toNarrowed).collect(Collectors.toList()));
+   }
+
+   /*
+    * Access Requests
+    */
+
+   @Override
+   public CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, String projectName, String datasetName, String origin, String reason) {
+      return withProjectByName(origin, target ->
+         withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().createDataAccessRequest(executor, target.getId(), reason)));
+   }
+
+   @Override
+   public CompletionStage<Done> grantDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable Instant until, @Nullable String message) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().grantDataAccessRequest(executor, accessRequestId, until, message));
+   }
+
+   @Override
+   public CompletionStage<Done> rejectDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().rejectDataAccessRequest(executor, accessRequestId, reason));
+   }
+
+   @Override
+   public CompletionStage<Done> updateDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().updateDataAccessRequest(executor, accessRequestId, reason));
+   }
+
+   @Override
+   public CompletionStage<Done> withdrawDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable String reason) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().withdrawDataAccessRequest(executor, accessRequestId, reason));
+   }
+
+   /*
+    * Data Management
+    */
+
+   @Override
+   public CompletionStage<CommittedRevision> commitRevision(User executor, String projectName, String datasetName, String revisionId, String message) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().commit(executor, revisionId, message));
+   }
+
+   @Override
+   public CompletionStage<Revision> createRevision(User executor, String projectName, String datasetName, Schema schema) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().createRevision(executor, schema));
+   }
+
+   @Override
+   public CompletionStage<Records> download(User executor, String projectName, String datasetName, String version) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().download(executor, version));
+   }
+
+   @Override
+   public CompletionStage<List<CommittedRevision>> getVersions(User executor, String projectName, String datasetName) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().getVersions());
+   }
+
+   @Override
+   public CompletionStage<Done> upload(User executor, String projectName, String datasetName, String revisionId, Records records) {
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().upload(executor, revisionId, records));
    }
 
    @Override
    public CompletionStage<List<DataAccessRequestDetails>> getDataAccessRequests(User executor, String projectName, String datasetName) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.getDataAccessRequests())
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().getDataAccessRequests())
          .thenCompose(requests -> Operators.allOf(requests
             .stream()
             .map(this::mapDataAccessRequestToSummary)
@@ -121,7 +167,7 @@ public class DatasetServicesImpl implements DatasetServices {
 
    @Override
    public CompletionStage<Optional<DataAccessRequestDetails>> getDataAccessRequestById(User executor, String projectName, String datasetName, String accessRequestId) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.getDataAccessRequestById(accessRequestId))
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().getDataAccessRequestById(accessRequestId))
          .thenCompose(request -> {
             if (request.isPresent()) {
                return mapDataAccessRequestToSummary(request.get());
@@ -130,6 +176,10 @@ public class DatasetServicesImpl implements DatasetServices {
             }
          });
    }
+
+   /*
+    * Helper functions
+    */
 
    private CompletionStage<Optional<DataAccessRequestDetails>> mapDataAccessRequestToSummary(DataAccessRequest request) {
       return projects

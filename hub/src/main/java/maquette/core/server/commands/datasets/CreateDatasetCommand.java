@@ -1,4 +1,4 @@
-package maquette.core.server.commands;
+package maquette.core.server.commands.datasets;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,9 @@
-package maquette.core.server.commands;
+package maquette.core.server.commands.datasets.tokens;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -16,46 +17,48 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+@Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public final class ListDatasetsCommand implements Command {
+public class ListDatasetDataAccessTokensCommand implements Command {
 
-   private final String project;
+
+   String project;
+
+   String dataset;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       if (Objects.isNull(project) || project.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
+      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       }
+
+      // TODO mw: Better validation process
 
       return services
          .getDatasetServices()
-         .getDatasets(user, project)
-         .thenApply(datasets -> {
+         .getDataAccessTokens(user, project, dataset)
+         .thenApply(tokens -> {
             var table = Table
                .create()
-               .addColumns(StringColumn.create("title"))
                .addColumns(StringColumn.create("name"))
-               .addColumns(StringColumn.create("visibility"))
-               .addColumns(StringColumn.create("classification"))
-               .addColumns(StringColumn.create("personal information"));
+               .addColumns(StringColumn.create("key"));
 
-            datasets.forEach(p -> {
+            tokens.forEach(t -> {
                var row = table.appendRow();
-               row.setString("title", p.getTitle());
-               row.setString("name", p.getName());
-               row.setString("visibility", p.getVisibility().getValue());
-               row.setString("classification", p.getClassification().getValue());
-               row.setString("personal information", p.getPersonalInformation().getValue());
+
+               row.setString("name", t.getName());
+               row.setString("key", t.getKey());
             });
 
-            return TableResult.apply(table.sortOn("name"), datasets);
+            return TableResult.apply(table.sortOn("name"), tokens);
          });
    }
 
    @Override
    public Command example() {
-      return ListDatasetsCommand.apply("some-project");
+      return ListDatasetDataAccessTokensCommand.apply("my-funny-project", "my-funny-dataset");
    }
-
 }

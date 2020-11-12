@@ -18,6 +18,8 @@ public class DataAccessToken {
 
    String secret;
 
+   String projectId;
+
    public DataAccessTokenNarrowed toNarrowed() {
       return DataAccessTokenNarrowed.apply(created, name, description, key);
    }

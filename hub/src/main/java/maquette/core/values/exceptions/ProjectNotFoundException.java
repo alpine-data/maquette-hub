@@ -1,6 +1,6 @@
 package maquette.core.values.exceptions;
 
-public class ProjectNotFoundException extends MaquetteUserException {
+public class ProjectNotFoundException extends RuntimeException implements DomainException {
 
    private ProjectNotFoundException(String message) {
       super(message);

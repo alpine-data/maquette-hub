@@ -1,4 +1,4 @@
-package maquette.core.server.commands;
+package maquette.core.server.commands.datasets.requests;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,6 @@ import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;
-import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
@@ -19,16 +18,14 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CreateDatasetDataAccessTokenCommand implements Command {
+public class GetDatasetDataAccessRequestCommand implements Command {
 
 
    String project;
 
    String dataset;
 
-   String token;
-
-   String description;
+   String id;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -42,12 +39,12 @@ public class CreateDatasetDataAccessTokenCommand implements Command {
 
       return services
          .getDatasetServices()
-         .createDataAccessToken(user, project, dataset, token, description)
+         .getDataAccessRequestById(user, project, dataset, id)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return CreateDatasetDataAccessTokenCommand.apply("my-funny-project", "my-funny-dataset", "some-token", "Lorem ipsum");
+      return GetDatasetDataAccessRequestCommand.apply("my-funny-project", "my-funny-dataset", "1234");
    }
 }

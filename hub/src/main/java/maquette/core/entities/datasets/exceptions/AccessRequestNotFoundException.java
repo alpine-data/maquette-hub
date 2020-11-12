@@ -1,8 +1,8 @@
 package maquette.core.entities.datasets.exceptions;
 
-import maquette.core.values.exceptions.MaquetteUserException;
+import maquette.core.values.exceptions.DomainException;
 
-public class AccessRequestNotFoundException extends MaquetteUserException {
+public final class AccessRequestNotFoundException extends RuntimeException implements DomainException {
 
    private AccessRequestNotFoundException(String message) {
       super(message);

@@ -1,4 +1,4 @@
-package maquette.core.server.commands;
+package maquette.core.server.commands.datasets.tokens;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,11 +18,18 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class GetDatasetCommand implements Command {
+public class CreateDatasetDataAccessTokenCommand implements Command {
+
 
    String project;
 
    String dataset;
+
+   String origin;
+
+   String token;
+
+   String description;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -32,15 +39,16 @@ public class GetDatasetCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       }
 
+      // TODO mw: Better validation process
+
       return services
          .getDatasetServices()
-         .getDataset(user, project, dataset)
+         .createDataAccessToken(user, project, dataset, origin, token, description)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return GetDatasetCommand.apply("my-funny-project", "my-dataset");
+      return CreateDatasetDataAccessTokenCommand.apply("my-funny-project", "my-funny-dataset", "some-origin-project", "some-token", "Lorem ipsum");
    }
-
 }

@@ -1,6 +1,6 @@
 package maquette.core.values.exceptions;
 
-public class DatasetNotFoundException extends MaquetteUserException {
+public class DatasetNotFoundException extends RuntimeException implements DomainException {
 
    private DatasetNotFoundException(String message) {
       super(message);

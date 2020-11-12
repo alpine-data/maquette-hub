@@ -1,8 +1,8 @@
 package maquette.core.entities.datasets.exceptions;
 
-import maquette.core.values.exceptions.MaquetteUserException;
+import maquette.core.values.exceptions.DomainException;
 
-public class DatasetNotFoundException extends MaquetteUserException {
+public final class DatasetNotFoundException extends RuntimeException implements DomainException {
 
    private DatasetNotFoundException(String message) {
       super(message);

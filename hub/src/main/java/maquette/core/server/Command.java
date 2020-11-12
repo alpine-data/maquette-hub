@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.commands.*;
+import maquette.core.server.commands.datasets.*;
+import maquette.core.server.commands.datasets.requests.*;
+import maquette.core.server.commands.datasets.tokens.CreateDatasetDataAccessTokenCommand;
+import maquette.core.server.commands.datasets.tokens.ListDatasetDataAccessTokensCommand;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 

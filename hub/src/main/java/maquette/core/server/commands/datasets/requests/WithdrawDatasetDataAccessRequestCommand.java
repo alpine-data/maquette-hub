@@ -1,4 +1,4 @@
-package maquette.core.server.commands;
+package maquette.core.server.commands.datasets.requests;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RejectDatasetDataAccessRequestCommand implements Command {
+public class WithdrawDatasetDataAccessRequestCommand implements Command {
 
 
    String project;
@@ -27,7 +27,7 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
 
    String id;
 
-   String reason;
+   String message;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -36,19 +36,19 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
       } else if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       } else if (Objects.isNull(id)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
+         return CompletableFuture.failedFuture(new RuntimeException("`id` must be supplied"));
       }
 
       // TODO mw: Better validation process
 
       return services
          .getDatasetServices()
-         .rejectDataAccessRequest(user, project, dataset, id, reason)
+         .withdrawDataAccessRequest(user, project, dataset, id, message)
          .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
    }
 
    @Override
    public Command example() {
-      return RejectDatasetDataAccessRequestCommand.apply("my-funny-project", "my-funny-dataset", "user", "some justification");
+      return WithdrawDatasetDataAccessRequestCommand.apply("my-funny-project", "my-funny-dataset", "user", "some justification");
    }
 }
