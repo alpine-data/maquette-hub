@@ -10,6 +10,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.scala.DefaultScalaModule;
 import org.apache.avro.Schema;
 
+import java.nio.file.Path;
+
 public final class ObjectMapperFactory {
 
     private ObjectMapperFactory() {

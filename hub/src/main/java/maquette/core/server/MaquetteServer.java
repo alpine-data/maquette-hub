@@ -35,7 +35,8 @@ public final class MaquetteServer {
                 .get("/api/commands", commandResource.getCommands())
                 .post("/api/commands/example", commandResource.getCommandExample())
 
-                .post("/api/data/datasets/:project/:dataset", dataResource.upload())
+                .post("/api/data/datasets/:project/:dataset/:revision", dataResource.upload())
+                .get("/api/data/datasets/:project/:dataset/:version", dataResource.download())
 
                 .get("/api/v1/about", adminResource.getAbout())
                 .get("/api/v1/admin/user", adminResource.getUserInfo())

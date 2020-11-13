@@ -6,6 +6,7 @@ import maquette.common.Operators;
 import maquette.core.entities.datasets.Dataset;
 import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.datasets.model.DatasetProperties;
+import maquette.core.entities.datasets.model.DatasetVersion;
 import maquette.core.entities.datasets.model.records.Records;
 import maquette.core.entities.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.datasets.model.revisions.Revision;
@@ -137,7 +138,7 @@ public class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<Records> download(User executor, String projectName, String datasetName, String version) {
+   public CompletionStage<Records> download(User executor, String projectName, String datasetName, DatasetVersion version) {
       return withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().download(executor, version));
    }
 
