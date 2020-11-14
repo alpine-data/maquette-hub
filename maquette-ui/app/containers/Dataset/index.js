@@ -3,7 +3,7 @@
  * Dataset
  *
  */
-
+import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -20,50 +20,66 @@ import saga from './saga';
 import { 
   createDataAccessRequest as createDataAccessRequestAction, 
   getDataset as getDatasetAction,
+  selectVersion,
+  selectVersion as selectVersionAction,
   updateDataAccessRequest as updateDataAccessRequestAction } from './actions';
 
 import Container from 'components/Container';
 import DataAccessRequest from 'components/DataAccessRequest';
 import DataAccessRequestSummary from 'components/DataAccessRequestSummary';
 import DataAccessRequestForm from 'components/DataAccessRequestForm';
+import DataBadges from 'components/DataBadges';
 import EditableParagraph from 'components/EditableParagraph';
 import Summary from '../../components/Summary';
+import VersionsTimeline from '../../components/VersionsTimeline';
 
-import { Nav, Icon, FlexboxGrid, Button, InputPicker, FormGroup, Form, FormControl, Message, Uploader } from 'rsuite';
+import { Nav, Icon, FlexboxGrid, Button, FormGroup, Form, FormControl, Message, Uploader, ButtonToolbar, IconButton, Whisper, Tooltip, Timeline } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
+import DatasetCodeExamples from '../../components/DatasetCodeExamples';
 
-SyntaxHighlighter.registerLanguage('javascript', json);
+SyntaxHighlighter.registerLanguage('json', json);
 
 function Overview(props) {
-  const project = _.get(props, 'match.params.name') || 'unknown';
-  const projects = _.filter(_.get(props, 'dataset.projects') || [], p => p.name != project)
-  const dataset = _.get(props, 'match.params.dataset') || 'Unknown Datasource';
+  const projectName = _.get(props, 'match.params.name') || 'unknown';
+  const datasetName = _.get(props, 'match.params.dataset') || 'unknown';
+  const dataset = _.get(props, 'dataset.dataset') || {};
+  const versions = _.get(props, 'dataset.versions') || [];
+  const version = _.get(props, 'dataset.version') || '';
+  const schema = _.get(_.find(versions, v => v.version == version), 'schema') || {};
 
   const summary = _.get(props, 'dataset.dataset.summary') || '';
 
   return <Container md className="mq--main-content">
+
     <EditableParagraph className="mq--p-leading" value={ summary } />
-
-    <p>
-      At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-    </p>
-
-    <Uploader action="/api/data/datasets/foo/bar" />
-
+    { dataset && <DataBadges resource={dataset} /> }
+    
     <hr />
-    <h4>Schema <InputPicker data={ [] } /></h4>
-    <SyntaxHighlighter showLineNumbers language="javascript" style={docco}>
+
+    <h4>Versions</h4>
+    <VersionsTimeline 
+      dataset={ dataset } 
+      versions={ versions } 
+      activeVersion={ version } 
+      onSelectVersion={ version => props.dispatch(selectVersionAction(version)) } />
+    
+    <hr />
+
+    <h4>Schema <span className="mq--sub">v{ version }</span></h4>
+    <SyntaxHighlighter showLineNumbers language="json" style={docco}>
       { 
-        JSON.stringify([
-          {"name": "value", "type": "long"},             // each element has a long
-          {"name": "next", "type": ["null", "LongList"]} // optional next element
-        ], null, 2) 
+        JSON.stringify(schema, null, 2) 
       }
     </SyntaxHighlighter>
+
+    <hr />
+
+    <DatasetCodeExamples project={ projectName } dataset={ datasetName } version={ version } />
+    
   </Container>;
 }
 

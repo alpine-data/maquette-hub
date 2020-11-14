@@ -200,6 +200,8 @@ a.mq-summary:hover {
     }
 }
 
+
+
 //== Navigation Tabs
 .mq--nav-tabs.rs-nav-subtle.rs-nav-horizontal {
     margin-top: -20px;
@@ -235,9 +237,18 @@ a.mq-summary:hover {
     margin-bottom: 30px;
 }
 
+.mq--main-content .mq--p-badges {
+    margin-bottom: 30px;
+}
+
+
 .mq--main-content p {
     font-size: 16px;
     margin-bottom: 10px;
+}
+
+.mq--main-content h4 {
+    margin-bottom: 20px;;
 }
 
 //== Forms
@@ -264,4 +275,39 @@ a.mq-summary:hover {
 
 input.mq--editable-paragraph--input {
     margin-bottom: 30px;
+}
+
+//== Dataset Versions
+
+.mq--dataset-versions .mq--p-leading,
+.mq--dataset-version .mq--p-leading {
+    margin-bottom: 10px;
+}
+
+.mq--dataset-versions {
+    margin-left: 20px;
+      
+    .rs-timeline-item-custom-dot .rs-icon {
+        position: absolute;
+        background: #fff;
+        top: 0;
+        left: -2px;
+        border: 2px solid #ddd;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 18px;
+        padding-top: 9px;
+        color: #999;
+        margin-left: -13px;
+    }
+    
+    .rs-timeline-item-content {
+        margin-left: 24px;
+    }
+
+    .mq--dataset-version .rs-timeline-item-content:hover {
+        color: @B900;
+        cursor: pointer;
+    }
 }

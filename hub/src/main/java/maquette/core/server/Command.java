@@ -7,7 +7,7 @@ import maquette.core.server.commands.*;
 import maquette.core.server.commands.datasets.*;
 import maquette.core.server.commands.datasets.data.CommitRevisionCommand;
 import maquette.core.server.commands.datasets.data.CreateRevisionCommand;
-import maquette.core.server.commands.datasets.data.ListVersionsCommand;
+import maquette.core.server.commands.datasets.data.ListDatasetVersionsCommand;
 import maquette.core.server.commands.datasets.requests.*;
 import maquette.core.server.commands.datasets.tokens.CreateDatasetDataAccessTokenCommand;
 import maquette.core.server.commands.datasets.tokens.ListDatasetDataAccessTokensCommand;
@@ -38,7 +38,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = RemoveDatasetCommand.class, name = "datasets remove"),
       @JsonSubTypes.Type(value = CommitRevisionCommand.class, name = "datasets revisions commit"),
       @JsonSubTypes.Type(value = CreateRevisionCommand.class, name = "datasets revisions create"),
-      @JsonSubTypes.Type(value = ListVersionsCommand.class, name = "datasets revisions list"),
+      @JsonSubTypes.Type(value = ListDatasetVersionsCommand.class, name = "datasets revisions list"),
 
       // Projects
       @JsonSubTypes.Type(value = CreateProjectCommand.class, name = "projects create"),

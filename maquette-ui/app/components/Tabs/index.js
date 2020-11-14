@@ -3,34 +3,30 @@
  * Tabs
  *
  */
-
-import React from 'react';
+import _ from 'lodash';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Nav } from 'rsuite';
 // import styled from 'styled-components';
 
-class Tabs extends React.Component {
+function Tabs({ content }) {
+  const [tab, setTab] = useState(content[0].key);
 
-  constructor(props) {
-    super(props);
+  return <>
+    <Nav activeKey={ tab } onSelect={ v => setTab(v) } appearance="subtle">
+      { _.map(content, c => <Nav.Item eventKey={ c.key } key={ c.key }>{ c.label }</Nav.Item>) }
+    </Nav>
 
-    this.state = {
-      active: 'home'
-    };
-
-    this.handleSelect = this.handleSelect.bind(this);
-  }
-  handleSelect(activeKey) {
-    this.setState({ active: activeKey });
-  }
-
-}
-
-function Tabs() {
-  return <div />;
+    { _.find(content, c => c.key == tab).component }
+  </>;
 }
 
 Tabs.propTypes = {
-  content: PropTypes.object
+  content: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    component: PropTypes.elementType.isRequired
+  }))
 };
 
 export default Tabs;

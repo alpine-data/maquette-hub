@@ -9,6 +9,8 @@ import {
   GET_DATA_ACCESS_REQUESTS, GET_DATA_ACCESS_REQUESTS_FAILED, GET_DATA_ACCESS_REQUESTS_SUCCESS,
   GET_DATASET, GET_DATASET_SUCCESS, GET_DATASET_FAILED,
   GET_PROJECT_FAILED, GET_PROJECT_SUCCESS, GET_PROJECTS_FAILED, GET_PROJECTS_SUCCESS,
+  GET_VERSIONS_FAILED, GET_VERSIONS_SUCCESS,
+  SELECT_VERSION,
   UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS } from './constants';
 
 export const initialState = {
@@ -35,7 +37,10 @@ export const initialState = {
   loading: false,
   dataset: false,
   project: false,
-  projects: false
+  projects: false,
+  versions: false,
+
+  version: false
 };
 
 const datasetReducer = (state = initialState, action) =>
@@ -57,6 +62,13 @@ const datasetReducer = (state = initialState, action) =>
         break;
 
       case GET_DATASET:
+        draft.dataset = false;
+        draft.project = false;
+        draft.projects = false;
+        draft.versions = false;
+        draft.version = false;
+        draft.data_access_requests = initialState.create_data_access_request;
+
         draft.dataset_loading = true;
         draft.data_access_requests.loading = true;
         draft.project_loading = true;
@@ -106,6 +118,19 @@ const datasetReducer = (state = initialState, action) =>
       case GET_PROJECTS_SUCCESS:
         draft.projects_loading = false;
         draft.projects = action.response;
+        break;
+
+      case GET_VERSIONS_FAILED:
+        draft.error = _.get(action, 'error.response.message') || 'Unkown error occurred loading projects';
+        break;
+
+      case GET_VERSIONS_SUCCESS:
+        draft.versions = action.response;
+        draft.version = _.size(action.response) > 0 && action.response[0].version;
+        break;
+
+      case SELECT_VERSION:
+        draft.version = action.version;
         break;
 
       case UPDATE_DATA_ACCESS_REQUEST:

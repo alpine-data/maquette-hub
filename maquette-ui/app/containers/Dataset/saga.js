@@ -8,7 +8,7 @@ import {
   getDataAccessRequests as getDataAccessRequestsAction, getDataAccessRequestsFailed, getDataAccessRequestsSuccess,
   getProjectFailed, getProjectSuccess,
   getProjectsFailed, getProjectsSuccess, 
-  updateDataAccessRequestSuccess, updateDataAccessRequestFailed } from './actions';
+  updateDataAccessRequestSuccess, updateDataAccessRequestFailed, getVersionsSuccess, getVersionsFailed } from './actions';
 import { 
   CREATE_DATA_ACCESS_REQUEST, 
   GET_DATASET, 
@@ -32,7 +32,7 @@ export function* getDataset(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
     const data = yield call(command, 'datasets get', _.omit(action, 'type'), user);
-    
+
     yield put(getDatasetSuccess(action.project, action.dataset, data));
   } catch (err) {
     yield put(getDatasetFailed(err));
@@ -84,6 +84,17 @@ export function* updateDataAccessRequest(action) {
   }
 }
 
+export function* getVersions(action) {
+  try {
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'datasets revisions list', _.omit(action, 'type'), user);
+
+    yield put(getVersionsSuccess(data));
+  } catch (err) {
+    yield put(getVersionsFailed(err));
+  }
+}
+
 // Individual exports for testing
 export default function* datasetSaga() {
   yield takeLatest(CREATE_DATA_ACCESS_REQUEST, createDataAccessRequest);
@@ -92,6 +103,7 @@ export default function* datasetSaga() {
   yield takeLatest(GET_DATASET, getDataAccessRequests);
   yield takeLatest(GET_DATASET, getProject);
   yield takeLatest(GET_DATASET, getProjects);
+  yield takeLatest(GET_DATASET, getVersions);
 
   yield takeLatest(GET_DATA_ACCESS_REQUESTS, getDataAccessRequests);
 

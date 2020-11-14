@@ -10,7 +10,8 @@ import {
   GET_PROJECTS_SUCCESS, GET_PROJECTS_FAILED,
   GET_PROJECT_FAILED, GET_PROJECT_SUCCESS,
   GET_DATASET, GET_DATASET_FAILED, GET_DATASET_SUCCESS,
-  UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS } from './constants';
+  GET_VERSIONS_SUCCESS, GET_VERSIONS_FAILED,
+  UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS, SELECT_VERSION } from './constants';
 
 export function createDataAccessRequest(project, dataset, origin, reason) {
   return {
@@ -109,6 +110,27 @@ export function getProjectsSuccess(response) {
     type: GET_PROJECTS_SUCCESS,
     response
   };
+}
+
+export function getVersionsSuccess(response) {
+  return {
+    type: GET_VERSIONS_SUCCESS,
+    response
+  }
+}
+
+export function getVersionsFailed(error) {
+  return {
+    type: GET_VERSIONS_FAILED,
+    error
+  }
+}
+
+export function selectVersion(version) {
+  return {
+    type: SELECT_VERSION,
+    version
+  }
 }
 
 export function updateDataAccessRequest(command, args) {
