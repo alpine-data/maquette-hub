@@ -44,6 +44,42 @@ body {
     color: @B700;
 }
 
+.mq--container-wrap {
+    margin-bottom: 60px;
+}
+
+.mq--footer {
+    background-color: #3c3c3c;
+    margin-bottom: 100px;
+
+    .mq--footer--content {
+        background-color: #333;
+        color: @B400;
+        max-width: 1310px;
+
+        padding: 60px 80px;
+        margin: auto;
+    }
+
+    .mq--main-content {
+        padding-top: 8px;
+
+        .mq--small {
+            font-size: @font-size-small;
+            margin-bottom: 15px;
+        }
+    }
+
+    a {
+        color: @B400;
+
+        &:hover {
+            color: @B000;
+            text-decoration: none;
+        }
+    }
+}
+
 //== Navbar
 @nav-bar-default-bg: @primary-color;
 @nav-bar-default-font-color: @B000;

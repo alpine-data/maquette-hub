@@ -20,7 +20,7 @@ SyntaxHighlighter.registerLanguage('python', python);
 import Tabs from '../Tabs';
 
 function Title({ children }) {
-  return <b style={{ display: "block", marginTop: "20px" }}>{ children }</b>
+  return <p><b style={{ display: "block", marginTop: "20px" }}>{ children }</b></p>
 }
 
 function DatasetCodeExamples({ project, dataset, version, canProduce = true, canConsume = true }) {
