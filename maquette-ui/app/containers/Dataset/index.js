@@ -33,13 +33,14 @@ import EditableParagraph from 'components/EditableParagraph';
 import Summary from '../../components/Summary';
 import VersionsTimeline from '../../components/VersionsTimeline';
 
-import { Nav, Icon, FlexboxGrid, Button, FormGroup, Form, FormControl, Message, Uploader, ButtonToolbar, IconButton, Whisper, Tooltip, Timeline } from 'rsuite';
+import { Nav, Icon, FlexboxGrid, Button, FormGroup, Form, FormControl, Message, Uploader, ButtonToolbar, IconButton, Whisper, Tooltip, Timeline, Affix } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import DatasetCodeExamples from '../../components/DatasetCodeExamples';
+import DataExplorer from '../../components/DataExplorer';
 
 SyntaxHighlighter.registerLanguage('json', json);
 
@@ -75,6 +76,10 @@ function Overview(props) {
         JSON.stringify(schema, null, 2) 
       }
     </SyntaxHighlighter>
+
+    <hr />
+
+    <DataExplorer />
 
     <hr />
 
@@ -208,26 +213,28 @@ function Display(props) {
       <meta name="description" content="Description of Dataset" />
     </Helmet>
 
-    <div className="mq--page-title">
-      <Container fluid>
-        <FlexboxGrid align="middle">
-          <FlexboxGrid.Item colspan={ 20 }>
-            <h1><Link to={ `/${project}` }>{ _.get(props, 'dataset.project.title') }</Link> / <Link to={ `/${project}/resources/datasets/${dataset}` }>{ _.get(props, 'dataset.dataset.title') }</Link></h1>
-          </FlexboxGrid.Item>
+    <Affix>
+      <div className="mq--page-title">
+        <Container fluid>
+          <FlexboxGrid align="middle">
+            <FlexboxGrid.Item colspan={ 20 }>
+              <h1><Link to={ `/${project}` }>{ _.get(props, 'dataset.project.title') }</Link> / <Link to={ `/${project}/resources/datasets/${dataset}` }>{ _.get(props, 'dataset.dataset.title') }</Link></h1>
+            </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
-            <Button size="sm" active><Icon icon="heart" /> 42</Button>
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
-      </Container>
-      
-      <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-        <Nav.Item eventKey="overview" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}` }>Overview</Nav.Item>
-        <Nav.Item eventKey="data" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/data` }>Data</Nav.Item>
-        <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/access-requests` }>Access Requests</Nav.Item>
-        <Nav.Item eventKey="discuss" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/discuss` }>Discuss</Nav.Item>
-      </Nav>
-    </div>
+            <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
+              <Button size="sm" active><Icon icon="heart" /> 42</Button>
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+        </Container>
+        
+        <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
+          <Nav.Item eventKey="overview" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}` }>Overview</Nav.Item>
+          <Nav.Item eventKey="data" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/data` }>Data</Nav.Item>
+          <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/access-requests` }>Access Requests</Nav.Item>
+          <Nav.Item eventKey="discuss" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/discuss` }>Discuss</Nav.Item>
+        </Nav>
+      </div>
+    </Affix>
 
     { tab == 'overview' && <Overview { ...props } /> }
     { tab == 'access-requests' && <AccessRequests { ...props } /> }
