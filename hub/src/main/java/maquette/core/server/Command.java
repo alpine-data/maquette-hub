@@ -11,6 +11,9 @@ import maquette.core.server.commands.datasets.data.ListDatasetVersionsCommand;
 import maquette.core.server.commands.datasets.requests.*;
 import maquette.core.server.commands.datasets.tokens.CreateDatasetDataAccessTokenCommand;
 import maquette.core.server.commands.datasets.tokens.ListDatasetDataAccessTokensCommand;
+import maquette.core.server.commands.projects.GrantProjectAccessCommand;
+import maquette.core.server.commands.projects.RevokeProjectAccessCommand;
+import maquette.core.server.commands.projects.UpdateProjectPropertiesCommand;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
@@ -45,7 +48,10 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = GetProjectCommand.class, name = "projects get"),
       @JsonSubTypes.Type(value = GetProjectEnvironmentCommand.class, name = "projects environment"),
       @JsonSubTypes.Type(value = ListProjectsCommand.class, name = "projects list"),
-      @JsonSubTypes.Type(value = RemoveProjectCommand.class, name = "projects remove")
+      @JsonSubTypes.Type(value = RemoveProjectCommand.class, name = "projects remove"),
+      @JsonSubTypes.Type(value = GrantProjectAccessCommand.class, name = "projects grant"),
+      @JsonSubTypes.Type(value = RevokeProjectAccessCommand.class, name = "projects revoke"),
+      @JsonSubTypes.Type(value = UpdateProjectPropertiesCommand.class, name = "projects update")
    })
 public interface Command {
 

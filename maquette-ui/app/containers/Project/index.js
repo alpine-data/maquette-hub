@@ -16,15 +16,23 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectProject from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { getProject as getProjectAction } from './actions';
+import { 
+  getProject as getProjectAction,
+  grantAccess as grantAccessAction,
+  revokeAccess as revokeAccessAction,
+  updateProject,
+  updateProject as updateProjectAction } from './actions';
 
 import BadgedButton from 'components/BadgedButton';
 import Container from 'components/Container';
 import EditableParagraph from 'components/EditableParagraph';
+import Members from '../../components/Members';
+import ProjectSettings from 'components/ProjectSettings';
 import Summary from 'components/Summary';
 
-import { Nav, Dropdown, ButtonToolbar, Icon, FlexboxGrid, Button } from 'rsuite';
+import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Form, FormGroup, ControlLabel, FormControl, Table, SelectPicker } from 'rsuite';
 import { Link } from 'react-router-dom';
+import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
 function mapPersonalInformationToLabel(personalInformation) {
   switch (personalInformation) {
@@ -49,14 +57,22 @@ function DatasetSummary({ project, ds }) {
     </Summary>;
 }
 
-function Resources(props) {
+function Resources({ dispatch, ...props }) {
   const name = _.get(props, 'match.params.name') || 'Unknown Project';
   const summary = _.get(props, 'project.project.summary');
 
   const datasets = _.get(props, 'project.datasets') || [];
 
   return <Container md className="mq--main-content">
-    <EditableParagraph className="mq--p-leading" value={ summary } />
+    <EditableParagraph 
+      className="mq--p-leading" 
+      value={ summary } 
+      onChange={ summary => {
+        const title = _.get(props, 'project.project.title');
+        const name = _.get(props, 'project.project.name');
+
+        dispatch(updateProject(name, name, title, summary));
+      } } />
 
     <ButtonToolbar>
       <BadgedButton icon="table" label="8" size="sm">Sets</BadgedButton>
@@ -81,9 +97,59 @@ function Resources(props) {
   </Container>;
 }
 
+function Settings({ dispatch, ...props }) {
+  const project = _.get(props, 'match.params.name') || 'Unknown Project';
+  const sub = _.get(props, 'match.params.sub') || 'options';
+
+  const members = _.map(_.get(props, 'project.project.authorizations') || [], a => {
+    const user = _.get(a, 'authorization.user');
+    const role = _.get(a, 'authorization.role');
+    const type = _.get(a, 'authorization.type');
+
+    return {
+      id: user || role || '',
+      name: user && _.capitalize(user),
+      type: type,
+      role: 'member'
+    };
+  });
+
+  const roles = [
+    {
+      "label": "Member",
+      "value": "member",
+      "role": "Master"
+    }
+  ];
+
+  return <Container xlg className="mq--main-content">
+    <FlexboxGrid>
+      <FlexboxGrid.Item colspan={4}>
+        <Nav vertical activeKey={ sub } appearance="subtle">
+          <Nav.Item eventKey="options" componentClass={ Link } to={ `/${project}/settings` }>Options</Nav.Item>
+          <Nav.Item eventKey="members" componentClass={ Link } to={ `/${project}/settings/members` }>Manage members</Nav.Item>
+        </Nav>
+      </FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={19}>
+        { sub == 'options' && <ProjectSettings 
+            title={ _.get(props, 'project.project.title') }
+            name={ _.get(props, 'project.project.name') } 
+            onUpdate={ (title, name) => dispatch(updateProjectAction(project, name, title, _.get(props, 'project.project.summary'))) } /> }
+
+        { sub == 'members' && <Members 
+            members={ members } 
+            roles={ roles } 
+            onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
+            onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> }
+      </FlexboxGrid.Item>      
+    </FlexboxGrid>
+  </Container>
+}
+
 function Display(props) {
   const name = _.get(props, 'match.params.name') || 'Unknown Project';
-  const tab = _.get(props, 'match.params.tab') || 'resources';
+  const tab = _.get(props, 'match.params.tab') || 'data';
   const title = _.get(props, 'project.project.title') || _.get(props, 'project.project.name');
 
   return (
@@ -104,14 +170,18 @@ function Display(props) {
         </Container>
         
         <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-          <Nav.Item eventKey="resources" componentClass={ Link } to={ `/${name}` }>Resources</Nav.Item>
+          <Nav.Item eventKey="data" componentClass={ Link } to={ `/${name}` }>Data</Nav.Item>
+          <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
+          <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
           <Nav.Item eventKey="workspaces" componentClass={ Link } to={ `/${name}/workspaces` }>Workspaces</Nav.Item>
-          <Nav.Item eventKey="members" componentClass={ Link } to={ `/${name}/members` }>Members</Nav.Item>
+          <Nav.Item eventKey="projects" componentClass={ Link } to={ `/${name}/projects` }>Projects</Nav.Item>
+          <Nav.Item eventKey="templates" componentClass={ Link } to={ `/${name}/templates` }>Templates</Nav.Item>
           <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${name}/settings` }>Settings</Nav.Item>
         </Nav>
       </div>
       
-      { tab == 'resources' && <Resources { ...props} /> }
+      { tab == 'data' && <Resources { ...props} /> }
+      { tab == 'settings' && <Settings { ...props} /> }
     </div>
   );
 }

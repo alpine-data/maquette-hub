@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import cx from 'classnames';
-import { ButtonToolbar, Button, Form, FormGroup, Input } from 'rsuite';
+import { Input } from 'rsuite';
 
 function EditableParagraph({ className, disabled, placeholder, label, value, onChange, ...props }) {
   const [editing, setEditing] = useState(false);

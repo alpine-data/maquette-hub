@@ -13,9 +13,7 @@ import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.authorization.UserAuthorization;
-import org.checkerframework.checker.nullness.Opt;
 
-import javax.swing.text.html.Option;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -346,7 +344,7 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
 
    @Override
    public CompletionStage<Done> insertOwner(String parentId, UserAuthorization owner) {
-      var file = getOwnerFile(parentId, owner.getUserId());
+      var file = getOwnerFile(parentId, owner.getUser());
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), owner));
       return CompletableFuture.completedFuture(Done.getInstance());
    }

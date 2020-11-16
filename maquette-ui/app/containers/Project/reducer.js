@@ -24,9 +24,11 @@ const projectReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
       case GET_PROJECT:
-        draft.id = action.name;
-        draft.project_loading = true;
-        draft.dataset_loading = true;
+        if (action.clear) {
+          draft.id = action.name;
+          draft.project_loading = true;
+          draft.dataset_loading = true;
+        }
         draft.error = false;
         break;
       case GET_PROJECT_FAILED:

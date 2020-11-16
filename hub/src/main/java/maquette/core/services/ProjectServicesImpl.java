@@ -10,6 +10,8 @@ import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Project;
 import maquette.core.entities.projects.model.ProjectDetails;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -121,6 +123,26 @@ public final class ProjectServicesImpl implements ProjectServices {
                return CompletableFuture.completedFuture(Done.getInstance());
             }
          });
+   }
+
+   @Override
+   public CompletionStage<Done> update(User user, String name, String updatedName, String title, String summary) {
+      return withProject(name)
+         .thenCompose(project -> project.updateDetails(user, updatedName, title, summary));
+   }
+
+   /*
+    * Manage members
+    */
+
+   @Override
+   public CompletionStage<GrantedAuthorization> grant(User user, String name, Authorization authorization) {
+      return withProject(name).thenCompose(p -> p.grant(user, authorization));
+   }
+
+   @Override
+   public CompletionStage<Done> revoke(User user, String name, Authorization authorization) {
+      return withProject(name).thenCompose(p -> p.revoke(user, authorization));
    }
 
    private CompletionStage<Project> withProject(String name) {

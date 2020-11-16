@@ -6,7 +6,10 @@
 
 import { 
   GET_DATASETS_FAILED, GET_DATASETS_SUCCESS, 
-  GET_PROJECT, GET_PROJECT_SUCCESS, GET_PROJECT_FAILED } from './constants';
+  GET_PROJECT, GET_PROJECT_SUCCESS, GET_PROJECT_FAILED,
+  GRANT_ACCESS, GRANT_ACCESS_FAILED, GRANT_ACCESS_SUCCESS,
+  REVOKE_ACCESS, REVOKE_ACCESS_FAILED, REVOKE_ACCESS_SUCCESS,
+  UPDATE_PROJECT, UPDATE_PROJECT_FAILED, UPDATE_PROJECT_SUCCESS } from './constants';
 
 export function getDatasetsFailed(name, error) {
   return {
@@ -24,10 +27,11 @@ export function getDatasetsSuccess(name, response) {
   }
 }
 
-export function getProject(name) {
+export function getProject(name, clear = true) {
   return {
     type: GET_PROJECT,
-    name
+    name,
+    clear
   };
 }
 
@@ -46,3 +50,73 @@ export function getProjectSuccess(name, response) {
     response
   };
 }
+
+export function grantAccess(project, type, name) {
+ return {
+   type: GRANT_ACCESS,
+   project,
+   authorizationType: type, 
+   name
+ }
+}
+
+export function grantAccessFailed(error) {
+  return {
+    type: GRANT_ACCESS_FAILED,
+    error
+  }
+}
+
+export function grantAccessSuccess(response) {
+  return {
+    type: GRANT_ACCESS_SUCCESS,
+    response
+  }
+}
+
+export function revokeAccess(project, type, name) {
+  return {
+    type: REVOKE_ACCESS,
+    project,
+    authorizationType: type, 
+    name
+  }
+ }
+ 
+ export function revokeAccessFailed(error) {
+   return {
+     type: REVOKE_ACCESS_FAILED,
+     error
+   }
+ }
+ 
+ export function revokeAccessSuccess(response) {
+   return {
+     type: REVOKE_ACCESS_SUCCESS,
+     response
+   }
+ }
+
+ export function updateProject(project, name, title, summary) {
+   return {
+     type: UPDATE_PROJECT,
+     project,
+     name,
+     title,
+     summary
+   };
+ }
+
+ export function updateProjectSuccess(response) {
+   return {
+     type: UPDATE_PROJECT_SUCCESS,
+     response
+   };
+ }
+
+ export function updateProjectFailed(error) {
+   return {
+     type: UPDATE_PROJECT_FAILED,
+     error
+   }
+ }

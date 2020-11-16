@@ -68,7 +68,7 @@ public final class Dataset {
                // TODO
                throw new RuntimeException("Cannot remove last remaining owner from Project.");
             } else if (owners.contains(owner)) {
-               return repository.removeOwner(getFullId(), owner.getUserId());
+               return repository.removeOwner(getFullId(), owner.getUser());
             } else {
                return CompletableFuture.completedFuture(Done.getInstance());
             }

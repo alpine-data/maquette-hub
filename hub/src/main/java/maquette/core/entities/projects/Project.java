@@ -67,6 +67,20 @@ public final class Project {
                            props.getCreated(), props.getModified(), authorizations));
     }
 
+    public CompletionStage<Done> updateDetails(User executor, String name, String title, String summary) {
+       // TODO mw: value validation ...
+
+       return getProperties()
+          .thenCompose(properties -> {
+             var updated = properties
+                .withName(name)
+                .withTitle(title)
+                .withSummary(summary);
+
+             return repository.insertOrUpdateProject(updated);
+          });
+    }
+
     public String getId() {
        return id;
     }
