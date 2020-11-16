@@ -62,7 +62,7 @@ function StatisticGroup({ group }) {
     <Divider />
     { 
       _.map(group, line => {
-        return <FlexboxGrid>
+        return <FlexboxGrid key={ line }>
           <FlexboxGrid.Item colspan={14}>{ line[0] }</FlexboxGrid.Item>
           <FlexboxGridItem colspan={5} className="number">{ line[1] }</FlexboxGridItem>
           <FlexboxGridItem colspan={5} className="number mq--sub">{ line[2] }</FlexboxGridItem>
@@ -74,7 +74,7 @@ function StatisticGroup({ group }) {
 
 function Statistics({ stats }) {
   console.log(stats);
-  return <FlexboxGrid.Item colspan="11">
+  return <FlexboxGrid.Item colspan={11}>
     <div className="mq--explorer--field--correctness">
       <div className="valid" style={{ width: stats.valid[1] + "%" }} />
       <div className="mismatched" style={{ width: stats.mismatched[1] + "%" }} />
@@ -99,7 +99,7 @@ function Statistics({ stats }) {
       <FlexboxGridItem colspan={5} className="number mq--sub">{ stats.missing[1] }%</FlexboxGridItem>
     </FlexboxGrid>
 
-    { _.map(stats.details, group => <StatisticGroup group={ group } />) }
+    { _.map(stats.details, group => <StatisticGroup group={ group } key={ group } />) }
   </FlexboxGrid.Item>;
 }
 
@@ -117,10 +117,10 @@ function Field({ field }) {
   return <div className="mq--explorer--field">
     <p className="mq--explorer--field--name"><Icon icon={ icons[field.type] } size="2x" />&nbsp;{ field.name }<span className="mq--sub">, { field.type }</span></p>
     <FlexboxGrid>
-      <FlexboxGrid.Item colspan="12">
+      <FlexboxGrid.Item colspan={12}>
         <img src={ SampleImage } className="mq--explorer--field--image" />
       </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan="1"></FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
       <Statistics stats={ field.stats } />
     </FlexboxGrid>
   </div>

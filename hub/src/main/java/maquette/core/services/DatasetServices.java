@@ -37,6 +37,10 @@ public interface DatasetServices {
 
    CompletionStage<List<DatasetProperties>> getDatasets(User executor, String projectName);
 
+   CompletionStage<Done> updateDetails(
+      User executor, String projectName, String datasetName, String name, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+
    /*
     * Data Access Tokens
     */

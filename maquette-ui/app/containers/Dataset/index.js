@@ -20,9 +20,9 @@ import saga from './saga';
 import { 
   createDataAccessRequest as createDataAccessRequestAction, 
   getDataset as getDatasetAction,
-  selectVersion,
   selectVersion as selectVersionAction,
-  updateDataAccessRequest as updateDataAccessRequestAction } from './actions';
+  updateDataAccessRequest as updateDataAccessRequestAction,
+  updateDataset as updateDatasetAction } from './actions';
 
 import Container from 'components/Container';
 import DataAccessRequest from 'components/DataAccessRequest';
@@ -43,6 +43,7 @@ import { Link } from 'react-router-dom';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
+import DataGovernanceOptions from '../../components/DataGovernanceOptions';
 
 SyntaxHighlighter.registerLanguage('json', json);
 
@@ -51,7 +52,7 @@ SyntaxHighlighter.registerLanguage('json', json);
  * 
  * @param {*} props 
  */
-function Overview(props) {
+function Overview({ dispatch, ...props }) {
   const projectName = _.get(props, 'match.params.name') || 'unknown';
   const datasetName = _.get(props, 'match.params.dataset') || 'unknown';
   const dataset = _.get(props, 'dataset.dataset') || {};
@@ -62,36 +63,50 @@ function Overview(props) {
   const summary = _.get(props, 'dataset.dataset.summary') || '';
 
   return <Container md className="mq--main-content">
-
-    <EditableParagraph className="mq--p-leading" value={ summary } />
+    <EditableParagraph 
+      className="mq--p-leading" 
+      value={ summary } 
+      onChange={ value => {
+        const title= _.get(props, 'dataset.dataset.title');
+        const visibility = _.get(props, 'dataset.dataset.visibility');
+        const classification = _.get(props, 'dataset.dataset.classification');
+        const personalInformation = _.get(props, 'dataset.dataset.personalInformation');
+        
+        dispatch(updateDatasetAction(projectName, datasetName, datasetName, title, value, visibility, classification, personalInformation));
+      } } />
+    
     { dataset && <DataBadges resource={dataset} /> }
     
     <hr />
 
-    <h4>Versions</h4>
-    <VersionsTimeline 
-      dataset={ dataset } 
-      versions={ versions } 
-      activeVersion={ version } 
-      onSelectVersion={ version => props.dispatch(selectVersionAction(version)) } />
-    
-    <hr />
+    { 
+      !_.isEmpty(versions) && <>
+        <h4>Versions</h4>
 
-    <h4>Schema <span className="mq--sub">v{ version }</span></h4>
-    <SyntaxHighlighter showLineNumbers language="json" style={docco}>
-      { 
-        JSON.stringify(schema, null, 2) 
-      }
-    </SyntaxHighlighter>
+        <VersionsTimeline 
+            dataset={ dataset } 
+            versions={ versions } 
+            activeVersion={ version } 
+            onSelectVersion={ version => props.dispatch(selectVersionAction(version)) } /> 
 
-    <hr />
+        <hr />
+      </>
+    }
 
-    <DataExplorer />
-
-    <hr />
-
-    <DatasetCodeExamples project={ projectName } dataset={ datasetName } version={ version } />
-    
+    {
+      version != '' && <>
+        <h4>Schema <span className="mq--sub">v{ version }</span></h4>
+        <SyntaxHighlighter showLineNumbers language="json" style={docco}>
+          { 
+            JSON.stringify(schema, null, 2) 
+          }
+        </SyntaxHighlighter>
+        <hr />
+        <DataExplorer />
+        <hr />
+        <DatasetCodeExamples project={ projectName } dataset={ datasetName } version={ version } />
+      </>
+    }
   </Container>;
 }
 
@@ -224,6 +239,8 @@ function Display(props) {
   const dataset = _.get(props, 'match.params.dataset') || 'Unknown Datasource';
   const tab = _.get(props, 'match.params.tab') || 'overview';
 
+  const show = _.get(props, 'dataset.dataset.name') || false;
+
   return <div>
     <Helmet>
       <title>Dataset</title>
@@ -254,9 +271,9 @@ function Display(props) {
       </div>
     </Affix>
 
-    { tab == 'overview' && <Overview { ...props } /> }
-    { tab == 'access-requests' && <AccessRequests { ...props } /> }
-    { tab == 'settings' && <Settings { ...props } /> }
+    { show && tab == 'overview' && <Overview { ...props } /> }
+    { show && tab == 'access-requests' && <AccessRequests { ...props } /> }
+    { show && tab == 'settings' && <Settings { ...props } /> }
   </div>;
 }
 
@@ -264,7 +281,7 @@ function Display(props) {
  * Settings tab.
  * @param {*} props 
  */
-function Settings(props) {
+function Settings({ dispatch, ...props }) {
   const project = _.get(props, 'match.params.name') || 'project';
   const dataset = _.get(props, 'match.params.dataset') || 'dataset';
   const sub = _.get(props, 'match.params.id') || 'options'
@@ -303,13 +320,40 @@ function Settings(props) {
         { sub == 'options' && <ResourceSettings 
             resource="Dataset"
             title={ _.get(props, 'dataset.dataset.title') }
-            name={ _.get(props, 'dataset.dataset.name') } /> }
+            name={ _.get(props, 'dataset.dataset.name') }
+            onUpdate={ (title, name) => {
+              const visibility = _.get(props, 'dataset.dataset.visibility');
+              const classification = _.get(props, 'dataset.dataset.classification');
+              const personalInformation = _.get(props, 'dataset.dataset.personalInformation');
+              const summary = _.get(props, 'dataset.dataset.summary');
 
-        { sub == 'governance' && <Members 
-            members={ members } 
-            roles={ roles } 
-            onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
-            onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> }
+              dispatch(updateDatasetAction(project, dataset, name, title, summary, visibility, classification, personalInformation));
+            } } /> }
+
+        { sub == 'governance' && <>
+            <DataGovernanceOptions 
+              visibility={ _.get(props, 'dataset.dataset.visibility') }
+              classification={ _.get(props, 'dataset.dataset.classification') }
+              personalInformation={ _.get(props, 'dataset.dataset.personalInformation') }
+              onUpdate={
+                (visibility, classification, personalInformation) => {
+                  const title = _.get(props, 'dataset.dataset.title');
+                  const summary = _.get(props, 'dataset.dataset.summary');
+
+                  dispatch(updateDatasetAction(project, dataset, dataset, title, summary, visibility, classification, personalInformation));
+                }
+              } />
+
+            <hr />
+
+            <Members 
+              title="Manage responsibilities"
+              members={ members } 
+              roles={ roles } 
+              onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
+              onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> 
+          </>
+        }
       </FlexboxGrid.Item>      
     </FlexboxGrid>
   </Container>

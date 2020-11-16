@@ -78,7 +78,9 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
 ResourceSettings.propTypes = {
   resource: PropTypes.string,
   name: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
+
+  onUpdate: PropTypes.func
 };
 
 export default ResourceSettings;

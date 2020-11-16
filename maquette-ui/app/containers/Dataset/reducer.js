@@ -62,12 +62,14 @@ const datasetReducer = (state = initialState, action) =>
         break;
 
       case GET_DATASET:
-        draft.dataset = false;
-        draft.project = false;
-        draft.projects = false;
-        draft.versions = false;
-        draft.version = false;
-        draft.data_access_requests = initialState.create_data_access_request;
+        if (action.clear) {
+          draft.dataset = false;
+          draft.project = false;
+          draft.projects = false;
+          draft.versions = false;
+          draft.version = false;
+          draft.data_access_requests = initialState.create_data_access_request;
+        }
 
         draft.dataset_loading = true;
         draft.data_access_requests.loading = true;

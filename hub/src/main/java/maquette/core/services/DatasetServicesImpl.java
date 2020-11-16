@@ -73,6 +73,15 @@ public class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
+   public CompletionStage<Done> updateDetails(
+      User executor, String projectName, String datasetName, String name, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.updateDetails(
+         executor, name, title, summary, visibility, classification, personalInformation));
+   }
+
+   @Override
    public CompletionStage<DatasetProperties> getDataset(User executor, String projectName, String datasetName) {
       return withDatasetByName(projectName, datasetName, (p, d) -> d.getDatasetProperties());
    }

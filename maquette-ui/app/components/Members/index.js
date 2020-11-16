@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import { AutoComplete, Button, Icon, SelectPicker, Table } from 'rsuite';
 // import styled from 'styled-components';
 
-function Members({ roles, members, users = [], groups = [], onRoleChanged = console.log, onMemberAdded = console.log, onMemberRemoved=console.log }) {
+function Members({ roles, members, users = [], groups = [], title="Manage members", onRoleChanged = console.log, onMemberAdded = console.log, onMemberRemoved=console.log }) {
   const [authType, setAuthType] = useState('user');
   const [authId, setAuthId] = useState('');
   const [authRole, setAuthRole] = useState(roles[0].value);
@@ -21,7 +21,7 @@ function Members({ roles, members, users = [], groups = [], onRoleChanged = cons
   }]
 
   return <>
-      <h4>Manage members</h4>
+      { title && <h4>{ title }</h4> }
       <Table autoHeight data={ members } rowHeight={ 60 } showHeader={ false }>
         <Table.Column flexGrow={ 13 } verticalAlign="middle">
           <Table.HeaderCell></Table.HeaderCell>
@@ -158,6 +158,7 @@ Members.propTypes = {
 
   users: PropTypes.arrayOf(PropTypes.string),
   groups: PropTypes.arrayOf(PropTypes.string),
+  title: PropTypes.string,
 
   onRoleChanged: PropTypes.func,
   onMemberRemoved: PropTypes.func,

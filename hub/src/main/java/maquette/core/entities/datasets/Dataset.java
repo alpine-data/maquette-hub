@@ -7,7 +7,11 @@ import maquette.core.entities.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsStore;
 import maquette.core.ports.DatasetsRepository;
+import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.data.DataClassification;
+import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
 import java.util.concurrent.CompletableFuture;
@@ -75,9 +79,28 @@ public final class Dataset {
          });
    }
 
+   public CompletionStage<Done> updateDetails(
+      User executor, String name, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      // TODO mw: value validation ...
+
+      return withDatasetProperties(properties -> {
+         var updated = properties
+            .withName(name)
+            .withTitle(title)
+            .withSummary(summary)
+            .withVisibility(visibility)
+            .withClassification(classification)
+            .withPersonalInformation(personalInformation)
+            .withUpdated(ActionMetadata.apply(executor));
+
+         return repository.insertOrUpdateDataset(projectId, updated);
+      });
+   }
+
    private <T> CompletionStage<T> withDatasetProperties(Function<DatasetProperties, CompletionStage<T>> func) {
       return repository
-         .findDatasetByName(projectId, name)
+         .findDatasetById(projectId, id)
          .thenCompose(maybeDataset -> {
             if (maybeDataset.isPresent()) {
                return func.apply(maybeDataset.get());

@@ -4,18 +4,22 @@ import { makeSelectCurrentUser } from '../App/selectors';
 
 import { 
   createDataAccessRequestFailed, createDataAccessRequestSuccess,
-  getDatasetFailed, getDatasetSuccess, 
+  getDataset as getDatasetAction, getDatasetFailed, getDatasetSuccess, 
   getDataAccessRequests as getDataAccessRequestsAction, getDataAccessRequestsFailed, getDataAccessRequestsSuccess,
   getProjectFailed, getProjectSuccess,
   getProjectsFailed, getProjectsSuccess, 
-  updateDataAccessRequestSuccess, updateDataAccessRequestFailed, getVersionsSuccess, getVersionsFailed } from './actions';
-import { 
+  updateDataAccessRequestSuccess, updateDataAccessRequestFailed, getVersionsSuccess, getVersionsFailed, updateDatasetSuccess, updateDatasetFailed } from './actions';
+
+  import { 
   CREATE_DATA_ACCESS_REQUEST, 
   GET_DATASET, 
   GET_DATA_ACCESS_REQUESTS,
-  UPDATE_DATA_ACCESS_REQUEST } from './constants';
+  UPDATE_DATA_ACCESS_REQUEST,
+  UPDATE_DATASET } from './constants';
 
 import { command } from 'utils/request';
+
+import { push } from 'connected-react-router';
 
 export function* createDataAccessRequest(action) {
   try {
@@ -31,7 +35,7 @@ export function* createDataAccessRequest(action) {
 export function* getDataset(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets get', _.omit(action, 'type'), user);
+    const data = yield call(command, 'datasets get', _.omit(action, 'type', 'clear'), user);
 
     yield put(getDatasetSuccess(action.project, action.dataset, data));
   } catch (err) {
@@ -42,7 +46,7 @@ export function* getDataset(action) {
 export function* getDataAccessRequests(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets access-requests list', _.omit(action, 'type'), user);
+    const data = yield call(command, 'datasets access-requests list', _.omit(action, 'type', 'clear'), user);
     
     yield put(getDataAccessRequestsSuccess(data));
   } catch (err) {
@@ -87,11 +91,28 @@ export function* updateDataAccessRequest(action) {
 export function* getVersions(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets revisions list', _.omit(action, 'type'), user);
+    const data = yield call(command, 'datasets revisions list', _.omit(action, 'type', 'clear'), user);
 
     yield put(getVersionsSuccess(data));
   } catch (err) {
     yield put(getVersionsFailed(err));
+  }
+}
+
+export function* updateDataset(action) {
+  try {
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'datasets update', _.omit(action, 'type'), user);
+
+    yield put(updateDatasetSuccess(data));
+
+    if (action.dataset == action.name) {
+      yield put(getDatasetAction(action.project, action.dataset, false));
+    } else {
+      yield put(push(`/${action.project}/resources/datasets/${action.name}`));
+    }
+  } catch (err) {
+    yield put(updateDatasetFailed(err));
   }
 }
 
@@ -106,7 +127,6 @@ export default function* datasetSaga() {
   yield takeLatest(GET_DATASET, getVersions);
 
   yield takeLatest(GET_DATA_ACCESS_REQUESTS, getDataAccessRequests);
-
-  yield takeLatest(UPDATE_DATA_ACCESS_REQUEST, updateDataAccessRequest)
-
+  yield takeLatest(UPDATE_DATA_ACCESS_REQUEST, updateDataAccessRequest);
+  yield takeLatest(UPDATE_DATASET, updateDataset);
 }

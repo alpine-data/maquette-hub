@@ -11,7 +11,8 @@ import {
   GET_PROJECT_FAILED, GET_PROJECT_SUCCESS,
   GET_DATASET, GET_DATASET_FAILED, GET_DATASET_SUCCESS,
   GET_VERSIONS_SUCCESS, GET_VERSIONS_FAILED,
-  UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS, SELECT_VERSION } from './constants';
+  UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS, SELECT_VERSION,
+  UPDATE_DATASET, UPDATE_DATASET_FAILED, UPDATE_DATASET_SUCCESS } from './constants';
 
 export function createDataAccessRequest(project, dataset, origin, reason) {
   return {
@@ -20,14 +21,14 @@ export function createDataAccessRequest(project, dataset, origin, reason) {
     dataset,
     origin,
     reason
-  }
+  };
 }
 
 export function createDataAccessRequestFailed(error) {
   return {
     type: CREATE_DATA_ACCESS_REQUEST_FAILED,
     error
-  }
+  };
 }
 
 export function createDataAccessRequestSuccess(response) {
@@ -42,28 +43,29 @@ export function getDataAccessRequests(project, dataset) {
     type: GET_DATA_ACCESS_REQUESTS,
     project,
     dataset
-  }
+  };
 }
 
 export function getDataAccessRequestsFailed(error) {
   return {
     type: GET_DATA_ACCESS_REQUESTS_FAILED,
     error
-  }
+  };
 }
 
 export function getDataAccessRequestsSuccess(response) {
   return {
     type: GET_DATA_ACCESS_REQUESTS_SUCCESS,
     response
-  }
+  };
 }
 
-export function getDataset(project, dataset) {
+export function getDataset(project, dataset, clear = true) {
   return {
     type: GET_DATASET,
     project,
-    dataset
+    dataset,
+    clear
   };
 }
 
@@ -80,7 +82,7 @@ export function getDatasetSuccess(project, dataset, response) {
     project,
     dataset,
     response
-  }
+  };
 }
 
 export function getProjectFailed(error) {
@@ -116,21 +118,21 @@ export function getVersionsSuccess(response) {
   return {
     type: GET_VERSIONS_SUCCESS,
     response
-  }
+  };
 }
 
 export function getVersionsFailed(error) {
   return {
     type: GET_VERSIONS_FAILED,
     error
-  }
+  };
 }
 
 export function selectVersion(version) {
   return {
     type: SELECT_VERSION,
     version
-  }
+  };
 }
 
 export function updateDataAccessRequest(command, args) {
@@ -138,7 +140,7 @@ export function updateDataAccessRequest(command, args) {
     type: UPDATE_DATA_ACCESS_REQUEST,
     command,
     args
-  }
+  };
 }
 
 export function updateDataAccessRequestFailed(error) {
@@ -152,5 +154,33 @@ export function updateDataAccessRequestSuccess(response) {
   return {
     type: UPDATE_DATA_ACCESS_REQUEST_SUCCESS,
     response
-  }
+  };
+}
+
+export function updateDataset(project, dataset, name, title, summary, visibility, classification, personalInformation) {
+  return {
+    type: UPDATE_DATASET,
+    project,
+    dataset,
+    name,
+    title,
+    summary,
+    visibility,
+    classification,
+    personalInformation
+  };
+}
+
+export function updateDatasetFailed(error) {
+  return {
+    type: UPDATE_DATASET_FAILED,
+    error
+  };
+}
+
+export function updateDatasetSuccess(response) {
+  return {
+    type: UPDATE_DATASET_SUCCESS,
+    response
+  };
 }

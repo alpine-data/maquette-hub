@@ -11,7 +11,45 @@ import PropTypes from 'prop-types';
 import produce from 'immer';
 import kebabcase from 'lodash.kebabcase';
 
-import { Icon, ControlLabel, FlexboxGrid, Form, FormControl, FormGroup, InputPicker, HelpBlock, ButtonToolbar, Button, Radio, RadioGroup } from 'rsuite';
+import { ControlLabel, FlexboxGrid, Form, FormControl, FormGroup, InputPicker, HelpBlock, ButtonToolbar, Button, Radio, RadioGroup } from 'rsuite';
+
+export function VisibilityFormGroup({ value, onChange }) {
+  return <FormGroup>
+    <ControlLabel>Visibility</ControlLabel>
+    <HelpBlock>The dataset metadata might be visible to allow other users to find the dataset. If the dataset is visible, the data is still not accessible for everyone.</HelpBlock>
+    <RadioGroup name="visibility" value={ value } onChange={ onChange } style={{ paddingTop: "10px" }}>
+      <Radio value="public"><b>Public</b> <br />The dataset and its metadata can be seen by everyone. The data is not public.</Radio>
+      <Radio value="private"><b>Private</b><br />The dataset is entirely hidden from other users.</Radio>
+    </RadioGroup>
+  </FormGroup>;
+}
+
+export function DataClassificationFormGroup({ value, onChange, personalInformation }) {
+  return <FormGroup>
+    <ControlLabel>Data Classification</ControlLabel>
+    <HelpBlock>Classify the contained data.</HelpBlock>
+
+    <RadioGroup name="classification" value={ value } onChange={ onChange } style={{ paddingTop: "10px" }}>
+      <Radio value="public" disabled={ personalInformation != "none" }><b>Public</b> <br />The data is public information, it can be used by everyone, everywere for any purpose.</Radio>
+      <Radio value="internal" disabled={ personalInformation != "none" }><b>Internal</b><br />The dataset may contain company internal information. If disclosed, the impact to business is minimal.</Radio>
+      <Radio value="confidential" disabled={ personalInformation == "spi" }><b>Confidential</b><br />The dataset may contain business critical internal information. If disclosed, business or brand could be negatively effected.</Radio>
+      <Radio value="restricted"><b>Restricted</b><br />The dataset may contain highly sensitive information. If disclosed, it will have significant financial or legal impact.</Radio>
+    </RadioGroup>
+  </FormGroup>;
+}
+
+export function PersonalInformtionFormGroup({ value, onChange }) {
+  return <FormGroup>
+    <ControlLabel>Personal Information</ControlLabel>
+    <HelpBlock>Specify whether the data may contain data points which could identify a natural person.</HelpBlock>
+
+    <RadioGroup name="personalInformation" value={ value } onChange={ onChange } style={{ paddingTop: "10px" }}>
+      <Radio value="none"><b>None</b> <br />The data definetely does not contain any personal information.</Radio>
+      <Radio value="pi"><b>Personal Information</b><br />The dataset may contain personal information.</Radio>
+      <Radio value="spi"><b>Sensitive Personal Information</b><br />The dataset may contain sensitive personal information according to GDPR.</Radio>
+    </RadioGroup>
+  </FormGroup>;
+}
 
 function CreateDatasetForm({ projects = [], onSubmit = console.log }) {
   const [state, setState] = useState({
@@ -87,44 +125,12 @@ function CreateDatasetForm({ projects = [], onSubmit = console.log }) {
             <FormControl name="summary" onChange={ onChange('summary') } value={ state.summary } />
           </FormGroup>
           
+          <hr />   
+          <VisibilityFormGroup value={ state.visibility } onChange={ onChange('visibility') } />
           <hr />
-          
-          <FormGroup>
-            <ControlLabel>Visibility</ControlLabel>
-            <HelpBlock>The dataset metadata might be visible to allow other users to find the dataset. If the dataset is visible, the data is still not accessible for everyone.</HelpBlock>
-            <RadioGroup name="visibility" value={ state.visibility } onChange={ onChange('visibility') } style={{ paddingTop: "10px" }}>
-              <Radio value="public"><b>Public</b> <br />The dataset and its metadata can be seen by everyone. The data is not public.</Radio>
-              <Radio value="private"><b>Private</b><br />The dataset is entirely hidden from other users.</Radio>
-            </RadioGroup>
-          </FormGroup>
-
+          <DataClassificationFormGroup value={ state.classification } onChange={ onChange('classification') } personalInformation={ state.personalInformation } />
           <hr />
-
-          <FormGroup>
-            <ControlLabel>Data Classification</ControlLabel>
-            <HelpBlock>Classify the contained data.</HelpBlock>
-
-            <RadioGroup name="classification" value={ state.classification } onChange={ onChange('classification') } style={{ paddingTop: "10px" }}>
-              <Radio value="public" disabled={ state.personalInformation != "none" }><b>Public</b> <br />The data is public information, it can be used by everyone, everywere for any purpose.</Radio>
-              <Radio value="internal" disabled={ state.personalInformation != "none" }><b>Internal</b><br />The dataset may contain company internal information. If disclosed, the impact to business is minimal.</Radio>
-              <Radio value="confidential" disabled={ state.personalInformation == "spi" }><b>Confidential</b><br />The dataset may contain business critical internal information. If disclosed, business or brand could be negatively effected.</Radio>
-              <Radio value="restricted"><b>Restricted</b><br />The dataset may contain highly sensitive information. If disclosed, it will have significant financial or legal impact.</Radio>
-            </RadioGroup>
-          </FormGroup>
-
-          <hr />
-
-          <FormGroup>
-            <ControlLabel>Personal Information</ControlLabel>
-            <HelpBlock>Specify whether the data may contain data points which could identify a natural person.</HelpBlock>
-
-            <RadioGroup name="personalInformation" value={ state.personalInformation } onChange={ personalInformation_onChange } style={{ paddingTop: "10px" }}>
-              <Radio value="none"><b>None</b> <br />The data definetely does not contain any personal information.</Radio>
-              <Radio value="pi"><b>Personal Information</b><br />The dataset may contain personal information.</Radio>
-              <Radio value="spi"><b>Sensitive Personal Information</b><br />The dataset may contain sensitive personal information according to GDPR.</Radio>
-            </RadioGroup>
-          </FormGroup>
-
+          <PersonalInformtionFormGroup value={ state.personalInformation } onChange={ personalInformation_onChange } />
           <hr />
 
           <FormGroup>

@@ -42,6 +42,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = CommitRevisionCommand.class, name = "datasets revisions commit"),
       @JsonSubTypes.Type(value = CreateRevisionCommand.class, name = "datasets revisions create"),
       @JsonSubTypes.Type(value = ListDatasetVersionsCommand.class, name = "datasets revisions list"),
+      @JsonSubTypes.Type(value = UpdateDatasetPropertiesCommand.class, name = "datasets update"),
 
       // Projects
       @JsonSubTypes.Type(value = CreateProjectCommand.class, name = "projects create"),

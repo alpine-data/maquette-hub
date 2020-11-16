@@ -75,7 +75,8 @@ public final class Project {
              var updated = properties
                 .withName(name)
                 .withTitle(title)
-                .withSummary(summary);
+                .withSummary(summary)
+                .withModified(ActionMetadata.apply(executor));
 
              return repository.insertOrUpdateProject(updated);
           });

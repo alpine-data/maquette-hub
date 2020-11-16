@@ -41,7 +41,7 @@ function VersionsTimeline({ dataset, versions, activeVersion, onSelectVersion })
 
   return <Timeline className="mq--dataset-versions">
     { 
-      _.map(latestVersions, version => <Version 
+      _.size(latestVersions) > 0 && _.map(latestVersions, version => <Version 
         activeVersion={ activeVersion } 
         key={ version.id } 
         version={ version } 
@@ -60,11 +60,11 @@ function VersionsTimeline({ dataset, versions, activeVersion, onSelectVersion })
     }
 
     { 
-      collapsed || _.map(remainingVersions, version => <Version 
+      !collapsed && _.size(remainingVersions) > 0 && _.map(remainingVersions, version => <Version 
         activeVersion={ activeVersion } 
         key={ version.id } 
         version={ version } 
-        onSelectVersion={ onSelectVersion } />) 
+        onSelectVersion={ onSelectVersion } />)
     }
     
     <Timeline.Item>
