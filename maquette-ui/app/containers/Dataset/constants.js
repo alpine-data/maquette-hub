@@ -25,6 +25,14 @@ export const GET_DATASET_SUCCESS = 'app/Dataset/GET_DATASET_SUCCESS';
 export const GET_VERSIONS_SUCCESS = 'app/Dataset/GET_VERSIONS_SUCCESS';
 export const GET_VERSIONS_FAILED = 'app/Dataset/GET_VERSIONS_FAILED';
 
+export const GRANT_ACCESS = 'app/Dataset/GRANT_ACCESS';
+export const GRANT_ACCESS_FAILED = 'app/Dataset/GRANT_ACCESS_FAILED';
+export const GRANT_ACCESS_SUCCESS = 'app/Dataset/GRANT_ACCESS_SUCCESS';
+
+export const REVOKE_ACCESS = 'app/Dataset/REVOKE_ACCESS';
+export const REVOKE_ACCESS_FAILED = 'app/Dataset/REVOKE_ACCESS_FAILED';
+export const REVOKE_ACCESS_SUCCESS = 'app/Dataset/REVOKE_ACCESS_SUCCESS';
+
 export const SELECT_VERSION = 'app/Dataset/SELECT_VERSION';
 
 export const UPDATE_DATA_ACCESS_REQUEST = 'app/Dataset/UPDATE_DATA_ACCESS_REQUEST';

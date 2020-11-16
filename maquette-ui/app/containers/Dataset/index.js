@@ -21,6 +21,8 @@ import {
   createDataAccessRequest as createDataAccessRequestAction, 
   getDataset as getDatasetAction,
   selectVersion as selectVersionAction,
+  grantAccess as grantAccessAction,
+  revokeAccess as revokeAccessAction,
   updateDataAccessRequest as updateDataAccessRequestAction,
   updateDataset as updateDatasetAction } from './actions';
 
@@ -124,7 +126,7 @@ function AccessRequests(props) {
   const updating = _.get(props, 'dataset.data_access_requests.updating') || false;
 
   const requests = {};
-  requests["all"] = _.get(props, 'dataset.data_access_requests.requests') || [];
+  requests["all"] = _.get(props, 'dataset.dataset.accessRequests') || [];
   requests["open"] = _.filter(requests["all"], r => r.status == "requested" || r.status == "rejected");
   requests["active"] = _.filter(requests["all"], r => r.status == "granted");
   requests["closed"] =_.filter(requests["all"], r => r.status == "withdrawn" || r.status == "expired");
@@ -286,16 +288,15 @@ function Settings({ dispatch, ...props }) {
   const dataset = _.get(props, 'match.params.dataset') || 'dataset';
   const sub = _.get(props, 'match.params.id') || 'options'
 
-  const members = _.map(_.get(props, 'project.project.authorizations') || [], a => {
-    const user = _.get(a, 'authorization.user');
-    const role = _.get(a, 'authorization.role');
-    const type = _.get(a, 'authorization.type');
+  const members = _.map(_.get(props, 'dataset.dataset.owners') || [], a => {
+    const user = _.get(a, 'user');
+    const type = _.get(a, 'type');
 
     return {
       id: user || role || '',
       name: user && _.capitalize(user),
       type: type,
-      role: 'member'
+      role: 'owner'
     };
   });
 
@@ -350,8 +351,8 @@ function Settings({ dispatch, ...props }) {
               title="Manage responsibilities"
               members={ members } 
               roles={ roles } 
-              onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
-              onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> 
+              onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, dataset, name)) }
+              onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, dataset, name)) } /> 
           </>
         }
       </FlexboxGrid.Item>      

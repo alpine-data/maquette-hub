@@ -37,6 +37,10 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = WithdrawDatasetDataAccessRequestCommand.class, name = "datasets access-requests withdraw"),
       @JsonSubTypes.Type(value = CreateDatasetDataAccessTokenCommand.class, name = "datasets access-tokens create"),
       @JsonSubTypes.Type(value = ListDatasetDataAccessTokensCommand.class, name = "datasets access-tokens list"),
+
+      @JsonSubTypes.Type(value = GrantDatasetAccessCommand.class, name = "datasets grant"),
+      @JsonSubTypes.Type(value = RevokeDatasetAccessCommand.class, name = "datasets revoke"),
+
       @JsonSubTypes.Type(value = ListDatasetsCommand.class, name = "datasets list"),
       @JsonSubTypes.Type(value = RemoveDatasetCommand.class, name = "datasets remove"),
       @JsonSubTypes.Type(value = CommitRevisionCommand.class, name = "datasets revisions commit"),

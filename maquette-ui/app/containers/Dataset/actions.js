@@ -11,6 +11,8 @@ import {
   GET_PROJECT_FAILED, GET_PROJECT_SUCCESS,
   GET_DATASET, GET_DATASET_FAILED, GET_DATASET_SUCCESS,
   GET_VERSIONS_SUCCESS, GET_VERSIONS_FAILED,
+  GRANT_ACCESS, GRANT_ACCESS_FAILED, GRANT_ACCESS_SUCCESS,
+  REVOKE_ACCESS, REVOKE_ACCESS_SUCCESS, REVOKE_ACCESS_FAILED,
   UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS, SELECT_VERSION,
   UPDATE_DATASET, UPDATE_DATASET_FAILED, UPDATE_DATASET_SUCCESS } from './constants';
 
@@ -127,6 +129,52 @@ export function getVersionsFailed(error) {
     error
   };
 }
+
+export function grantAccess(project, dataset, name) {
+  return {
+    type: GRANT_ACCESS,
+    project,
+    dataset,
+    name
+  }
+ }
+ 
+ export function grantAccessFailed(error) {
+   return {
+     type: GRANT_ACCESS_FAILED,
+     error
+   }
+ }
+ 
+ export function grantAccessSuccess(response) {
+   return {
+     type: GRANT_ACCESS_SUCCESS,
+     response
+   }
+ }
+ 
+ export function revokeAccess(project, dataset, name) {
+   return {
+     type: REVOKE_ACCESS,
+     project,
+     dataset,
+     name
+   }
+  }
+  
+  export function revokeAccessFailed(error) {
+    return {
+      type: REVOKE_ACCESS_FAILED,
+      error
+    }
+  }
+  
+  export function revokeAccessSuccess(response) {
+    return {
+      type: REVOKE_ACCESS_SUCCESS,
+      response
+    }
+  }
 
 export function selectVersion(version) {
   return {

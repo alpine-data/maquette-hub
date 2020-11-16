@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.datasets.Dataset;
 import maquette.core.entities.datasets.Datasets;
+import maquette.core.entities.datasets.model.DatasetDetails;
 import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.entities.datasets.model.DatasetVersion;
 import maquette.core.entities.datasets.model.records.Records;
@@ -17,6 +18,7 @@ import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestDetails;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.access.DataAccessTokenNarrowed;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
@@ -81,8 +83,22 @@ public class DatasetServicesImpl implements DatasetServices {
          executor, name, title, summary, visibility, classification, personalInformation));
    }
 
+   /*
+    * Manage access
+    */
+
    @Override
-   public CompletionStage<DatasetProperties> getDataset(User executor, String projectName, String datasetName) {
+   public CompletionStage<Done> grantDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner) {
+      return withDatasetByName(projectName, datasetName, (project, dataset) -> dataset.addOwner(executor, owner));
+   }
+
+   @Override
+   public CompletionStage<Done> revokeDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner) {
+      return withDatasetByName(projectName, datasetName, (project, dataset) -> dataset.removeOwner(executor, owner));
+   }
+
+   @Override
+   public CompletionStage<DatasetDetails> getDataset(User executor, String projectName, String datasetName) {
       return withDatasetByName(projectName, datasetName, (p, d) -> d.getDatasetProperties());
    }
 

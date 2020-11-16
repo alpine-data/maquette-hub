@@ -1,6 +1,7 @@
 package maquette.core.services;
 
 import akka.Done;
+import maquette.core.entities.datasets.model.DatasetDetails;
 import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.entities.datasets.model.DatasetVersion;
 import maquette.core.entities.datasets.model.records.Records;
@@ -10,6 +11,7 @@ import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestDetails;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.access.DataAccessTokenNarrowed;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
@@ -33,13 +35,21 @@ public interface DatasetServices {
 
    CompletionStage<Done> deleteDataset(User executor, String projectName, String datasetName);
 
-   CompletionStage<DatasetProperties> getDataset(User executor, String projectName, String datasetName);
+   CompletionStage<DatasetDetails> getDataset(User executor, String projectName, String datasetName);
 
    CompletionStage<List<DatasetProperties>> getDatasets(User executor, String projectName);
 
    CompletionStage<Done> updateDetails(
       User executor, String projectName, String datasetName, String name, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+
+   /*
+    * Manage access
+    */
+   CompletionStage<Done> grantDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner);
+
+   CompletionStage<Done> revokeDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner);
+
 
    /*
     * Data Access Tokens

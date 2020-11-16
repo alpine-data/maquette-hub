@@ -3,7 +3,9 @@ package maquette.core.entities.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.common.Operators;
 import maquette.core.entities.datasets.exceptions.DatasetNotFoundException;
+import maquette.core.entities.datasets.model.DatasetDetails;
 import maquette.core.entities.datasets.model.DatasetProperties;
 import maquette.core.ports.DatasetsStore;
 import maquette.core.ports.DatasetsRepository;
@@ -60,8 +62,17 @@ public final class Dataset {
       return Revisions.apply(id, projectId, getFullId(), name, repository, store);
    }
 
-   public CompletionStage<DatasetProperties> getDatasetProperties() {
-      return withDatasetProperties(CompletableFuture::completedFuture);
+   public CompletionStage<DatasetDetails> getDatasetProperties() {
+      return withDatasetProperties(p -> {
+         var getOwners = repository.findAllOwners(getFullId());
+         var getAccessRequests = accessRequests().getDataAccessRequests();
+         var getAccessTokens = accessTokens().getDataAccessTokens();
+
+         return Operators
+            .compose(getOwners, getAccessRequests, getAccessTokens, (owners, requests, tokens) -> DatasetDetails.apply(
+               id, p.getTitle(), p.getName(), p.getSummary(), p.getDescription(), p.getVisibility(), p.getClassification(),
+               p.getPersonalInformation(), p.getCreated(), p.getUpdated(), owners, requests, tokens));
+      });
    }
 
    public CompletionStage<Done> removeOwner(User executor, UserAuthorization owner) {

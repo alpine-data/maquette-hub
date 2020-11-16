@@ -8,12 +8,16 @@ import {
   getDataAccessRequests as getDataAccessRequestsAction, getDataAccessRequestsFailed, getDataAccessRequestsSuccess,
   getProjectFailed, getProjectSuccess,
   getProjectsFailed, getProjectsSuccess, 
+  grantAccessFailed, grantAccessSuccess,
+  revokeAccessFailed, revokeAccessSuccess,
   updateDataAccessRequestSuccess, updateDataAccessRequestFailed, getVersionsSuccess, getVersionsFailed, updateDatasetSuccess, updateDatasetFailed } from './actions';
 
   import { 
   CREATE_DATA_ACCESS_REQUEST, 
   GET_DATASET, 
   GET_DATA_ACCESS_REQUESTS,
+  GRANT_ACCESS,
+  REVOKE_ACCESS,
   UPDATE_DATA_ACCESS_REQUEST,
   UPDATE_DATASET } from './constants';
 
@@ -76,6 +80,30 @@ export function* getProjects() {
   }
 }
 
+export function* grantAccess(action) {
+  try {
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'datasets grant', _.omit(action, 'type'), user);
+    
+    yield put(grantAccessSuccess(data));
+    yield put(getDatasetAction(action.project, action.dataset, false));
+  } catch (err) {
+    yield put(grantAccessFailed(error));
+  }
+}
+
+export function* revokeAccess(action) {
+  try {
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'datasets revoke', _.omit(action, 'type'), user);
+    
+    yield put(revokeAccessSuccess(data));
+    yield put(getDatasetAction(action.project, action.dataset, false));
+  } catch (err) {
+    yield put(revokeAccessFailed(err));
+  }
+}
+
 export function* updateDataAccessRequest(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
@@ -127,6 +155,8 @@ export default function* datasetSaga() {
   yield takeLatest(GET_DATASET, getVersions);
 
   yield takeLatest(GET_DATA_ACCESS_REQUESTS, getDataAccessRequests);
+  yield takeLatest(GRANT_ACCESS, grantAccess);
+  yield takeLatest(REVOKE_ACCESS, revokeAccess);
   yield takeLatest(UPDATE_DATA_ACCESS_REQUEST, updateDataAccessRequest);
   yield takeLatest(UPDATE_DATASET, updateDataset);
 }
