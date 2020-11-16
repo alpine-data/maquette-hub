@@ -27,10 +27,10 @@ import BadgedButton from 'components/BadgedButton';
 import Container from 'components/Container';
 import EditableParagraph from 'components/EditableParagraph';
 import Members from '../../components/Members';
-import ProjectSettings from 'components/ProjectSettings';
+import ResourceSettings from 'components/ResourceSettings';
 import Summary from 'components/Summary';
 
-import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Form, FormGroup, ControlLabel, FormControl, Table, SelectPicker } from 'rsuite';
+import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Form, FormGroup, ControlLabel, FormControl, Table, SelectPicker, Affix } from 'rsuite';
 import { Link } from 'react-router-dom';
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
@@ -132,7 +132,7 @@ function Settings({ dispatch, ...props }) {
       </FlexboxGrid.Item>
       <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
       <FlexboxGrid.Item colspan={19}>
-        { sub == 'options' && <ProjectSettings 
+        { sub == 'options' && <ResourceSettings 
             title={ _.get(props, 'project.project.title') }
             name={ _.get(props, 'project.project.name') } 
             onUpdate={ (title, name) => dispatch(updateProjectAction(project, name, title, _.get(props, 'project.project.summary'))) } /> }
@@ -159,26 +159,28 @@ function Display(props) {
         <meta name="description" content="Description of Project" />
       </Helmet>
 
-      <div className="mq--page-title">
-        <Container fluid>
-          <FlexboxGrid align="middle">
-            <FlexboxGrid.Item colspan={ 20 }><h1><Link to={ `/${name}` }>{ title }</Link></h1></FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
-              <Button size="sm" active><Icon icon="heart" /> 42</Button>
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
-        </Container>
-        
-        <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-          <Nav.Item eventKey="data" componentClass={ Link } to={ `/${name}` }>Data</Nav.Item>
-          <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
-          <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
-          <Nav.Item eventKey="workspaces" componentClass={ Link } to={ `/${name}/workspaces` }>Workspaces</Nav.Item>
-          <Nav.Item eventKey="projects" componentClass={ Link } to={ `/${name}/projects` }>Projects</Nav.Item>
-          <Nav.Item eventKey="templates" componentClass={ Link } to={ `/${name}/templates` }>Templates</Nav.Item>
-          <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${name}/settings` }>Settings</Nav.Item>
-        </Nav>
-      </div>
+      <Affix>
+        <div className="mq--page-title">
+          <Container fluid>
+            <FlexboxGrid align="middle">
+              <FlexboxGrid.Item colspan={ 20 }><h1><Link to={ `/${name}` }>{ title }</Link></h1></FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
+                <Button size="sm" active><Icon icon="heart" /> 42</Button>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Container>
+          
+          <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
+            <Nav.Item eventKey="data" componentClass={ Link } to={ `/${name}` }>Data</Nav.Item>
+            <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
+            <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
+            <Nav.Item eventKey="workspaces" componentClass={ Link } to={ `/${name}/workspaces` }>Workspaces</Nav.Item>
+            <Nav.Item eventKey="projects" componentClass={ Link } to={ `/${name}/projects` }>Projects</Nav.Item>
+            <Nav.Item eventKey="templates" componentClass={ Link } to={ `/${name}/templates` }>Templates</Nav.Item>
+            <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${name}/settings` }>Settings</Nav.Item>
+          </Nav>
+        </div>
+      </Affix>
       
       { tab == 'data' && <Resources { ...props} /> }
       { tab == 'settings' && <Settings { ...props} /> }

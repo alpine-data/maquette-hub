@@ -60,6 +60,47 @@ public final class DataResource {
       });
    }
 
+   public Handler uploadFile() {
+      var docs = OpenApiBuilder
+         .document()
+         .operation(op -> {
+            op.summary("Upload Dataset Data");
+            op.description("Uploads data to an open revision of a dataset.");
+            op.addTagsItem("Dataset");
+         })
+         .pathParam("project", String.class, p -> p.description("The name of the project"))
+         .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
+         .json("200", String.class);
+
+      return OpenApiBuilder.documented(docs, ctx -> {
+         var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+         var uploaded = Objects.requireNonNull(ctx.uploadedFile("file"));
+         var project = ctx.pathParam("project");
+         var dataset = ctx.pathParam("dataset");
+
+         var file = Files.createTempFile("maquette", "upload");
+         FileUtils.copyInputStreamToFile(uploaded.getContent(), file.toFile());
+
+         var records = Records.fromFile(file);
+         var result = services
+            .getDatasetServices()
+            .createRevision(user, project, dataset, records.getSchema())
+            .thenCompose(revision -> services
+               .getDatasetServices()
+               .upload(user, project, dataset, revision.getId(), records)
+               .thenCompose(done -> services
+                  .getDatasetServices()
+                  .commitRevision(user, project, dataset, revision.getId(), "New version with single file upload.")))
+            .thenApply(done -> {
+               Operators.suppressExceptions(() -> Files.deleteIfExists(file));
+               return "Successfully uploaded data";
+            })
+            .toCompletableFuture();
+
+         ctx.result(result);
+      });
+   }
+
    public Handler download() {
       var docs = OpenApiBuilder
          .document()

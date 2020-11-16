@@ -29,7 +29,11 @@ import DataAccessRequest from 'components/DataAccessRequest';
 import DataAccessRequestSummary from 'components/DataAccessRequestSummary';
 import DataAccessRequestForm from 'components/DataAccessRequestForm';
 import DataBadges from 'components/DataBadges';
+import DataExplorer from '../../components/DataExplorer';
+import DatasetCodeExamples from '../../components/DatasetCodeExamples';
 import EditableParagraph from 'components/EditableParagraph';
+import Members from '../../components/Members';
+import ResourceSettings from '../../components/ResourceSettings';
 import Summary from '../../components/Summary';
 import VersionsTimeline from '../../components/VersionsTimeline';
 
@@ -39,11 +43,14 @@ import { Link } from 'react-router-dom';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
-import DatasetCodeExamples from '../../components/DatasetCodeExamples';
-import DataExplorer from '../../components/DataExplorer';
 
 SyntaxHighlighter.registerLanguage('json', json);
 
+/**
+ * Overview tab.
+ * 
+ * @param {*} props 
+ */
 function Overview(props) {
   const projectName = _.get(props, 'match.params.name') || 'unknown';
   const datasetName = _.get(props, 'match.params.dataset') || 'unknown';
@@ -88,6 +95,11 @@ function Overview(props) {
   </Container>;
 }
 
+/**
+ * Access Requests tab.
+ * 
+ * @param {*} props 
+ */
 function AccessRequests(props) {
   const loading = _.get(props, 'dataset.loading');
   const project = _.get(props, 'match.params.name') || 'Unknown Project';
@@ -202,6 +214,11 @@ function AccessRequests(props) {
   }
 }
 
+/**
+ * Display tab.
+ * 
+ * @param {*} props 
+ */
 function Display(props) {
   const project = _.get(props, 'match.params.name') || 'Unknown Project';
   const dataset = _.get(props, 'match.params.dataset') || 'Unknown Datasource';
@@ -232,15 +249,78 @@ function Display(props) {
           <Nav.Item eventKey="data" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/data` }>Data</Nav.Item>
           <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/access-requests` }>Access Requests</Nav.Item>
           <Nav.Item eventKey="discuss" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/discuss` }>Discuss</Nav.Item>
+          <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/settings` }>Settings</Nav.Item>
         </Nav>
       </div>
     </Affix>
 
     { tab == 'overview' && <Overview { ...props } /> }
     { tab == 'access-requests' && <AccessRequests { ...props } /> }
+    { tab == 'settings' && <Settings { ...props } /> }
   </div>;
 }
 
+/**
+ * Settings tab.
+ * @param {*} props 
+ */
+function Settings(props) {
+  const project = _.get(props, 'match.params.name') || 'project';
+  const dataset = _.get(props, 'match.params.dataset') || 'dataset';
+  const sub = _.get(props, 'match.params.id') || 'options'
+
+  const members = _.map(_.get(props, 'project.project.authorizations') || [], a => {
+    const user = _.get(a, 'authorization.user');
+    const role = _.get(a, 'authorization.role');
+    const type = _.get(a, 'authorization.type');
+
+    return {
+      id: user || role || '',
+      name: user && _.capitalize(user),
+      type: type,
+      role: 'member'
+    };
+  });
+
+  const roles = [
+    {
+      "label": "Data Owner",
+      "value": "owner",
+      "role": "Master"
+    }
+  ];
+
+  return <Container xlg className="mq--main-content">
+    <FlexboxGrid>
+      <FlexboxGrid.Item colspan={4}>
+        <Nav vertical activeKey={ sub } appearance="subtle">
+          <Nav.Item eventKey="options" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/settings` }>Options</Nav.Item>
+          <Nav.Item eventKey="governance" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/settings/governance` }>Governance</Nav.Item>
+        </Nav>
+      </FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={19}>
+        { sub == 'options' && <ResourceSettings 
+            resource="Dataset"
+            title={ _.get(props, 'dataset.dataset.title') }
+            name={ _.get(props, 'dataset.dataset.name') } /> }
+
+        { sub == 'governance' && <Members 
+            members={ members } 
+            roles={ roles } 
+            onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
+            onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> }
+      </FlexboxGrid.Item>      
+    </FlexboxGrid>
+  </Container>
+
+}
+
+/**
+ * Error Display.
+ * 
+ * @param {*} props 
+ */
 function Error(props) {
   return <div>
     <Helmet>
@@ -258,6 +338,11 @@ function Error(props) {
   </div>;
 }
 
+/**
+ * Component. 
+ * 
+ * @param {*} props 
+ */
 export function Dataset(props) {
   useInjectReducer({ key: 'dataset', reducer });
   useInjectSaga({ key: 'dataset', saga });
