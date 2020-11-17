@@ -33,3 +33,11 @@ class Client:
             result = response.json()
             return response.status_code, result
 
+    def get(self, url: str) -> requests.Response:
+        return requests.get(self.__base_url + url, headers = self.__headers)
+
+    def put(self, url: str, json = None, files = None) -> requests.Response:
+        return requests.put(self.__base_url + url, json = json, files = files, headers = self.__headers)
+
+    def post(self, url: str, json = None, files = None) -> requests.Response:
+        return requests.post(self.__base_url + url, json = json, files = files, headers = self.__headers)
