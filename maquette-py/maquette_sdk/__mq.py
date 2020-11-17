@@ -37,36 +37,50 @@ class Administration:
         pass
 
     @staticmethod
-    def delete_token(name: str, for_user: str = None):
-        resp = client.command('user token delete', {
+    def delete_token(name: str, for_user: str = None) -> str:
+        status, resp = client.command(cmd='user token delete',args= {
             'name': name,
             'for-user': for_user
         })
-
-        print(resp['output'])
+        if status == 200:
+            return resp['output']
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
     @staticmethod
-    def renew_token(name: str, for_user: str = None):
-        resp = client.command('user token renew', {
+    def renew_token(name: str, for_user: str = None) -> str:
+        status, resp = client.command(cmd='user token renew', args={
             'name': name,
             'for-user': for_user
         })
-
-        print(resp['output'])
+        if status == 200:
+            return resp['output']
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
     @staticmethod
-    def register_token(name: str, for_user: str = None):
-        resp = client.command('user token register', {
+    def register_token(name: str, for_user: str = None) -> str:
+        status, resp = client.command(cmd='user token register', args={
             'name': name,
             'for-user': for_user
         })
-
-        print(resp['output'])
+        if status == 200:
+            return resp['output']
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
     @staticmethod
-    def tokens():
-        resp = client.command('user tokens')
-        return resp['data'][0]
+    def tokens() -> pd.DataFrame:
+        status, resp = client.command('user tokens')
+        if status == 200:
+            table_df = pd.json_normalize(resp)
+            return table_df
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
 
 class DatasetVersion:
@@ -91,7 +105,7 @@ class DatasetVersion:
         return pandavro.from_avro(BytesIO(resp.content))
 
     def print(self) -> 'DatasetVersion':
-        resp = client.command('dataset version show', {
+        status, resp = client.command(cmd='dataset version show', args= {
             'project': self.__project,
             'dataset': self.__dataset,
             'version': self.__version
@@ -104,7 +118,7 @@ class DatasetVersion:
         return self
 
     def __str__(self):
-        resp = client.command('dataset version show', {
+        status, resp = client.command(cmd='dataset version show', args={
             'project': self.__project,
             'dataset': self.__dataset,
             'version': self.__version
@@ -131,11 +145,11 @@ class Dataset:
         self.__project = project
 
     def create(self, is_private: bool = False) -> 'Dataset':
-        client.command('datasets create', {'dataset': self.__name, 'project': self.__project, 'is-private': is_private})
+        client.command(cmd='datasets create',args= {'dataset': self.__name, 'project': self.__project})
         return self
 
     def create_consumer(self, for_user: str = None) -> 'Dataset':
-        resp = client.command('dataset create consumer', {
+        status, resp = client.command(cmd='dataset create consumer', args={
             'dataset': self.__name,
             'project': self.__project,
             'for-user': for_user
@@ -145,7 +159,7 @@ class Dataset:
         return self
 
     def create_producer(self, for_user: str = None) -> 'Dataset':
-        resp = client.command('dataset create producer', {
+        status, resp = client.command(cmd='dataset create producer', args={
             'dataset': self.__name,
             'project': self.__project,
             'for-user': for_user
@@ -155,7 +169,7 @@ class Dataset:
         return self
 
     def grant(self, grant: EDatasetPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Dataset':
-        client.command('dataset grant', {
+        client.command(cmd='dataset grant', args={
             'dataset': self.__name,
             'project': self.__project,
             'privilege': grant.value,
@@ -166,7 +180,7 @@ class Dataset:
         return self
 
     def revoke(self, revoke: EDatasetPrivilege, auth: EAuthorizationType, from_name: str = None) -> 'Dataset':
-        client.command('dataset revoke', {
+        client.command(cmd='dataset revoke', args={
             'dataset': self.__name,
             'project': self.__project,
             'privilege': revoke.value,
@@ -177,7 +191,7 @@ class Dataset:
         return self
 
     def print(self):
-        resp = client.command('dataset show', {'dataset': self.__name, 'project': self.__project})
+        resp = client.command(cmd='dataset show', args={'dataset': self.__name, 'project': self.__project})
         print(resp['output'])
         return self
 
@@ -197,14 +211,14 @@ class Dataset:
         return self.version(resp.json())
 
     def versions(self) -> pd.DataFrame:
-        resp = client.command('dataset versions', {'dataset': self.__name, 'project': self.__project})
+        resp = client.command(cmd='dataset versions', args={'dataset': self.__name, 'project': self.__project})
         return resp['data'][0]
 
     def version(self, version: Optional[str] = None):
         return DatasetVersion(self.__name, version, self.__project)
 
     def __str__(self):
-        resp = client.command('dataset show', {'dataset': self.__name, 'project': self.__project})
+        resp = client.command(cmd='dataset show', args={'dataset': self.__name, 'project': self.__project})
         return resp['output']
 
     def __repr__(self):
