@@ -89,7 +89,7 @@ function Overview({ dispatch, ...props }) {
             dataset={ dataset } 
             versions={ versions } 
             activeVersion={ version } 
-            onSelectVersion={ version => props.dispatch(selectVersionAction(version)) } /> 
+            onSelectVersion={ version => dispatch(selectVersionAction(version)) } /> 
 
         <hr />
       </>

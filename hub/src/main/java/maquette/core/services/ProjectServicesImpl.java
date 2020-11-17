@@ -79,7 +79,7 @@ public final class ProjectServicesImpl implements ProjectServices {
    public CompletionStage<Map<String, String>> environment(User user, String name) {
       return projects
          .findProjectByName(name)
-         .thenApply(maybeProject -> {
+         .thenCompose(maybeProject -> {
             if (maybeProject.isEmpty()) {
                throw new RuntimeException(String.format("No project found with name `%s`", name));
             }
@@ -89,12 +89,15 @@ public final class ProjectServicesImpl implements ProjectServices {
 
             result.put("MQ_PROJECT_ID", project.getId());
 
-            infrastructure
+            return infrastructure
                .getDeployment(String.format("mq__%s", project.getId()))
                .flatMap(d -> d.getContainer(String.format("mq__%s__minio", project.getId())))
-               .ifPresent(c -> result.put("MINIO_URL", c.getMappedPortUrls().get(9000).toString()));
-
-            return result;
+               .map(c -> c.getMappedPortUrls().thenApply(urls -> {
+                  result.put("MINIO_URL", urls.get(9000).toString());
+                  return result;
+               }))
+               .orElseGet(() -> CompletableFuture.completedFuture(result))
+               .thenApply(m -> m);
          });
    }
 

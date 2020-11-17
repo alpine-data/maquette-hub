@@ -16,6 +16,7 @@ import maquette.common.DockerOperations;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
+import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.ContainerStatus;
 import maquette.core.ports.InfrastructureProvider;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -86,8 +88,8 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
       }
 
       @Override
-      public ContainerStatus getStatus() {
-         return getContainer()
+      public CompletionStage<ContainerStatus> getStatus() {
+         var result = getContainer()
             .map(container -> {
                var status = container.getStatus().toLowerCase();
 
@@ -101,21 +103,25 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
                   return ContainerStatus.CREATED;
                }
             }).orElse(ContainerStatus.STOPPED);
+
+         return CompletableFuture.completedFuture(result);
       }
 
       @Override
-      public Map<Integer, URL> getMappedPortUrls() {
-         return getContainer()
+      public CompletionStage<Map<Integer, URL>> getMappedPortUrls() {
+         var result = getContainer()
             .map(container -> Arrays
                .stream(container.ports)
                .collect(Collectors.toMap(
                   ContainerPort::getPrivatePort,
                   p -> Operators.suppressExceptions(() -> new URL("http://localhost:" + p.getPublicPort())))))
             .orElse(Maps.newHashMap());
+
+         return CompletableFuture.completedFuture(result);
       }
 
       @Override
-      public String getLogs() {
+      public CompletionStage<String> getLogs() {
          client.logContainerCmd(containerId).exec(new ResultCallback<Frame>() {
             @Override
             public void onStart(Closeable closeable) {
@@ -143,7 +149,7 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
             }
          });
 
-         return "";
+         return CompletableFuture.completedFuture("");
       }
 
       @Override
@@ -171,6 +177,12 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
             .removeContainer(containerId);
 
          return CompletableFuture.completedFuture(Done.getInstance());
+      }
+
+      @Override
+      public CompletionStage<ContainerProperties> getProperties() {
+         return Operators.compose(getStatus(), getMappedPortUrls(), (status, urls) ->
+            ContainerProperties.apply(config, status, urls));
       }
 
    }

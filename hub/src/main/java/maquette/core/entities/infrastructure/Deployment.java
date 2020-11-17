@@ -7,6 +7,7 @@ import lombok.Getter;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.infrastructure.model.DeploymentMemento;
+import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.infrastructure.model.DeploymentStatus;
 
 import java.time.Instant;
@@ -19,42 +20,51 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Deployment {
 
-    private final DeploymentConfig config;
+   private final DeploymentConfig config;
 
-    private final List<Container> containers;
+   private final List<Container> containers;
 
-    private final Instant created;
+   private final Instant created;
 
-    private DeploymentStatus status;
+   private DeploymentStatus status;
 
-    public static Deployment apply(DeploymentConfig config, List<Container> containers, Instant created) {
-        return new Deployment(config, List.copyOf(containers), Instant.now(), DeploymentStatus.STARTED);
-    }
+   public static Deployment apply(DeploymentConfig config, List<Container> containers, Instant created) {
+      return new Deployment(config, List.copyOf(containers), Instant.now(), DeploymentStatus.STARTED);
+   }
 
-    public Optional<Container> getContainer(String name) {
-       return containers.stream().filter(c -> c.getConfig().getName().equals(name)).findFirst();
-    }
+   public Optional<Container> getContainer(String name) {
+      return containers.stream().filter(c -> c.getConfig().getName().equals(name)).findFirst();
+   }
 
-    public CompletionStage<Done> stop() {
-        return Operators
-                .allOf(containers.stream().map(Container::stop).collect(Collectors.toList()))
-                .thenApply(done -> {
-                    status = DeploymentStatus.STOPPED;
-                    return Done.getInstance();
-                });
-    }
+   public CompletionStage<DeploymentProperties> getProperties() {
+      return Operators
+         .allOf(containers
+            .stream()
+            .map(Container::getProperties)
+            .collect(Collectors.toList()))
+      .thenApply(containerProperties -> DeploymentProperties.apply(config, containerProperties, created, status));
+   }
 
-    public CompletionStage<Done> start() {
-        return Operators
-                .allOf(containers.stream().map(Container::start).collect(Collectors.toList()))
-                .thenApply(done -> {
-                    status = DeploymentStatus.STARTED;
-                    return Done.getInstance();
-                });
-    }
+   public CompletionStage<Done> stop() {
+      return Operators
+         .allOf(containers.stream().map(Container::stop).collect(Collectors.toList()))
+         .thenApply(done -> {
+            status = DeploymentStatus.STOPPED;
+            return Done.getInstance();
+         });
+   }
 
-    public DeploymentMemento toMemento() {
-        return DeploymentMemento.apply(config, created, status);
-    }
+   public CompletionStage<Done> start() {
+      return Operators
+         .allOf(containers.stream().map(Container::start).collect(Collectors.toList()))
+         .thenApply(done -> {
+            status = DeploymentStatus.STARTED;
+            return Done.getInstance();
+         });
+   }
+
+   public DeploymentMemento toMemento() {
+      return DeploymentMemento.apply(config, created, status);
+   }
 
 }

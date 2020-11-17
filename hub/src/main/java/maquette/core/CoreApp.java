@@ -13,6 +13,7 @@ import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Projects;
+import maquette.core.entities.sandboxes.Sandboxes;
 import maquette.core.entities.users.Users;
 import maquette.core.ports.*;
 import maquette.core.server.MaquetteServer;
@@ -40,7 +41,8 @@ public class CoreApp {
     public static CoreApp apply(
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
-       DatasetsRepository datasetsRepository, DatasetsStore datasetsStore, UsersRepository usersRepository, ObjectMapper om) {
+       DatasetsRepository datasetsRepository, DatasetsStore datasetsStore,
+       SandboxesRepository sandboxesRepository, UsersRepository usersRepository, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -57,9 +59,13 @@ public class CoreApp {
         var processManager = ProcessManager.apply();
         var projects = Projects.apply(projectsRepository);
         var datasets = Datasets.apply(datasetsRepository, datasetsStore);
+        var sandboxes = Sandboxes.apply(sandboxesRepository);
         var users = Users.apply(usersRepository);
 
-        var runtime = RuntimeConfiguration.apply(app, system, om, datasets, infrastructureManager, processManager, projects, users);
+        var runtime = RuntimeConfiguration.apply(
+           app, system, om, datasets, infrastructureManager,
+           processManager, projects, sandboxes, users);
+
         var services = ApplicationServices.apply(runtime);
 
         var server = MaquetteServer.apply(configuration, runtime, services);

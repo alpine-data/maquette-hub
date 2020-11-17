@@ -22,6 +22,10 @@ public class ContainerConfig {
 
     List<PortSpec> ports;
 
+    String memory;
+
+    Double cores;
+
     public static ContainerConfigBuilder builder(String name, String image) {
         return ContainerConfigBuilder.apply(name, image);
     }
@@ -45,4 +49,13 @@ public class ContainerConfig {
             return List.copyOf(ports);
         }
     }
+
+    public Optional<String> getMemory() {
+        return Optional.ofNullable(memory);
+    }
+
+    public Optional<Double> getCores() {
+        return Optional.ofNullable(cores);
+    }
+
 }

@@ -9,6 +9,7 @@ import maquette.core.entities.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Projects;
+import maquette.core.entities.sandboxes.Sandboxes;
 import maquette.core.entities.users.Users;
 
 @Getter
@@ -28,6 +29,8 @@ public final class RuntimeConfiguration {
     private final ProcessManager processManager;
 
     private final Projects projects;
+
+    private final Sandboxes sandboxes;
 
     private final Users users;
 
