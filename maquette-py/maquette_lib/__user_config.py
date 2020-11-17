@@ -6,7 +6,7 @@ class UserConfiguration:
         self.__mq_home = mq_home
 
     def url(self) -> str:
-        return 'http://localhost:8080/api/'
+        return 'http://localhost:9042/api/'
 
     def user(self) -> str:
         return 'johnDoe'

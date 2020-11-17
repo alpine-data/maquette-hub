@@ -7,6 +7,7 @@ from typing import Optional
 
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import UserConfiguration
+from maquette_lib.__util import generate_unique_name
 
 client = Client.from_config(UserConfiguration('/home'))
 
@@ -17,7 +18,7 @@ class EAuthorizationType(Enum):
     WILDCARD = "*"
 
 
-class ENamespacePrivilege(Enum):
+class EProjectPrivilege(Enum):
     MEMBER = "member"
     PRODUCER = "producer"
     CONSUMER = "consumer"
@@ -36,62 +37,76 @@ class Administration:
         pass
 
     @staticmethod
-    def delete_token(name: str, for_user: str = None):
-        resp = client.command('user token delete', {
+    def delete_token(name: str, for_user: str = None) -> str:
+        status, resp = client.command(cmd='user token delete',args= {
             'name': name,
             'for-user': for_user
         })
-
-        print(resp['output'])
+        if status == 200:
+            return resp['output']
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
     @staticmethod
-    def renew_token(name: str, for_user: str = None):
-        resp = client.command('user token renew', {
+    def renew_token(name: str, for_user: str = None) -> str:
+        status, resp = client.command(cmd='user token renew', args={
             'name': name,
             'for-user': for_user
         })
-
-        print(resp['output'])
+        if status == 200:
+            return resp['output']
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
     @staticmethod
-    def register_token(name: str, for_user: str = None):
-        resp = client.command('user token register', {
+    def register_token(name: str, for_user: str = None) -> str:
+        status, resp = client.command(cmd='user token register', args={
             'name': name,
             'for-user': for_user
         })
-
-        print(resp['output'])
+        if status == 200:
+            return resp['output']
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
     @staticmethod
-    def tokens():
-        resp = client.command('user tokens')
-        return resp['data'][0]
+    def tokens() -> pd.DataFrame:
+        status, resp = client.command('user tokens')
+        if status == 200:
+            table_df = pd.json_normalize(resp)
+            return table_df
+        else:
+            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                               'status code: ' + str(status) + ', content:\n' + resp)
 
 
 class DatasetVersion:
 
-    __namespace: str = None
+    __project: str = None
 
     __dataset: str = None
 
     __version: str = None
 
-    def __init__(self, dataset: str, version: str = None, namespace: str = None):
-        self.__namespace = namespace
+    def __init__(self, dataset: str, version: str = None, project: str = None):
+        self.__project = project
         self.__dataset = dataset
         self.__version = version
 
     def get(self) -> pd.DataFrame:
-        ns = self.__namespace or '_'
+        pr = self.__project or '_'
         ds = self.__dataset
         version = self.__version or 'latest'
 
-        resp = client.get('/datasets/' + ns + '/' + ds + '/versions/' + version + '/data')
+        resp = client.get('/datasets/' + pr + '/' + ds + '/versions/' + version + '/data')
         return pandavro.from_avro(BytesIO(resp.content))
 
     def print(self) -> 'DatasetVersion':
-        resp = client.command('dataset version show', {
-            'namespace': self.__namespace,
+        status, resp = client.command(cmd='dataset version show', args= {
+            'project': self.__project,
             'dataset': self.__dataset,
             'version': self.__version
         })
@@ -103,8 +118,8 @@ class DatasetVersion:
         return self
 
     def __str__(self):
-        resp = client.command('dataset version show', {
-            'namespace': self.__namespace,
+        status, resp = client.command(cmd='dataset version show', args={
+            'project': self.__project,
             'dataset': self.__dataset,
             'version': self.__version
         })
@@ -121,22 +136,22 @@ class DatasetVersion:
 
 class Dataset:
 
-    __namespace: str = None
+    __project: str = None
 
     __name: str = None
 
-    def __init__(self, name: str, namespace: str = None):
+    def __init__(self, name: str, project: str = None):
         self.__name = name
-        self.__namespace = namespace
+        self.__project = project
 
     def create(self, is_private: bool = False) -> 'Dataset':
-        client.command('datasets create', {'dataset': self.__name, 'namespace': self.__namespace, 'is-private': is_private})
+        client.command(cmd='datasets create',args= {'dataset': self.__name, 'project': self.__project})
         return self
 
     def create_consumer(self, for_user: str = None) -> 'Dataset':
-        resp = client.command('dataset create consumer', {
+        status, resp = client.command(cmd='dataset create consumer', args={
             'dataset': self.__name,
-            'namespace': self.__namespace,
+            'project': self.__project,
             'for-user': for_user
         })
 
@@ -144,9 +159,9 @@ class Dataset:
         return self
 
     def create_producer(self, for_user: str = None) -> 'Dataset':
-        resp = client.command('dataset create producer', {
+        status, resp = client.command(cmd='dataset create producer', args={
             'dataset': self.__name,
-            'namespace': self.__namespace,
+            'project': self.__project,
             'for-user': for_user
         })
 
@@ -154,9 +169,9 @@ class Dataset:
         return self
 
     def grant(self, grant: EDatasetPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Dataset':
-        client.command('dataset grant', {
+        client.command(cmd='dataset grant', args={
             'dataset': self.__name,
-            'namespace': self.__namespace,
+            'project': self.__project,
             'privilege': grant.value,
             'authorization': to_auth.value,
             'to': to_name
@@ -165,9 +180,9 @@ class Dataset:
         return self
 
     def revoke(self, revoke: EDatasetPrivilege, auth: EAuthorizationType, from_name: str = None) -> 'Dataset':
-        client.command('dataset revoke', {
+        client.command(cmd='dataset revoke', args={
             'dataset': self.__name,
-            'namespace': self.__namespace,
+            'project': self.__project,
             'privilege': revoke.value,
             'authorization': auth.value,
             'from': from_name
@@ -176,19 +191,19 @@ class Dataset:
         return self
 
     def print(self):
-        resp = client.command('dataset show', {'dataset': self.__name, 'namespace': self.__namespace})
+        resp = client.command(cmd='dataset show', args={'dataset': self.__name, 'project': self.__project})
         print(resp['output'])
         return self
 
     def put(self, data: pd.DataFrame, short_description: str) -> DatasetVersion:
-        ns: str = self.__namespace or '_'
+        pr: str = self.__project or '_'
         ds: str = self.__name
 
         file: BytesIO = BytesIO()
         pandavro.to_avro(file, data)
         file.seek(0)
 
-        resp = client.put('/datasets/' + ns + '/' + ds + '/versions', files = {
+        resp = client.put('/datasets/' + pr + '/' + ds + '/versions', files = {
             'message': short_description,
             'file': file
         })
@@ -196,41 +211,44 @@ class Dataset:
         return self.version(resp.json())
 
     def versions(self) -> pd.DataFrame:
-        resp = client.command('dataset versions', {'dataset': self.__name, 'namespace': self.__namespace})
+        resp = client.command(cmd='dataset versions', args={'dataset': self.__name, 'project': self.__project})
         return resp['data'][0]
 
     def version(self, version: Optional[str] = None):
-        return DatasetVersion(self.__name, version, self.__namespace)
+        return DatasetVersion(self.__name, version, self.__project)
 
     def __str__(self):
-        resp = client.command('dataset show', {'dataset': self.__name, 'namespace': self.__namespace})
+        resp = client.command(cmd='dataset show', args={'dataset': self.__name, 'project': self.__project})
         return resp['output']
 
     def __repr__(self):
         return self.__str__()
 
 
-class Namespace:
+class Project:
 
     __name: str = None
+    __title: str = None
 
-    def __init__(self, name: str = None):
-        self.__name = name
+    def __init__(self, title: str = None):
+        self.__name = generate_unique_name(title)
+        self.__title = title
 
-    def create(self, is_private: bool = False) -> 'Namespace':
-        client.command('namespaces create', {'namespace': self.__name, 'is-private': is_private})
+    def create(self) -> 'Project':
+        client.command(cmd='projects create', args= {'title': self.__title, 'name': self.__name})
         return self
 
     def datasets(self) -> pd.DataFrame:
-        resp = client.command('namespace datasets', {'namespace': self.__name})
+        resp = client.command(cmd='project datasets', args={'project': self.__name})
+        #TODO: Avro
         return resp['data'][0]
 
     def dataset(self, name: str) -> Dataset:
         return Dataset(name, self.__name)
 
-    def grant(self, grant: ENamespacePrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Namespace':
-        client.command('namespace grant', {
-            'namespace': self.__name,
+    def grant(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
+        client.command(cmd='project grant', args={
+            'project': self.__name,
             'privilege': grant.value,
             'authorization': to_auth.value,
             'to': to_name
@@ -238,9 +256,9 @@ class Namespace:
 
         return self
 
-    def revoke(self, grant: ENamespacePrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Namespace':
-        client.command('namespace revoke', {
-            'namespace': self.__name,
+    def revoke(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
+        client.command('project revoke', {
+            'project': self.__name,
             'privilege': grant.value,
             'authorization': to_auth.value,
             'from': to_name
@@ -248,13 +266,13 @@ class Namespace:
 
         return self
 
-    def print(self) -> 'Namespace':
-        resp = client.command('namespace show', {'namespace': self.__name})
+    def print(self) -> 'Project':
+        resp = client.command('project show', {'project': self.__name})
         print(resp['output'])
         return self
 
     def __str__(self):
-        resp = client.command('namespace show', {'namespace': self.__name})
+        resp = client.command('project show', {'project': self.__name})
         return resp['output']
 
     def __repr__(self):
@@ -270,6 +288,10 @@ def datasets() -> pd.DataFrame:
     return resp['data'][0]
 
 
-def namespaces() -> pd.DataFrame:
-    resp = client.command('namespaces')
-    return resp['data'][0]
+def projects() -> pd.DataFrame:
+    status, resp = client.command(cmd='projects list')
+    if status == 200:
+        return pd.json_normalize(resp)
+    else:
+        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
+                           'status code: ' + str(status) + ', content:\n' + resp)

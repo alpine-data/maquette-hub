@@ -9,6 +9,7 @@ from maquette_cli.__environment import MqEnvironment
 client = Client.from_config(UserConfiguration('/home'))
 env = MqEnvironment.from_config('resources/env_conf.json')
 
+
 @click.group()
 def main():
     """
@@ -27,8 +28,8 @@ def projects():
 
 @projects.command("create")
 @click.argument('name')
-def projects_init(ctx, name):
-    status, response = client.command(cmd='projects create', args={'name': name})
+def projects_init(name):
+    status, response = client.command(cmd='projects create', args={'name': name, "title": name})
     if status == 200:
         print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
                '\n'                                                 
@@ -47,6 +48,7 @@ def projects_list():
     else:
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
+
 
 @projects.command("activate")
 @click.argument('name')
@@ -70,11 +72,13 @@ def activate(name):
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)
 
+
 @projects.command("deactivate")
 def deactivate():
     ### Currently only removes the environment variables from the config, no default env needed or available
     env.remove_process_env()
     print('Removed Environment from Config')
+
 
 @projects.command("rm")
 @click.argument('name')
