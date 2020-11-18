@@ -20,12 +20,16 @@ public interface Stack<T extends StackConfiguration> {
 
    List<String> getTags();
 
-   Class<T> getParametersType();
+   Class<T> getConfigurationType();
 
    Form getConfigurationForm();
 
    DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, T properties);
 
-   DeployedStackParameters getProperties(DeploymentProperties deployment);
+   DeployedStackParameters getParameters(DeploymentProperties deployment, T configuration);
+
+   default StackProperties getProperties() {
+      return StackProperties.apply(getTitle(), getName(), getSummary(), getIcon(), getTags(), getConfigurationForm());
+   }
 
 }

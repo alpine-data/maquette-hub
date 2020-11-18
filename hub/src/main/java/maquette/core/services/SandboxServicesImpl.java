@@ -12,15 +12,13 @@ import maquette.core.entities.sandboxes.Sandboxes;
 import maquette.core.entities.sandboxes.exceptions.SandboxNotFoundException;
 import maquette.core.entities.sandboxes.model.SandboxDetails;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
-import maquette.core.entities.sandboxes.model.stacks.DeployedStackDetails;
-import maquette.core.entities.sandboxes.model.stacks.DeployedStackProperties;
-import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
-import maquette.core.entities.sandboxes.model.stacks.Stacks;
+import maquette.core.entities.sandboxes.model.stacks.*;
 import maquette.core.values.exceptions.ProjectNotFoundException;
 import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -40,7 +38,7 @@ public class SandboxServicesImpl implements SandboxServices {
    @Override
    public CompletionStage<SandboxDetails> createSandbox(User user, String projectName, String name, List<StackConfiguration> stacks) {
       return withProjectByName(projectName, project -> sandboxes
-         .createSandbox(project.getId(), name)
+         .createSandbox(user, project.getId(), name)
          .thenCompose(properties -> sandboxes
             .findSandboxByName(project.getId(), properties.getName())
             .thenApply(maybeSandbox -> {
@@ -69,8 +67,11 @@ public class SandboxServicesImpl implements SandboxServices {
                         return processesManager
                            .schedule(user, processDescription, log -> infrastructure
                               .applyConfig(deployment)
-                              .thenCompose(d -> {
-                                 var deployed = DeployedStackProperties.apply(deployment.getName(), config);
+                              .thenCompose(deploymentProperties -> {
+                                 var deployed = DeployedStackProperties.apply(
+                                    deployment.getName(),
+                                    config);
+
                                  return sandbox.addDeployment(deployed);
                               }))
                            .thenCompose(sandbox::addProcess);
@@ -91,7 +92,18 @@ public class SandboxServicesImpl implements SandboxServices {
    }
 
    @Override
-   public CompletionStage<List<SandboxProperties>> listSandboxes(User user, String project) {
+   public CompletionStage<List<StackProperties>> getStacks(User user) {
+      var result = Stacks.apply()
+         .getStacks()
+         .stream()
+         .map(Stack::getProperties)
+         .collect(Collectors.toList());
+
+      return CompletableFuture.completedFuture(result);
+   }
+
+   @Override
+   public CompletionStage<List<SandboxProperties>> getSandboxes(User user, String project) {
       return withProjectByName(project, p -> sandboxes.listSandboxes(p.getId()));
    }
 
@@ -103,7 +115,14 @@ public class SandboxServicesImpl implements SandboxServices {
             .map(stack -> infrastructure
                .getDeployment(stack.getDeployment()).orElseThrow()
                .getProperties()
-               .thenApply(deploymentProperties -> DeployedStackDetails.apply(deploymentProperties, stack.getConfiguration())))
+               .thenApply(deploymentProperties -> {
+                  var stackConfiguration = stack.getConfiguration();
+                  var stackParameters = Stacks.apply()
+                     .getStackByConfiguration(stackConfiguration)
+                     .getParameters(deploymentProperties, stackConfiguration);
+
+                  return DeployedStackDetails.apply(deploymentProperties, stackConfiguration, stackParameters);
+               }))
             .collect(Collectors.toList()));
 
       var processesCS = Operators.allOf(

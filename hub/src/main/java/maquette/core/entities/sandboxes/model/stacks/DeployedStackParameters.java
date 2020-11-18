@@ -17,7 +17,7 @@ public class DeployedStackParameters {
 
    URL entrypoint;
 
-   Map<String, Object> properties;
+   Map<String, Object> parameters;
 
    @SuppressWarnings("unused")
    private DeployedStackParameters() {
@@ -33,13 +33,13 @@ public class DeployedStackParameters {
    }
 
    @JsonAnyGetter
-   public Map<String, Object> getProperties() {
-      return properties;
+   public Map<String, Object> getParameters() {
+      return Map.copyOf(parameters);
    }
 
    @JsonAnySetter
-   public void setProperty(String name, Object value) {
-      properties.put(name, value);
+   public void setParameter(String name, Object value) {
+      parameters.put(name, value);
    }
 
 }

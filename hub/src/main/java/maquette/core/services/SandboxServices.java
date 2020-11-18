@@ -3,6 +3,7 @@ package maquette.core.services;
 import maquette.core.entities.sandboxes.model.SandboxDetails;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
+import maquette.core.entities.sandboxes.model.stacks.StackProperties;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface SandboxServices {
 
    CompletionStage<SandboxDetails> getSandbox(User user, String project, String sandbox);
 
-   CompletionStage<List<SandboxProperties>> listSandboxes(User user, String project);
+   CompletionStage<List<StackProperties>> getStacks(User user);
+
+   CompletionStage<List<SandboxProperties>> getSandboxes(User user, String project);
 
 }

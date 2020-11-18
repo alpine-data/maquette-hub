@@ -16,6 +16,7 @@ import maquette.core.server.commands.projects.RevokeProjectAccessCommand;
 import maquette.core.server.commands.projects.UpdateProjectPropertiesCommand;
 import maquette.core.server.commands.sandboxes.CreateSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetSandboxCommand;
+import maquette.core.server.commands.sandboxes.GetStacksCommand;
 import maquette.core.server.commands.sandboxes.ListSandboxesCommand;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
@@ -64,6 +65,7 @@ import java.util.concurrent.CompletionStage;
       // Sandboxes
       @JsonSubTypes.Type(value = CreateSandboxCommand.class, name = "sandboxes create"),
       @JsonSubTypes.Type(value = GetSandboxCommand.class, name = "sandboxes get"),
+      @JsonSubTypes.Type(value = GetStacksCommand.class, name = "sandboxes stacks"),
       @JsonSubTypes.Type(value = ListSandboxesCommand.class, name = "sandboxes list")
    })
 public interface Command {

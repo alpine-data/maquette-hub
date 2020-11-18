@@ -40,7 +40,7 @@ public class Stacks {
    public <T extends StackConfiguration> Stack<T> getStackByConfiguration(T config) {
       return stacks
          .stream()
-         .filter(s -> s.getParametersType().isInstance(config))
+         .filter(s -> s.getConfigurationType().isInstance(config))
          .map(s -> (Stack<T>) s)
          .findFirst()
          .orElseThrow(); // TODO mw: Better exception

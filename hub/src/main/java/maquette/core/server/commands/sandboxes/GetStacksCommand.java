@@ -17,26 +17,19 @@ import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class ListSandboxesCommand implements Command {
-
-   String project;
+public class GetStacksCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      }
-
       return services
          .getSandboxServices()
-         .getSandboxes(user, project)
+         .getStacks(user)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return ListSandboxesCommand.apply("my-funny-project");
+      return GetStacksCommand.apply();
    }
 
 }

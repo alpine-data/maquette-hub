@@ -12,4 +12,6 @@ public class DeployedStackDetails {
 
    StackConfiguration configuration;
 
+   DeployedStackParameters parameters;
+
 }

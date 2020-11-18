@@ -20,7 +20,7 @@ import java.util.List;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class PythonStack implements Stack<PythonStack.PythonStackConfiguration> {
+public class PythonStack implements Stack<PythonStack.Configuration> {
 
    private static final String STACK_NAME = "python";
 
@@ -50,8 +50,8 @@ public class PythonStack implements Stack<PythonStack.PythonStackConfiguration> 
    }
 
    @Override
-   public Class<PythonStackConfiguration> getParametersType() {
-      return PythonStackConfiguration.class;
+   public Class<Configuration> getConfigurationType() {
+      return Configuration.class;
    }
 
    @Override
@@ -69,19 +69,19 @@ public class PythonStack implements Stack<PythonStack.PythonStackConfiguration> 
    }
 
    @Override
-   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, PythonStackConfiguration properties) {
+   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
       return DeploymentConfigs.sample(project.getId(), sandbox.getId());
    }
 
    @Override
-   public DeployedStackParameters getProperties(DeploymentProperties deployment) {
+   public DeployedStackParameters getParameters(DeploymentProperties deployment, Configuration configuration) {
       return DeployedStackParameters.apply(Operators.suppressExceptions(() -> new URL("http://pathtojupyterhub.com")));
    }
 
    @Value
    @AllArgsConstructor(staticName = "apply")
    @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-   public static class PythonStackConfiguration implements StackConfiguration {
+   public static class Configuration implements StackConfiguration {
 
       String version;
 

@@ -45,7 +45,7 @@ Summary.Empty = ({children, className,  ...props}) => {
 
 Summary.Header = ({icon, category, children, className, ...props}) => {
   return <div className={ cx("rs-panel-heading", className) } role="rowheader" tabIndex="-1" { ...props }>
-      { category && <div className="mq-summary--type">{ icon && <Icon icon={ icon } /> } { category }</div> }
+      { category && <div className="mq-summary--type">{ icon && <><Icon icon={ icon } />&nbsp;&nbsp;</> } { category }</div> }
       { children }
     </div>
 }

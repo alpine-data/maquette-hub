@@ -6,6 +6,8 @@ import {
   getProject as getProjectAction,
   getProjectSuccess, getProjectFailed, 
   getDatasetsSuccess, getDatasetsFailed,
+  getSandboxesSuccess, getSandboxesFailed,
+  getStacksSuccess, getStacksFailed,
   grantAccessFailed, grantAccessSuccess,
   revokeAccessFailed, revokeAccessSuccess,
   updateProjectFailed, updateProjectSuccess } from './actions';
@@ -38,6 +40,28 @@ export function* getDatasets(action) {
     yield put(getDatasetsSuccess(action.name, data));
   } catch (err) {
     yield put(getDatasetsFailed(action.name, err));
+  }
+}
+
+export function* getSandboxes(action) {
+  try {
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'sandboxes list', { "project": action.name }, user);
+    
+    yield put(getSandboxesSuccess(data));
+  } catch (err) {
+    yield put(getSandboxesFailed(err));
+  }
+}
+
+export function* getStacks(action) {
+  try {
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'sandboxes stacks', {}, user);
+    
+    yield put(getStacksSuccess(data));
+  } catch (err) {
+    yield put(getStacksFailed(err));
   }
 }
 
@@ -86,6 +110,8 @@ export function* updateProject(action) {
 export default function* projectSaga() {
   yield takeLatest(GET_PROJECT, getProject);
   yield takeLatest(GET_PROJECT, getDatasets);
+  yield takeLatest(GET_PROJECT, getSandboxes);
+  yield takeLatest(GET_PROJECT, getStacks);
 
   yield takeEvery(GRANT_ACCESS, grantAccess);
   yield takeEvery(REVOKE_ACCESS, revokeAccess);

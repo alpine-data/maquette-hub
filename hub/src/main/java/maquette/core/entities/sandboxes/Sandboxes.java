@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.ports.SandboxesRepository;
+import maquette.core.values.ActionMetadata;
+import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,14 +18,14 @@ public final class Sandboxes {
 
    private final SandboxesRepository repository;
 
-   public CompletionStage<SandboxProperties> createSandbox(String projectId, String name) {
+   public CompletionStage<SandboxProperties> createSandbox(User executor, String projectId, String name) {
       if (Objects.isNull(name)) {
          name = Nomen.randomName();
          // TODO mw: Make sure name is not used yet.
       }
 
       var id = Operators.hash();
-      var properties = SandboxProperties.apply(id, name);
+      var properties = SandboxProperties.apply(id, name, ActionMetadata.apply(executor));
 
       return repository
          .insertOrUpdateSandbox(projectId, properties)

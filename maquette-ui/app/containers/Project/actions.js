@@ -9,7 +9,7 @@ import {
   GET_PROJECT, GET_PROJECT_SUCCESS, GET_PROJECT_FAILED,
   GRANT_ACCESS, GRANT_ACCESS_FAILED, GRANT_ACCESS_SUCCESS,
   REVOKE_ACCESS, REVOKE_ACCESS_FAILED, REVOKE_ACCESS_SUCCESS,
-  UPDATE_PROJECT, UPDATE_PROJECT_FAILED, UPDATE_PROJECT_SUCCESS } from './constants';
+  UPDATE_PROJECT, UPDATE_PROJECT_FAILED, UPDATE_PROJECT_SUCCESS, GET_SANDBOXES, GET_SANDBOXES_FAILED, GET_SANDBOXES_SUCCESS, GET_STACKS, GET_STACKS_SUCCESS, GET_STACKS_FAILED } from './constants';
 
 export function getDatasetsFailed(name, error) {
   return {
@@ -47,6 +47,47 @@ export function getProjectSuccess(name, response) {
   return {
     type: GET_PROJECT_SUCCESS,
     name,
+    response
+  };
+}
+
+export function getSandboxes(project) {
+  return {
+    type: GET_SANDBOXES,
+    project
+  };
+}
+
+export function getSandboxesFailed(error) {
+  return {
+    type: GET_SANDBOXES_FAILED,
+    error
+  }
+}
+
+export function getSandboxesSuccess(response) {
+  return {
+    type: GET_SANDBOXES_SUCCESS,
+    response
+  }
+}
+
+export function getStacks() {
+  return {
+    type: GET_STACKS
+  };
+}
+
+export function getStacksFailed(error) {
+  return {
+    type: GET_STACKS_FAILED,
+    error
+  }
+}
+
+export function getStacksSuccess(response) {
+  return {
+    type: GET_STACKS_SUCCESS,
     response
   };
 }

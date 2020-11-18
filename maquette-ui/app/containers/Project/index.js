@@ -28,6 +28,7 @@ import Container from 'components/Container';
 import EditableParagraph from 'components/EditableParagraph';
 import Members from '../../components/Members';
 import ResourceSettings from 'components/ResourceSettings';
+import Sandboxes from '../../components/Sandboxes';
 import Summary from 'components/Summary';
 
 import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Form, FormGroup, ControlLabel, FormControl, Table, SelectPicker, Affix } from 'rsuite';
@@ -174,7 +175,7 @@ function Display(props) {
             <Nav.Item eventKey="data" componentClass={ Link } to={ `/${name}` }>Data</Nav.Item>
             <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
             <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
-            <Nav.Item eventKey="workspaces" componentClass={ Link } to={ `/${name}/workspaces` }>Workspaces</Nav.Item>
+            <Nav.Item eventKey="sandboxes" componentClass={ Link } to={ `/${name}/sandboxes` }>Sandboxes</Nav.Item>
             <Nav.Item eventKey="projects" componentClass={ Link } to={ `/${name}/projects` }>Projects</Nav.Item>
             <Nav.Item eventKey="templates" componentClass={ Link } to={ `/${name}/templates` }>Templates</Nav.Item>
             <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${name}/settings` }>Settings</Nav.Item>
@@ -184,6 +185,7 @@ function Display(props) {
       
       { tab == 'data' && <Resources { ...props} /> }
       { tab == 'settings' && <Settings { ...props} /> }
+      { tab == 'sandboxes' && <Sandboxes { ...props} /> }
     </div>
   );
 }
