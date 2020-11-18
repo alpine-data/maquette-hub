@@ -2,7 +2,6 @@ package maquette.core.services;
 
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.processes.model.ProcessSummary;
@@ -11,10 +10,10 @@ import maquette.core.entities.projects.Projects;
 import maquette.core.entities.sandboxes.Sandbox;
 import maquette.core.entities.sandboxes.Sandboxes;
 import maquette.core.entities.sandboxes.exceptions.SandboxNotFoundException;
-import maquette.core.entities.sandboxes.model.stacks.DeployedStackDetails;
-import maquette.core.entities.sandboxes.model.stacks.DeployedStackProperties;
 import maquette.core.entities.sandboxes.model.SandboxDetails;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
+import maquette.core.entities.sandboxes.model.stacks.DeployedStackDetails;
+import maquette.core.entities.sandboxes.model.stacks.DeployedStackProperties;
 import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
 import maquette.core.values.exceptions.ProjectNotFoundException;
@@ -69,11 +68,11 @@ public class SandboxServicesImpl implements SandboxServices {
 
                         return processesManager
                            .schedule(user, processDescription, log -> infrastructure
-                           .applyConfig(deployment)
-                           .thenCompose(d -> {
-                              var deployed = DeployedStackProperties.apply(deployment.getName(), config);
-                              return sandbox.addDeployment(deployed);
-                           }))
+                              .applyConfig(deployment)
+                              .thenCompose(d -> {
+                                 var deployed = DeployedStackProperties.apply(deployment.getName(), config);
+                                 return sandbox.addDeployment(deployed);
+                              }))
                            .thenCompose(sandbox::addProcess);
                      });
                })
@@ -97,20 +96,14 @@ public class SandboxServicesImpl implements SandboxServices {
    }
 
    private CompletionStage<SandboxDetails> enrichSandboxProperties(SandboxProperties properties) {
-      /*
-      var deployedStacks = Operators.allOf(
+      var deployedStacksCS = Operators.allOf(
          properties
             .getStacks()
             .stream()
-            .map(stack -> {
-               var deployment = infrastructure
-                  .getDeployment(stack.getDeployment()).orElseThrow()
-                  .getProperties();
-               return DeployedStackDetails.apply(deployment.ge)
-            })
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(Deployment::getProperties)
+            .map(stack -> infrastructure
+               .getDeployment(stack.getDeployment()).orElseThrow()
+               .getProperties()
+               .thenApply(deploymentProperties -> DeployedStackDetails.apply(deploymentProperties, stack.getConfiguration())))
             .collect(Collectors.toList()));
 
       var processesCS = Operators.allOf(
@@ -120,7 +113,7 @@ public class SandboxServicesImpl implements SandboxServices {
             .map(processesManager::getDetails)
             .collect(Collectors.toList()));
 
-      return Operators.compose(deployedStacks, processesCS, (deployments, processes) -> {
+      return Operators.compose(deployedStacksCS, processesCS, (deployments, processes) -> {
          var processesFiltered = processes
             .stream()
             .filter(Optional::isPresent)
@@ -134,8 +127,6 @@ public class SandboxServicesImpl implements SandboxServices {
             deployments,
             processesFiltered);
       });
-      */
-       return null;
    }
 
    private <T> CompletionStage<T> withProjectByName(String projectName, Function<Project, CompletionStage<T>> func) {
