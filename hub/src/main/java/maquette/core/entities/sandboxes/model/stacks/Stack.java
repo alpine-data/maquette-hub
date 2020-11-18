@@ -26,6 +26,6 @@ public interface Stack<T extends StackConfiguration> {
 
    DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, T properties);
 
-   StackProperties getProperties(DeploymentProperties deployment);
+   DeployedStackParameters getProperties(DeploymentProperties deployment);
 
 }

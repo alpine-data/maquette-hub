@@ -74,8 +74,8 @@ public class PythonStack implements Stack<PythonStack.PythonStackConfiguration> 
    }
 
    @Override
-   public StackProperties getProperties(DeploymentProperties deployment) {
-      return StackProperties.apply(Operators.suppressExceptions(() -> new URL("http://pathtojupyterhub.com")));
+   public DeployedStackParameters getProperties(DeploymentProperties deployment) {
+      return DeployedStackParameters.apply(Operators.suppressExceptions(() -> new URL("http://pathtojupyterhub.com")));
    }
 
    @Value

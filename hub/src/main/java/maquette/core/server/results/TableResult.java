@@ -6,13 +6,16 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.CommandResult;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.io.csv.CsvWriteOptions;
 import tech.tablesaw.io.json.JsonWriteOptions;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Optional;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -30,6 +33,12 @@ public class TableResult<T> implements CommandResult {
     @Override
     public String toPlainText(RuntimeConfiguration runtime) {
         return table.printAll();
+    }
+
+    public Optional<String> toCSV(RuntimeConfiguration runtime) {
+        var sw = new StringWriter();
+        Operators.suppressExceptions(() -> table.write().usingOptions(CsvWriteOptions.builder(sw).build()));
+        return Optional.of(sw.toString());
     }
 
     public static class Serializer extends StdSerializer<TableResult> {

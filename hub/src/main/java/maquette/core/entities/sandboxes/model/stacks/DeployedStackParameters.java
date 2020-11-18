@@ -13,22 +13,22 @@ import java.util.Map;
 
 @Value
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public class StackProperties {
+public class DeployedStackParameters {
 
    URL entrypoint;
 
    Map<String, Object> properties;
 
    @SuppressWarnings("unused")
-   private StackProperties() {
+   private DeployedStackParameters() {
       this(null, Maps.newHashMap());
    }
 
-   public static StackProperties apply(URL entrypoint) {
+   public static DeployedStackParameters apply(URL entrypoint) {
       return apply(entrypoint, Maps.newHashMap());
    }
 
-   public static StackProperties apply(String entrypoint) {
+   public static DeployedStackParameters apply(String entrypoint) {
       return apply(Operators.suppressExceptions(() -> new URL(entrypoint)));
    }
 

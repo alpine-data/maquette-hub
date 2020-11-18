@@ -7,9 +7,12 @@ import maquette.core.server.CommandResult;
 import maquette.core.server.results.TableResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
+import tech.tablesaw.api.DateTimeColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -25,12 +28,15 @@ public final class ListProjectsCommand implements Command {
                .create()
                .addColumns(StringColumn.create("id"))
                .addColumns(StringColumn.create("title"))
-               .addColumns(StringColumn.create("name"));
+               .addColumns(StringColumn.create("name"))
+               .addColumns(DateTimeColumn.create("modified"));
 
             projects.forEach(p -> {
                var row = table.appendRow();
                row.setString("id", p.getId());
+               row.setString("title", p.getTitle());
                row.setString("name", p.getName());
+               row.setDateTime("modified", LocalDateTime.ofInstant(p.getModified().getAt(), ZoneId.systemDefault()));
             });
 
             return TableResult.apply(table.sortOn("name"), projects);

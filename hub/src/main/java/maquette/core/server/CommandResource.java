@@ -56,7 +56,12 @@ public final class CommandResource {
 
             if (accept.equals("text/plain")) {
                 ctx.result(result.thenApply(r -> r.toPlainText(runtime)).toCompletableFuture());
-            } else {
+            } if (accept.equals("application/csv")) {
+              ctx.result(result.thenApply(r -> r.toCSV(runtime).orElseGet(() -> {
+                 ctx.status(404);
+                 return "CSV not available";
+              })).toCompletableFuture());
+           } else {
                 ctx.json(result.toCompletableFuture());
             }
         });

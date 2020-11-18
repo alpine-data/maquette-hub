@@ -91,8 +91,8 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    }
 
    @Override
-   public StackProperties getProperties(DeploymentProperties deployment) {
-      return StackProperties.apply("http://pgadmin.postgres.maquettte.local:3829");
+   public DeployedStackParameters getProperties(DeploymentProperties deployment) {
+      return DeployedStackParameters.apply("http://pgadmin.postgres.maquettte.local:3829");
    }
 
    @Value
