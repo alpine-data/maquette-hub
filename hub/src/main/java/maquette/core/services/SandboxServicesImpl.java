@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
-import maquette.core.entities.infrastructure.model.DeploymentConfigs;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.processes.model.ProcessSummary;
 import maquette.core.entities.projects.Project;
@@ -12,8 +11,12 @@ import maquette.core.entities.projects.Projects;
 import maquette.core.entities.sandboxes.Sandbox;
 import maquette.core.entities.sandboxes.Sandboxes;
 import maquette.core.entities.sandboxes.exceptions.SandboxNotFoundException;
+import maquette.core.entities.sandboxes.model.stacks.DeployedStackDetails;
+import maquette.core.entities.sandboxes.model.stacks.DeployedStackProperties;
 import maquette.core.entities.sandboxes.model.SandboxDetails;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
+import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
+import maquette.core.entities.sandboxes.model.stacks.Stacks;
 import maquette.core.values.exceptions.ProjectNotFoundException;
 import maquette.core.values.user.User;
 
@@ -36,7 +39,7 @@ public class SandboxServicesImpl implements SandboxServices {
    private final Sandboxes sandboxes;
 
    @Override
-   public CompletionStage<SandboxDetails> createSandbox(User user, String projectName, String name) {
+   public CompletionStage<SandboxDetails> createSandbox(User user, String projectName, String name, List<StackConfiguration> stacks) {
       return withProjectByName(projectName, project -> sandboxes
          .createSandbox(project.getId(), name)
          .thenCompose(properties -> sandboxes
@@ -49,16 +52,36 @@ public class SandboxServicesImpl implements SandboxServices {
                }
             }))
          .thenCompose(sandbox -> {
-            var deployment = DeploymentConfigs.sample(project.getId(), sandbox.getId());
+            var deployments = stacks
+               .stream()
+               .map(config -> {
+                  var stack = Stacks.apply().getStackByConfiguration(config);
+                  var projectPropertiesCS = project.getProperties();
+                  var sandboxPropertiesCS = sandbox.getProperties();
 
-            return processesManager
-               .schedule(
-                  user, "initializing sandbox",
-                  log -> infrastructure
-                     .applyConfig(deployment)
-                     .thenCompose(done -> sandbox.addDeployment(deployment.getName())))
-               .thenCompose(sandbox::addProcess)
-               .thenCompose(done -> sandbox.getProperties())
+                  return Operators.compose(
+                     projectPropertiesCS, sandboxPropertiesCS,
+                     (projectProperties, sandboxProperties) -> {
+                        var deployment = stack.getDeploymentConfig(projectProperties, sandboxProperties, config);
+                        var processDescription = String.format(
+                           "initializing stack `%s` for sandbox `%s/%s`",
+                           config.getStackName(), projectProperties.getName(), sandboxProperties.getName());
+
+                        return processesManager
+                           .schedule(user, processDescription, log -> infrastructure
+                           .applyConfig(deployment)
+                           .thenCompose(d -> {
+                              var deployed = DeployedStackProperties.apply(deployment.getName(), config);
+                              return sandbox.addDeployment(deployed);
+                           }))
+                           .thenCompose(sandbox::addProcess);
+                     });
+               })
+               .collect(Collectors.toList());
+
+            return Operators
+               .allOf(deployments)
+               .thenCompose(d -> sandbox.getProperties())
                .thenCompose(this::enrichSandboxProperties);
          }));
    }
@@ -74,11 +97,17 @@ public class SandboxServicesImpl implements SandboxServices {
    }
 
    private CompletionStage<SandboxDetails> enrichSandboxProperties(SandboxProperties properties) {
-      var deploymentsCS = Operators.allOf(
+      /*
+      var deployedStacks = Operators.allOf(
          properties
-            .getDeployments()
+            .getStacks()
             .stream()
-            .map(infrastructure::getDeployment)
+            .map(stack -> {
+               var deployment = infrastructure
+                  .getDeployment(stack.getDeployment()).orElseThrow()
+                  .getProperties();
+               return DeployedStackDetails.apply(deployment.ge)
+            })
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(Deployment::getProperties)
@@ -91,7 +120,7 @@ public class SandboxServicesImpl implements SandboxServices {
             .map(processesManager::getDetails)
             .collect(Collectors.toList()));
 
-      return Operators.compose(deploymentsCS, processesCS, (deployments, processes) -> {
+      return Operators.compose(deployedStacks, processesCS, (deployments, processes) -> {
          var processesFiltered = processes
             .stream()
             .filter(Optional::isPresent)
@@ -105,6 +134,8 @@ public class SandboxServicesImpl implements SandboxServices {
             deployments,
             processesFiltered);
       });
+      */
+       return null;
    }
 
    private <T> CompletionStage<T> withProjectByName(String projectName, Function<Project, CompletionStage<T>> func) {

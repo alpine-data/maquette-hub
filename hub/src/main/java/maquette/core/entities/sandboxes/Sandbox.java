@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.entities.sandboxes.exceptions.SandboxNotFoundException;
+import maquette.core.entities.sandboxes.model.stacks.DeployedStackProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.ports.SandboxesRepository;
 
@@ -25,9 +26,9 @@ public final class Sandbox {
          .thenCompose(p -> repository.insertOrUpdateSandbox(projectId, p));
    }
 
-   public CompletionStage<Done> addDeployment(String deploymentId) {
+   public CompletionStage<Done> addDeployment(DeployedStackProperties deployment) {
       return getProperties()
-         .thenApply(p -> p.withDeployment(deploymentId))
+         .thenApply(p -> p.withDeployment(deployment))
          .thenCompose(p -> repository.insertOrUpdateSandbox(projectId, p));
    }
 

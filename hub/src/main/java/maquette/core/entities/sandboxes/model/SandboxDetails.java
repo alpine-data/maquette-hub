@@ -2,8 +2,8 @@ package maquette.core.entities.sandboxes.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.processes.model.ProcessSummary;
+import maquette.core.entities.sandboxes.model.stacks.DeployedStackDetails;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class SandboxDetails {
 
    String name;
 
-   List<DeploymentProperties> deployments;
+   List<DeployedStackDetails> stacks;
 
    List<ProcessSummary> processes;
 
