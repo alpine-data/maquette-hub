@@ -19,7 +19,11 @@ const logos = {
   "postgresql": PostgreSQLLogo
 }
 
-function StackCard({ stack, onClick=console.log }) {
+export const StackIcon = ({ stack, ...props }) => {
+  return <img src={ logos[stack.icon] } alt={ stack.title } width={ 64 } { ...props } />
+}
+
+function StackCard({ actionLabel = 'Setup this stack', stack, onClick=console.log }) {
   return <Summary.Summaries>
       <Summary>
         <Summary.Header category="Stack" icon="stack-overflow">{ stack.title }</Summary.Header>
@@ -28,13 +32,13 @@ function StackCard({ stack, onClick=console.log }) {
             <FlexboxGrid.Item colspan={18}>
               { stack.summary }
             </FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={ 6 }>
-              <img src={ logos[stack.icon] } width="64" /> 
+            <FlexboxGrid.Item colspan={ 6 } align="right">
+              <StackIcon stack={ stack } />
             </FlexboxGrid.Item>
 
             <FlexboxGrid.Item colspan={24}>
-              <br /><br />
-              <Button appearance="ghost" onClick={ () => onClick(stack.name) }>Setup this Stack</Button>
+              
+              { actionLabel && <><br /><br /><Button appearance="ghost" onClick={ () => onClick(stack.name) }>{ actionLabel }</Button></> }
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Summary.Body>
@@ -50,6 +54,8 @@ StackCard.propTypes = {
     title: PropTypes.string.isRequired,
     tags: PropTypes.arrayOf(PropTypes.string).isRequired
   }).isRequired,
+
+  actionLabel: PropTypes.any,
 
   onClick: PropTypes.func
 };

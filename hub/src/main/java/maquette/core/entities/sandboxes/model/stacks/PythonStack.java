@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class PythonStack implements Stack<PythonStack.Configuration> {
 
-   private static final String STACK_NAME = "python";
+   public static final String STACK_NAME = "python";
 
    @Override
    public String getTitle() {

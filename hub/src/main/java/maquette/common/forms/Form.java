@@ -1,5 +1,8 @@
 package maquette.common.forms;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -7,8 +10,10 @@ import org.apache.commons.compress.utils.Lists;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Value
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Form {
 
@@ -40,6 +45,17 @@ public class Form {
       fields.add(FormRow.apply(false).withFormControl(control));
 
       return apply(helpText, fields);
+   }
+
+   @JsonProperty("defaults")
+   public Map<String, Object> getDefaults() {
+      Map<String, Object> defaults = Maps.newHashMap();
+
+      fields.forEach(row -> row.getControls().forEach(control -> {
+         defaults.put(control.getControl().getName(), control.getControl().getDefaultValue());
+      }));
+
+      return Map.copyOf(defaults);
    }
 
 }

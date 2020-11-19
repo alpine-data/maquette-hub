@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuration> {
 
-   private static final String STACK_NAME = "postgresql";
+   public static final String STACK_NAME = "postgresql";
 
    @Override
    public String getTitle() {
@@ -55,12 +55,12 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    @Override
    public Form getConfigurationForm() {
       var dbUsername = FormControl.apply(
-         "Database Username",
+         "Database username",
          Input.apply("dbUsername"),
          "The username for the database. Leave empty for random value.");
 
       var dbPassword = FormControl.apply(
-         "Database Password",
+         "Database password",
          Input.apply("dbPassword"),
          "The password for the database. Leave empty for random value.");
 
@@ -76,7 +76,7 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
       return Form
          .apply()
          .withRow(FormRow
-            .apply(true)
+            .apply()
             .withFormControl(dbUsername)
             .withFormControl(dbPassword))
          .withRow(FormRow

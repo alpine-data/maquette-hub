@@ -18,7 +18,7 @@ public class Input implements InputControl {
    }
 
    public static Input apply(String name) {
-      return apply(name, null);
+      return apply(name, "");
    }
 
    public Input withDefaultValue(String value) {

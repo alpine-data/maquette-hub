@@ -45,6 +45,7 @@ function Layout(props) {
                             <Dropdown icon={<Icon icon="plus" />} placement="bottomEnd">
                                 <Dropdown.Item componentClass={ Link } to="/new/project">New Project</Dropdown.Item>
                                 <Dropdown.Item componentClass={ Link } to="/new/dataset">New Dataset</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/sandbox">New Sandbox</Dropdown.Item>
                                 <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>New Collection</Dropdown.Item>
                                 <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>New Signal</Dropdown.Item>
                                 <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>New Source</Dropdown.Item>

@@ -28,4 +28,8 @@ public class InputPicker implements InputControl {
       return apply(name, List.copyOf(items), defaultValue);
    }
 
+   public String getDefaultValue() {
+      return defaultValue != null ? defaultValue : items.isEmpty() ? "" : items.get(0).getValue();
+   }
+
 }

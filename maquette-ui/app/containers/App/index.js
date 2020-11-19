@@ -17,6 +17,7 @@ import Layout from 'components/Layout';
 
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
+import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
 import TestContainer from 'containers/TestComponent/Loadable'; 
@@ -37,6 +38,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/search" component={Search} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
+        <Route path="/new/sandbox" component={CreateSandbox} />
         <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab/:id" exact component={Dataset} />

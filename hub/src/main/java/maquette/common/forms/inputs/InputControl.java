@@ -1,7 +1,10 @@
 package maquette.common.forms.inputs;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import java.util.Optional;
 
 @JsonTypeInfo(
    use = JsonTypeInfo.Id.NAME,
@@ -18,5 +21,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public interface InputControl {
 
    String getName();
+
+   @JsonIgnore
+   Object getDefaultValue();
 
 }

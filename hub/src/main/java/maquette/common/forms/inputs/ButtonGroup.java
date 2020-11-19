@@ -26,4 +26,8 @@ public class ButtonGroup implements InputControl {
       return apply(name, List.copyOf(items));
    }
 
+   @Override
+   public Object getDefaultValue() {
+      return "none";
+   }
 }

@@ -36,4 +36,7 @@ public class CheckboxGroup implements InputControl {
       return apply(name, items, value);
    }
 
+   public String getDefaultValue() {
+      return defaultValue != null ? defaultValue : items.isEmpty() ? "" : items.get(0).getValue();
+   }
 }

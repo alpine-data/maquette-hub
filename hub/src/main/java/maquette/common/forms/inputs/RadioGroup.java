@@ -31,4 +31,8 @@ public class RadioGroup implements InputControl {
       return withItem(key, label, null);
    }
 
+   public String getDefaultValue() {
+      return defaultValue != null ? defaultValue : items.isEmpty() ? "" : items.get(0).getValue();
+   }
+
 }

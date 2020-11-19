@@ -7,7 +7,7 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DataItem {
 
-   String key;
+   String value;
 
    String label;
 
