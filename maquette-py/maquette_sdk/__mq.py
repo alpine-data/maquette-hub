@@ -30,6 +30,7 @@ class EDatasetPrivilege(Enum):
     CONSUMER = "consumer"
     ADMIN = "admin"
 
+#TODO: include optional "pretty string", and csv options for all tables (see dataset(), projects, str, print etc...)
 
 class Administration:
 
@@ -101,7 +102,8 @@ class DatasetVersion:
         ds = self.__dataset
         version = self.__version or 'latest'
 
-        resp = client.get('/datasets/' + pr + '/' + ds + '/versions/' + version + '/data')
+        resp = client.get('data/datasets/' + pr + '/' + ds + '/' + version)
+        #TODO: Catch error if not Avro, Status?
         return pandavro.from_avro(BytesIO(resp.content))
 
     def print(self) -> 'DatasetVersion':
@@ -140,13 +142,31 @@ class Dataset:
 
     __name: str = None
 
-    def __init__(self, name: str, project: str = None):
+    def __init__(self, name: str, title:str = None, summary: str = "Lorem Impsum", visibility: str="public",
+                 classification: str = "public", personal_information: str = "none", description="Lorem Ipsum",
+                 project: str = None):
+        #TODO: Enums für Classification, Visibility etc. einführen?
         self.__name = name
+        if title:
+            self.__title = title
+        else:
+            self.__title = name
+
+        self.__summary = summary
+        self.__visibility = visibility
+        self.__classification = classification
+        self.__personal_information = personal_information
+        self.__description = description
         self.__project = project
 
-    def create(self, is_private: bool = False) -> 'Dataset':
-        client.command(cmd='datasets create',args= {'dataset': self.__name, 'project': self.__project})
+    def create(self) -> 'Dataset':
+        client.command(cmd='datasets create',
+                       args= {'name': self.__name, 'title': self.__title, 'summary': self.__summary,
+                              'visibility': self.__visibility,'classification': self.__classification,
+                              'personalInformation': self.__personal_information, 'description': self.__description,
+                              'project': self.__project})
         return self
+    #TODO: add posibility to directly upload a dataset with creation
 
     def create_consumer(self, for_user: str = None) -> 'Dataset':
         status, resp = client.command(cmd='dataset create consumer', args={
@@ -191,8 +211,8 @@ class Dataset:
         return self
 
     def print(self):
-        resp = client.command(cmd='dataset show', args={'dataset': self.__name, 'project': self.__project})
-        print(resp['output'])
+        resp = client.command(cmd='datasets get', args={'dataset': self.__name, 'project': self.__project})
+        print(resp[1])
         return self
 
     def put(self, data: pd.DataFrame, short_description: str) -> DatasetVersion:
@@ -203,7 +223,7 @@ class Dataset:
         pandavro.to_avro(file, data)
         file.seek(0)
 
-        resp = client.put('/datasets/' + pr + '/' + ds + '/versions', files = {
+        resp = client.post('data/datasets/' + pr + '/' + ds + '/1.0.1', files = {
             'message': short_description,
             'file': file
         })
@@ -230,9 +250,13 @@ class Project:
     __name: str = None
     __title: str = None
 
-    def __init__(self, title: str = None):
-        self.__name = generate_unique_name(title)
-        self.__title = title
+    def __init__(self, name:str, title: str = None):
+        #TODO:  self.__name = generate_unique_name(title)
+        self.__name = name
+        if title:
+            self.__title = title
+        else:
+            self.__title = name
 
     def create(self) -> 'Project':
         client.command(cmd='projects create', args= {'title': self.__title, 'name': self.__name})
@@ -240,11 +264,12 @@ class Project:
 
     def datasets(self) -> pd.DataFrame:
         resp = client.command(cmd='project datasets', args={'project': self.__name})
-        #TODO: Avro
         return resp['data'][0]
 
-    def dataset(self, name: str) -> Dataset:
-        return Dataset(name, self.__name)
+    def dataset(self, dataset_name: str=None, dataset_title: str=None, summary:str=None, description: str=None,
+                visibility: str=None, classification: str=None, personal_information: str=None) -> Dataset:
+        args = [arg for arg in [dataset_name,dataset_title, summary,description,visibility,classification,personal_information] if arg]
+        return Dataset(project=self.__name, *args)
 
     def grant(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
         client.command(cmd='project grant', args={
@@ -257,7 +282,7 @@ class Project:
         return self
 
     def revoke(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
-        client.command('project revoke', {
+        client.command(cmd='project revoke', args={
             'project': self.__name,
             'privilege': grant.value,
             'authorization': to_auth.value,
@@ -267,13 +292,13 @@ class Project:
         return self
 
     def print(self) -> 'Project':
-        resp = client.command('project show', {'project': self.__name})
-        print(resp['output'])
+        resp = client.command(cmd='project get', args={'project': self.__name}, headers={'Accept':'text/plain'})
+        print(resp)
         return self
 
     def __str__(self):
-        resp = client.command('project show', {'project': self.__name})
-        return resp['output']
+        resp = client.command(cmd='project get', args={'project': self.__name}, headers={'Accept': 'text/plain'})
+        return resp
 
     def __repr__(self):
         return self.__str__()
@@ -282,16 +307,22 @@ class Project:
 def admin() -> Administration:
     return Administration()
 
-
-def datasets() -> pd.DataFrame:
-    resp = client.command('datasets')
-    return resp['data'][0]
+def project(name: str) -> Project:
+    return Project(name=name)
 
 
-def projects() -> pd.DataFrame:
-    status, resp = client.command(cmd='projects list')
-    if status == 200:
-        return pd.json_normalize(resp)
+
+def datasets(name: str, to_csv=False) -> pd.DataFrame:
+    if to_csv:
+        resp = client.command(cmd='datasets list', args={'project': name}, headers={'Accept':'application/csv'})
     else:
-        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
-                           'status code: ' + str(status) + ', content:\n' + resp)
+        resp = client.command(cmd='datasets list', args={'project': name})
+    return resp[1]
+
+
+def projects(to_csv=False) -> pd.DataFrame:
+    if to_csv:
+        resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv'})
+    else:
+        resp = client.command(cmd='projects list')
+    return resp[1]
