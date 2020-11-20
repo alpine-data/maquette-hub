@@ -17,19 +17,21 @@ public class DeployedStackParameters {
 
    URL entrypoint;
 
+   String entrypointLabel;
+
    Map<String, Object> parameters;
 
    @SuppressWarnings("unused")
    private DeployedStackParameters() {
-      this(null, Maps.newHashMap());
+      this(null, null, Maps.newHashMap());
    }
 
-   public static DeployedStackParameters apply(URL entrypoint) {
-      return apply(entrypoint, Maps.newHashMap());
+   public static DeployedStackParameters apply(URL entrypoint, String entrypointLabel) {
+      return apply(entrypoint, entrypointLabel, Maps.newHashMap());
    }
 
-   public static DeployedStackParameters apply(String entrypoint) {
-      return apply(Operators.suppressExceptions(() -> new URL(entrypoint)));
+   public static DeployedStackParameters apply(String entrypoint, String entrypointLabel) {
+      return apply(Operators.suppressExceptions(() -> new URL(entrypoint)), entrypointLabel);
    }
 
    @JsonAnyGetter
@@ -40,6 +42,11 @@ public class DeployedStackParameters {
    @JsonAnySetter
    public void setParameter(String name, Object value) {
       parameters.put(name, value);
+   }
+
+   public DeployedStackParameters withParameter(String name, String value) {
+      setParameter(name, value);
+      return this;
    }
 
 }

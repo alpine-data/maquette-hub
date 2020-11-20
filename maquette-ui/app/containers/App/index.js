@@ -20,9 +20,9 @@ import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
-import TestContainer from 'containers/TestComponent/Loadable'; 
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
+import Sandbox from 'containers/Sandbox/Loadable';
 import Search from 'containers/Search/Loadable';
 
 import GlobalStyle from '../../global-styles';
@@ -42,6 +42,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab/:id" exact component={Dataset} />
+        <Route path="/:name/resources/sandboxes/:sandbox" exact component={Sandbox} />
         <Route path="/:name" exact component={Project} />
         <Route path="/:name/:tab" exact component={Project} />
         <Route path="/:name" exact component={Project} />
