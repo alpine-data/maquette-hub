@@ -1,9 +1,15 @@
 [tool.poetry]
 name = "maquette-py"
-version = "0.1.0"
+version = "0.0.1"
 description = "A command line interface for Maquette Data Science and Machine Learning Platform."
-authors = ["Michael Wellner <michaelwellner@kpmg.com>"]
-license = "Apache License 2.0"
+authors = ["Michael Wellner <michaelwellner@kpmg.com>","Johannes Forster <johannesforster@kpmg.com"]
+license = "Apache-2.0"
+readme = "Readme.md"
+
+packages = [
+            {include = "maquette_sdk"},
+            {include = "maquette_cli"},
+            {include = "maquette_lib"}]
 
 [tool.poetry.dependencies]
 python = "~3.8"
