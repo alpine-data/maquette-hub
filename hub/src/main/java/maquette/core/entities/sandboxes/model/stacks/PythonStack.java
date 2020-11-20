@@ -1,6 +1,7 @@
 package maquette.core.entities.sandboxes.model.stacks;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.concurrent.CompletedFuture;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import maquette.common.Operators;
 import maquette.common.forms.Form;
 import maquette.common.forms.FormControl;
 import maquette.common.forms.inputs.InputPicker;
+import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfigs;
 import maquette.core.entities.infrastructure.model.DeploymentProperties;
@@ -17,6 +19,8 @@ import maquette.core.entities.sandboxes.model.SandboxProperties;
 
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -70,12 +74,24 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
 
    @Override
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
-      return DeploymentConfigs.sample(project.getId(), sandbox.getId());
+      var postgresContainerCfg = ContainerConfig
+         .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "jupyter/datascience-notebook:python-3.8.6")
+         .withCommand("start.sh jupyter notebook --NotebookApp.token=''")
+         .withPort(8888)
+         .build();
+
+      return DeploymentConfig
+         .builder(String.format("mq__%s_%s", project.getId(), sandbox.getId()))
+         .withContainerConfig(postgresContainerCfg)
+         .build();
    }
 
    @Override
-   public DeployedStackParameters getParameters(DeploymentProperties deployment, Configuration configuration) {
-      return DeployedStackParameters.apply(Operators.suppressExceptions(() -> new URL("http://pathtojupyterhub.com")));
+   public CompletionStage<DeployedStackParameters> getParameters(DeploymentProperties deployment, Configuration configuration) {
+      var parameters = DeployedStackParameters
+         .apply(deployment.getProperties().get(0).getMappedPortUrls().get(8888).toString().replace("localhost", "hub.maquette.ai.internal"), "Launch Jupyter Notebook")
+         .withParameter("Python Version", configuration.getVersion());
+      return CompletableFuture.completedFuture(parameters);
    }
 
    @Value

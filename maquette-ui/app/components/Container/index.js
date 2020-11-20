@@ -14,16 +14,24 @@ const Content = styled.div`
   padding: 20px;
 `;
 
-function Container({ fluid, md, lg, xlg, children, className, ...props }) {
+function Container({ background, fluid, md, lg, xlg, children, className, ...props }) {
   const classNames = (fluid && "mq--container-fluid") || (lg && "mq--container-xlg") || (lg && "mq--container-lg") || (md && "mq--container-md") || "mq--container";
 
-  return <FlexboxGrid justify="center" className={ cx(classNames, className) } { ...props }>
-      <FlexboxGrid.Item colspan={ (fluid && 24) || (xlg && 18) || (lg && 14) || (md && 12) || 10 }>
-        <Content>
-          { children }
-        </Content>
-      </FlexboxGrid.Item>
+  const content = <FlexboxGrid justify="center" className={ cx(classNames, className) } { ...props }>
+    <FlexboxGrid.Item colspan={ (fluid && 24) || (xlg && 18) || (lg && 14) || (md && 12) || 10 }>
+      <Content>
+        { children }
+      </Content>
+    </FlexboxGrid.Item>
   </FlexboxGrid>;
+
+  if (background) {
+    return <div className="mq--page-background" style={{ backgroundImage: `url(${background})` }}>
+      { content }
+    </div>
+  } else {
+    return content;
+  }
 }
 
 Container.propTypes = {

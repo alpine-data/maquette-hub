@@ -20,7 +20,8 @@ import { initialize, createSandbox } from './actions';
 
 import Container from '../../components/Container';
 import CreateSandboxForm from '../../components/CreateSandboxForm';
-import { Affix } from 'rsuite';
+
+import Background from '../../resources/sandboxes-background.png';
 
 export function CreateSandbox(props) {
   useInjectReducer({ key: 'createSandbox', reducer });
@@ -53,7 +54,7 @@ export function CreateSandbox(props) {
         </Container>
       </div>
 
-      <Container lg className="mq--main-content">
+      <Container lg className="mq--main-content" background={ Background }>
         <p className="mq--p-leading">
           A sandbox is an isolated infrastructure environment which may contain multiple stacks of technologies to work with data.
         </p>

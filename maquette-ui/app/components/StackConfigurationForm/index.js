@@ -41,7 +41,7 @@ function ConfigureStack(props) {
         <StackIcon stack={ stack } style={{ marginRight: "20px" }} width={ 48 } />
       </FlexboxGrid.Item>
       <FlexboxGrid.Item>
-        <h5>Python<br /><span className="mq--sub">stack configuration</span></h5>
+        <h5>{ stack.title }<br /><span className="mq--sub" style={{ fontWeight: "normal" }}>stack configuration</span></h5>
       </FlexboxGrid.Item>
     </FlexboxGrid>
     

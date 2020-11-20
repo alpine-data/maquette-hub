@@ -31,7 +31,7 @@ const createSandboxReducer = (state = initialState, action) =>
         break;
 
       case INITIALIZE:
-        draft.errors = _.assign(draft.errors, { stacks: false });
+        draft.errors = _.assign(draft.errors, { stacks: false, projects: false });
         draft.loading = _.concat(draft.loading, ['stacks']);
         draft.loading = _.concat(draft.loading, ['projects']);
         break;

@@ -16,6 +16,8 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuration> {
@@ -91,8 +93,15 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    }
 
    @Override
-   public DeployedStackParameters getParameters(DeploymentProperties deployment, Configuration configuration) {
-      return DeployedStackParameters.apply("http://pgadmin.postgres.maquettte.local:3829");
+   public CompletionStage<DeployedStackParameters> getParameters(DeploymentProperties deployment, Configuration configuration) {
+      var launch_pgAdmin = DeployedStackParameters
+         .apply("http://pgadmin.postgres.maquettte.local:3829", "Launch pgAdmin")
+         .withParameter("Database Username", configuration.dbUsername)
+         .withParameter("Database Password", configuration.dbPassword)
+         .withParameter("pgAdmin Login", configuration.pgAdminMail)
+         .withParameter("pgAdmin Password", configuration.pgAdminPassword);
+
+      return CompletableFuture.completedFuture(launch_pgAdmin);
    }
 
    @Value

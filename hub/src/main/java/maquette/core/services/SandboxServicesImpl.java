@@ -115,13 +115,14 @@ public class SandboxServicesImpl implements SandboxServices {
             .map(stack -> infrastructure
                .getDeployment(stack.getDeployment()).orElseThrow()
                .getProperties()
-               .thenApply(deploymentProperties -> {
+               .thenCompose(deploymentProperties -> {
                   var stackConfiguration = stack.getConfiguration();
-                  var stackParameters = Stacks.apply()
+                  var stackParametersCS = Stacks.apply()
                      .getStackByConfiguration(stackConfiguration)
                      .getParameters(deploymentProperties, stackConfiguration);
 
-                  return DeployedStackDetails.apply(deploymentProperties, stackConfiguration, stackParameters);
+                  return stackParametersCS.thenApply(stackParameters -> DeployedStackDetails
+                     .apply(deploymentProperties, stackConfiguration, stackParameters));
                }))
             .collect(Collectors.toList()));
 
