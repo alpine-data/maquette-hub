@@ -85,3 +85,5 @@ gradle-app.setting
 ### Python ###
 env
 __pycache__
+maquette-py/maquette_sdk/sample/mqpy_sdk_sample.py
+maquette-py/maquette_sdk/sample/mqpy-samples.ipynb

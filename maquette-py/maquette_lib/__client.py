@@ -20,11 +20,13 @@ class Client:
     def from_config(config: UserConfiguration) -> 'Client':
         return Client(config.url(), config.user(), [])
 
-    def command(self, cmd: str, args: dict = None) -> Tuple[int,dict]:
+    def command(self, cmd: str, args: dict = None, headers: dict = None) -> Tuple[int,dict]:
         request_body = { 'command': cmd }
-        if args is not None:
+        if args:
             request_body.update(args)
-        response = requests.post(self.__base_url + 'commands', json = request_body, headers = self.__headers)
+        if headers:
+            headers = {**self.__headers,**headers}
+        response = requests.post(self.__base_url + 'commands', json = request_body, headers = headers)
         if response.status_code < 200 or response.status_code > 299:
 
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
