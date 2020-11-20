@@ -22,65 +22,65 @@ import java.util.stream.Collectors;
 @AllArgsConstructor()
 public final class CommandResource {
 
-    private final RuntimeConfiguration runtime;
+   private final RuntimeConfiguration runtime;
 
-    private final ApplicationServices services;
+   private final ApplicationServices services;
 
-    @AllArgsConstructor(staticName = "apply")
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    private static class ExampleRequest {
+   @AllArgsConstructor(staticName = "apply")
+   @NoArgsConstructor(access = AccessLevel.PRIVATE)
+   private static class ExampleRequest {
 
-        String name;
+      String name;
 
-    }
+   }
 
-    public Handler getCommand() {
-        var docs = OpenApiBuilder
-                .document()
-                .operation(op -> {
-                    op.summary("Commands");
-                    op.description("Single endpoint to send commands to the application.");
-                    op.addTagsItem("Commands");
-                })
-                .body(Command.class)
-                .json("200", AdminResource.About.class);
+   public Handler getCommand() {
+      var docs = OpenApiBuilder
+         .document()
+         .operation(op -> {
+            op.summary("Commands");
+            op.description("Single endpoint to send commands to the application.");
+            op.addTagsItem("Commands");
+         })
+         .body(Command.class)
+         .json("200", AdminResource.About.class);
 
-        return OpenApiBuilder.documented(docs, ctx -> {
-            var command = ctx.bodyAsClass(Command.class);
-            var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+      return OpenApiBuilder.documented(docs, ctx -> {
+         var command = ctx.bodyAsClass(Command.class);
+         var user = (User) Objects.requireNonNull(ctx.attribute("user"));
 
-            var result = command.run(user, runtime, services).toCompletableFuture();
+         var result = command.run(user, runtime, services).toCompletableFuture();
 
-            var acceptRaw = ctx.header("Accept");
-            var accept = acceptRaw != null ? acceptRaw : "application/json";
+         var acceptRaw = ctx.header("Accept");
+         var accept = acceptRaw != null ? acceptRaw : "application/json";
 
-            if (accept.equals("text/plain")) {
-                ctx.result(result.thenApply(r -> r.toPlainText(runtime)).toCompletableFuture());
-            } else if (accept.equals("application/csv")) {
-              ctx.result(result.thenApply(r -> r.toCSV(runtime).orElseGet(() -> {
-                 ctx.status(404);
-                 return "CSV not available";
-              })).toCompletableFuture());
-           } else {
-                ctx.json(result.toCompletableFuture());
-            }
-        });
-    }
+         if (accept.equals("text/plain")) {
+            ctx.result(result.thenApply(r -> r.toPlainText(runtime)).toCompletableFuture());
+         } else if (accept.equals("application/csv")) {
+            ctx.result(result.thenApply(r -> r.toCSV(runtime).orElseGet(() -> {
+               ctx.status(404);
+               return "CSV not available";
+            })).toCompletableFuture());
+         } else {
+            ctx.json(result.toCompletableFuture());
+         }
+      });
+   }
 
-    public Handler getCommands() {
-        var docs = OpenApiBuilder
-           .document()
-           .operation(op -> {
-               op.summary("Commands");
-               op.description("List available commands.");
-               op.addTagsItem("Commands");
-           })
-           .jsonArray("200", String.class);
+   public Handler getCommands() {
+      var docs = OpenApiBuilder
+         .document()
+         .operation(op -> {
+            op.summary("Commands");
+            op.description("List available commands.");
+            op.addTagsItem("Commands");
+         })
+         .jsonArray("200", String.class);
 
-        return OpenApiBuilder.documented(docs, ctx -> {
-           ctx.json(getAvailableCommands().stream().map(Pair::getLeft).sorted().collect(Collectors.toList()));
-        });
-    }
+      return OpenApiBuilder.documented(docs, ctx -> {
+         ctx.json(getAvailableCommands().stream().map(Pair::getLeft).sorted().collect(Collectors.toList()));
+      });
+   }
 
    public Handler getCommandExample() {
       var docs = OpenApiBuilder
@@ -109,28 +109,28 @@ public final class CommandResource {
       });
    }
 
-    private List<Pair<String, Command>> getAvailableCommands() {
-        var om = ObjectMapperFactory.apply().create(true);
-        var ac = AnnotatedClassResolver.resolveWithoutSuperTypes(om.getDeserializationConfig(), Command.class);
+   private List<Pair<String, Command>> getAvailableCommands() {
+      var om = ObjectMapperFactory.apply().create(true);
+      var ac = AnnotatedClassResolver.resolveWithoutSuperTypes(om.getDeserializationConfig(), Command.class);
 
-        return om
-           .getSubtypeResolver()
-           .collectAndResolveSubtypesByClass(om.getDeserializationConfig(), ac)
-           .stream()
-           .filter(type -> !type.getType().isInterface())
-           .map(type -> {
-               try {
-                   var constructor = type.getType().getDeclaredConstructor();
-                   constructor.setAccessible(true);
-                   var command = (Command) constructor.newInstance();
-                   return Optional.of(Pair.of(type.getName(), command));
-               } catch (Exception e) {
-                   return Optional.<Pair<String, Command>>empty();
-               }
-           })
-           .filter(Optional::isPresent)
-           .map(Optional::get)
-           .collect(Collectors.toList());
-    }
+      return om
+         .getSubtypeResolver()
+         .collectAndResolveSubtypesByClass(om.getDeserializationConfig(), ac)
+         .stream()
+         .filter(type -> !type.getType().isInterface())
+         .map(type -> {
+            try {
+               var constructor = type.getType().getDeclaredConstructor();
+               constructor.setAccessible(true);
+               var command = (Command) constructor.newInstance();
+               return Optional.of(Pair.of(type.getName(), command));
+            } catch (Exception e) {
+               return Optional.<Pair<String, Command>>empty();
+            }
+         })
+         .filter(Optional::isPresent)
+         .map(Optional::get)
+         .collect(Collectors.toList());
+   }
 
 }
