@@ -91,13 +91,13 @@ public final class DataResource {
                .thenCompose(done -> services
                   .getDatasetServices()
                   .commitRevision(user, project, dataset, revision.getId(), "New version with single file upload.")))
-            .thenApply(done -> {
+            .thenApply(committedRevision -> {
                Operators.suppressExceptions(() -> Files.deleteIfExists(file));
-               return "Successfully uploaded data";
+               return committedRevision;
             })
             .toCompletableFuture();
 
-         ctx.result(result);
+         ctx.json(result);
       });
    }
 

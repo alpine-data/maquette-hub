@@ -25,15 +25,15 @@ import {
 
 import BadgedButton from 'components/BadgedButton';
 import Container from 'components/Container';
+import DataShop from '../../components/DataShop';
 import EditableParagraph from 'components/EditableParagraph';
 import Members from '../../components/Members';
 import ResourceSettings from 'components/ResourceSettings';
 import Sandboxes from '../../components/Sandboxes';
 import Summary from 'components/Summary';
 
-import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Form, FormGroup, ControlLabel, FormControl, Table, SelectPicker, Affix } from 'rsuite';
+import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Affix, Whisper, Tooltip } from 'rsuite';
 import { Link } from 'react-router-dom';
-import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
 function mapPersonalInformationToLabel(personalInformation) {
   switch (personalInformation) {
@@ -152,6 +152,7 @@ function Display(props) {
   const name = _.get(props, 'match.params.name') || 'Unknown Project';
   const tab = _.get(props, 'match.params.tab') || 'data';
   const title = _.get(props, 'project.project.title') || _.get(props, 'project.project.name');
+  const summary = _.get(props, 'project.project.summary');
 
   return (
     <div>
@@ -160,19 +161,32 @@ function Display(props) {
         <meta name="description" content="Description of Project" />
       </Helmet>
 
-      <Affix>
+      <Affix top={56}>
         <div className="mq--page-title">
           <Container fluid>
             <FlexboxGrid align="middle">
-              <FlexboxGrid.Item colspan={ 20 }><h1><Link to={ `/${name}` }>{ title }</Link></h1></FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={ 20 }>
+                <h1><Link to={ `/${name}` }>{ title }</Link></h1>
+                <EditableParagraph value={ summary } className="mq--p-leading" />
+              </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
-                <Button size="sm" active><Icon icon="heart" /> 42</Button>
+                <ButtonToolbar>
+                  <Whisper
+                    trigger="hover"
+                    placement="bottom"
+                    speaker={ <Tooltip>3 members</Tooltip> }>
+                      
+                      <Button size="sm" active><Icon icon="user-o" />&nbsp;&nbsp;3</Button>
+                  </Whisper>
+                  <Button size="sm" active><Icon icon="bookmark-o" />&nbsp;&nbsp;42</Button>
+                </ButtonToolbar>
               </FlexboxGrid.Item>
             </FlexboxGrid>
           </Container>
           
           <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
             <Nav.Item eventKey="data" componentClass={ Link } to={ `/${name}` }>Data</Nav.Item>
+            <Nav.Item eventKey="datashop" componentClass={ Link } to={ `/${name}/datashop` }>Data Shop</Nav.Item>
             <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
             <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
             <Nav.Item eventKey="sandboxes" componentClass={ Link } to={ `/${name}/sandboxes` }>Sandboxes</Nav.Item>
@@ -184,6 +198,7 @@ function Display(props) {
       </Affix>
       
       { tab == 'data' && <Resources { ...props} /> }
+      { tab == 'datashop' && <DataShop { ...props} /> }
       { tab == 'settings' && <Settings { ...props} /> }
       { tab == 'sandboxes' && <Sandboxes { ...props} /> }
     </div>

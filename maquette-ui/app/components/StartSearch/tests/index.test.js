@@ -1,6 +1,6 @@
 /**
  *
- * Tests for DataShop
+ * Tests for StartSearch
  *
  * @see https://github.com/react-boilerplate/react-boilerplate/tree/master/docs/testing
  *
@@ -10,13 +10,12 @@ import React from 'react';
 import { render } from 'react-testing-library';
 // import 'jest-dom/extend-expect'; // add some helpful assertions
 
-import { DataShop } from '../index';
+import StartSearch from '../index';
 
-describe('<DataShop />', () => {
+describe('<StartSearch />', () => {
   it('Expect to not log errors in console', () => {
     const spy = jest.spyOn(global.console, 'error');
-    const dispatch = jest.fn();
-    render(<DataShop dispatch={dispatch} />);
+    render(<StartSearch />);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -32,7 +31,7 @@ describe('<DataShop />', () => {
   it.skip('Should render and match the snapshot', () => {
     const {
       container: { firstChild },
-    } = render(<DataShop />);
+    } = render(<StartSearch />);
     expect(firstChild).toMatchSnapshot();
   });
 });

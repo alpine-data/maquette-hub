@@ -51,12 +51,12 @@ const piAlt = {
   "spi": "The dataset may contain sensitive personal information according to GDPR."
 }
 
-function DataBadges({ resource }) {
+function DataBadges({ resource, ...props }) {
   const visibility = resource.visibility || 'unknown';
   const classification = resource.classification || 'unknown';
   const pi = resource.personalInformation || 'unknown';
 
-  return <p className="mq--p-badges">
+  return <p className="mq--p-badges" { ...props }>
     <Whisper
       trigger="hover"
       placement="bottom"

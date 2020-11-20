@@ -23,6 +23,10 @@ import { makeSelectCurrentUser } from '../App/selectors';
 import Container from 'components/Container'
 import CreateDatasetForm from 'components/CreateDatasetForm'
 
+import { Affix } from 'rsuite';
+
+import Background from '../../resources/datashop-background.png';
+
 export function CreateDataset({ createDataset, user, dispatch }) {
   useInjectReducer({ key: 'createDataset', reducer });
   useInjectSaga({ key: 'createDataset', saga });
@@ -39,13 +43,15 @@ export function CreateDataset({ createDataset, user, dispatch }) {
       <meta name="description" content="Description of CreateDataset" />
     </Helmet>
 
-    <div className="mq--page-title">
-      <Container fluid>
-        <h1>Create a new dataset</h1>
-      </Container>
-    </div>
+    <Affix top={56}>
+      <div className="mq--page-title">
+        <Container fluid>
+          <h1>Create a new dataset</h1>
+        </Container>
+      </div>
+    </Affix>
 
-    <Container md className="mq--main-content">
+    <Container md className="mq--main-content" background={ Background }>
       <p className="mq--p-leading">
         A dataset contains structured data records with a consistent schema, just like a data frame. A single data set may contain multiple versions of the dataset with a varying schema.
       </p>

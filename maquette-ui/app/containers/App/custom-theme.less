@@ -54,6 +54,7 @@ body {
     background-size: auto 60vh;
     background-position: top right;
     margin-top: -10px;
+    padding-top: 10px;
 }
 
 .mq--footer {
@@ -86,6 +87,19 @@ body {
             text-decoration: none;
         }
     }
+}
+
+.mq--icon-cycle.rs-icon-size-2x {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    border-radius: 32px;
+    text-align: center;
+    line-height: 48px;
+    margin-right: 20px;
+
+    color: @B800; // @primary-medium-color;
+    background: #ddd;
 }
 
 //== Navbar
@@ -182,6 +196,10 @@ body {
 .mq-summary {
     display: block;
 
+    .rs-panel-heading {
+        font-weight: bold;
+    }
+
     .rs-panel-body {
         padding-top: 0px;
     }
@@ -210,6 +228,7 @@ body {
     color: @B800;
     font-size: .8em;
     padding-bottom: 0.5em;
+    font-weight: normal;
 }
 
 a.mq-summary {
@@ -242,6 +261,12 @@ a.mq-summary:hover {
 
     a {
         color: @B900;
+    }
+
+    .mq--p-leading {
+        font-size: 20px;
+        font-weight: 400;
+        margin-top: 10px;
     }
 }
 
@@ -294,6 +319,10 @@ a.mq-summary:hover {
 
 .mq--main-content h4 {
     margin-bottom: 20px;;
+}
+
+.mq--main-content h5 {
+    margin-bottom: 20px;
 }
 
 //== Forms

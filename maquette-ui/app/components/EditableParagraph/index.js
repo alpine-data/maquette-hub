@@ -14,8 +14,9 @@ function EditableParagraph({ className, disabled, placeholder, label, value, onC
   const [editing, setEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value || "");
 
-  const edit_onClick = () => {
+  const edit_onClick = (event) => {
     setEditing(true);
+    event.preventDefault();
     return false;
   }
 
@@ -26,7 +27,7 @@ function EditableParagraph({ className, disabled, placeholder, label, value, onC
 
   if (editing) {
     return <Input 
-      className="mq--editable-paragraph--input"
+      className={ cx('mq--editable-paragraph--input', className) }
       value={ inputValue } 
       onChange={ (v) => setInputValue(v) } 
       onPressEnter={ input_onBlur } 
