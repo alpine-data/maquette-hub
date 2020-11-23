@@ -19,7 +19,7 @@ public final class ApplicationServices {
     UserServices userServices;
 
     public static ApplicationServices apply(RuntimeConfiguration runtime) {
-        var projectServices = ProjectServicesImpl.apply(runtime.getProcessManager(), runtime.getProjects(), runtime.getInfrastructureManager());
+        var projectServices = ProjectServicesImpl.apply(runtime.getProcessManager(), runtime.getProjects(), runtime.getDatasets(), runtime.getInfrastructureManager());
         var processServices = ProcessServicesImpl.apply(runtime.getProcessManager());
         var userServices = UserServicesImpl.apply(runtime.getUsers());
         var sandboxServices = SandboxServicesImpl.apply(runtime.getProcessManager(), runtime.getInfrastructureManager(), runtime.getProjects(), runtime.getSandboxes());

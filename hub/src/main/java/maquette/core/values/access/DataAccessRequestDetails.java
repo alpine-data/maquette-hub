@@ -2,14 +2,15 @@ package maquette.core.values.access;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Value;
+import lombok.With;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.ActionMetadata;
-import org.bouncycastle.cert.ocsp.Req;
+import maquette.core.values.data.DataAssetProperties;
 
-import javax.ws.rs.core.Request;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,8 @@ public class DataAccessRequestDetails {
    private static final String ORIGIN = "origin";
    private static final String EVENTS = "events";
    private static final String STATUS = "status";
+   private static final String TARGET_PROJECT = "target-project";
+   private static final String TARGET = "target";
    private static final String CAN_GRANT = "can-grant";
    private static final String CAN_REQUEST = "can-request";
 
@@ -33,6 +36,12 @@ public class DataAccessRequestDetails {
 
    @JsonProperty(CREATED)
    ActionMetadata created;
+
+   @JsonProperty(TARGET_PROJECT)
+   ProjectProperties targetProject;
+
+   @JsonProperty(TARGET)
+   DataAssetProperties target;
 
    @JsonProperty(ORIGIN)
    ProjectProperties origin;
@@ -53,6 +62,8 @@ public class DataAccessRequestDetails {
    public static DataAccessRequestDetails apply(
       @JsonProperty(ID) String id,
       @JsonProperty(CREATED) ActionMetadata created,
+      @JsonProperty(TARGET_PROJECT) ProjectProperties targetProject,
+      @JsonProperty(TARGET) DataAssetProperties target,
       @JsonProperty(ORIGIN) ProjectProperties origin,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events,
       @JsonProperty(STATUS) DataAccessRequestStatus status,
@@ -68,7 +79,7 @@ public class DataAccessRequestDetails {
          .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
          .collect(Collectors.toList());
 
-      return new DataAccessRequestDetails(id, created, origin, eventsCopy, status, canGrant, canRequest);
+      return new DataAccessRequestDetails(id, created, targetProject, target, origin, eventsCopy, status, canGrant, canRequest);
    }
 
    @JsonProperty("actions")

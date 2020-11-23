@@ -4,7 +4,7 @@
  *
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -27,20 +27,26 @@ import { Affix } from 'rsuite';
 
 import Background from '../../resources/datashop-background.png';
 
-export function CreateDataset({ createDataset, user, dispatch }) {
+export function CreateDataset(props) {
   useInjectReducer({ key: 'createDataset', reducer });
   useInjectSaga({ key: 'createDataset', saga });
 
+  const [initialized, setInitialized] = useState(false);
+  const projects = _.get(props, 'createDataset.projects');
+
+  const query = new URLSearchParams(_.get(props, 'location.search') || '');
+  const showForm = !_.isEmpty(projects);
+
   useEffect(() => {
-    if (createDataset.user != user.id) {
-      dispatch(loadProjects(user.id))
+    if (!initialized) {
+      props.dispatch(loadProjects());
+      setInitialized(true);
     }
   })
 
   return <div>
     <Helmet>
-      <title>CreateDataset</title>
-      <meta name="description" content="Description of CreateDataset" />
+      <title>Create a new dataset &middot; Maquette</title>
     </Helmet>
 
     <Affix top={56}>
@@ -58,10 +64,11 @@ export function CreateDataset({ createDataset, user, dispatch }) {
 
       <hr />
 
-      { !createDataset.loading && <CreateDatasetForm 
-      user={ user } 
-      projects={ createDataset.projects } 
-      onSubmit={ data => dispatch(createDatasetAction(data.project, data.title, data.name, data.summary, data.visibility, data.classification, data.personalInformation)) } /> }
+      { 
+        showForm && <CreateDatasetForm 
+          project={ query.get("project") }
+          projects={ projects } 
+          onSubmit={ data => props.dispatch(createDatasetAction(data.project, data.title, data.name, data.summary, data.visibility, data.classification, data.personalInformation)) } /> }
     </Container>
   </div>;
 }

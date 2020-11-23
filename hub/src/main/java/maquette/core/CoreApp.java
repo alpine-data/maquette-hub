@@ -9,7 +9,7 @@ import lombok.Getter;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.datasets.Datasets;
+import maquette.core.entities.data.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Projects;

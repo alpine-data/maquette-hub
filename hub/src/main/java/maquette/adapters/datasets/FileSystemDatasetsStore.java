@@ -4,7 +4,7 @@ import akka.Done;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.datasets.model.records.Records;
+import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.ports.DatasetsStore;
 import org.apache.avro.generic.GenericData;
 import org.apache.commons.io.FileUtils;

@@ -3,6 +3,10 @@ package maquette.core.services;
 import akka.Done;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import maquette.common.Operators;
+import maquette.core.entities.data.collections.CollectionProperties;
+import maquette.core.entities.data.datasets.Dataset;
+import maquette.core.entities.data.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
@@ -10,14 +14,22 @@ import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Project;
 import maquette.core.entities.projects.model.ProjectDetails;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.values.ActionMetadata;
+import maquette.core.values.access.DataAccessRequest;
+import maquette.core.values.access.DataAccessRequestDetails;
+import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.data.*;
 import maquette.core.values.user.User;
+import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ProjectServicesImpl implements ProjectServices {
@@ -25,6 +37,8 @@ public final class ProjectServicesImpl implements ProjectServices {
    ProcessManager processManager;
 
    maquette.core.entities.projects.Projects projects;
+
+   Datasets datasets;
 
    InfrastructureManager infrastructure;
 
@@ -102,6 +116,43 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    @Override
+   public CompletionStage<List<DataAssetProperties>> getDataAssets(User user, String projectName) {
+      return withProject(projectName).thenCompose(project -> {
+         var datasetsOwned = this.datasets.findDatasets(project.getId())
+            .thenApply(properties -> properties
+               .stream()
+               .map(p -> (DataAssetProperties) p)
+               .collect(Collectors.toList()));
+
+         var datasetsLinked = this.datasets.findDataAccessRequestsByOrigin(project.getId())
+            .thenCompose(requests -> Operators.allOf(requests
+               .stream()
+               .filter(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED))
+               .map(requestDetails -> mapDataAccessRequestToDetails(project, requestDetails)
+                  .thenApply(maybeRequest -> maybeRequest.map(request -> {
+                     var targetProject = request.getTargetProject();
+                     var targetDataset = request.getTarget();
+                     return LinkedDataAsset.apply(targetProject, targetDataset);
+                  })))
+               .collect(Collectors.toList())))
+            .thenApply(list -> list
+               .stream()
+               .filter(Optional::isPresent)
+               .map(Optional::get)
+               .collect(Collectors.toList()));
+
+
+         return Operators.compose(datasetsOwned, datasetsLinked, (owned, linked) -> {
+            List<DataAssetProperties> lists = Lists.newArrayList();
+            lists.addAll(owned);
+            lists.addAll(linked);
+            // lists.add(CollectionProperties.apply("123", "Some Collection", "some-collection", "lorem ipsum", "foo bar", DataVisibility.PUBLIC, DataClassification.INTERNAL, PersonalInformation.NONE, ActionMetadata.apply("foo"), ActionMetadata.apply("bar")));
+            return lists;
+         });
+      });
+   }
+
+   @Override
    public CompletionStage<List<ProjectProperties>> list(User user) {
       return projects.getProjects();
    }
@@ -157,6 +208,33 @@ public final class ProjectServicesImpl implements ProjectServices {
             } else {
                throw new RuntimeException("Project not found"); // TODO
             }
+         });
+   }
+
+   private CompletionStage<Optional<DataAccessRequestDetails>> mapDataAccessRequestToDetails(Project originProject, DataAccessRequest request) {
+      var projectPropertiesCS = projects
+         .getProjectById(request.getTargetProjectId())
+         .thenCompose(Project::getProperties);
+      var datasetPropertiesCS = datasets
+         .getDatasetById(request.getTargetProjectId(), request.getTargetId())
+         .thenCompose(Dataset::getProperties);
+      var originPropertiesCS = originProject.getProperties();
+
+      return Operators.compose(
+         projectPropertiesCS, datasetPropertiesCS, originPropertiesCS,
+         (targetProjectProperties, targetDatasetProperties, originProperties) -> {
+            var details = DataAccessRequestDetails.apply(
+               request.getId(),
+               request.getCreated(),
+               targetProjectProperties,
+               targetDatasetProperties,
+               originProperties,
+               request.getEvents(),
+               request.getStatus(),
+               true,
+               true);
+
+            return Optional.of(details);
          });
    }
 

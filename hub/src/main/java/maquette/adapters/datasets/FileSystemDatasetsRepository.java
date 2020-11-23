@@ -5,14 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.datasets.model.DatasetProperties;
-import maquette.core.entities.datasets.model.DatasetVersion;
-import maquette.core.entities.datasets.model.revisions.CommittedRevision;
-import maquette.core.entities.datasets.model.revisions.Revision;
+import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
+import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.authorization.UserAuthorization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileSystemDatasetsRepository implements DatasetsRepository {
+
+   private static Logger LOG = LoggerFactory.getLogger(FileSystemDatasetsRepository.class);
 
    private final FileSystemDatasetsRepositoryConfiguration config;
 
@@ -57,10 +61,17 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
       return path;
    }
 
-   private Path getRequestsDirectory(String projectId) {
-      var path = getProjectDirectory(projectId).resolve("data-access-requests");
+   private Path getRequestsDirectory(String targetProjectId, String targetId) {
+      var path = getProjectDirectory(targetProjectId).resolve(targetId).resolve("data-access-requests");
       Operators.suppressExceptions(() -> Files.createDirectories(path));
       return path;
+   }
+
+   private List<Path> getRequestsDirectories() {
+      return Operators.suppressExceptions(() -> Files
+         .walk(config.getDirectory())
+         .filter(p -> Files.isDirectory(p) && p.endsWith("data-access-requests"))
+         .collect(Collectors.toList()));
    }
 
    private Path getRevisionsDirectory(String projectId, String datasetId) {
@@ -83,8 +94,8 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
       return getTokensDirectory(parentId).resolve(tokenKey + ".json");
    }
 
-   private Path getRequestFile(String parentId, String requestId) {
-      return getRequestsDirectory(parentId).resolve(requestId + ".json");
+   private Path getRequestFile(String targetProjectId, String targetId, String requestId) {
+      return getRequestsDirectory(targetProjectId, targetId).resolve(requestId + ".json");
    }
 
    private Path getOwnerFile(String projectId, String owner) {
@@ -105,8 +116,8 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
       }
    }
 
-   private Optional<DataAccessRequest> loadDataAccessRequest(String parentId, String id) {
-      var file = getRequestFile(parentId, id);
+   private Optional<DataAccessRequest> loadDataAccessRequest(String targetProjectId, String targetId, String id) {
+      var file = getRequestFile(targetProjectId, targetId, id);
 
       if (Files.exists(file) && Files.isRegularFile(file)) {
          return Optional.of(Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)));
@@ -151,7 +162,7 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
-            Optional.<DatasetProperties>empty()))
+            Optional.<DatasetProperties>empty(), LOG))
          .filter(Optional::isPresent)
          .map(Optional::get)
          .collect(Collectors.toList()));
@@ -250,13 +261,13 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
     */
 
    @Override
-   public CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String parentId, String id) {
-      return CompletableFuture.completedFuture(loadDataAccessRequest(parentId, id));
+   public CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String targetProjectId, String targetId, String id) {
+      return CompletableFuture.completedFuture(loadDataAccessRequest(targetProjectId, targetId, id));
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateDataAccessRequest(String parentId, DataAccessRequest request) {
-      var file = getRequestFile(parentId, request.getId());
+   public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequest request) {
+      var file = getRequestFile(request.getTargetProjectId(), request.getTargetId(), request.getId());
 
       Operators.suppressExceptions(() -> {
          try (OutputStream os = Files.newOutputStream(file)) {
@@ -268,9 +279,9 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String parentId) {
+   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String targetProjectId, String targetId) {
       var result = Operators.suppressExceptions(() -> Files
-         .list(getRequestsDirectory(parentId))
+         .list(getRequestsDirectory(targetProjectId, targetId))
          .filter(Files::isRegularFile)
          .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)))
          .collect(Collectors.toList()));
@@ -279,8 +290,20 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Done> removeDataAccessRequest(String parentId, String id) {
-      var file = getRequestFile(parentId, id);
+   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByOrigin(String originId) {
+      var result = getRequestsDirectories()
+         .stream()
+         .flatMap(p -> Operators.suppressExceptions(() -> Files.list(p)))
+         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)))
+         .filter(r -> r.getOriginProjectId().equals(originId))
+         .collect(Collectors.toList());
+
+      return CompletableFuture.completedFuture(result);
+   }
+
+   @Override
+   public CompletionStage<Done> removeDataAccessRequest(String targetProjectId, String targetId, String id) {
+      var file = getRequestFile(targetProjectId, targetId, id);
       Operators.ignoreExceptions(() -> Files.deleteIfExists(file));
       return CompletableFuture.completedFuture(Done.getInstance());
    }

@@ -12,7 +12,6 @@ export const initialState = {
   creating: false,
   loading: false,
   error: false,
-  user: false,
   projects: []
 };
 
@@ -27,7 +26,6 @@ const createDatasetReducer = (state = initialState, action) =>
       case CREATE_DATASET_SUCCESS:
         draft.creating = false;
         draft.projects = [];
-        draft.user = false;
         break;
       case CREATE_DATASET_FAILURE:
         draft.creating = false;
@@ -37,7 +35,6 @@ const createDatasetReducer = (state = initialState, action) =>
         draft.loading = true;
         draft.error = false;
         draft.projects = [];
-        draft.user = action.user;
         break;
       case LOAD_PROJECTS_SUCCESS:
         draft.loading = false;
@@ -46,8 +43,6 @@ const createDatasetReducer = (state = initialState, action) =>
       case LOAD_PROJECTS_FAILURE:
         draft.loading = false;
         draft.error = _.get(action, 'error.response.message') || 'Unknown error occurred while fetching available projects';
-      case "@@router/LOCATION_CHANGE":
-        draft.user = false;
     }
   });
 

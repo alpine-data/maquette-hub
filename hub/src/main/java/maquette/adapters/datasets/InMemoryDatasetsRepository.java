@@ -3,10 +3,10 @@ package maquette.adapters.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.datasets.model.DatasetProperties;
-import maquette.core.entities.datasets.model.DatasetVersion;
-import maquette.core.entities.datasets.model.revisions.CommittedRevision;
-import maquette.core.entities.datasets.model.revisions.Revision;
+import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
+import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
@@ -25,7 +25,7 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
 
    private final List<StoredDataset> datasets;
 
-   private final List<StoredDataAccessRequest> requests;
+   private final List<DataAccessRequest> requests;
 
    private final List<StoredDataAccessToken> tokens;
 
@@ -124,44 +124,56 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
     */
 
    @Override
-   public CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String parentId, String id) {
+   public CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String targetProjectId, String targetId, String id) {
       var result = requests
          .stream()
-         .filter(r -> r.getParentId().equals(parentId) && r.getDataAccessRequest().getId().equals(id))
-         .map(StoredDataAccessRequest::getDataAccessRequest)
+         .filter(r -> r.getTargetProjectId().equals(targetProjectId) && r.getTargetId().equals(targetId) && r.getId().equals(id))
          .findFirst();
 
       return CompletableFuture.completedFuture(result);
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateDataAccessRequest(String parentId, DataAccessRequest request) {
+   public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequest request) {
       requests
          .stream()
-         .filter(r -> r.getParentId().equals(parentId) && r.getDataAccessRequest().getId().equals(request.getId()))
+         .filter(r -> r.getTargetProjectId().equals(request.getTargetProjectId()) &&
+            r.getTargetId().equals(request.getTargetId()) &&
+            r.getId().equals(request.getId()))
          .forEach(requests::remove);
 
-      requests.add(StoredDataAccessRequest.apply(parentId, request));
+      requests.add(request);
 
       return CompletableFuture.completedStage(Done.getInstance());
    }
 
    @Override
-   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String parentId) {
+   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String targetProjectId, String targetId) {
       var result = requests
          .stream()
-         .filter(r -> r.getParentId().equals(parentId))
-         .map(StoredDataAccessRequest::getDataAccessRequest)
+         .filter(r -> r.getTargetProjectId().equals(targetProjectId) && r.getTargetId().equals(targetId))
          .collect(Collectors.toList());
 
       return CompletableFuture.completedFuture(result);
    }
 
    @Override
-   public CompletionStage<Done> removeDataAccessRequest(String parentId, String id) {
+   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByOrigin(String originId) {
+      var result = requests
+         .stream()
+         .filter(r -> r.getOriginProjectId().equals(originId))
+         .collect(Collectors.toList());
+
+      return CompletableFuture.completedFuture(result);
+   }
+
+   @Override
+   public CompletionStage<Done> removeDataAccessRequest(String targetProjectId, String targetId, String id) {
       requests
          .stream()
-         .filter(r -> r.getParentId().equals(parentId) && r.getDataAccessRequest().getId().equals(id))
+         .filter(r -> r.getTargetProjectId().equals(targetProjectId) &&
+            r.getTargetId().equals(targetId) &&
+            r.getId().equals(id))
          .forEach(requests::remove);
 
       return CompletableFuture.completedFuture(Done.getInstance());
@@ -245,16 +257,6 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
       String parentId;
 
       DatasetProperties details;
-
-   }
-
-   @Value
-   @AllArgsConstructor(staticName = "apply")
-   private static class StoredDataAccessRequest {
-
-      String parentId;
-
-      DataAccessRequest dataAccessRequest;
 
    }
 

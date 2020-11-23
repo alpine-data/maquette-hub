@@ -51,10 +51,10 @@ export function PersonalInformtionFormGroup({ value, onChange }) {
   </FormGroup>;
 }
 
-function CreateDatasetForm({ projects = [], onSubmit = console.log }) {
+function CreateDatasetForm({ project, projects = [], onSubmit = console.log }) {
   const [state, setState] = useState({
     title: "",
-    project: projects.length > 0 ? projects[0].value : "",
+    project: project || projects[0].value,
     name: "",
     summary: "",
     visibility: "public",
@@ -148,16 +148,12 @@ function CreateDatasetForm({ projects = [], onSubmit = console.log }) {
 }
 
 CreateDatasetForm.propTypes = {
-  user: PropTypes.object.isRequired,
+  projects: PropTypes.arrayOf(PropTypes.object),
+  project: PropTypes.string,
   onSubmit: PropTypes.func.isRequired
 };
 
 CreateDatasetForm.defaultProps = {
-  user: {
-    id: 'alice',
-    name: 'Alice'
-  },
-
   onSubmit: (data) => console.log(data)
 }
 

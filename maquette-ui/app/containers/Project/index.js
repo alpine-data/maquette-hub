@@ -4,7 +4,7 @@
  *
  */
 import _ from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -17,7 +17,7 @@ import makeSelectProject from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import { 
-  getProject as getProjectAction,
+  init as initAction,
   grantAccess as grantAccessAction,
   revokeAccess as revokeAccessAction,
   updateProject,
@@ -206,16 +206,17 @@ function Display(props) {
 }
 
 function Error(props) {
+  const error = _.get(props, 'project.errors.project.response.message') || 'Unknown error occurred.';
+
   return <div>
     <Helmet>
-      <title>Project</title>
-      <meta name="description" content="Description of Project" />
+      <title>Project cannot be displayed &middot; Maquette</title>
     </Helmet>
 
     <Container md className="mq--main-content">
       <Summary.Summaries>
         <Summary.Empty>
-          ¯\_(ツ)_/¯<br />{ props.project.error }
+          ¯\_(ツ)_/¯<br />{ error }
         </Summary.Empty>
       </Summary.Summaries>
     </Container>
@@ -226,17 +227,21 @@ export function Project(props) {
   useInjectReducer({ key: 'project', reducer });
   useInjectSaga({ key: 'project', saga });
 
-  let name = _.get(props, 'match.params.name') || 'Unknown Project';
+  const [initialized, setInitialized] = useState(false);
+  const error = _.get(props, 'project.errors.project');
+  const loading = _.get(props, 'project.loading');
+  const name = _.get(props, 'match.params.name');
 
   useEffect(() => {
-    if (props.project.id != name) {
-      props.dispatch(getProjectAction(name));
+    if (!initialized) {
+      props.dispatch(initAction(name));
+      setInitialized(true);
     }
   });
 
-  if (props.project.loading) {
-    return <></>;
-  } else if (props.project.error) {
+  if (!_.isEmpty(loading)) {
+    return <>Loading</>;
+  } else if (error) {
     return <Error { ...props } />;
   } else {
     return <Display { ...props } />; 

@@ -4,84 +4,52 @@
  *
  */
 
-import { 
-  GET_DATASETS_FAILED, GET_DATASETS_SUCCESS, 
-  GET_PROJECT, GET_PROJECT_SUCCESS, GET_PROJECT_FAILED,
-  GRANT_ACCESS, GRANT_ACCESS_FAILED, GRANT_ACCESS_SUCCESS,
+import {
+  INIT, 
+  FAILED,
+  GET_DATA_ASSETS_SUCCESS,
+  GET_PROJECT_SUCCESS,
+  GET_SANDBOXES_SUCCESS,
+  GET_STACKS_SUCCESS,
+
+  GRANT_ACCESS, GRANT_ACCESS_SUCCESS, GRANT_ACCESS_FAILED,
   REVOKE_ACCESS, REVOKE_ACCESS_FAILED, REVOKE_ACCESS_SUCCESS,
-  UPDATE_PROJECT, UPDATE_PROJECT_FAILED, UPDATE_PROJECT_SUCCESS, GET_SANDBOXES, GET_SANDBOXES_FAILED, GET_SANDBOXES_SUCCESS, GET_STACKS, GET_STACKS_SUCCESS, GET_STACKS_FAILED } from './constants';
+  UPDATE_PROJECT, UPDATE_PROJECT_FAILED, UPDATE_PROJECT_SUCCESS
+} from './constants';
 
-export function getDatasetsFailed(name, error) {
+export function init(project) {
   return {
-    type: GET_DATASETS_FAILED,
-    name,
-    error
-  }
-}
-
-export function getDatasetsSuccess(name, response) {
-  return {
-    type: GET_DATASETS_SUCCESS,
-    name,
-    response
-  }
-}
-
-export function getProject(name, clear = true) {
-  return {
-    type: GET_PROJECT,
-    name,
-    clear
-  };
-}
-
-export function getProjectFailed(name, error) {
-  return {
-    type: GET_PROJECT_FAILED,
-    name,
-    error
-  };
-}
-
-export function getProjectSuccess(name, response) {
-  return {
-    type: GET_PROJECT_SUCCESS,
-    name,
-    response
-  };
-}
-
-export function getSandboxes(project) {
-  return {
-    type: GET_SANDBOXES,
+    type: INIT,
     project
   };
 }
 
-export function getSandboxesFailed(error) {
+export function failed(key, error) {
   return {
-    type: GET_SANDBOXES_FAILED,
+    type: FAILED,
+    key,
     error
+  };
+}
+
+export function getDataAssetsSuccess(response) {
+  return {
+    type: GET_DATA_ASSETS_SUCCESS,
+    response
   }
+}
+
+export function getProjectSuccess(response) {
+  return {
+    type: GET_PROJECT_SUCCESS,
+    response
+  };
 }
 
 export function getSandboxesSuccess(response) {
   return {
     type: GET_SANDBOXES_SUCCESS,
     response
-  }
-}
-
-export function getStacks() {
-  return {
-    type: GET_STACKS
-  };
-}
-
-export function getStacksFailed(error) {
-  return {
-    type: GET_STACKS_FAILED,
-    error
   }
 }
 

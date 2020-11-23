@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.core.entities.datasets.Datasets;
+import maquette.core.entities.data.datasets.Datasets;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.Projects;

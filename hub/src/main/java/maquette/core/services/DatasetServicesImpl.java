@@ -3,14 +3,14 @@ package maquette.core.services;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.datasets.Dataset;
-import maquette.core.entities.datasets.Datasets;
-import maquette.core.entities.datasets.model.DatasetDetails;
-import maquette.core.entities.datasets.model.DatasetProperties;
-import maquette.core.entities.datasets.model.DatasetVersion;
-import maquette.core.entities.datasets.model.records.Records;
-import maquette.core.entities.datasets.model.revisions.CommittedRevision;
-import maquette.core.entities.datasets.model.revisions.Revision;
+import maquette.core.entities.data.datasets.Dataset;
+import maquette.core.entities.data.datasets.Datasets;
+import maquette.core.entities.data.datasets.model.DatasetDetails;
+import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
+import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.entities.projects.Project;
 import maquette.core.entities.projects.Projects;
 import maquette.core.entities.users.Users;
@@ -99,7 +99,7 @@ public class DatasetServicesImpl implements DatasetServices {
 
    @Override
    public CompletionStage<DatasetDetails> getDataset(User executor, String projectName, String datasetName) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.getDatasetProperties());
+      return withDatasetByName(projectName, datasetName, (p, d) -> d.getDatasetDetails());
    }
 
    /*
@@ -179,11 +179,13 @@ public class DatasetServicesImpl implements DatasetServices {
 
    @Override
    public CompletionStage<List<DataAccessRequestDetails>> getDataAccessRequests(User executor, String projectName, String datasetName) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().getDataAccessRequests())
+      return withDatasetByName(projectName, datasetName, (p, d) -> d
+         .accessRequests()
+         .getDataAccessRequests()
          .thenCompose(requests -> Operators.allOf(requests
             .stream()
-            .map(this::mapDataAccessRequestToSummary)
-            .collect(Collectors.toList())))
+            .map(r -> this.mapDataAccessRequestToDetails(p, d, r))
+            .collect(Collectors.toList()))))
          .thenApply(requests -> requests
             .stream()
             .filter(Optional::isPresent)
@@ -193,27 +195,46 @@ public class DatasetServicesImpl implements DatasetServices {
 
    @Override
    public CompletionStage<Optional<DataAccessRequestDetails>> getDataAccessRequestById(User executor, String projectName, String datasetName, String accessRequestId) {
-      return withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().getDataAccessRequestById(accessRequestId))
+      return withDatasetByName(projectName, datasetName, (p, d) -> d
+         .accessRequests()
+         .getDataAccessRequestById(accessRequestId)
          .thenCompose(request -> {
             if (request.isPresent()) {
-               return mapDataAccessRequestToSummary(request.get());
+               return mapDataAccessRequestToDetails(p, d, request.get());
             } else {
                return CompletableFuture.completedFuture(Optional.empty());
             }
-         });
+         }));
    }
 
    /*
     * Helper functions
     */
 
-   private CompletionStage<Optional<DataAccessRequestDetails>> mapDataAccessRequestToSummary(DataAccessRequest request) {
+   private CompletionStage<Optional<DataAccessRequestDetails>> mapDataAccessRequestToDetails(Project targetProject, Dataset targetDataset, DataAccessRequest request) {
       return projects
-         .findProjectById(request.getOrigin())
+         .findProjectById(request.getOriginProjectId())
          .thenCompose(maybeProject -> {
             if (maybeProject.isPresent()) {
-               return maybeProject.get().getProperties().thenApply(p -> Optional.of(DataAccessRequestDetails.apply(
-                  request.getId(), request.getCreated(), p, request.getEvents(), request.getStatus(), true, true)));
+               var originPropertiesCS = maybeProject.get().getProperties();
+               var targetDatasetPropertiesCS = targetDataset.getProperties();
+               var targetProjectPropertiesCS = targetProject.getProperties();
+
+               return Operators
+                  .compose(
+                     originPropertiesCS, targetDatasetPropertiesCS, targetProjectPropertiesCS,
+                     (originProperties, targetDatasetProperties, targetProjectProperties) -> DataAccessRequestDetails.apply(
+                        request.getId(),
+                        request.getCreated(),
+                        targetProjectProperties,
+                        targetDatasetProperties,
+                        originProperties,
+                        request.getEvents(),
+                        request.getStatus(),
+                        true,
+                        true
+                     ))
+                  .thenApply(Optional::of);
             } else {
                LOG.warn("Data Access Request {} is linked to non-existing project.", request);
                return CompletableFuture.completedFuture(Optional.empty());

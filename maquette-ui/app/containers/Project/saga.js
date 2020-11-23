@@ -3,17 +3,17 @@ import { takeEvery, takeLatest, select, put, call } from 'redux-saga/effects';
 import { makeSelectCurrentUser } from '../App/selectors';
 
 import { 
-  getProject as getProjectAction,
-  getProjectSuccess, getProjectFailed, 
-  getDatasetsSuccess, getDatasetsFailed,
-  getSandboxesSuccess, getSandboxesFailed,
-  getStacksSuccess, getStacksFailed,
+  failed,
+  getProjectSuccess,
+  getDataAssetsSuccess,
+  getSandboxesSuccess, 
+  getStacksSuccess,
   grantAccessFailed, grantAccessSuccess,
   revokeAccessFailed, revokeAccessSuccess,
   updateProjectFailed, updateProjectSuccess } from './actions';
 
 import { 
-  GET_PROJECT, 
+  INIT, 
   GRANT_ACCESS,
   REVOKE_ACCESS,
   UPDATE_PROJECT } from './constants';
@@ -21,47 +21,34 @@ import {
 import { command } from 'utils/request';
 import { push } from 'connected-react-router';
 
-export function* getProject(action) {
+export function* init(action) {
+  const user = yield select(makeSelectCurrentUser());
   try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'projects get', { "name": action.name }, user);
-    
-    yield put(getProjectSuccess(action.name, data));
+    const data = yield call(command, 'projects get', { "name": action.project }, user);
+    yield put(getProjectSuccess(data));
   } catch (err) {
-    yield put(getProjectFailed(action.name, err));
+    yield put(failed('project', err));
   }
-}
 
-export function* getDatasets(action) {
   try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets list', { "project": action.name }, user);
-    
-    yield put(getDatasetsSuccess(action.name, data));
+    const data = yield call(command, 'projects data-assets list', _.omit(action, 'type'), user);
+    yield put(getDataAssetsSuccess(data));
   } catch (err) {
-    yield put(getDatasetsFailed(action.name, err));
+    yield put(failed('data-assets', err));
   }
-}
 
-export function* getSandboxes(action) {
   try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'sandboxes list', { "project": action.name }, user);
-    
+    const data = yield call(command, 'sandboxes list', _.omit(action, 'type'), user);
     yield put(getSandboxesSuccess(data));
   } catch (err) {
-    yield put(getSandboxesFailed(err));
+    yield put(failed('sandboxes', err));
   }
-}
 
-export function* getStacks(action) {
   try {
-    const user = yield select(makeSelectCurrentUser());
     const data = yield call(command, 'sandboxes stacks', {}, user);
-    
     yield put(getStacksSuccess(data));
   } catch (err) {
-    yield put(getStacksFailed(err));
+    yield put(failed('stacks', err));
   }
 }
 
@@ -108,10 +95,7 @@ export function* updateProject(action) {
 
 // Individual exports for testing
 export default function* projectSaga() {
-  yield takeLatest(GET_PROJECT, getProject);
-  yield takeLatest(GET_PROJECT, getDatasets);
-  yield takeLatest(GET_PROJECT, getSandboxes);
-  yield takeLatest(GET_PROJECT, getStacks);
+  yield takeLatest(INIT, init);
 
   yield takeEvery(GRANT_ACCESS, grantAccess);
   yield takeEvery(REVOKE_ACCESS, revokeAccess);

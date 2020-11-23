@@ -1,10 +1,10 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.datasets.model.DatasetProperties;
-import maquette.core.entities.datasets.model.DatasetVersion;
-import maquette.core.entities.datasets.model.revisions.CommittedRevision;
-import maquette.core.entities.datasets.model.revisions.Revision;
+import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
+import maquette.core.entities.data.datasets.model.revisions.Revision;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,6 @@
 package maquette.core.values.access;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -24,6 +23,8 @@ public class DataAccessRequest {
    private static final String CREATED = "created";
    private static final String ORIGIN = "origin";
    private static final String EVENTS = "events";
+   private static final String TARGET_PROJECT_ID = "target-project";
+   private static final String TARGET_ID = "target-id";
 
    @JsonProperty(ID)
    private final String id;
@@ -31,8 +32,14 @@ public class DataAccessRequest {
    @JsonProperty(CREATED)
    private final ActionMetadata created;
 
+   @JsonProperty(TARGET_PROJECT_ID)
+   private final String targetProjectId;
+
+   @JsonProperty(TARGET_ID)
+   private final String targetId;
+
    @JsonProperty(ORIGIN)
-   private final String origin;
+   private final String originProjectId;
 
    @JsonProperty(EVENTS)
    private final List<DataAccessRequestEvent> events;
@@ -41,6 +48,8 @@ public class DataAccessRequest {
    public static DataAccessRequest apply(
       @JsonProperty(ID) String id,
       @JsonProperty(CREATED) ActionMetadata created,
+      @JsonProperty(TARGET_PROJECT_ID) String targetProjectId,
+      @JsonProperty(TARGET_ID) String targetId,
       @JsonProperty(ORIGIN) String forProject,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 
@@ -53,12 +62,13 @@ public class DataAccessRequest {
          .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
          .collect(Collectors.toList());
 
-      return new DataAccessRequest(id, created, forProject, eventsCopy);
+      return new DataAccessRequest(id, created, targetProjectId, targetId, forProject, eventsCopy);
    }
 
-   public static DataAccessRequest apply(String id, ActionMetadata created, String forProject, String reason) {
+   public static DataAccessRequest apply(
+      String id, ActionMetadata created, String targetProjectId, String targetId, String forProject, String reason) {
       var requested = Requested.apply(created, reason);
-      return apply(id, created, forProject, List.of(requested));
+      return apply(id, created, targetProjectId, targetId, forProject, List.of(requested));
    }
 
    public void addEvent(DataAccessRequestEvent event) {

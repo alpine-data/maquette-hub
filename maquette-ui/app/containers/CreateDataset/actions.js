@@ -33,10 +33,9 @@ export function createDatasetSuccess(project, name, response) {
   };
 }
 
-export function loadProjects(user) {
+export function loadProjects() {
   return { 
-    type: LOAD_PROJECTS,
-    user
+    type: LOAD_PROJECTS
   }
 }
 

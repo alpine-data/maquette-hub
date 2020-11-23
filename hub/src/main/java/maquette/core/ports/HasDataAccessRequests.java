@@ -9,16 +9,18 @@ import java.util.concurrent.CompletionStage;
 
 public interface HasDataAccessRequests {
 
-   CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String parentId, String id);
+   CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String targetProjectId, String targetId, String id);
 
-   CompletionStage<Done> insertOrUpdateDataAccessRequest(String parentId, DataAccessRequest request);
+   CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequest request);
 
-   CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String parentId);
+   CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String targetProjectId, String targetId);
 
-   default CompletionStage<Integer> getDataAccessRequestsCountByParent(String parentId) {
-      return findDataAccessRequestsByParent(parentId).thenApply(List::size);
+   CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByOrigin(String originId);
+
+   default CompletionStage<Integer> getDataAccessRequestsCountByParent(String targetProjectId, String targetId) {
+      return findDataAccessRequestsByParent(targetProjectId, targetId).thenApply(List::size);
    }
 
-   CompletionStage<Done> removeDataAccessRequest(String parentId, String id);
+   CompletionStage<Done> removeDataAccessRequest(String targetProjectId, String targetId, String id);
 
 }

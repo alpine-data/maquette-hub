@@ -1,7 +1,7 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.datasets.model.records.Records;
+import maquette.core.entities.data.datasets.model.records.Records;
 
 import java.util.concurrent.CompletionStage;
 
