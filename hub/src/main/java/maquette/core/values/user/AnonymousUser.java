@@ -3,6 +3,8 @@ package maquette.core.values.user;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.WildcardAuthorization;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,11 @@ public class AnonymousUser implements User {
     @Override
     public String getDisplayName() {
         return "anonymous";
+    }
+
+    @Override
+    public Authorization toAuthorization() {
+        return WildcardAuthorization.apply();
     }
 
 }

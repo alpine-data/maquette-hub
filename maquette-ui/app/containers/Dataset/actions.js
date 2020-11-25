@@ -5,16 +5,55 @@
  */
 
 import { 
-  CREATE_DATA_ACCESS_REQUEST, CREATE_DATA_ACCESS_REQUEST_FAILED, CREATE_DATA_ACCESS_REQUEST_SUCCESS,
-  GET_DATA_ACCESS_REQUESTS, GET_DATA_ACCESS_REQUESTS_FAILED, GET_DATA_ACCESS_REQUESTS_SUCCESS,
-  GET_PROJECTS_SUCCESS, GET_PROJECTS_FAILED,
-  GET_PROJECT_FAILED, GET_PROJECT_SUCCESS,
-  GET_DATASET, GET_DATASET_FAILED, GET_DATASET_SUCCESS,
-  GET_VERSIONS_SUCCESS, GET_VERSIONS_FAILED,
-  GRANT_ACCESS, GRANT_ACCESS_FAILED, GRANT_ACCESS_SUCCESS,
-  REVOKE_ACCESS, REVOKE_ACCESS_SUCCESS, REVOKE_ACCESS_FAILED,
-  UPDATE_DATA_ACCESS_REQUEST, UPDATE_DATA_ACCESS_REQUEST_FAILED, UPDATE_DATA_ACCESS_REQUEST_SUCCESS, SELECT_VERSION,
-  UPDATE_DATASET, UPDATE_DATASET_FAILED, UPDATE_DATASET_SUCCESS } from './constants';
+  INIT,
+  FAILED,
+  FETCHED,
+
+  CREATE_DATA_ACCESS_REQUEST, 
+  CREATE_DATA_ACCESS_REQUEST_FAILED, 
+  CREATE_DATA_ACCESS_REQUEST_SUCCESS,
+
+  GRANT_ACCESS,
+  GRANT_ACCESS_FAILED,
+  GRANT_ACCESS_SUCCESS,
+
+  REVOKE_ACCESS, 
+  REVOKE_ACCESS_FAILED,
+  REVOKE_ACCESS_SUCCESS, 
+
+  SELECT_VERSION,
+
+  UPDATE_DATA_ACCESS_REQUEST,
+  UPDATE_DATA_ACCESS_REQUEST_FAILED,
+  UPDATE_DATA_ACCESS_REQUEST_SUCCESS,
+
+  UPDATE_DATASET, 
+  UPDATE_DATASET_FAILED, 
+  UPDATE_DATASET_SUCCESS } from './constants';
+
+export function init(project, dataset) {
+  return {
+    type: INIT,
+    project,
+    dataset
+  };
+}
+
+export function failed(key, error) {
+  return {
+    type: FAILED,
+    key,
+    error
+  };
+}
+
+export function fetched(key, response) {
+  return {
+    type: FETCHED,
+    key,
+    response
+  };
+}
 
 export function createDataAccessRequest(project, dataset, origin, reason) {
   return {
@@ -40,21 +79,6 @@ export function createDataAccessRequestSuccess(response) {
   };
 }
 
-export function getDataAccessRequests(project, dataset) {
-  return {
-    type: GET_DATA_ACCESS_REQUESTS,
-    project,
-    dataset
-  };
-}
-
-export function getDataAccessRequestsFailed(error) {
-  return {
-    type: GET_DATA_ACCESS_REQUESTS_FAILED,
-    error
-  };
-}
-
 export function getDataAccessRequestsSuccess(response) {
   return {
     type: GET_DATA_ACCESS_REQUESTS_SUCCESS,
@@ -62,35 +86,10 @@ export function getDataAccessRequestsSuccess(response) {
   };
 }
 
-export function getDataset(project, dataset, clear = true) {
-  return {
-    type: GET_DATASET,
-    project,
-    dataset,
-    clear
-  };
-}
-
-export function getDatasetFailed(error) {
-  return {
-    type: GET_DATASET_FAILED,
-    error
-  };
-}
-
-export function getDatasetSuccess(project, dataset, response) {
+export function getDatasetSuccess(response) {
   return {
     type: GET_DATASET_SUCCESS,
-    project,
-    dataset,
     response
-  };
-}
-
-export function getProjectFailed(error) {
-  return {
-    type: GET_PROJECT_FAILED,
-    error
   };
 }
 
@@ -102,31 +101,10 @@ export function getProjectSuccess(name, response) {
   };
 }
 
-export function getProjectsFailed(error) {
-  return {
-    type: GET_PROJECTS_FAILED,
-    error
-  };
-}
-
-export function getProjectsSuccess(response) {
-  return {
-    type: GET_PROJECTS_SUCCESS,
-    response
-  };
-}
-
 export function getVersionsSuccess(response) {
   return {
     type: GET_VERSIONS_SUCCESS,
     response
-  };
-}
-
-export function getVersionsFailed(error) {
-  return {
-    type: GET_VERSIONS_FAILED,
-    error
   };
 }
 

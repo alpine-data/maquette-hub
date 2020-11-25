@@ -4,26 +4,13 @@
  *
  */
 
+export const INIT = 'app/Dataset/INIT';
+export const FAILED = 'app/Dataset/FAILED';
+export const FETCHED ='app/Dataset/FETCHED';
+
 export const CREATE_DATA_ACCESS_REQUEST = 'app/Dataset/CREATE_DATA_ACCESS_REQUEST';
 export const CREATE_DATA_ACCESS_REQUEST_FAILED = 'app/Dataset/CREATE_DATA_ACCESS_REQUEST_FAILED';
 export const CREATE_DATA_ACCESS_REQUEST_SUCCESS = 'app/Dataset/CREATE_DATA_ACCESS_REQUEST_SUCCESS';
-
-export const GET_DATA_ACCESS_REQUESTS = 'app/Dataset/GET_DATA_ACCESS_REQUESTS';
-export const GET_DATA_ACCESS_REQUESTS_FAILED = 'app/Dataset/GET_DATA_ACCESS_REQUESTS_FAILED';
-export const GET_DATA_ACCESS_REQUESTS_SUCCESS = 'app/Dataset/GET_DATA_ACCESS_REQUESTS_SUCCESS';
-
-export const GET_PROJECTS_FAILED = 'app/Dataset/GET_PROJECTS_FAILED';
-export const GET_PROJECTS_SUCCESS = 'app/Dataset/GET_PROJECTS_SUCCESS';
-
-export const GET_PROJECT_SUCCESS = 'app/Dataset/GET_PROJECT_SUCCESS';
-export const GET_PROJECT_FAILED = 'app/Dataset/GET_PROJECT_FAILED';
-
-export const GET_DATASET = 'app/Dataset/GET_DATASET';
-export const GET_DATASET_FAILED = 'app/Dataset/GET_DATASET_FAILED';
-export const GET_DATASET_SUCCESS = 'app/Dataset/GET_DATASET_SUCCESS';
-
-export const GET_VERSIONS_SUCCESS = 'app/Dataset/GET_VERSIONS_SUCCESS';
-export const GET_VERSIONS_FAILED = 'app/Dataset/GET_VERSIONS_FAILED';
 
 export const GRANT_ACCESS = 'app/Dataset/GRANT_ACCESS';
 export const GRANT_ACCESS_FAILED = 'app/Dataset/GRANT_ACCESS_FAILED';

@@ -1,4 +1,4 @@
-package maquette.core.services;
+package maquette.core.services.datasets;
 
 import akka.Done;
 import maquette.core.entities.data.datasets.model.DatasetDetails;

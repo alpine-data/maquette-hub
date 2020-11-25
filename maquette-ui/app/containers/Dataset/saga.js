@@ -3,19 +3,33 @@ import { takeLatest, select, put, call } from 'redux-saga/effects';
 import { makeSelectCurrentUser } from '../App/selectors';
 
 import { 
-  createDataAccessRequestFailed, createDataAccessRequestSuccess,
-  getDataset as getDatasetAction, getDatasetFailed, getDatasetSuccess, 
-  getDataAccessRequests as getDataAccessRequestsAction, getDataAccessRequestsFailed, getDataAccessRequestsSuccess,
-  getProjectFailed, getProjectSuccess,
-  getProjectsFailed, getProjectsSuccess, 
-  grantAccessFailed, grantAccessSuccess,
-  revokeAccessFailed, revokeAccessSuccess,
-  updateDataAccessRequestSuccess, updateDataAccessRequestFailed, getVersionsSuccess, getVersionsFailed, updateDatasetSuccess, updateDatasetFailed } from './actions';
+  init as initAction,
+  failed,
+  fetched,
 
-  import { 
+  createDataAccessRequestFailed, 
+  createDataAccessRequestSuccess,
+
+  getDataAccessRequestsSuccess,
+  getDatasetSuccess,
+  getProjectSuccess,
+  getVersionsSuccess,
+
+  grantAccessFailed, 
+  grantAccessSuccess,
+
+  revokeAccessFailed, 
+  revokeAccessSuccess,
+
+  updateDataAccessRequestFailed,
+  updateDataAccessRequestSuccess, 
+  
+  updateDatasetFailed,
+  updateDatasetSuccess } from './actions';
+
+import { 
+  INIT,
   CREATE_DATA_ACCESS_REQUEST, 
-  GET_DATASET, 
-  GET_DATA_ACCESS_REQUESTS,
   GRANT_ACCESS,
   REVOKE_ACCESS,
   UPDATE_DATA_ACCESS_REQUEST,
@@ -25,6 +39,24 @@ import { command } from 'utils/request';
 
 import { push } from 'connected-react-router';
 
+export function* fetch(key, cmd, params, user) {
+  try {
+    const data = yield call(command, cmd, params, user);
+    yield put(fetched(key, data));
+  } catch (err) {
+    yield put(failed(key, err));
+  }
+}
+
+export function* init(action) {
+  const user = yield select(makeSelectCurrentUser());
+  
+  yield fetch('dataset', 'datasets get', _.omit(action, 'type'), user);
+  yield fetch('requests', 'datasets access-requests list', _.omit(action, 'type'), user);
+  yield fetch('project', 'projects get', { name: action.project }, user);
+  yield fetch('versions', 'datasets revisions list', _.omit(action, 'type'), user);
+}
+
 export function* createDataAccessRequest(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
@@ -33,50 +65,6 @@ export function* createDataAccessRequest(action) {
     yield put(createDataAccessRequestSuccess(data));
   } catch (err) {
     yield put(createDataAccessRequestFailed(err));
-  }
-}
-
-export function* getDataset(action) {
-  try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets get', _.omit(action, 'type', 'clear'), user);
-
-    yield put(getDatasetSuccess(action.project, action.dataset, data));
-  } catch (err) {
-    yield put(getDatasetFailed(err));
-  }
-}
-
-export function* getDataAccessRequests(action) {
-  try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets access-requests list', _.omit(action, 'type', 'clear'), user);
-    
-    yield put(getDataAccessRequestsSuccess(data));
-  } catch (err) {
-    yield put(getDataAccessRequestsFailed(err));
-  }
-}
-
-export function* getProject(action) {
-  try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'projects get', { name: action.project }, user);
-    
-    yield put(getProjectSuccess(action.project, data));
-  } catch (err) {
-    yield put(getProjectFailed(err));
-  }
-}
-
-export function* getProjects() {
-  try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'projects list', { }, user);
-    
-    yield put(getProjectsSuccess(data));
-  } catch (err) {
-    yield put(getProjectsFailed(err));
   }
 }
 
@@ -116,17 +104,6 @@ export function* updateDataAccessRequest(action) {
   }
 }
 
-export function* getVersions(action) {
-  try {
-    const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets revisions list', _.omit(action, 'type', 'clear'), user);
-
-    yield put(getVersionsSuccess(data));
-  } catch (err) {
-    yield put(getVersionsFailed(err));
-  }
-}
-
 export function* updateDataset(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
@@ -135,7 +112,7 @@ export function* updateDataset(action) {
     yield put(updateDatasetSuccess(data));
 
     if (action.dataset == action.name) {
-      yield put(getDatasetAction(action.project, action.dataset, false));
+      yield put(initAction(action.project, action.dataset));
     } else {
       yield put(push(`/${action.project}/resources/datasets/${action.name}`));
     }
@@ -148,13 +125,8 @@ export function* updateDataset(action) {
 export default function* datasetSaga() {
   yield takeLatest(CREATE_DATA_ACCESS_REQUEST, createDataAccessRequest);
 
-  yield takeLatest(GET_DATASET, getDataset);
-  yield takeLatest(GET_DATASET, getDataAccessRequests);
-  yield takeLatest(GET_DATASET, getProject);
-  yield takeLatest(GET_DATASET, getProjects);
-  yield takeLatest(GET_DATASET, getVersions);
+  yield takeLatest(INIT, init);
 
-  yield takeLatest(GET_DATA_ACCESS_REQUESTS, getDataAccessRequests);
   yield takeLatest(GRANT_ACCESS, grantAccess);
   yield takeLatest(REVOKE_ACCESS, revokeAccess);
   yield takeLatest(UPDATE_DATA_ACCESS_REQUEST, updateDataAccessRequest);

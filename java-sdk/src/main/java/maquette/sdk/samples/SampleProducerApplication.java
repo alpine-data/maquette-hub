@@ -20,8 +20,8 @@ public class SampleProducerApplication {
             .apply() // initialize with defaults
             .withMaquette(config);
 
-        final String project = "project-renamed";
-        final String dataset = "schoner-datensatz";
+        final String project = "sample-project-test";
+        final String dataset = "noch-eins";
 
         final ActorSystem system = ActorSystem.apply("sample");
 

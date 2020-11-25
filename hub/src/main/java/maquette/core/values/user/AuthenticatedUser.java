@@ -1,9 +1,10 @@
 package maquette.core.values.user;
 
-import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.UserAuthorization;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,11 @@ public class AuthenticatedUser implements User {
     @Override
     public String getDisplayName() {
         return id;
+    }
+
+    @Override
+    public Authorization toAuthorization() {
+        return UserAuthorization.apply(id);
     }
 
     public AuthenticatedUser withRoles(List<String> roles) {

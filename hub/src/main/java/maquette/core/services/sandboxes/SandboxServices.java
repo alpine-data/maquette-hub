@@ -1,4 +1,4 @@
-package maquette.core.services;
+package maquette.core.services.sandboxes;
 
 import maquette.core.entities.sandboxes.model.SandboxDetails;
 import maquette.core.entities.sandboxes.model.SandboxProperties;

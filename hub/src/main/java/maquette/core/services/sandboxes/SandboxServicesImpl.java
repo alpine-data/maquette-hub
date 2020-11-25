@@ -1,4 +1,4 @@
-package maquette.core.services;
+package maquette.core.services.sandboxes;
 
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
-public class SandboxServicesImpl implements SandboxServices {
+public final class SandboxServicesImpl implements SandboxServices {
 
    private final ProcessManager processesManager;
 

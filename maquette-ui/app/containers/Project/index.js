@@ -20,10 +20,8 @@ import {
   init as initAction,
   grantAccess as grantAccessAction,
   revokeAccess as revokeAccessAction,
-  updateProject,
   updateProject as updateProjectAction } from './actions';
 
-import BadgedButton from 'components/BadgedButton';
 import Container from 'components/Container';
 import DataShop from '../../components/DataShop';
 import EditableParagraph from 'components/EditableParagraph';
@@ -32,71 +30,8 @@ import ResourceSettings from 'components/ResourceSettings';
 import Sandboxes from '../../components/Sandboxes';
 import Summary from 'components/Summary';
 
-import { Button, ButtonToolbar, Nav, Dropdown, Icon, FlexboxGrid, Affix, Whisper, Tooltip } from 'rsuite';
+import { Button, ButtonToolbar, Nav, Icon, FlexboxGrid, Affix, Whisper, Tooltip } from 'rsuite';
 import { Link } from 'react-router-dom';
-
-function mapPersonalInformationToLabel(personalInformation) {
-  switch (personalInformation) {
-    case "none":
-      return "no personal information";
-    case "pi":
-      return "personal information";
-    case "spi":
-      return "sensitive personal information";
-  }
-}
-
-function DatasetSummary({ project, ds }) {
-  return <Summary to={ `/${project}/resources/datasets/${ds.name}` }>
-      <Summary.Header icon="table" category="Dataset">{ ds.title }</Summary.Header>
-      <Summary.Body>
-        { ds.summary }
-      </Summary.Body>
-      <Summary.Footer>
-        { ds.visibility } &middot; { ds.classification } &middot; { mapPersonalInformationToLabel(ds.personalInformation) } 
-      </Summary.Footer>
-    </Summary>;
-}
-
-function Resources({ dispatch, ...props }) {
-  const name = _.get(props, 'match.params.name') || 'Unknown Project';
-  const summary = _.get(props, 'project.project.summary');
-
-  const datasets = _.get(props, 'project.datasets') || [];
-
-  return <Container md className="mq--main-content">
-    <EditableParagraph 
-      className="mq--p-leading" 
-      value={ summary } 
-      onChange={ summary => {
-        const title = _.get(props, 'project.project.title');
-        const name = _.get(props, 'project.project.name');
-
-        dispatch(updateProject(name, name, title, summary));
-      } } />
-
-    <ButtonToolbar>
-      <BadgedButton icon="table" label="8" size="sm">Sets</BadgedButton>
-      <BadgedButton icon="retention" label="8" size="sm">Collections</BadgedButton>
-      <BadgedButton icon="realtime" label="8" size="sm">Streams</BadgedButton>
-      <BadgedButton icon="database" label="8" size="sm">Sources</BadgedButton>
-      <Dropdown appearance="default" icon={ <Icon icon="plus" /> } color="green" title="Create"  size="sm">
-        <Dropdown.Item>New Dataset</Dropdown.Item>
-        <Dropdown.Item>New Datasource</Dropdown.Item>
-        <Dropdown.Item>New Stream</Dropdown.Item>
-        <Dropdown.Item>New Collection</Dropdown.Item>
-      </Dropdown>
-    </ButtonToolbar>
-
-    <Summary.Summaries>      
-      { _.map(datasets, ds => <DatasetSummary key={ ds.id } project={ name } ds={ ds } />) }
-    </Summary.Summaries>
-
-    <p>
-      At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-    </p>
-  </Container>;
-}
 
 function Settings({ dispatch, ...props }) {
   const project = _.get(props, 'match.params.name') || 'Unknown Project';
@@ -149,8 +84,8 @@ function Settings({ dispatch, ...props }) {
 }
 
 function Display(props) {
-  const name = _.get(props, 'match.params.name') || 'Unknown Project';
-  const tab = _.get(props, 'match.params.tab') || 'data';
+  const name = _.get(props, 'match.params.name');
+  const tab = _.get(props, 'match.params.tab') || 'datashop';
   const title = _.get(props, 'project.project.title') || _.get(props, 'project.project.name');
   const summary = _.get(props, 'project.project.summary');
 
@@ -185,8 +120,7 @@ function Display(props) {
           </Container>
           
           <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-            <Nav.Item eventKey="data" componentClass={ Link } to={ `/${name}` }>Data</Nav.Item>
-            <Nav.Item eventKey="datashop" componentClass={ Link } to={ `/${name}/datashop` }>Data Shop</Nav.Item>
+            <Nav.Item eventKey="datashop" componentClass={ Link } to={ `/${name}` }>Data Shop</Nav.Item>
             <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
             <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
             <Nav.Item eventKey="sandboxes" componentClass={ Link } to={ `/${name}/sandboxes` }>Sandboxes</Nav.Item>
@@ -197,7 +131,6 @@ function Display(props) {
         </div>
       </Affix>
       
-      { tab == 'data' && <Resources { ...props} /> }
       { tab == 'datashop' && <DataShop { ...props} /> }
       { tab == 'settings' && <Settings { ...props} /> }
       { tab == 'sandboxes' && <Sandboxes { ...props} /> }
@@ -240,7 +173,7 @@ export function Project(props) {
   });
 
   if (!_.isEmpty(loading)) {
-    return <>Loading</>;
+    return <div className="mq--loading" />;
   } else if (error) {
     return <Error { ...props } />;
   } else {

@@ -1,4 +1,4 @@
-package maquette.core.services;
+package maquette.core.services.projects;
 
 import akka.Done;
 import maquette.core.entities.projects.model.ProjectDetails;
@@ -6,9 +6,6 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetProperties;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.concurrent.CompletionStage;
 
 public interface ProjectServices {
 
-    CompletionStage<Integer> create(User user, String name, String title, String summary);
+    CompletionStage<Done> create(User user, String name, String title, String summary);
 
     CompletionStage<Map<String, String>> environment(User user, String name);
 

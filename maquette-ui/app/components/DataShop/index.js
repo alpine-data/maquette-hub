@@ -151,11 +151,11 @@ function GetStarted(props) {
     <h4>Get started with Maquette Data Shop</h4>
 
     <p className="mq--p-leading">
-      Offer, browse and consumer data. Review and monitor the usage of your owned data, assess available data or refine existing data.
+      Offer, browse and consume data. Review and monitor the usage of your owned data, assess available data or refine existing data.
     </p>
 
     <StartSearch 
-      title="Search existing data assets" 
+      title="Search existing data assets from other projects" 
       searchAllLabel="Browse existing 428 assets"
       searchLabel="Search within 428 asssets"
       link="/foo" />

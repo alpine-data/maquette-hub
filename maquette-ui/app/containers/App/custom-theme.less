@@ -102,6 +102,32 @@ body {
     background: #ddd;
 }
 
+//== Loading
+@keyframes placeHolderShimmer {
+    0% {
+        background-position: -30vw 0
+    }
+    
+    100% {
+        background-position: 70vw 0
+    }
+}
+
+.mq--loading {
+    animation-duration: 2.5s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeHolderShimmer;
+    animation-timing-function: linear;
+    background: #fff;
+    background: linear-gradient(to right, #fff 8%, #00338D33 18%, #fff 33%);
+    height: 70vh;
+    width: 100%;
+    position: relative;
+    padding-top: 50px;
+    margin-bottom: -60px;
+}
+
 //== Navbar
 @nav-bar-default-bg: @primary-color;
 @nav-bar-default-font-color: @B000;
