@@ -1,0 +1,1 @@
+uvicorn service:app --port 9085 --reload

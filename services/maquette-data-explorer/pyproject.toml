@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "df-visualizer-srv-py"
+name = "maquette-data-explorer"
 version = "0.1.0"
 description = ""
 authors = ["AiPunk <johannes.forster@gmail.com>"]
@@ -9,6 +9,7 @@ python = "~3.8"
 fastapi = "^0.61.2"
 uvicorn = "^0.12.2"
 maquette-py = {path = "../../maquette-py/dist/maquette_py-0.0.1-py3-none-any.whl"}
+pydantic = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
