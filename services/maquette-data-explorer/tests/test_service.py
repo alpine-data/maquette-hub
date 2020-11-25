@@ -1,4 +1,4 @@
-from df_visualizer import __version__
+from data_explorer import __version__
 
 
 def test_version():
