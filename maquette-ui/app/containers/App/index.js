@@ -15,6 +15,7 @@ import { Switch, Route } from 'react-router-dom';
 
 import Layout from 'components/Layout';
 
+import CreateDataAccessRequest from '../CreateDataAccessRequest';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
@@ -36,6 +37,7 @@ export function App({ app, onUserChanged }) {
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route path="/search" component={Search} />
+        <Route path="/new/data-access-request" component={CreateDataAccessRequest} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/sandbox" component={CreateSandbox} />

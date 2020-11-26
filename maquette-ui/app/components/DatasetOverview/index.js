@@ -20,10 +20,10 @@ SyntaxHighlighter.registerLanguage('json', json);
 import Background from '../../resources/datashop-background.png';
 
 function Browse(props) {
-  const dataset = _.get(props, 'dataset.dataset');
-  const versions = _.get(props, 'dataset.versions') || [];
+  const dataset = _.get(props, 'dataset.data.dataset');
+  const versions = _.get(props, 'dataset.data.versions') || [];
   const version = _.get(props, 'dataset.version');
-  const project = _.get(props, 'dataset.project');
+  const project = _.get(props, 'dataset.data.project');
 
   const schema = _.get(_.find(versions, v => v.version == version), 'schema') || {};
 
@@ -67,14 +67,14 @@ function GetStarted(props) {
 
     <DatasetCodeExamples 
       canConsume={ false }
-      project={ _.get(props, 'dataset.project.name') } 
-      dataset={ _.get(props, 'dataset.dataset.name') } 
+      project={ _.get(props, 'dataset.data.project.name') } 
+      dataset={ _.get(props, 'dataset.data.dataset.name') } 
       version={ '1.0' } />
   </Container>
 }
 
 function DatasetOverview(props) {
-  if (_.isEmpty(_.get(props, 'dataset.versions'))) {
+  if (_.isEmpty(_.get(props, 'dataset.data.versions'))) {
     return <GetStarted { ...props } />;
   } else {
     return <Browse { ...props } />

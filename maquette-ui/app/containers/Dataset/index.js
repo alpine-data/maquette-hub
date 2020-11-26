@@ -19,21 +19,18 @@ import reducer from './reducer';
 import saga from './saga';
 import { 
   init as initAction,
-  createDataAccessRequest as createDataAccessRequestAction, 
   selectVersion as selectVersionAction,
   grantAccess as grantAccessAction,
   revokeAccess as revokeAccessAction,
   updateDataAccessRequest as updateDataAccessRequestAction,
   updateDataset as updateDatasetAction } from './actions';
 
-import AccessRequests from '../../components/AccessRequests';
 import Container from 'components/Container';
 import DataAccessRequest from 'components/DataAccessRequest';
+import DataAccessRequests from '../../components/DataAccessRequests';
 import DataAccessRequestSummary from 'components/DataAccessRequestSummary';
-import DataAccessRequestForm from 'components/DataAccessRequestForm';
+import CreateDataAccessRequestForm from 'components/CreateDataAccessRequestForm';
 import DataBadges from 'components/DataBadges';
-import DataExplorer from '../../components/DataExplorer';
-import DatasetCodeExamples from '../../components/DatasetCodeExamples';
 import DatasetOverview from '../../components/DatasetOverview';
 import EditableParagraph from 'components/EditableParagraph';
 import Members from '../../components/Members';
@@ -41,7 +38,7 @@ import ResourceSettings from '../../components/ResourceSettings';
 import Summary from '../../components/Summary';
 import VersionsTimeline from '../../components/VersionsTimeline';
 
-import { Nav, Icon, FlexboxGrid, Button, FormGroup, Form, FormControl, Message, Uploader, ButtonToolbar, IconButton, Whisper, Tooltip, Timeline, Affix } from 'rsuite';
+import { Nav, FlexboxGrid, Button, FormGroup, Form, FormControl, Message, Affix } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -65,7 +62,7 @@ function AccessRequestsHallo(props) {
   const updating = _.get(props, 'dataset.data_access_requests.updating') || false;
 
   const requests = {};
-  requests["all"] = _.get(props, 'dataset.dataset.accessRequests') || [];
+  requests["all"] = _.get(props, 'dataset.data.accessRequests') || [];
   requests["open"] = _.filter(requests["all"], r => r.status == "requested" || r.status == "rejected");
   requests["active"] = _.filter(requests["all"], r => r.status == "granted");
   requests["closed"] =_.filter(requests["all"], r => r.status == "withdrawn" || r.status == "expired");
@@ -95,7 +92,7 @@ function AccessRequestsHallo(props) {
           _.size(projects) == 0 && <Message type="warning" description="You are not member of any project to request access for this data." />
         }
 
-        <DataAccessRequestForm 
+        <CreateDataAccessRequestForm 
           projects={ projects } 
           onSubmit={ d => props.dispatch(createDataAccessRequestAction(project, dataset, d.origin, d.reason)) } />
       </Container>;
@@ -181,11 +178,11 @@ function Display(props) {
   const tab = _.get(props, 'match.params.tab') || 'overview';
 
   
-  const show = _.get(props, 'dataset.dataset.name') || false;
+  const show = _.get(props, 'dataset.data.dataset.name') || false;
 
   return <div>
     <Helmet>
-      <title>{ _.get(props, 'dataset.project.title') } / { _.get(props, 'dataset.dataset.title') } &middot; Maquette</title>
+      <title>{ _.get(props, 'dataset.data.project.title') } / { _.get(props, 'dataset.data.dataset.title') } &middot; Maquette</title>
     </Helmet>
 
     <Affix top={ 56 }>
@@ -193,12 +190,12 @@ function Display(props) {
         <Container fluid>
           <FlexboxGrid align="middle">
             <FlexboxGrid.Item colspan={ 16 }>
-              <h1><Link to={ `/${project}` }>{ _.get(props, 'dataset.project.title') }</Link> / <Link to={ `/${project}/resources/datasets/${dataset}` }>{ _.get(props, 'dataset.dataset.title') }</Link></h1>
-              <EditableParagraph value={ _.get(props, 'dataset.dataset.summary') } className="mq--p-leading" />
+              <h1><Link to={ `/${project}` }>{ _.get(props, 'dataset.data.project.title') }</Link> / <Link to={ `/${project}/resources/datasets/${dataset}` }>{ _.get(props, 'dataset.data.dataset.title') }</Link></h1>
+              <EditableParagraph value={ _.get(props, 'dataset.data.dataset.summary') } className="mq--p-leading" />
             </FlexboxGrid.Item>
 
             <FlexboxGrid.Item colspan={ 8 } className="mq--buttons">
-              <DataBadges resource={ _.get(props, 'dataset.dataset') } />
+              <DataBadges resource={ _.get(props, 'dataset.data.dataset') } />
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Container>
@@ -220,10 +217,18 @@ function Display(props) {
           onSelectVersion={ version => props.dispatch(selectVersionAction(version)) } /> 
       </>
     }
+
     { 
-      show && tab == 'access-requests' && <AccessRequests { ...props } 
-    /> }
-    { show && tab == 'settings' && <Settings { ...props } /> }
+      show && tab == 'access-requests' && <>
+        <DataAccessRequests { ...props } />
+      </> 
+    }
+
+    { 
+      show && tab == 'settings' && <>
+        <Settings { ...props } /> 
+      </>
+    }
   </div>;
 }
 
@@ -236,7 +241,7 @@ function Settings({ dispatch, ...props }) {
   const dataset = _.get(props, 'match.params.dataset') || 'dataset';
   const sub = _.get(props, 'match.params.id') || 'options'
 
-  const members = _.map(_.get(props, 'dataset.dataset.owners') || [], a => {
+  const members = _.map(_.get(props, 'dataset.data.owners') || [], a => {
     const user = _.get(a, 'user');
     const type = _.get(a, 'type');
 
@@ -268,26 +273,26 @@ function Settings({ dispatch, ...props }) {
       <FlexboxGrid.Item colspan={19}>
         { sub == 'options' && <ResourceSettings 
             resource="Dataset"
-            title={ _.get(props, 'dataset.dataset.title') }
-            name={ _.get(props, 'dataset.dataset.name') }
+            title={ _.get(props, 'dataset.data.title') }
+            name={ _.get(props, 'dataset.data.name') }
             onUpdate={ (title, name) => {
-              const visibility = _.get(props, 'dataset.dataset.visibility');
-              const classification = _.get(props, 'dataset.dataset.classification');
-              const personalInformation = _.get(props, 'dataset.dataset.personalInformation');
-              const summary = _.get(props, 'dataset.dataset.summary');
+              const visibility = _.get(props, 'dataset.data.visibility');
+              const classification = _.get(props, 'dataset.data.classification');
+              const personalInformation = _.get(props, 'dataset.data.personalInformation');
+              const summary = _.get(props, 'dataset.data.summary');
 
               dispatch(updateDatasetAction(project, dataset, name, title, summary, visibility, classification, personalInformation));
             } } /> }
 
         { sub == 'governance' && <>
             <DataGovernanceOptions 
-              visibility={ _.get(props, 'dataset.dataset.visibility') }
-              classification={ _.get(props, 'dataset.dataset.classification') }
-              personalInformation={ _.get(props, 'dataset.dataset.personalInformation') }
+              visibility={ _.get(props, 'dataset.data.visibility') }
+              classification={ _.get(props, 'dataset.data.classification') }
+              personalInformation={ _.get(props, 'dataset.data.personalInformation') }
               onUpdate={
                 (visibility, classification, personalInformation) => {
-                  const title = _.get(props, 'dataset.dataset.title');
-                  const summary = _.get(props, 'dataset.dataset.summary');
+                  const title = _.get(props, 'dataset.data.title');
+                  const summary = _.get(props, 'dataset.data.summary');
 
                   dispatch(updateDatasetAction(project, dataset, dataset, title, summary, visibility, classification, personalInformation));
                 }
@@ -357,7 +362,6 @@ export function Dataset(props) {
   } else if (props.dataset.error) {
     return <Error { ...props } />
   } else {
-    console.log(props);
     return <Display { ...props } />
   }
 }

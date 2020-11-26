@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.user.User;
 
 import java.util.List;
 
@@ -24,5 +25,11 @@ public class ProjectDetails {
     ActionMetadata modified;
 
     List<GrantedAuthorization> authorizations;
+
+    public boolean isMember(User user) {
+        return authorizations
+           .stream()
+           .anyMatch(auth -> auth.getAuthorization().isAuthorized(user));
+    }
 
 }

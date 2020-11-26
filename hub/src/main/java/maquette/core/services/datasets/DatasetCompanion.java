@@ -106,7 +106,7 @@ public final class DatasetCompanion extends ServiceCompanion {
 
    public <T> CompletionStage<Optional<T>> filterOwner(User user, String project, String dataset, T passThrough) {
       return withDatasetByName(project, dataset, (p, d) -> d.getDatasetDetails().thenApply(datasetDetails -> {
-         var isDataOwner = datasetDetails.getOwners().stream().anyMatch(auth -> auth.isAuthorized(user));
+         var isDataOwner = datasetDetails.isOwner(user);
 
          if (isDataOwner) {
             return Optional.of(passThrough);

@@ -93,13 +93,9 @@ public final class ProjectCompanion extends ServiceCompanion {
    public <T> CompletionStage<Optional<T>> filterMember(User user, String name, T passThrough) {
       return withProject(name)
          .thenCompose(Project::getDetails)
-         .thenApply(details -> details
-            .getAuthorizations()
-            .stream()
-            .filter(auth -> auth.getAuthorization().isAuthorized(user))
-            .findAny())
+         .thenApply(details -> details.isMember(user))
          .thenApply(auth -> {
-            if (auth.isPresent()) {
+            if (auth) {
                return Optional.of(passThrough);
             } else {
                return Optional.empty();

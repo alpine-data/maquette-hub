@@ -1,9 +1,9 @@
 // import produce from 'immer';
-import datasetDetailsReducer from '../reducer';
+import createDataAccessRequestReducer from '../reducer';
 // import { someAction } from '../actions';
 
 /* eslint-disable default-case, no-param-reassign */
-describe('datasetDetailsReducer', () => {
+describe('createDataAccessRequestReducer', () => {
   let state;
   beforeEach(() => {
     state = {
@@ -13,7 +13,9 @@ describe('datasetDetailsReducer', () => {
 
   it('returns the initial state', () => {
     const expectedResult = state;
-    expect(datasetDetailsReducer(undefined, {})).toEqual(expectedResult);
+    expect(createDataAccessRequestReducer(undefined, {})).toEqual(
+      expectedResult,
+    );
   });
 
   /**

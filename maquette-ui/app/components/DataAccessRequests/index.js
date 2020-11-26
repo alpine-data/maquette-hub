@@ -1,6 +1,6 @@
 /**
  *
- * AccessRequests
+ * DataAccessRequests
  *
  */
 
@@ -11,6 +11,7 @@ import Container from '../Container';
 
 import Background from '../../resources/datashop-background.png';
 import { Button, ButtonToolbar, FlexboxGrid, Message, Nav, Tag } from 'rsuite';
+import { Link } from 'react-router-dom';
 
 const NavTag = styled(Tag)`
   position: absolute;
@@ -18,13 +19,19 @@ const NavTag = styled(Tag)`
 `;
 
 function PublicConsumer(props) {
+  const project = _.get(props, 'dataset.data.project.name');
+  const asset = _.get(props, 'dataset.data.dataset.name');
+
   return <Container md background={ Background } className="mq--main-content">
     <h4>Get started with access requests</h4>
     <p className="mq--p-leading">
       This asset contains public data only. Subscribe a project to the asset to use access the data.
     </p>
     <ButtonToolbar style={{ marginTop: '30px' }}>
-      <Button color="green">Subscribe a project</Button>
+      <Button 
+        color="green" 
+        componentClass={ Link } 
+        to={ `/new/data-access-request?project=${ project }&asset=${ asset }` }>Subscribe a project</Button>
     </ButtonToolbar>
     <hr />
     <h4>Existing Subscriptions</h4>
@@ -34,14 +41,20 @@ function PublicConsumer(props) {
 }
 
 function GetStartedAsConsumer(props) {
+  const project = _.get(props, 'dataset.data.project.name');
+  const asset = _.get(props, 'dataset.data.dataset.name');
+
   return <Container md background={ Background } className="mq--main-content">
     <h4>Get started with acccess requests</h4>
     <p className="mq--p-leading">
-      This data asset is classified as <b>{ _.get(props, 'dataset.dataset.classification') }</b>. To access the data, you need to send a request to the data owners of this asset. As soon as the owners have granted your access, you can browse it and work with the data.
+      This data asset is classified as <b>{ _.get(props, 'dataset.data.dataset.classification') }</b>. To access the data, you need to send a request to the data owners of this asset. As soon as the owners have granted your access, you can browse it and work with the data.
     </p>
     
     <ButtonToolbar style={{ marginTop: '30px' }}>
-      <Button color="green">Create new access request</Button>
+      <Button 
+        componentClass={ Link }
+        color="green"
+        to={ `/new/data-access-request?project=${ project }&asset=${ asset }` }>Create new access request</Button>
     </ButtonToolbar>
   </Container>
 }
@@ -104,10 +117,33 @@ function ConsumerView(props) {
     </Container>;
 }
 
-function AccessRequests(props) {
-  return <PublicConsumer { ...props } />
+function MemberView(props) {
+  return <Container xlg background={ Background } className="mq--main-content">
+    <h4>Manage access requests</h4>
+
+    <h4>Subscribe a project</h4>
+    <p className="mq--p-leading">
+      Hallo Freunde!
+    </p>
+  </Container>
 }
 
-AccessRequests.propTypes = {};
+function DataAccessRequests(props) {
+  const isPublic = _.get(props, 'dataset.data.isOwner.classification') == 'public';
+  const isProjectMember = _.get(props, 'dataset.data.isProjectMember');
+  const requests = _.size(_.get(props, 'dataset.data.dataset.accessRequests'));
 
-export default AccessRequests;
+  if (isProjectMember) {
+    return <MemberView { ...props } />;
+  } else if (isPublic) {
+    return <PublicConsumer { ...props } />;
+  } else if (requests > 0) {
+    return <ConsumerView { ...props } />;
+  } else {
+    return <GetStartedAsConsumer { ...props } />
+  }
+}
+
+DataAccessRequests.propTypes = {};
+
+export default DataAccessRequests;

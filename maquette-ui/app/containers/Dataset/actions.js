@@ -9,10 +9,6 @@ import {
   FAILED,
   FETCHED,
 
-  CREATE_DATA_ACCESS_REQUEST, 
-  CREATE_DATA_ACCESS_REQUEST_FAILED, 
-  CREATE_DATA_ACCESS_REQUEST_SUCCESS,
-
   GRANT_ACCESS,
   GRANT_ACCESS_FAILED,
   GRANT_ACCESS_SUCCESS,
@@ -51,30 +47,6 @@ export function fetched(key, response) {
   return {
     type: FETCHED,
     key,
-    response
-  };
-}
-
-export function createDataAccessRequest(project, dataset, origin, reason) {
-  return {
-    type: CREATE_DATA_ACCESS_REQUEST,
-    project,
-    dataset,
-    origin,
-    reason
-  };
-}
-
-export function createDataAccessRequestFailed(error) {
-  return {
-    type: CREATE_DATA_ACCESS_REQUEST_FAILED,
-    error
-  };
-}
-
-export function createDataAccessRequestSuccess(response) {
-  return {
-    type: CREATE_DATA_ACCESS_REQUEST_SUCCESS,
     response
   };
 }

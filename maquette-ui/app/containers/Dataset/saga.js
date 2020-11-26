@@ -7,14 +7,6 @@ import {
   failed,
   fetched,
 
-  createDataAccessRequestFailed, 
-  createDataAccessRequestSuccess,
-
-  getDataAccessRequestsSuccess,
-  getDatasetSuccess,
-  getProjectSuccess,
-  getVersionsSuccess,
-
   grantAccessFailed, 
   grantAccessSuccess,
 
@@ -29,42 +21,36 @@ import {
 
 import { 
   INIT,
-  CREATE_DATA_ACCESS_REQUEST, 
   GRANT_ACCESS,
   REVOKE_ACCESS,
   UPDATE_DATA_ACCESS_REQUEST,
   UPDATE_DATASET } from './constants';
 
+import {
+  CHANGE_USER
+} from '../App/constants';
+
 import { command } from 'utils/request';
 
 import { push } from 'connected-react-router';
 
-export function* fetch(key, cmd, params, user) {
+export function* onChangeUser() {
   try {
-    const data = yield call(command, cmd, params, user);
-    yield put(fetched(key, data));
+    const action = yield select(state => _.get(state, 'dataset.initialParams'));
+    yield put(action);
   } catch (err) {
-    yield put(failed(key, err));
+    console.log(err);
   }
 }
 
-export function* init(action) {
-  const user = yield select(makeSelectCurrentUser());
-  
-  yield fetch('dataset', 'datasets get', _.omit(action, 'type'), user);
-  yield fetch('requests', 'datasets access-requests list', _.omit(action, 'type'), user);
-  yield fetch('project', 'projects get', { name: action.project }, user);
-  yield fetch('versions', 'datasets revisions list', _.omit(action, 'type'), user);
-}
-
-export function* createDataAccessRequest(action) {
+export function* onInit(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'datasets access-requests create', _.omit(action, 'type'), user);
-    
-    yield put(createDataAccessRequestSuccess(data));
+    const data = yield call(command, 'views dataset', _.omit(action, 'type'), user);
+
+    yield put(fetched('data', data));
   } catch (err) {
-    yield put(createDataAccessRequestFailed(err));
+    yield put(failed('data', err));
   }
 }
 
@@ -123,9 +109,8 @@ export function* updateDataset(action) {
 
 // Individual exports for testing
 export default function* datasetSaga() {
-  yield takeLatest(CREATE_DATA_ACCESS_REQUEST, createDataAccessRequest);
-
-  yield takeLatest(INIT, init);
+  yield takeLatest(CHANGE_USER, onChangeUser);
+  yield takeLatest(INIT, onInit);
 
   yield takeLatest(GRANT_ACCESS, grantAccess);
   yield takeLatest(REVOKE_ACCESS, revokeAccess);

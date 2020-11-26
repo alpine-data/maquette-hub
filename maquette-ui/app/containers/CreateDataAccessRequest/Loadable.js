@@ -1,6 +1,6 @@
 /**
  *
- * Asynchronously loads the component for Dataset
+ * Asynchronously loads the component for CreateDataAccessRequest
  *
  */
 

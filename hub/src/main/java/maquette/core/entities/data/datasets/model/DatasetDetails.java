@@ -10,6 +10,7 @@ import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.user.User;
 
 import java.util.List;
 
@@ -43,5 +44,11 @@ public class DatasetDetails {
    List<DataAccessRequest> accessRequests;
 
    List<DataAccessToken> accessTokens;
+
+   public boolean isOwner(User user) {
+      return owners
+         .stream()
+         .anyMatch(auth -> auth.isAuthorized(user));
+   }
 
 }

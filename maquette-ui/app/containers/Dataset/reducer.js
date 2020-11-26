@@ -9,10 +9,6 @@ import {
   FAILED,
   FETCHED,
 
-  CREATE_DATA_ACCESS_REQUEST, 
-  CREATE_DATA_ACCESS_REQUEST_FAILED, 
-  CREATE_DATA_ACCESS_REQUEST_SUCCESS,
-
   SELECT_VERSION,
 
   UPDATE_DATA_ACCESS_REQUEST, 
@@ -20,10 +16,8 @@ import {
   UPDATE_DATA_ACCESS_REQUEST_SUCCESS } from './constants';
 
 export const initialState = {
-  dataset: false,
-  project: false,
-  requests: false,
-  versions: false,
+  initialParams: {},
+  data: false,
   version: '1.0.0',
 
   errors: {},
@@ -35,7 +29,8 @@ const datasetReducer = (state = initialState, action) =>
     switch (action.type) {
       case INIT:
         draft.errors = initialState.errors;
-        draft.loading = _.concat(draft.loading, ['dataset', 'project', 'requests', 'versions'])
+        draft.loading = _.concat(draft.loading, ['data'])
+        draft.initialParams = action;
         break;
 
       case FAILED:
