@@ -8,11 +8,13 @@ authors = ["AiPunk <johannes.forster@gmail.com>"]
 python = "~3.8"
 fastapi = "^0.61.2"
 uvicorn = "^0.12.2"
-maquette-py = {path = "../../maquette-py/dist/maquette_py-0.0.1-py3-none-any.whl"}
 pydantic = "^1.7.2"
+maquette = {path = "../../maquette-py/dist/maquette-0.0.1-py3-none-any.whl"}
+seaborn = "^0.11.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+jupyter = "^1.0.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
