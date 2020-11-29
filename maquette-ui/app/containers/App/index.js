@@ -37,10 +37,16 @@ export function App({ app, onUserChanged }) {
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route path="/search" component={Search} />
+        
         <Route path="/new/data-access-request" component={CreateDataAccessRequest} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/sandbox" component={CreateSandbox} />
+
+        <Route path="/shop/datasets/:dataset" exact component={Dataset} />
+        <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
+        <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+
         <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/:name/resources/datasets/:dataset/:tab/:id" exact component={Dataset} />

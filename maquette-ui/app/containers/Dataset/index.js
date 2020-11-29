@@ -17,13 +17,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectDataset from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { 
-  init as initAction,
-  selectVersion as selectVersionAction,
-  grantAccess as grantAccessAction,
-  revokeAccess as revokeAccessAction,
-  updateDataAccessRequest as updateDataAccessRequestAction,
-  updateDataset as updateDatasetAction } from './actions';
+import { load, update, selectVersion } from './actions';
 
 import Container from 'components/Container';
 import DataAccessRequest from 'components/DataAccessRequest';
@@ -45,6 +39,8 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import DataGovernanceOptions from '../../components/DataGovernanceOptions';
+
+import Background from '../../resources/datashop-background.png';
 
 SyntaxHighlighter.registerLanguage('json', json);
 
@@ -134,7 +130,7 @@ function AccessRequestsHallo(props) {
             <FlexboxGrid.Item colspan={ 2 }></FlexboxGrid.Item>
 
             <FlexboxGrid.Item colspan={ 8 } align="right">
-              <Button color="green" size="lg" to={ `/${project}/resources/datasets/${dataset}/access-requests/new` } componentClass={ Link }>Create new Request</Button>
+              <Button color="green" size="lg" to={ `/shop/datasets/datasets/${dataset}/access-requests/new` } componentClass={ Link }>Create new Request</Button>
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Form>
@@ -173,16 +169,22 @@ function AccessRequestsHallo(props) {
  * @param {*} props 
  */
 function Display(props) {
-  const project = _.get(props, 'match.params.name');
   const dataset = _.get(props, 'match.params.dataset');
   const tab = _.get(props, 'match.params.tab') || 'overview';
 
-  
-  const show = _.get(props, 'dataset.data.dataset.name') || false;
+  const onUpdate = (values) => {
+    const current = _.pick(
+      _.get(props, 'dataset.data.dataset'), 
+      'name', 'title', 'summary', 'visibility', 'classification', 'personalInformation');
+
+    const updated = _.assign(current, values, { dataset });
+
+    props.dispatch(update('datasets update', updated));
+  }
 
   return <div>
     <Helmet>
-      <title>{ _.get(props, 'dataset.data.project.title') } / { _.get(props, 'dataset.data.dataset.title') } &middot; Maquette</title>
+      <title>{ _.get(props, 'dataset.data.dataset.title') } &middot; Maquette</title>
     </Helmet>
 
     <Affix top={ 56 }>
@@ -190,8 +192,11 @@ function Display(props) {
         <Container fluid>
           <FlexboxGrid align="middle">
             <FlexboxGrid.Item colspan={ 16 }>
-              <h1><Link to={ `/${project}` }>{ _.get(props, 'dataset.data.project.title') }</Link> / <Link to={ `/${project}/resources/datasets/${dataset}` }>{ _.get(props, 'dataset.data.dataset.title') }</Link></h1>
-              <EditableParagraph value={ _.get(props, 'dataset.data.dataset.summary') } className="mq--p-leading" />
+              <h1><Link to={ `/shop/datasets/${dataset}` }>{ _.get(props, 'dataset.data.dataset.title') }</Link></h1>
+              <EditableParagraph 
+                value={ _.get(props, 'dataset.data.dataset.summary') } 
+                onChange={ summary => onUpdate({ summary }) }
+                className="mq--p-leading" />
             </FlexboxGrid.Item>
 
             <FlexboxGrid.Item colspan={ 8 } className="mq--buttons">
@@ -201,17 +206,17 @@ function Display(props) {
         </Container>
         
         <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-          <Nav.Item eventKey="overview" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}` }>Overview</Nav.Item>
-          <Nav.Item eventKey="data" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/data` }>Data</Nav.Item>
-          <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/access-requests` }>Access Requests</Nav.Item>
-          <Nav.Item eventKey="discuss" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/discuss` }>Discuss</Nav.Item>
-          <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/settings` }>Settings</Nav.Item>
+          <Nav.Item eventKey="overview" componentClass={ Link } to={ `/shop/datasets/${dataset}` }>Overview</Nav.Item>
+          <Nav.Item eventKey="data" componentClass={ Link } to={ `/shop/datasets/${dataset}/data` }>Data</Nav.Item>
+          <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/shop/datasets/${dataset}/access-requests` }>Access Requests</Nav.Item>
+          <Nav.Item eventKey="discuss" componentClass={ Link } to={ `/shop/datasets/${dataset}/discuss` }>Discuss</Nav.Item>
+          <Nav.Item eventKey="settings" componentClass={ Link } to={ `/shop/datasets/${dataset}/settings` }>Settings</Nav.Item>
         </Nav>
       </div>
     </Affix>
 
     { 
-      show && tab == 'overview' && <>
+      tab == 'overview' && <>
         <DatasetOverview 
           { ...props } 
           onSelectVersion={ version => props.dispatch(selectVersionAction(version)) } /> 
@@ -219,13 +224,13 @@ function Display(props) {
     }
 
     { 
-      show && tab == 'access-requests' && <>
+      tab == 'access-requests' && <>
         <DataAccessRequests { ...props } />
       </> 
     }
 
     { 
-      show && tab == 'settings' && <>
+      tab == 'settings' && <>
         <Settings { ...props } /> 
       </>
     }
@@ -265,8 +270,8 @@ function Settings({ dispatch, ...props }) {
     <FlexboxGrid>
       <FlexboxGrid.Item colspan={4}>
         <Nav vertical activeKey={ sub } appearance="subtle">
-          <Nav.Item eventKey="options" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/settings` }>Options</Nav.Item>
-          <Nav.Item eventKey="governance" componentClass={ Link } to={ `/${project}/resources/datasets/${dataset}/settings/governance` }>Governance</Nav.Item>
+          <Nav.Item eventKey="options" componentClass={ Link } to={ `/shop/datasets/datasets/${dataset}/settings` }>Options</Nav.Item>
+          <Nav.Item eventKey="governance" componentClass={ Link } to={ `/shop/datasets/datasets/${dataset}/settings/governance` }>Governance</Nav.Item>
         </Nav>
       </FlexboxGrid.Item>
       <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
@@ -320,20 +325,22 @@ function Settings({ dispatch, ...props }) {
  * @param {*} props 
  */
 function Error(props) {
+  const dataset = _.get(props, 'match.params.dataset');
+  const error = _.get(props, 'dataset.error');
+
   return <div>
     <Helmet>
-      <title>Dataset</title>
-      <meta name="description" content="Description of Project" />
+      <title>Error &middot; Maquette</title>
     </Helmet>
 
-    <Container md className="mq--main-content">
+    <Container md className="mq--main-content" background={ Background }>
       <Summary.Summaries>
         <Summary.Empty>
-          ¯\_(ツ)_/¯<br />{ props.project.error }
+          ¯\_(ツ)_/¯<br />{ error }
         </Summary.Empty>
       </Summary.Summaries>
     </Container>
-  </div>;
+  </div>
 }
 
 /**
@@ -345,21 +352,22 @@ export function Dataset(props) {
   useInjectReducer({ key: 'dataset', reducer });
   useInjectSaga({ key: 'dataset', saga });
 
-  const project = _.get(props, 'match.params.name');
   const dataset = _.get(props, 'match.params.dataset');
-
+  const data = _.get(props, 'dataset.data');
+  const error = _.get(props, 'dataset.error');
+  const loading = _.get(props, 'dataset.loading');
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     if (!initialized) {
-      props.dispatch(initAction(project, dataset))
+      props.dispatch(load(dataset))
       setInitialized(true);
     }
   });
 
-  if (!initialized || _.size(_.get(props, 'dataset.loading')) > 0) {
-    return <>Loading</>
-  } else if (props.dataset.error) {
+  if (!initialized || loading) {
+    return <div className="mq--loading" />
+  } else if (!data && error) {
     return <Error { ...props } />
   } else {
     return <Display { ...props } />

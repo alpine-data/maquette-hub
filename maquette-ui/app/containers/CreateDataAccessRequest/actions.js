@@ -8,10 +8,9 @@ import {
   INIT, FAILED, FETCHED,
   SUBMIT, SUBMIT_FAILED, SUBMIT_SUCCESS } from './constants';
 
-export function init(project, asset) {
+export function init(asset) {
   return {
     type: INIT,
-    project,
     asset
   };
 };

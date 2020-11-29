@@ -150,7 +150,7 @@ public final class DatasetCompanion extends ServiceCompanion {
 
    public CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties dataset, DataAccessRequestProperties request) {
       return projects
-         .getProjectById(request.getId())
+         .getProjectById(request.getProject())
          .thenCompose(ProjectEntity::getProperties)
          .thenApply(project -> DataAccessRequest.apply(
             request.getId(),

@@ -4,67 +4,56 @@
  *
  */
 import produce from 'immer';
-import { 
-  INIT,
-  FAILED,
-  FETCHED,
-
-  SELECT_VERSION,
-
-  UPDATE_DATA_ACCESS_REQUEST, 
-  UPDATE_DATA_ACCESS_REQUEST_FAILED, 
-  UPDATE_DATA_ACCESS_REQUEST_SUCCESS } from './constants';
+import { LOAD, UPDATE, FETCHED, FAILED, SELECT_VERSION } from './constants';
 
 export const initialState = {
-  initialParams: {},
+  keys: {},
   data: false,
   version: '1.0.0',
 
-  errors: {},
-  loading: []
+  error: false,
+  loading: false,
+  updating: false
 };
 
 const datasetReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
-      case INIT:
-        draft.errors = initialState.errors;
-        draft.loading = _.concat(draft.loading, ['data'])
-        draft.initialParams = action;
-        break;
+      case LOAD:
+        draft.keys = action;
+        draft.loading = true;
+        draft.error = false;
 
-      case FAILED:
-        draft.loading = _.without(draft.loading, action.key);
-        draft.errors = _.assign(draft.errors, { [action.key]: action.error });
-        break;
+        if (action.dataset != state.keys.dataset) {
+          draft.version = initialState.version;
+        }
 
-      case FETCHED:
-        draft.loading = _.without(draft.loading, action.key);
-        draft[action.key] = _.get(action, 'response.data') || _.get(action, 'response') || {};
-
-        if (action.key == 'versions') {
-          draft.version = _.first(draft['versions']).version || '1.0.0';
+        if (action.clear) {
+          draft.version = initialState.version;
+          draft.data = false;
         }
 
         break;
 
+      case UPDATE:
+        draft.updating = true;
+        break;
+
+      case FAILED:
+        draft.loading = false;
+        draft.updating = false;
+        draft.error = _.get(action, 'error.response.message') || 'Sorry, some error has occurred.';
+        break;
+
+      case FETCHED:
+        draft.loading = false;
+        draft.updating = false;
+        draft.data = action.response;
+        break;
+
       case SELECT_VERSION:
         draft.version = action.version;
-        break;
-
-      case UPDATE_DATA_ACCESS_REQUEST:
-        draft.data_access_requests.error = false
-        draft.data_access_requests.updating = true;
-        break;
-
-      case UPDATE_DATA_ACCESS_REQUEST_FAILED:
-        draft.data_access_requests.updating = false;
-        draft.data_access_requests.error = _.get(action, 'error.response.message') || 'Unkown error occurred updating data access request';
-        break;
-
-      case UPDATE_DATA_ACCESS_REQUEST_SUCCESS:
-        draft.data_access_requests.updating = false;
-        break;      
+        break;    
     }
   });
 

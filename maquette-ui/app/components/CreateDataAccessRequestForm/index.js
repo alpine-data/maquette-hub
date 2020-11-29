@@ -10,9 +10,8 @@ import { ControlLabel, FlexboxGrid, Form, FormGroup, Input, InputPicker, HelpBlo
 
 function CreateDataAccessRequestForm(props) {
   const [state, setState] = useState({
-    project: props.project,
     dataset: props.asset,
-    origin: props.origins[0].value,
+    project: props.projects[0].value,
     reason: ""
   });
 
@@ -22,13 +21,12 @@ function CreateDataAccessRequestForm(props) {
     }));
   }
 
-  const isValid = state.origin.length > 0 && state.reason.length > 0;
+  const isValid = state.project.length > 0 && state.reason.length > 0;
 
   const isSubmitting = _.get(props, 'createDataAccessRequest.submitting') || false;
   const isOwner = _.get(props, 'createDataAccessRequest.data.isOwner') || false;
-  const isSubscribe = _.get(props, 'createDataAccessRequest.data.isSubscribe') || false;
-  const submitText = ((isOwner || isSubscribe) && 'Subscribe to asset') || 'Submit access request';
-
+  const requiresExplicitApproval = _.get(props, 'createDataAccessRequest.data.requiresExplicitApproval') || false;
+  const submitText = (isOwner && 'Grant access for project') || (!requiresExplicitApproval && 'Subscribe project') || 'Submit request'
   const error = _.get(props, 'createDataAccessRequest.submitError');
 
   return <Form fluid>
@@ -44,14 +42,7 @@ function CreateDataAccessRequestForm(props) {
             } />
           </FlexboxGrid.Item>
         </>
-      }
-      <FlexboxGrid.Item colspan={ 11 }>
-        <FormGroup>
-          <ControlLabel>Target project</ControlLabel>
-          <Input disabled={ true } value={ props.project } />
-        </FormGroup>
-      </FlexboxGrid.Item>
-      
+      }      
       <FlexboxGrid.Item colspan={ 11 }>
         <FormGroup>
           <ControlLabel>Target asset</ControlLabel>
@@ -59,17 +50,17 @@ function CreateDataAccessRequestForm(props) {
         </FormGroup>
       </FlexboxGrid.Item>
 
-      <FlexboxGrid.Item colspan={ 24 }>
+      <FlexboxGrid.Item colspan={ 11 }>
         <FormGroup>
-          <ControlLabel>Origin project</ControlLabel>
+          <ControlLabel>Project</ControlLabel>
           <InputPicker 
-            data={ props.origins } 
-            name="origin" 
+            data={ props.projects } 
+            name="project" 
             style={{ width: "100%" }} 
-            onChange={ onChange('origin') } 
-            value={ state.origin } />
+            onChange={ onChange('project') } 
+            value={ state.project } />
           <HelpBlock>
-            Select the project for which you are going to access the data.
+            Select the project for which should be able to access the data.
           </HelpBlock>
         </FormGroup>
       </FlexboxGrid.Item>
@@ -103,7 +94,7 @@ function CreateDataAccessRequestForm(props) {
 CreateDataAccessRequestForm.propTypes = {};
 
 CreateDataAccessRequestForm.defaultProps = {
-  origins: [],
+  projects: [],
   onSubmit: console.log
 }
 

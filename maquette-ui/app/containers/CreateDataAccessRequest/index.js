@@ -85,24 +85,23 @@ export function CreateDataAccessRequest(props) {
   const [initialized, setInitialized] = useState(false);
 
   const query = new URLSearchParams(_.get(props, 'location.search') || '');
-  const targetProject = query.get('project');
-  const targetDataset = query.get('asset');
+  const asset = query.get('asset');
 
-  const missingParameters = !targetProject || !targetDataset;
+  const missingParameters = !asset;
   const error = _.get(props, 'createDataAccessRequest.error');
   const loading = _.get(props, 'createDataAccessRequest.loading');
-  const origins = _.map(
+  const projects = _.map(
     _.get(props, 'createDataAccessRequest.data.projects') || [],
-    origin => {
+    project => {
       return {
-        label: origin.title,
-        value: origin.name
+        label: project.title,
+        value: project.name
       }
     });
 
   useEffect(() => {
     if (!missingParameters && !initialized) {
-      props.dispatch(init(targetProject, targetDataset));
+      props.dispatch(init(asset));
       setInitialized(true);
     }
   })
@@ -123,10 +122,10 @@ export function CreateDataAccessRequest(props) {
 
       {
         (missingParameters && <MissingParameters />) || 
-        (loading && <>Loading</>) || 
+        (loading && <div className="mq--loading" />) || 
         (error && <Error error={ error } /> ) || 
-        (_.isEmpty(origins) && <NoProjects />) ||
-        <Form { ...props } project={ targetProject } asset={ targetDataset } origins={ origins } />
+        (_.isEmpty(projects) && <NoProjects />) ||
+        <Form { ...props } asset={ asset } projects={ projects } />
       }
     </div>
   );

@@ -22,7 +22,7 @@ public class CreateDatasetDataAccessRequestCommand implements Command {
 
    String dataset;
 
-   String origin;
+   String project;
 
    String reason;
 
@@ -30,15 +30,15 @@ public class CreateDatasetDataAccessRequestCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(origin) || origin.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`origin` must be supplied"));
+      } else if (Objects.isNull(project) || project.length() == 0) {
+         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       } else if (Objects.isNull(reason) || reason.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`reason` must be supplied"));
       }
 
       return services
          .getDatasetServices()
-         .createDataAccessRequest(user, dataset, origin, reason)
+         .createDataAccessRequest(user, dataset, project, reason)
          .thenApply(DataResult::apply);
    }
 

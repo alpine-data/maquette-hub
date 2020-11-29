@@ -53,7 +53,8 @@ public final class ProjectEntities {
    }
 
    public CompletionStage<ProjectEntity> getProjectById(UID id) {
-      return findProjectById(id).thenApply(Optional::orElseThrow);
+      return findProjectById(id)
+         .thenApply(opt -> opt.orElseThrow(() -> ProjectNotFoundException.applyFromId(id)));
    }
 
    public CompletionStage<ProjectEntity> getProjectByName(String name) {

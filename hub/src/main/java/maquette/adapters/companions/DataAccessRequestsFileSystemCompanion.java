@@ -32,7 +32,7 @@ public final class DataAccessRequestsFileSystemCompanion implements HasDataAcces
          .resolve(asset.getValue())
          .resolve(PATH);
 
-      Operators.suppressExceptions(() -> Files.createDirectories(file.getParent()));
+      Operators.suppressExceptions(() -> Files.createDirectories(file));
 
       return file;
    }
