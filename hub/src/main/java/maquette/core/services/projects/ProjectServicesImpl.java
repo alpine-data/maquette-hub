@@ -171,7 +171,7 @@ public final class ProjectServicesImpl implements ProjectServices {
    public CompletionStage<Done> revoke(User user, String name, Authorization authorization) {
       return projects
          .getProjectByName(name)
-         .thenCompose(project -> project.members().removeOwner(user, authorization));
+         .thenCompose(project -> project.members().removeMember(user, authorization));
    }
 
 }

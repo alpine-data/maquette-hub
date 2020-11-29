@@ -3,12 +3,12 @@
  * DataAccessRequest
  *
  */
-import _, { reject } from 'lodash';
+import _ from 'lodash';
 import React, { useState } from 'react';
 
 import produce from 'immer';
 
-import { Badge, Button, ButtonToolbar, Checkbox, ControlLabel, DatePicker, FlexboxGrid, Form, FormControl, FormGroup, HelpBlock, Input, Radio, RadioGroup, Timeline } from 'rsuite';
+import { Button, ButtonToolbar, ControlLabel, DatePicker, FlexboxGrid, Form, FormGroup, HelpBlock, Input, Radio, RadioGroup, Timeline } from 'rsuite';
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
 function Respond({ onGrant = console.log, onReject = console.log, request, updating = false, ...props }) {
@@ -19,6 +19,8 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
     validity_date: new Date()
   });
 
+  const isValid = !_.isEmpty(state.message);
+
   const onChange = (field) => (value) => {
     setState(produce(state, draft => {
       draft[field] = value;
@@ -27,8 +29,7 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
 
   const grant_onClick = () => {
     const args = {
-      project: props.project,
-      dataset: props.dataset,
+      asset: request.asset.name,
       id: request.id,
       until: state.decision == "grant-limited" && state.validity_date.toJSON() || null,
       message: state.message
@@ -39,8 +40,7 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
 
   const reject_onClick = () => {
     const args = {
-      project: props.project,
-      dataset: props.dataset,
+      asset: request.asset.name,
       id: request.id,
       reason: state.message
     }
@@ -80,8 +80,6 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
       </FormGroup>
     </>;
   }
-
-  const isValid = !_.isEmpty(state.message);
 
   const rejectControls = () => {
     return <>
@@ -140,8 +138,7 @@ function Withdraw({ updating, request, onWithdraw = console.log, ...props }) {
 
   const withdraw_onClick = () => {
     const args = {
-      project: props.project,
-      dataset: props.dataset,
+      asset: request.asset.name,
       id: request.id,
       message: state.message
     }
@@ -194,8 +191,7 @@ function Request({ updating, request, onRequest = console.log, ...props }) {
 
   const request_onClick = () => {
     const args = {
-      project: props.project,
-      dataset: props.dataset,
+      asset: request.asset.name,
       id: request.id,
       message: state.message
     }
@@ -249,41 +245,50 @@ function TimelineItem({ event }) {
     </Timeline.Item>;
 }
 
-function DataAccessRequest({ project, dataset, request, updating, onGrant, onReject, onRequest, onWithdraw }) {
-  const statusColors = {
-    "requested": "orange",
-    "rejected": "red",
-    "granted": "green",
-    "withdrawn": "cyan",
-    "expired": "violet"
-  }
-
+function DataAccessRequest({ request, updating, onGrant, onReject, onRequest, onWithdraw }) {
   const initial = _.last(request.events);
 
   return <>
     <Form>  
       <FlexboxGrid align="middle">
-        <FlexboxGridItem colspan={ 16 }>
+        <FlexboxGridItem colspan={ 20 }>
           <FormGroup style={{ marginBottom: 0 }}>
-            <HelpBlock>Data Access Request from</HelpBlock>
-            <h3 style={{ marginBottom: "10px" }}>{ request.origin.title } <span className="mq--sub">#{ request.id }</span></h3>
-
-            <ButtonToolbar>
-              <Button color={ statusColors[request.status] }>{ _.capitalize(request.status) }</Button>
-              <Button>
-                <b>{ initial.created.by }</b> opened this request on { new Date(initial.created.at).toLocaleDateString() } &middot; { request.events.length - 1 } interactions
-              </Button>
-            </ButtonToolbar>
+            <HelpBlock>Requesting project</HelpBlock>
+            <h3 style={{ marginBottom: "10px" }}>{ request.project.title }</h3>
           </FormGroup>
         </FlexboxGridItem>
-        <FlexboxGridItem colspan={ 8 }>
-          <ButtonToolbar>
-            <Button appearance="ghost">View Access Logs</Button>
-            <Button appearance="primary" href={ `/${request.origin.name}` } target="_blank">View Project</Button>
+        <FlexboxGridItem colspan={ 4 }>
+          <ButtonToolbar style={{ textAlign: "right" }}>
+            <Button appearance="primary" href={ `/${request.project.name}` } target="_blank">View project</Button>
           </ButtonToolbar>
         </FlexboxGridItem>
-        <FlexboxGridItem colspan={ 24 }>
-          <hr />
+
+        <FlexboxGridItem colspan={ 20 } style={{ marginTop: "30px" }}>
+          <FormGroup style={{ marginBottom: 0 }}>
+            <HelpBlock>Requested asset</HelpBlock>
+            <h3 style={{ marginBottom: "10px" }}>{ request.asset.title }</h3>
+          </FormGroup>
+        </FlexboxGridItem>
+        <FlexboxGridItem colspan={ 4 } style={{ marginTop: "30px" }}>
+          <ButtonToolbar style={{ textAlign: "right" }}>
+            <Button appearance="primary" href={ `/${request.project.name}` } target="_blank">View asset</Button>
+          </ButtonToolbar>
+        </FlexboxGridItem>
+
+        <FlexboxGridItem colspan={ 20 } style={{ marginTop: "30px" }}>
+          <FormGroup style={{ marginBottom: 0 }}>
+            <HelpBlock>Status</HelpBlock>
+            <h3 style={{ marginBottom: "10px" }}>{ _.capitalize(request.status) }</h3>
+          </FormGroup>
+        </FlexboxGridItem>
+        <FlexboxGridItem colspan={ 4 } style={{ marginTop: "30px" }}>
+          <ButtonToolbar style={{ textAlign: "right" }}>
+            
+          </ButtonToolbar>
+        </FlexboxGridItem>
+
+
+        <FlexboxGridItem colspan={ 24 } style={{ marginTop: "30px" }}>
           <FormGroup>
             <HelpBlock>Initial reason for accessing the data</HelpBlock>
             <p className="mq--p-leading">
@@ -297,8 +302,6 @@ function DataAccessRequest({ project, dataset, request, updating, onGrant, onRej
             { _.map(request.actions, action => <Action 
               key={ action } 
               action={ action } 
-              project={ project } 
-              dataset={ dataset } 
               request={ request }
               updating={ updating }
               onGrant={ onGrant }

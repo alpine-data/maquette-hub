@@ -13,6 +13,7 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.access.DataAccessRequestStatus;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.data.DataVisibility;
@@ -21,11 +22,13 @@ import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetCompanion extends ServiceCompanion {
@@ -186,7 +189,14 @@ public final class DatasetCompanion extends ServiceCompanion {
       return dataset
          .getProperties()
          .thenCompose(properties -> {
-            var membersCS = dataset.members().getMembers();
+            var membersCS = dataset
+               .members()
+               .getMembers()
+               .thenApply(members -> members
+               .stream()
+               .sorted(Comparator.comparing(granted -> granted.getAuthorization().getName()))
+               .collect(Collectors.toList()));
+
             var versionsCS = dataset.revisions().getVersions();
 
             var accessRequestsCS = dataset

@@ -8,6 +8,7 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.user.User;
@@ -22,7 +23,7 @@ public final class GrantDatasetAccessCommand implements Command {
 
    String dataset;
 
-   String name;
+   Authorization authorization;
 
    DataAssetMemberRole role;
 
@@ -30,21 +31,19 @@ public final class GrantDatasetAccessCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(name) || name.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`name` must be supplied"));
+      } else if (Objects.isNull(authorization)) {
+         return CompletableFuture.failedFuture(new RuntimeException("`authorization` must be supplied"));
       }
-
-      var auth = UserAuthorization.apply(name);
 
       return services
          .getDatasetServices()
-         .grantDatasetMember(user, dataset, auth, role)
+         .grantDatasetMember(user, dataset, authorization, role)
          .thenApply(done -> MessageResult.apply("Successfully granted ownership."));
    }
 
    @Override
    public Command example() {
-      return apply("user", "edgar", DataAssetMemberRole.OWNER);
+      return apply("dataset", UserAuthorization.apply("edgar"), DataAssetMemberRole.OWNER);
    }
 
 }

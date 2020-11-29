@@ -18,4 +18,9 @@ public class WildcardAuthorization implements Authorization {
         return "*";
     }
 
+    @Override
+    public String getName() {
+        return "*";
+    }
+
 }

@@ -65,7 +65,13 @@ public class DatasetServicesSecured implements DatasetServices {
             return Operators
                .compose(isMemberCS, isSubscribedCS, isOwnerCS, (isMember, isSubscribed, isOwner) -> {
                   if (isOwner) {
-                     return CompletableFuture.completedFuture(ds);
+                     var requests = ds
+                        .getAccessRequests()
+                        .stream()
+                        .map(request -> request.withCanGrant(true))
+                        .collect(Collectors.toList());
+
+                     return CompletableFuture.completedFuture(ds.withAccessRequests(requests));
                   } else {
                      return Operators
                         .allOf(ds
@@ -76,6 +82,7 @@ public class DatasetServicesSecured implements DatasetServices {
                            .stream()
                            .filter(Optional::isPresent)
                            .map(Optional::get)
+                           .map(request -> request.withCanRequest(true))
                            .collect(Collectors.toList()))
                         .thenApply(ds::withAccessRequests);
                   }

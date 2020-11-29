@@ -6,6 +6,7 @@
 
 import _ from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import Container from '../Container';
@@ -13,6 +14,8 @@ import Container from '../Container';
 import Background from '../../resources/datashop-background.png';
 import { Button, ButtonToolbar, FlexboxGrid, Message, Nav, Tag } from 'rsuite';
 import { Link } from 'react-router-dom';
+
+import DataAccessRequest from '../DataAccessRequest';
 import DataAccessRequestsList from '../DataAccessRequestsList';
 
 const NavTag = styled(Tag)`
@@ -154,11 +157,36 @@ function Owner(props) {
   }
 }
 
+function Request({ id, ...props }) {
+  const requests = _.get(props, 'dataset.data.dataset.accessRequests');
+  const updating = _.get(props, 'dataset.updating');
+  const request = _.find(requests, r => r.id == id);
+
+  if (request) {
+    return <Container lg background={ Background } className="mq--main-content">
+        <DataAccessRequest 
+          updating={ updating }
+          onGrant={ props.onGrant }
+          onReject={ props.onReject }
+          onRequest={ props.onRequest }
+          onWithdraw={ props.onWithdraw }
+          request={ request } />
+      </Container>;
+  } else {
+    return <Container md background={ Background } className="mq--main-content">
+      <h4>Access Request #{id} not found</h4>
+    </Container>;
+  }
+}
+
 function DataAccessRequests(props) {
+  const id = _.get(props, 'match.params.id');
   const isPublic = _.get(props, 'dataset.data.dataset.classification') == 'public';
   const isOwner = _.get(props, 'dataset.data.isOwner');
 
-  if (isOwner) {
+  if (id) {
+    return <Request { ...props } id={ id } />
+  } else if (isOwner) {
     return <Owner { ...props } />;
   } else if (isPublic) {
     return <PublicConsumer { ...props } />;
@@ -167,6 +195,18 @@ function DataAccessRequests(props) {
   }
 }
 
-DataAccessRequests.propTypes = {};
+DataAccessRequests.propTypes = {
+  onGrant: PropTypes.func,
+  onReject: PropTypes.func,
+  onRequest: PropTypes.func,
+  onWithdraw: PropTypes.func
+};
+
+DataAccessRequest.defaultProps = {
+  onGrant: console.log,
+  onReject: console.log,
+  onRequest: console.log,
+  onWithdraw: console.log
+}
 
 export default DataAccessRequests;

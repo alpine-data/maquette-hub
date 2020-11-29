@@ -84,7 +84,7 @@ public final class DatasetServicesImpl implements DatasetServices {
    public CompletionStage<Done> revokeDatasetMember(User executor, String dataset, Authorization member) {
       return datasets
          .getDatasetByName(dataset)
-         .thenCompose(ds -> ds.members().removeOwner(executor, member));
+         .thenCompose(ds -> ds.members().removeMember(executor, member));
    }
 
    @Override

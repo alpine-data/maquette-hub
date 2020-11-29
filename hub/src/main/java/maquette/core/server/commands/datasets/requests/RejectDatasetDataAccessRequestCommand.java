@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class RejectDatasetDataAccessRequestCommand implements Command {
 
-   String dataset;
+   String asset;
 
    UID id;
 
@@ -29,8 +29,8 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
+      if (Objects.isNull(asset) || asset.length() == 0) {
+         return CompletableFuture.failedFuture(new RuntimeException("`asset` must be supplied"));
       } else if (Objects.isNull(id)) {
          return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
       }
@@ -39,7 +39,7 @@ public class RejectDatasetDataAccessRequestCommand implements Command {
 
       return services
          .getDatasetServices()
-         .rejectDataAccessRequest(user, dataset, id, reason)
+         .rejectDataAccessRequest(user, asset, id, reason)
          .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
    }
 

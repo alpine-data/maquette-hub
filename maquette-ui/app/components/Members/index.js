@@ -7,16 +7,17 @@ import _ from 'lodash';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { AutoComplete, Button, Icon, SelectPicker, Table } from 'rsuite';
-// import styled from 'styled-components';
 
-function Members({ roles, members, users = [], groups = [], title="Manage members", onRoleChanged = console.log, onMemberAdded = console.log, onMemberRemoved=console.log }) {
+function Members({ roles, members, users, groups, title, onGrant, onRevoke }) {
   const [authType, setAuthType] = useState('user');
   const [authId, setAuthId] = useState('');
-  const [authRole, setAuthRole] = useState(roles[0].value);
+  const [authRole, setAuthRole] = useState(_.size(roles) > 0 && roles[0].value || '');
 
   const newMemberData = [{
-    type: authType,
-    id: authId,
+    authorization: {
+      type: authType,
+      name: authId,
+    },
     role: authRole
   }]
 
@@ -29,8 +30,8 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
             {
               row => {
                 return <>
-                  <span className="mq--sub">{ _.capitalize(row.type) }</span><br />
-                  { row.name || row.id }
+                  <span className="mq--sub">{ _.capitalize(row.authorization.type) }</span><br />
+                  { row.authorization.name }
                 </>
               }
             }
@@ -47,7 +48,7 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
                   cleanable={ false } 
                   data={ roles } 
                   value={ row["role"] }
-                  onSelect={ value => onRoleChanged(row.type, row.id, value) } />
+                  onSelect={ value => onGrant({ authorization: row.authorization, role: value }) } />
               }
             }
           </Table.Cell>
@@ -59,7 +60,7 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
             { 
               row => {
                 return <>
-                    <Button color="red" size="sm" onClick={ () => onMemberRemoved(row.type, row.id) }><Icon icon="trash-o" /></Button>
+                    <Button color="red" size="sm" onClick={ () => onRevoke({ authorization: row.authorization }) }><Icon icon="trash-o" /></Button>
                   </>;
               }
             }
@@ -86,7 +87,7 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
                       value: "role"
                     }
                   ] }
-                  value={ row['type'] }
+                  value={ row.authorization.type }
                   onSelect={ type => setAuthType(type) } />
               }
             }
@@ -98,9 +99,9 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
             {
               row => {
                 return <AutoComplete 
-                  data={ row['type'] == 'user' && users || groups }
-                  value={ row['id'] }
-                  onChange={ id => setAuthId(id) } />
+                  data={ row.authorization.type == 'user' && users || groups }
+                  value={ row.authorization.name }
+                  onChange={ name => setAuthId(name) } />
               }
             }
           </Table.Cell>
@@ -114,7 +115,7 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
                   block 
                   cleanable={ false } 
                   data={ roles } 
-                  value={ row["role"] }
+                  value={ row.role }
                   onSelect={ role => setAuthRole(role) } />
               }
             }
@@ -128,12 +129,9 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
                 return <>
                     <Button 
                       color="green" 
-                      disabled={ row.id.length == 0 }
+                      disabled={ row.authorization.name.length == 0 }
                       size="sm" 
-                      onClick={ () => {
-                        setAuthId('');
-                        onMemberAdded(row.type, row.id, row.role);
-                      } }><Icon icon="plus" /></Button>
+                      onClick={ () => { onGrant(row) } }><Icon icon="plus" /></Button>
                   </>;
               }
             }
@@ -145,9 +143,10 @@ function Members({ roles, members, users = [], groups = [], title="Manage member
 
 Members.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    name: PropTypes.string,
+    authorization: PropTypes.shape({
+      type: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired
+    }),
     role: PropTypes.string.isRequired
   })),
 
@@ -160,9 +159,19 @@ Members.propTypes = {
   groups: PropTypes.arrayOf(PropTypes.string),
   title: PropTypes.string,
 
-  onRoleChanged: PropTypes.func,
-  onMemberRemoved: PropTypes.func,
-  onMemberAdded: PropTypes.func
+  onGrant: PropTypes.func,
+  onRevoke: PropTypes.func
 };
+
+Members.defaultProps = {
+  members: [],
+  roles: [],
+  users: [ 'alice', 'bob', 'clair' ],
+  groups: [],
+  title: "Manage members",
+
+  onGrant: console.log,
+  onRevoke: console.log
+}
 
 export default Members;

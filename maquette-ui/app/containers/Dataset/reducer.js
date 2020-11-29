@@ -21,16 +21,18 @@ const datasetReducer = (state = initialState, action) =>
     switch (action.type) {
       case LOAD:
         draft.keys = action;
-        draft.loading = true;
         draft.error = false;
 
         if (action.dataset != state.keys.dataset) {
           draft.version = initialState.version;
         }
 
-        if (action.clear) {
+        if (action.clear || !draft.data) {
+          draft.loading = true;
           draft.version = initialState.version;
           draft.data = false;
+        } else {
+          draft.updating = true;
         }
 
         break;

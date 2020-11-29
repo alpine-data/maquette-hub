@@ -47,6 +47,12 @@ public class DataAccessRequest {
    @JsonProperty(EVENTS)
    List<DataAccessRequestEvent> events;
 
+   @JsonProperty(CAN_GRANT)
+   boolean canGrant;
+
+   @JsonProperty(CAN_REQUEST)
+   boolean canRequest;
+
    @JsonCreator
    public static DataAccessRequest apply(
       @JsonProperty(ID) UID id,
@@ -64,11 +70,11 @@ public class DataAccessRequest {
          .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
          .collect(Collectors.toList());
 
-      return new DataAccessRequest(id, created, asset, project, eventsCopy);
+      return new DataAccessRequest(id, created, asset, project, eventsCopy, false, false);
    }
 
    @JsonProperty("actions")
-   public Set<DataAccessRequestAction> getActions(boolean canGrant, boolean canRequest) {
+   public Set<DataAccessRequestAction> getActions() {
       return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
    }
 

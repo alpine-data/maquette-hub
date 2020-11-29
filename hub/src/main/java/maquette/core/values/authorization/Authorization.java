@@ -21,4 +21,6 @@ public interface Authorization {
     @JsonIgnore
     String getKey();
 
+    String getName();
+
 }

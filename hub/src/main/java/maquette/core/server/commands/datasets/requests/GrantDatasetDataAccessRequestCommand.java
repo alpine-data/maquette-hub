@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GrantDatasetDataAccessRequestCommand implements Command {
 
-   String dataset;
+   String asset;
 
    UID id;
 
@@ -32,17 +32,17 @@ public class GrantDatasetDataAccessRequestCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
+      if (Objects.isNull(asset) || asset.length() == 0) {
+         return CompletableFuture.failedFuture(new RuntimeException("`asset` must be supplied"));
       } else if (Objects.isNull(id)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`access-request-id` must be supplied"));
+         return CompletableFuture.failedFuture(new RuntimeException("`id` must be supplied"));
       }
 
       // TODO mw: Better validation process
 
       return services
          .getDatasetServices()
-         .grantDataAccessRequest(user, dataset, id, until, message)
+         .grantDataAccessRequest(user, asset, id, until, message)
          .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
    }
 

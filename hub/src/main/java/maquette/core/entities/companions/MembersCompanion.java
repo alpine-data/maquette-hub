@@ -10,6 +10,7 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -45,8 +46,12 @@ public final class MembersCompanion<T extends Enum<T>> {
       return repository.findAllMembers(id);
    }
 
-   public CompletionStage<Done> removeOwner(User executor, Authorization member) {
+   public CompletionStage<Done> removeMember(User executor, Authorization member) {
       return repository.removeMember(id, member);
+   }
+
+   public static class RemoveMemberException extends RuntimeException implements DomainException {
+
    }
 
 }

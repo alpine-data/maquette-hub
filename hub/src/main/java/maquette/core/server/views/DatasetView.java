@@ -15,6 +15,10 @@ public class DatasetView implements CommandResult {
 
    Dataset dataset;
 
+   boolean canAccessData;
+
    boolean isOwner;
+
+   boolean isMember;
 
 }
