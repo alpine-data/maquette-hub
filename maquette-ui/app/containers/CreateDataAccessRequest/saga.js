@@ -24,7 +24,7 @@ export function* onSubmit(action) {
     const data = yield call(command, 'datasets access-requests create', action.request, user);
 
     yield put(submit_success(data));
-    yield put(push(`/shop/datasets/${action.request.dataset}`));
+    yield put(push(`/shop/datasets/${action.request.dataset}/access-requests`));
   } catch (err) {
     yield put(submit_failed(err));
   }
