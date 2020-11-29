@@ -9,7 +9,8 @@ import {
   UPDATE,
   FAILED,
   FETCHED,
-  SELECT_VERSION } from './constants';
+  SELECT_VERSION,
+  DISMISS_ERROR } from './constants';
 
 export function load(dataset, clear = false) {
   return {
@@ -45,5 +46,11 @@ export function selectVersion(version) {
   return {
     type: SELECT_VERSION,
     version
+  };
+};
+
+export function dismissError() {
+  return {
+    type: DISMISS_ERROR
   };
 };

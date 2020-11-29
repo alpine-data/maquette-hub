@@ -16,7 +16,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectDataset from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { load, update, selectVersion } from './actions';
+import { load, update, selectVersion, dismissError } from './actions';
 
 import Container from 'components/Container';
 import DataAccessRequests from '../../components/DataAccessRequests';
@@ -30,6 +30,7 @@ import { Nav, FlexboxGrid, Affix } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 import Background from '../../resources/datashop-background.png';
+import ErrorMessage from '../../components/ErrorMessage';
 
 /**
  * Display tab.
@@ -42,6 +43,7 @@ function Display(props) {
 
   const isOwner = _.get(props, 'dataset.data.isOwner');
   const canAccessData = _.get(props, 'dataset.data.canAccessData');
+  const error = _.get(props, 'dataset.error');
 
   const onUpdate = (values) => {
     const current = _.pick(
@@ -102,6 +104,10 @@ function Display(props) {
         </Nav>
       </div>
     </Affix>
+
+    {
+      error && <ErrorMessage title="An error occurred saving the changes" message={ error } onDismiss={ () => props.dispatch(dismissError()) } />
+    }
 
     { 
       tab == 'overview' && <>

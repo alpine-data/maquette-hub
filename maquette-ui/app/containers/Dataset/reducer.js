@@ -4,7 +4,7 @@
  *
  */
 import produce from 'immer';
-import { LOAD, UPDATE, FETCHED, FAILED, SELECT_VERSION } from './constants';
+import { LOAD, UPDATE, FETCHED, FAILED, SELECT_VERSION, DISMISS_ERROR } from './constants';
 
 export const initialState = {
   keys: {},
@@ -45,6 +45,7 @@ const datasetReducer = (state = initialState, action) =>
         draft.loading = false;
         draft.updating = false;
         draft.error = _.get(action, 'error.response.message') || 'Sorry, some error has occurred.';
+        window.scrollTo(0, 0);
         break;
 
       case FETCHED:
@@ -55,7 +56,11 @@ const datasetReducer = (state = initialState, action) =>
 
       case SELECT_VERSION:
         draft.version = action.version;
-        break;    
+        break;  
+        
+      case DISMISS_ERROR:
+        draft.error = false;
+        break;
     }
   });
 
