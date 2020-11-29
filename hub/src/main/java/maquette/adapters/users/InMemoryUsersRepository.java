@@ -3,12 +3,10 @@ package maquette.adapters.users;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.adapters.datasets.InMemoryDatasetsRepository;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.ports.UsersRepository;
 import org.apache.commons.compress.utils.Lists;
 
-import javax.mail.Store;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class InMemoryUsersRepository implements UsersRepository {
 
-   private List<StoredUserNotification> notifications;
+   private final List<StoredUserNotification> notifications;
 
    public static InMemoryUsersRepository apply() {
       return apply(Lists.newArrayList());

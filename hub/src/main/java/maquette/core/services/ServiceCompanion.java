@@ -2,6 +2,8 @@ package maquette.core.services;
 
 import akka.Done;
 import maquette.core.values.exceptions.NotAuthorizedException;
+import maquette.core.values.user.AuthenticatedUser;
+import maquette.core.values.user.User;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,9 +33,21 @@ public class ServiceCompanion {
       }
    }
 
+   public final <T> CompletionStage<Optional<T>> filterAuthenticatedUser(T passThrough, User user) {
+      if (user instanceof AuthenticatedUser) {
+         return CompletableFuture.completedFuture(Optional.of(passThrough));
+      } else {
+         return CompletableFuture.completedFuture(Optional.empty());
+      }
+   }
+
    @SafeVarargs
    public final CompletionStage<Boolean> isAuthorized(Supplier<CompletionStage<Boolean>>... checks) {
       return filterAuthorized(Done.getInstance(), checks).thenApply(Optional::isPresent);
+   }
+
+   public final CompletionStage<Boolean> isAuthenticatedUser(User user) {
+      return filterAuthenticatedUser(Done.getInstance(), user).thenApply(Optional::isPresent);
    }
 
    @SafeVarargs

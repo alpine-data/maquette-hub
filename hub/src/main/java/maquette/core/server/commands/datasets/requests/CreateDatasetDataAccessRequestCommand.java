@@ -9,7 +9,6 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.exceptions.ProjectNotFoundException;
 import maquette.core.values.user.User;
 
 import java.util.Objects;
@@ -21,8 +20,6 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDatasetDataAccessRequestCommand implements Command {
 
-   String project;
-
    String dataset;
 
    String origin;
@@ -31,9 +28,7 @@ public class CreateDatasetDataAccessRequestCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       } else if (Objects.isNull(origin) || origin.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`origin` must be supplied"));
@@ -41,17 +36,14 @@ public class CreateDatasetDataAccessRequestCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`reason` must be supplied"));
       }
 
-      // TODO mw: Better validation process
-      return CompletableFuture.failedFuture(ProjectNotFoundException.applyFromName("Hello"));
-/*
       return services
          .getDatasetServices()
-         .createDataAccessRequest(user, project, dataset, origin, reason)
-         .thenApply(DataResult::apply);*/
+         .createDataAccessRequest(user, dataset, origin, reason)
+         .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return CreateDatasetDataAccessRequestCommand.apply("my-funny-project", "my-funny-dataset", "some-other-project", "Because he wants to.");
+      return CreateDatasetDataAccessRequestCommand.apply("my-funny-dataset", "some-other-project", "Because he wants to.");
    }
 }

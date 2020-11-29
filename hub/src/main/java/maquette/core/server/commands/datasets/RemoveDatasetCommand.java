@@ -19,27 +19,23 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class RemoveDatasetCommand implements Command {
-
-   String project;
-
    String dataset;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       }
 
       return services
          .getDatasetServices()
-         .deleteDataset(user, project, dataset)
-         .thenApply(pid -> MessageResult.apply("Successfully removed dataset `%s/%s` and all related resources.", project, dataset));
+         .deleteDataset(user, dataset)
+         .thenApply(pid -> MessageResult.apply("Successfully removed dataset `%s` and all related resources.", dataset));
    }
 
    @Override
    public Command example() {
-      return RemoveDatasetCommand.apply("my-funny-project", "some-funny-dataset");
+      return RemoveDatasetCommand.apply("some-funny-dataset");
    }
+
 }

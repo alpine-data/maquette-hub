@@ -1,7 +1,8 @@
 package maquette.core.services.projects;
 
 import akka.Done;
-import maquette.core.entities.projects.model.ProjectDetails;
+import maquette.core.entities.projects.model.Project;
+import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
@@ -18,11 +19,9 @@ public interface ProjectServices {
 
     CompletionStage<Map<String, String>> environment(User user, String name);
 
-    CompletionStage<List<DataAssetProperties>> getDataAssets(User user, String projectName);
-
     CompletionStage<List<ProjectProperties>> list(User user);
 
-    CompletionStage<ProjectDetails> get(User user, String name);
+    CompletionStage<Project> get(User user, String name);
 
     CompletionStage<Done> remove(User user, String name);
 
@@ -31,7 +30,7 @@ public interface ProjectServices {
     /*
      * Manage members
      */
-    CompletionStage<GrantedAuthorization> grant(User user, String name, Authorization authorization);
+    CompletionStage<Done> grant(User user, String name, Authorization authorization, ProjectMemberRole role);
 
     CompletionStage<Done> revoke(User user, String name, Authorization authorization);
 

@@ -89,7 +89,7 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
 
    @Override
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
-      return DeploymentConfigs.sample(project.getId(), sandbox.getId());
+      return DeploymentConfigs.sample(project.getId().getValue(), sandbox.getId().getValue());
    }
 
    @Override

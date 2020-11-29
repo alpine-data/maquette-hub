@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
-import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -21,36 +20,21 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class DatasetViewCommand implements Command {
 
-   String project;
-
    String dataset;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       }
 
-      var datasetCS = services
+      return services
          .getDatasetServices()
-         .getDataset(user, project, this.dataset);
-
-      var projectCS = services
-         .getProjectServices()
-         .get(user, this.project);
-
-      var versionsCS = services
-         .getDatasetServices()
-         .getVersions(user, this.project, this.dataset);
-
-      return Operators.compose(projectCS, datasetCS, versionsCS, (project, dataset, versions) -> {
-         var isProjectMember = project.isMember(user);
-         var isDatasetOwner = dataset.isOwner(user);
-
-         return DatasetView.apply(project, dataset, versions, isProjectMember, isDatasetOwner);
-      });
+         .getDataset(user, dataset)
+         .thenApply(dataset -> {
+            var isDatasetOwner = dataset.isMember(user);
+            return DatasetView.apply(dataset, isDatasetOwner);
+         });
    }
 
    @Override

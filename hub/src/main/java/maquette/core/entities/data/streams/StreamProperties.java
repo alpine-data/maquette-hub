@@ -3,6 +3,7 @@ package maquette.core.entities.data.streams;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.data.DataVisibility;
@@ -12,7 +13,7 @@ import maquette.core.values.data.PersonalInformation;
 @AllArgsConstructor(staticName = "apply")
 public class StreamProperties implements DataAssetProperties {
 
-   String id;
+   UID id;
 
    String title;
 

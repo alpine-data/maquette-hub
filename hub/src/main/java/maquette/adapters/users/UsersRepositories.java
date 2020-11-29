@@ -1,10 +1,6 @@
 package maquette.adapters.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import maquette.adapters.projects.FileSystemProjectsRepository;
-import maquette.adapters.projects.InMemoryProjectsRepository;
-import maquette.adapters.projects.ProjectsRepositoryConfiguration;
-import maquette.core.ports.ProjectsRepository;
 import maquette.core.ports.UsersRepository;
 
 public final class UsersRepositories {

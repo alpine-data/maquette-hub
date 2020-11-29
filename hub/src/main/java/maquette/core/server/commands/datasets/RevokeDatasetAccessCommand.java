@@ -19,17 +19,13 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class RevokeDatasetAccessCommand implements Command {
 
-   String project;
-
    String dataset;
 
    String name;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       } else if (Objects.isNull(name) || name.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`name` must be supplied"));
@@ -39,13 +35,13 @@ public final class RevokeDatasetAccessCommand implements Command {
 
       return services
          .getDatasetServices()
-         .revokeDatasetOwner(user, project, dataset, auth)
+         .revokeDatasetMember(user,dataset, auth)
          .thenApply(done -> MessageResult.apply("Successfully revoked ownership."));
    }
 
    @Override
    public Command example() {
-      return apply("some-project", "user", "edgar");
+      return apply("user", "edgar");
    }
 
 }

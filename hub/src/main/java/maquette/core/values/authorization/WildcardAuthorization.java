@@ -9,8 +9,13 @@ import maquette.core.values.user.User;
 public class WildcardAuthorization implements Authorization {
 
     @Override
-    public boolean isAuthorized(User user) {
+    public boolean authorizes(User user) {
         return true;
+    }
+
+    @Override
+    public String getKey() {
+        return "*";
     }
 
 }

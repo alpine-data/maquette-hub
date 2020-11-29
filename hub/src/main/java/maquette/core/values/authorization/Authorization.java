@@ -1,5 +1,6 @@
 package maquette.core.values.authorization;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.values.user.User;
@@ -15,6 +16,9 @@ import maquette.core.values.user.User;
    })
 public interface Authorization {
 
-    boolean isAuthorized(User user);
+    boolean authorizes(User user);
+
+    @JsonIgnore
+    String getKey();
 
 }

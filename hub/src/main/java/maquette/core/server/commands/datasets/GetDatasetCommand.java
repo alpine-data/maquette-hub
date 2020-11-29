@@ -20,27 +20,23 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetDatasetCommand implements Command {
 
-   String project;
-
    String dataset;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       }
 
       return services
          .getDatasetServices()
-         .getDataset(user, project, dataset)
+         .getDataset(user, dataset)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return GetDatasetCommand.apply("my-funny-project", "my-dataset");
+      return GetDatasetCommand.apply("my-dataset");
    }
 
 }

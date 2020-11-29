@@ -2,7 +2,7 @@ package maquette.core.services.users;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.projects.Projects;
+import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.values.user.User;
@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class UserServicesImpl implements UserServices {
 
-   private final Projects projects;
+   private final ProjectEntities projects;
 
    private final UserCompanion companion;
 

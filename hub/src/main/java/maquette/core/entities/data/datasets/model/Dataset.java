@@ -1,33 +1,31 @@
 package maquette.core.entities.data.datasets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
+import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessToken;
-import maquette.core.values.authorization.UserAuthorization;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
-import maquette.core.values.user.User;
+import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.data.*;
 
 import java.util.List;
 
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class DatasetDetails {
+public class Dataset implements DataAsset {
 
-   String id;
+   UID id;
 
    String title;
 
    String name;
 
    String summary;
-
-   String description;
 
    DataVisibility visibility;
 
@@ -39,16 +37,18 @@ public class DatasetDetails {
 
    ActionMetadata updated;
 
-   List<UserAuthorization> owners;
+   List<GrantedAuthorization<DataAssetMemberRole>> members;
 
    List<DataAccessRequest> accessRequests;
 
    List<DataAccessToken> accessTokens;
 
-   public boolean isOwner(User user) {
-      return owners
-         .stream()
-         .anyMatch(auth -> auth.isAuthorized(user));
+   List<CommittedRevision> versions;
+
+   @JsonIgnore
+   public DatasetProperties getProperties() {
+      return DatasetProperties.apply(
+         id, title, name, summary, visibility, classification, personalInformation, created, updated);
    }
 
 }

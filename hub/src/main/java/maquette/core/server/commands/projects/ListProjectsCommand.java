@@ -33,7 +33,7 @@ public final class ListProjectsCommand implements Command {
 
             projects.forEach(p -> {
                var row = table.appendRow();
-               row.setString("id", p.getId());
+               row.setString("id", p.getId().getValue());
                row.setString("title", p.getTitle());
                row.setString("name", p.getName());
                row.setDateTime("modified", LocalDateTime.ofInstant(p.getModified().getAt(), ZoneId.systemDefault()));

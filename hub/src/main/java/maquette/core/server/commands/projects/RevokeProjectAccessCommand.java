@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.results.DataResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.authorization.Authorizations;

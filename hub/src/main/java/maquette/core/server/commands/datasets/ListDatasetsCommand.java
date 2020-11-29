@@ -12,25 +12,17 @@ import maquette.core.values.user.User;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class ListDatasetsCommand implements Command {
-
-   private final String project;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      }
 
       return services
          .getDatasetServices()
-         .getDatasets(user, project)
+         .getDatasets(user)
          .thenApply(datasets -> {
             var table = Table
                .create()
@@ -55,7 +47,7 @@ public final class ListDatasetsCommand implements Command {
 
    @Override
    public Command example() {
-      return ListDatasetsCommand.apply("some-project");
+      return ListDatasetsCommand.apply();
    }
 
 }

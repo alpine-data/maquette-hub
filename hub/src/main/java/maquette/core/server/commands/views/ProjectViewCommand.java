@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
-import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -29,30 +28,13 @@ public class ProjectViewCommand implements Command {
          return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
       }
 
-      var projectCS = services
+      return services
          .getProjectServices()
-         .get(user, project);
-
-      var assetsCS = services
-         .getProjectServices()
-         .getDataAssets(user, project);
-
-      var sandboxesCS = services
-         .getSandboxServices()
-         .getSandboxes(user, project);
-
-      var stacksCS = services
-         .getSandboxServices()
-         .getStacks(user);
-
-      return Operators.compose(projectCS, assetsCS, sandboxesCS, stacksCS, (project, assets, sandboxes, stacks) -> {
-         var isMember = project
-            .getAuthorizations()
-            .stream()
-            .anyMatch(auth -> auth.getAuthorization().isAuthorized(user));
-
-         return ProjectView.apply(project, assets, sandboxes, stacks, isMember);
-      });
+         .get(user, project)
+         .thenApply(project -> {
+            var isMember = project.isMember(user);
+            return ProjectView.apply(project, isMember);
+         });
    }
 
    @Override

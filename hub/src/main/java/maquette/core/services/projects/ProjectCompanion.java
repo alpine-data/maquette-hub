@@ -2,30 +2,29 @@ package maquette.core.services.projects;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.common.Operators;
-import maquette.core.entities.data.datasets.Dataset;
-import maquette.core.entities.data.datasets.Datasets;
+import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.projects.Project;
-import maquette.core.entities.projects.Projects;
+import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.entities.projects.model.ProjectMemberRole;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.services.ServiceCompanion;
+import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestDetails;
-import maquette.core.values.exceptions.NotAuthorizedException;
-import maquette.core.values.exceptions.ProjectNotFoundException;
+import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ProjectCompanion extends ServiceCompanion {
 
-   Projects projects;
+   ProjectEntities projects;
 
-   Datasets datasets;
+   DatasetEntities datasets;
 
    public DeploymentConfig createProjectBaseDeployment(String projectId) {
       var postgresContainerCfg = ContainerConfig
@@ -51,49 +50,19 @@ public final class ProjectCompanion extends ServiceCompanion {
          .build();
    }
 
-   public CompletionStage<Project> withProject(String name) {
-      return projects
-         .findProjectByName(name)
-         .thenApply(maybeProject -> {
-            if (maybeProject.isPresent()) {
-               return maybeProject.get();
-            } else {
-               throw ProjectNotFoundException.applyFromName(name);
-            }
-         });
-   }
-
-   public CompletionStage<Optional<DataAccessRequestDetails>> mapDataAccessRequestToDetails(Project originProject, DataAccessRequest request) {
-      var projectPropertiesCS = projects
-         .getProjectById(request.getTargetProjectId())
-         .thenCompose(Project::getProperties);
-      var datasetPropertiesCS = datasets
-         .getDatasetById(request.getTargetProjectId(), request.getTargetId())
-         .thenCompose(Dataset::getProperties);
-      var originPropertiesCS = originProject.getProperties();
-
-      return Operators.compose(
-         projectPropertiesCS, datasetPropertiesCS, originPropertiesCS,
-         (targetProjectProperties, targetDatasetProperties, originProperties) -> {
-            var details = DataAccessRequestDetails.apply(
-               request.getId(),
-               request.getCreated(),
-               targetProjectProperties,
-               targetDatasetProperties,
-               originProperties,
-               request.getEvents(),
-               request.getStatus(),
-               true,
-               true);
-
-            return Optional.of(details);
-         });
+   public CompletionStage<DataAccessRequest> enrichDataAccessRequest(ProjectProperties project, DataAccessRequestProperties request, Function<UID, CompletionStage<DataAssetProperties>> findAsset) {
+      return findAsset
+         .apply(request.getAsset())
+         .thenApply(asset -> DataAccessRequest.apply(request.getId(), request.getCreated(), asset, project, request.getEvents()));
    }
 
    public <T> CompletionStage<Optional<T>> filterMember(User user, String name, T passThrough) {
-      return withProject(name)
-         .thenCompose(Project::getDetails)
-         .thenApply(details -> details.isMember(user))
+      return filterMember(user, name, null, passThrough);
+   }
+
+   public <T> CompletionStage<Optional<T>> filterMember(User user, String name, ProjectMemberRole role, T passThrough) {
+      return projects.getProjectByName(name)
+         .thenCompose(project -> project.isMember(user, role))
          .thenApply(auth -> {
             if (auth) {
                return Optional.of(passThrough);
@@ -104,22 +73,11 @@ public final class ProjectCompanion extends ServiceCompanion {
    }
 
    public CompletionStage<Boolean> isMember(User user, String name) {
-      return filterMember(user, name, Done.getInstance()).thenApply(Optional::isPresent);
+      return isMember(user, name, null);
    }
 
-   public <T> CompletionStage<T> withMembership(User user, String name, Supplier<CompletionStage<T>> action) {
-      return withMembership(user, name, action, String.format("You are not member of the project `%s`", name));
-   }
-
-   public <T> CompletionStage<T> withMembership(User user, String name, Supplier<CompletionStage<T>> action, String notAuthorizedMessage) {
-      return isMember(user, name)
-         .thenCompose(isMember -> {
-            if (isMember) {
-               return action.get();
-            } else {
-               throw NotAuthorizedException.apply(notAuthorizedMessage);
-            }
-         });
+   public CompletionStage<Boolean> isMember(User user, String name, ProjectMemberRole role) {
+      return filterMember(user, name, role, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
 }

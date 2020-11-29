@@ -9,6 +9,7 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.UID;
 import maquette.core.values.user.User;
 
 import java.util.Objects;
@@ -20,21 +21,17 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CommitRevisionCommand implements Command {
 
-   String project;
-
    String dataset;
 
-   String revision;
+   UID revision;
 
    String message;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(dataset) || dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(revision) || revision.length() == 0) {
+      } else if (Objects.isNull(revision)) {
          return CompletableFuture.failedFuture(new RuntimeException("`revision` must be supplied"));
       } else if (Objects.isNull(message) || message.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`message` must be supplied"));
@@ -42,13 +39,12 @@ public class CommitRevisionCommand implements Command {
 
       return services
          .getDatasetServices()
-         .commitRevision(user, project, dataset, revision, message)
+         .commitRevision(user, dataset, revision, message)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      // TODO: Fill with real schema example
-      return CommitRevisionCommand.apply("my-funny-project", "Funny Dataset", "revision", "message");
+      return CommitRevisionCommand.apply("Funny Dataset", UID.apply(), "message");
    }
 }

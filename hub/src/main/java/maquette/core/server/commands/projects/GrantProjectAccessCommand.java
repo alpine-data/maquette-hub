@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;
@@ -24,6 +25,8 @@ public final class GrantProjectAccessCommand implements Command {
 
    String name;
 
+   ProjectMemberRole role;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       if (Objects.isNull(project) || project.length() == 0) {
@@ -34,13 +37,13 @@ public final class GrantProjectAccessCommand implements Command {
 
       return services
          .getProjectServices()
-         .grant(user, project, auth)
+         .grant(user, project, auth, role)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return apply("some-project", "user", "edgar");
+      return apply("some-project", "user", "edgar", ProjectMemberRole.MEMBER);
    }
 
 }

@@ -8,6 +8,7 @@ import maquette.core.entities.data.datasources.DataSourceProperties;
 import maquette.core.entities.data.repositories.RepositoryProperties;
 import maquette.core.entities.data.streams.StreamProperties;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 
 @JsonTypeInfo(
    use = JsonTypeInfo.Id.NAME,
@@ -19,11 +20,10 @@ import maquette.core.values.ActionMetadata;
       @JsonSubTypes.Type(value = StreamProperties.class, name = "stream"),
       @JsonSubTypes.Type(value = DataSourceProperties.class, name = "datasource"),
       @JsonSubTypes.Type(value = RepositoryProperties.class, name = "repository"),
-      @JsonSubTypes.Type(value = LinkedDataAsset.class, name = "linked")
    })
 public interface DataAssetProperties {
 
-   String getId();
+   UID getId();
 
    String getTitle();
 

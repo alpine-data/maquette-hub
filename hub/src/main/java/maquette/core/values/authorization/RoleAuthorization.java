@@ -14,8 +14,13 @@ public class RoleAuthorization implements Authorization {
     String role;
 
     @Override
-    public boolean isAuthorized(User user) {
+    public boolean authorizes(User user) {
         return user.getRoles().stream().anyMatch(roleId -> roleId.equals(this.role));
+    }
+
+    @Override
+    public String getKey() {
+        return "role:" + role;
     }
 
 }

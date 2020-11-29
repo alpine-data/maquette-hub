@@ -6,7 +6,6 @@ import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.commands.datasets.*;
 import maquette.core.server.commands.datasets.data.CommitRevisionCommand;
 import maquette.core.server.commands.datasets.data.CreateRevisionCommand;
-import maquette.core.server.commands.datasets.data.ListDatasetVersionsCommand;
 import maquette.core.server.commands.datasets.requests.*;
 import maquette.core.server.commands.datasets.tokens.CreateDatasetDataAccessTokenCommand;
 import maquette.core.server.commands.datasets.tokens.ListDatasetDataAccessTokensCommand;
@@ -35,7 +34,6 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = GetDatasetCommand.class, name = "datasets get"),
       @JsonSubTypes.Type(value = GetDatasetDataAccessRequestCommand.class, name = "datasets access-requests get"),
       @JsonSubTypes.Type(value = GrantDatasetDataAccessRequestCommand.class, name = "datasets access-requests grant"),
-      @JsonSubTypes.Type(value = ListDatasetDataAccessRequestsCommand.class, name = "datasets access-requests list"),
       @JsonSubTypes.Type(value = RejectDatasetDataAccessRequestCommand.class, name = "datasets access-requests reject"),
       @JsonSubTypes.Type(value = UpdateDatasetDataAccessRequestCommand.class, name = "datasets access-requests update"),
       @JsonSubTypes.Type(value = WithdrawDatasetDataAccessRequestCommand.class, name = "datasets access-requests withdraw"),
@@ -49,14 +47,12 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = RemoveDatasetCommand.class, name = "datasets remove"),
       @JsonSubTypes.Type(value = CommitRevisionCommand.class, name = "datasets revisions commit"),
       @JsonSubTypes.Type(value = CreateRevisionCommand.class, name = "datasets revisions create"),
-      @JsonSubTypes.Type(value = ListDatasetVersionsCommand.class, name = "datasets revisions list"),
       @JsonSubTypes.Type(value = UpdateDatasetPropertiesCommand.class, name = "datasets update"),
 
       // Projects
       @JsonSubTypes.Type(value = CreateProjectCommand.class, name = "projects create"),
       @JsonSubTypes.Type(value = GetProjectCommand.class, name = "projects get"),
       @JsonSubTypes.Type(value = GetProjectEnvironmentCommand.class, name = "projects environment"),
-      @JsonSubTypes.Type(value = ListDataAssetsCommand.class, name = "projects data-assets list"),
       @JsonSubTypes.Type(value = ListProjectsCommand.class, name = "projects list"),
       @JsonSubTypes.Type(value = RemoveProjectCommand.class, name = "projects remove"),
       @JsonSubTypes.Type(value = GrantProjectAccessCommand.class, name = "projects grant"),

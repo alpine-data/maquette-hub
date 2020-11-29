@@ -2,9 +2,10 @@ package maquette.core.server.views;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.projects.model.ProjectDetails;
+import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.server.CommandResult;
+import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetProperties;
 
 import java.util.List;
@@ -13,14 +14,12 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class CreateDataAccessRequestView implements CommandResult {
 
-   ProjectDetails project;
-
-   DataAssetProperties asset;
+   DataAsset asset;
 
    List<ProjectProperties> projects;
 
    boolean isOwner;
 
-   boolean isSubscribe;
+   boolean requiresExplicitApproval;
 
 }

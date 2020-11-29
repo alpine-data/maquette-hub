@@ -2,21 +2,15 @@ package maquette.core.ports;
 
 import akka.Done;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.values.ActionMetadata;
-import maquette.core.values.authorization.Authorization;
-import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.UID;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-public interface ProjectsRepository {
-
-    CompletionStage<Done> addGrantedAuthorization(String projectId, GrantedAuthorization authorization);
-
-    CompletionStage<List<GrantedAuthorization>> getGrantedAuthorizations(String projectId);
-
-    CompletionStage<Done> removeGrantedAuthorization(String projectId, Authorization authorization);
+public interface ProjectsRepository extends HasMembers<ProjectMemberRole> {
 
     /**
      * Search for a project by a given project id.
@@ -24,18 +18,9 @@ public interface ProjectsRepository {
      * @param id The project's unique id
      * @return An optional project-memento; None of no project with id has been found
      */
-    CompletionStage<Optional<ProjectProperties>> findProjectById(String id);
+    CompletionStage<Optional<ProjectProperties>> findProjectById(UID id);
 
     CompletionStage<Optional<ProjectProperties>> findProjectByName(String name);
-
-    /**
-     * Same as {@link ProjectsRepository#findProjectById(String)} except that it will throw
-     * an exception if project is not found.
-     *
-     * @param id The project's unique id
-     * @return The project's memento
-     */
-    CompletionStage<ProjectProperties> getProjectById(String id);
 
     /**
      * Inserts or updates a project in the repository (decision based on id).
@@ -52,8 +37,6 @@ public interface ProjectsRepository {
      */
     CompletionStage<List<ProjectProperties>> getProjects();
 
-    CompletionStage<Done> updateLastModified(String projectId, ActionMetadata modified);
-
-    CompletionStage<Done> removeProject(String projectId);
+    CompletionStage<Done> removeProject(UID project);
 
 }

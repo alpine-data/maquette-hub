@@ -1,56 +1,58 @@
 package maquette.core.values.access;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Value;
 import lombok.With;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
+import maquette.core.values.data.DataAssetProperties;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+@Value
 @With
-@Getter
-@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataAccessRequest {
 
    private static final String ID = "id";
    private static final String CREATED = "created";
-   private static final String ORIGIN = "origin";
+   private static final String PROJECT = "project";
    private static final String EVENTS = "events";
-   private static final String TARGET_PROJECT_ID = "target-project";
-   private static final String TARGET_ID = "target-id";
+   private static final String STATUS = "status";
+   private static final String TARGET_PROJECT = "target-project";
+   private static final String ASSET = "asset";
+   private static final String CAN_GRANT = "can-grant";
+   private static final String CAN_REQUEST = "can-request";
 
    @JsonProperty(ID)
-   private final String id;
+   UID id;
 
    @JsonProperty(CREATED)
-   private final ActionMetadata created;
+   ActionMetadata created;
 
-   @JsonProperty(TARGET_PROJECT_ID)
-   private final String targetProjectId;
+   @JsonProperty(ASSET)
+   DataAssetProperties asset;
 
-   @JsonProperty(TARGET_ID)
-   private final String targetId;
-
-   @JsonProperty(ORIGIN)
-   private final String originProjectId;
+   @JsonProperty(PROJECT)
+   ProjectProperties project;
 
    @JsonProperty(EVENTS)
-   private final List<DataAccessRequestEvent> events;
+   List<DataAccessRequestEvent> events;
 
    @JsonCreator
    public static DataAccessRequest apply(
-      @JsonProperty(ID) String id,
+      @JsonProperty(ID) UID id,
       @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(TARGET_PROJECT_ID) String targetProjectId,
-      @JsonProperty(TARGET_ID) String targetId,
-      @JsonProperty(ORIGIN) String forProject,
+      @JsonProperty(ASSET) DataAssetProperties asset,
+      @JsonProperty(PROJECT) ProjectProperties project,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 
       if (events.isEmpty()) {
@@ -62,46 +64,17 @@ public class DataAccessRequest {
          .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
          .collect(Collectors.toList());
 
-      return new DataAccessRequest(id, created, targetProjectId, targetId, forProject, eventsCopy);
+      return new DataAccessRequest(id, created, asset, project, eventsCopy);
    }
 
-   public static DataAccessRequest apply(
-      String id, ActionMetadata created, String targetProjectId, String targetId, String forProject, String reason) {
-      var requested = Requested.apply(created, reason);
-      return apply(id, created, targetProjectId, targetId, forProject, List.of(requested));
-   }
-
-   public void addEvent(DataAccessRequestEvent event) {
-      if (event.getEventMoment().isBefore(events.get(0).getEventMoment())) {
-         throw new IllegalArgumentException("event may not be before previous event");
-      }
-
-      // TODO mw: Handle invalid state transitions
-
-      this.events.add(0, event);
-   }
-
-   public List<DataAccessRequestEvent> getEvents() {
-      return List.copyOf(events);
+   @JsonProperty("actions")
+   public Set<DataAccessRequestAction> getActions(boolean canGrant, boolean canRequest) {
+      return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
    }
 
    @JsonProperty("status")
    public DataAccessRequestStatus getStatus() {
-      var latest = events.get(0);
-
-      if (latest instanceof Requested) {
-         return DataAccessRequestStatus.REQUESTED;
-      } else if (latest instanceof Granted) {
-         return DataAccessRequestStatus.GRANTED;
-      } else if (latest instanceof Rejected) {
-         return DataAccessRequestStatus.REJECTED;
-      } else if (latest instanceof Expired) {
-         return DataAccessRequestStatus.EXPIRED;
-      } else if (latest instanceof Withdrawn) {
-         return DataAccessRequestStatus.WITHDRAWN;
-      } else {
-         throw new IllegalStateException("Unknown event " + latest);
-      }
+      return DataAccessRequestCompanion.getStatus(events);
    }
 
 }

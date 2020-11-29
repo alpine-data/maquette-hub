@@ -5,6 +5,7 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import org.apache.avro.Schema;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public class CommittedRevision implements Revision {
 
-   String id;
+   UID id;
 
    ActionMetadata created;
 

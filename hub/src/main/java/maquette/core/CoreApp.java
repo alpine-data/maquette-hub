@@ -9,11 +9,11 @@ import lombok.Getter;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.datasets.Datasets;
+import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
-import maquette.core.entities.projects.Projects;
-import maquette.core.entities.sandboxes.Sandboxes;
+import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.users.Users;
 import maquette.core.ports.*;
 import maquette.core.server.MaquetteServer;
@@ -57,9 +57,9 @@ public class CoreApp {
 
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
         var processManager = ProcessManager.apply();
-        var projects = Projects.apply(projectsRepository);
-        var datasets = Datasets.apply(datasetsRepository, datasetsStore);
-        var sandboxes = Sandboxes.apply(sandboxesRepository);
+        var projects = ProjectEntities.apply(projectsRepository);
+        var datasets = DatasetEntities.apply(datasetsRepository, datasetsStore);
+        var sandboxes = SandboxEntities.apply(sandboxesRepository);
         var users = Users.apply(usersRepository);
 
         var runtime = RuntimeConfiguration.apply(

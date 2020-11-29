@@ -8,6 +8,7 @@ import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import org.apache.commons.io.FileUtils;
 
@@ -38,7 +39,6 @@ public final class DataResource {
       return OpenApiBuilder.documented(docs, ctx -> {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var uploaded = Objects.requireNonNull(ctx.uploadedFile("file"));
-         var project = ctx.pathParam("project");
          var dataset = ctx.pathParam("dataset");
          var revision = ctx.pathParam("revision");
 
@@ -48,7 +48,7 @@ public final class DataResource {
          var records = Records.fromFile(file);
          var result = services
             .getDatasetServices()
-            .upload(user, project, dataset, revision, records)
+            .upload(user, dataset, UID.apply(revision), records)
             .thenApply(done -> {
                Operators.suppressExceptions(() -> Files.deleteIfExists(file));
                return "Successfully uploaded data";
@@ -74,7 +74,6 @@ public final class DataResource {
       return OpenApiBuilder.documented(docs, ctx -> {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var uploaded = Objects.requireNonNull(ctx.uploadedFile("file"));
-         var project = ctx.pathParam("project");
          var dataset = ctx.pathParam("dataset");
 
          var file = Files.createTempFile("maquette", "upload");
@@ -83,13 +82,13 @@ public final class DataResource {
          var records = Records.fromFile(file);
          var result = services
             .getDatasetServices()
-            .createRevision(user, project, dataset, records.getSchema())
+            .createRevision(user, dataset, records.getSchema())
             .thenCompose(revision -> services
                .getDatasetServices()
-               .upload(user, project, dataset, revision.getId(), records)
+               .upload(user, dataset, revision.getId(), records)
                .thenCompose(done -> services
                   .getDatasetServices()
-                  .commitRevision(user, project, dataset, revision.getId(), "New version with single file upload.")))
+                  .commitRevision(user, dataset, revision.getId(), "New version with single file upload.")))
             .thenApply(committedRevision -> {
                Operators.suppressExceptions(() -> Files.deleteIfExists(file));
                return committedRevision;
@@ -115,13 +114,12 @@ public final class DataResource {
 
       return OpenApiBuilder.documented(docs, ctx -> {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
-         var project = ctx.pathParam("project");
          var dataset = ctx.pathParam("dataset");
          var version = ctx.pathParam("version");
 
          var result = services
             .getDatasetServices()
-            .download(user, project, dataset, DatasetVersion.apply(version))
+            .download(user, dataset, DatasetVersion.apply(version))
             .thenApply(records -> {
                var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                records.toFile(file);

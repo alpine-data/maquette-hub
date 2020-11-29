@@ -4,19 +4,21 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
+import maquette.adapters.companions.DatasetRevisionsFileSystemCompanion;
+import maquette.adapters.companions.MembersFileSystemCompanion;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.ports.DatasetsRepository;
-import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessToken;
-import maquette.core.values.authorization.UserAuthorization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import maquette.core.values.UID;
+import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.data.DataAssetMemberRole;
 
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -26,356 +28,152 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FileSystemDatasetsRepository implements DatasetsRepository {
+public class FileSystemDatasetsRepository implements DatasetsRepository {
 
-   private static Logger LOG = LoggerFactory.getLogger(FileSystemDatasetsRepository.class);
+   private static final String PROPERTIES_FILE = "asset.json";
 
    private final FileSystemDatasetsRepositoryConfiguration config;
 
    private final ObjectMapper om;
 
+   private final DataAccessRequestsFileSystemCompanion requestsCompanion;
+
+   private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
+
+   private final DatasetRevisionsFileSystemCompanion revisionsCompanion;
+
    public static FileSystemDatasetsRepository apply(FileSystemDatasetsRepositoryConfiguration config, ObjectMapper om) {
-      Operators.suppressExceptions(() -> {
-         Files.createDirectories(config.getDirectory());
-      });
+      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
+      var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
+      var revisionsCompanion = DatasetRevisionsFileSystemCompanion.apply(config.getDirectory(), om);
 
-      return new FileSystemDatasetsRepository(config, om);
+      Operators.suppressExceptions(() -> Files.createDirectories(config.getDirectory()));
+
+      return new FileSystemDatasetsRepository(config, om, requestsCompanion, membersCompanion, revisionsCompanion);
    }
 
-   /*
-    * Helper functions
-    */
-   private Path getProjectDirectory(String projectId) {
-      return config.getDirectory().resolve(projectId);
+   private Path getDatasetDirectory(UID dataset) {
+      var dir = config
+         .getDirectory()
+         .resolve(dataset.getValue());
+
+      Operators.suppressExceptions(() -> Files.createDirectories(dir));
+
+      return dir;
    }
 
-   private Path getDatasetsDirectory(String projectId) {
-      var path = getProjectDirectory(projectId).resolve("properties");
-      Operators.suppressExceptions(() -> Files.createDirectories(path));
-      return path;
+   private Path getDatasetFile(UID dataset) {
+      return getDatasetDirectory(dataset).resolve(PROPERTIES_FILE);
    }
 
-   private Path getTokensDirectory(String projectId) {
-      var path = getProjectDirectory(projectId).resolve("data-access-tokens");
-      Operators.suppressExceptions(() -> Files.createDirectories(path));
-      return path;
-   }
-
-   private Path getRequestsDirectory(String targetProjectId, String targetId) {
-      var path = getProjectDirectory(targetProjectId).resolve(targetId).resolve("data-access-requests");
-      Operators.suppressExceptions(() -> Files.createDirectories(path));
-      return path;
-   }
-
-   private List<Path> getRequestsDirectories() {
-      return Operators.suppressExceptions(() -> Files
-         .walk(config.getDirectory())
-         .filter(p -> Files.isDirectory(p) && p.endsWith("data-access-requests"))
-         .collect(Collectors.toList()));
-   }
-
-   private Path getRevisionsDirectory(String projectId, String datasetId) {
-      var path = getProjectDirectory(projectId).resolve(datasetId).resolve("revisions");
-      Operators.suppressExceptions(() -> Files.createDirectories(path));
-      return path;
-   }
-
-   private Path getOwnersDirectory(String projectId) {
-      var path = getProjectDirectory(projectId).resolve("owners");
-      Operators.suppressExceptions(() -> Files.createDirectories(path));
-      return path;
-   }
-
-   private Path getDatasetFile(String projectId, String datasetId) {
-      return getDatasetsDirectory(projectId).resolve(datasetId + ".json");
-   }
-
-   private Path getTokenFile(String parentId, String tokenKey) {
-      return getTokensDirectory(parentId).resolve(tokenKey + ".json");
-   }
-
-   private Path getRequestFile(String targetProjectId, String targetId, String requestId) {
-      return getRequestsDirectory(targetProjectId, targetId).resolve(requestId + ".json");
-   }
-
-   private Path getOwnerFile(String projectId, String owner) {
-      return getOwnersDirectory(projectId).resolve(owner + ".json");
-   }
-
-   private Path getRevisionFile(String projectId, String datasetId, String revisionId) {
-      return getRevisionsDirectory(projectId, datasetId).resolve(revisionId + ".json");
-   }
-
-   private Optional<DatasetProperties> loadDatasetDetails(String projectId, String datasetId) {
-      var file = getDatasetFile(projectId, datasetId);
-
-      if (Files.exists(file) && Files.isRegularFile(file)) {
-         return Optional.of(Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetProperties.class)));
-      } else {
-         return Optional.empty();
-      }
-   }
-
-   private Optional<DataAccessRequest> loadDataAccessRequest(String targetProjectId, String targetId, String id) {
-      var file = getRequestFile(targetProjectId, targetId, id);
-
-      if (Files.exists(file) && Files.isRegularFile(file)) {
-         return Optional.of(Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)));
-      } else {
-         return Optional.empty();
-      }
-   }
-
-   private Optional<DataAccessToken> loadDataAccessToken(String parentId, String key) {
-      var file = getTokenFile(parentId, key);
-
-      if (Files.exists(file) && Files.isRegularFile(file)) {
-         return Optional.of(Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessToken.class)));
-      } else {
-         return Optional.empty();
-      }
-   }
-
-   /*
-    * Datasets
-    */
    @Override
    public CompletionStage<List<DatasetProperties>> findAllDatasets() {
-      var result = Operators.suppressExceptions(() -> Files
-         .walk(config.getDirectory())
-         .filter(Files::isRegularFile)
-         .filter(p -> p.getParent().endsWith("properties"))
-         .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
-            Optional.<DatasetProperties>empty()))
-         .filter(Optional::isPresent)
-         .map(Optional::get)
-         .collect(Collectors.toList()));
-
-      return CompletableFuture.completedFuture(result);
-   }
-
-   @Override
-   public CompletionStage<List<DatasetProperties>> findAllDatasets(String projectId) {
-      var result = Operators.suppressExceptions(() -> Files
-         .list(getDatasetsDirectory(projectId))
-         .filter(Files::isRegularFile)
-         .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> Optional.of(om.readValue(file.toFile(), DatasetProperties.class)),
-            Optional.<DatasetProperties>empty(), LOG))
-         .filter(Optional::isPresent)
-         .map(Optional::get)
-         .collect(Collectors.toList()));
-
-      return CompletableFuture.completedFuture(result);
-   }
-
-   @Override
-   public CompletionStage<Optional<DatasetProperties>> findDatasetById(String projectId, String datasetId) {
-      return CompletableFuture.completedFuture(loadDatasetDetails(projectId, datasetId));
-   }
-
-   @Override
-   public CompletionStage<Optional<DatasetProperties>> findDatasetByName(String projectId, String datasetName) {
-      return findAllDatasets(projectId)
-         .thenApply(all -> all
-            .stream()
-            .filter(d -> d.getName().equals(datasetName))
-            .findAny());
-   }
-
-   @Override
-   public CompletionStage<Done> insertOrUpdateDataset(String projectId, DatasetProperties dataset) {
-      var file = getDatasetFile(projectId, dataset.getId());
-
-      Operators.suppressExceptions(() -> {
-         try (OutputStream os = Files.newOutputStream(file)) {
-            om.writeValue(os, dataset);
-         }
-      });
-
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
-
-   /*
-    * Revisions
-    */
-
-   @Override
-   public CompletionStage<List<Revision>> findAllRevisions(String projectId, String datasetId) {
-      var result = Operators.suppressExceptions(() -> Files
-         .list(getRevisionsDirectory(projectId, datasetId))
-         .filter(Files::isRegularFile)
-         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), Revision.class)))
-         .collect(Collectors.toList()));
-
-      return CompletableFuture.completedFuture(result);
-   }
-
-   @Override
-   public CompletionStage<List<CommittedRevision>> findAllVersions(String projectId, String datasetId) {
-      return findAllRevisions(projectId, datasetId)
-         .thenApply(revisions -> revisions
-            .stream()
-            .filter(r -> r instanceof CommittedRevision)
-            .map(r -> (CommittedRevision) r)
-            .collect(Collectors.toList()));
-   }
-
-   @Override
-   public CompletionStage<Optional<Revision>> findRevisionById(String projectId, String datasetId, String revisionId) {
-      var file = getRevisionFile(projectId, datasetId, revisionId);
-
-      if (Files.exists(file) && Files.isRegularFile(file)) {
-         var revision = Operators.suppressExceptions(() -> om.readValue(file.toFile(), Revision.class));
-         return CompletableFuture.completedFuture(Optional.of(revision));
-      } else {
-         return CompletableFuture.completedFuture(Optional.empty());
-      }
-   }
-
-   @Override
-   public CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(String projectId, String datasetId, DatasetVersion version) {
-      return findAllVersions(projectId, datasetId)
-         .thenApply(versions -> versions
-            .stream()
-            .filter(v -> v.getVersion().equals(version))
-            .findFirst());
-   }
-
-   @Override
-   public CompletionStage<Done> insertOrUpdateRevision(String projectId, String datasetId, Revision revision) {
-      var file = getRevisionFile(projectId, datasetId, revision.getId());
-
-      Operators.suppressExceptions(() -> {
-         try (OutputStream os = Files.newOutputStream(file)) {
-            om.writeValue(os, revision);
-         }
-      });
-
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
-
-   /*
-    * Data Access Requests
-    */
-
-   @Override
-   public CompletionStage<Optional<DataAccessRequest>> findDataAccessRequestById(String targetProjectId, String targetId, String id) {
-      return CompletableFuture.completedFuture(loadDataAccessRequest(targetProjectId, targetId, id));
-   }
-
-   @Override
-   public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequest request) {
-      var file = getRequestFile(request.getTargetProjectId(), request.getTargetId(), request.getId());
-
-      Operators.suppressExceptions(() -> {
-         try (OutputStream os = Files.newOutputStream(file)) {
-            om.writeValue(os, request);
-         }
-      });
-
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByParent(String targetProjectId, String targetId) {
-      var result = Operators.suppressExceptions(() -> Files
-         .list(getRequestsDirectory(targetProjectId, targetId))
-         .filter(Files::isRegularFile)
-         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)))
-         .collect(Collectors.toList()));
-
-      return CompletableFuture.completedFuture(result);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessRequest>> findDataAccessRequestsByOrigin(String originId) {
-      var result = getRequestsDirectories()
-         .stream()
-         .flatMap(p -> Operators.suppressExceptions(() -> Files.list(p)))
-         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequest.class)))
-         .filter(r -> r.getOriginProjectId().equals(originId))
+      var result = Operators
+         .suppressExceptions(() -> Files.list(config.getDirectory()))
+         .filter(Files::isDirectory)
+         .map(directory -> directory.resolve(PROPERTIES_FILE))
+         .filter(Files::exists)
+         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetProperties.class)))
          .collect(Collectors.toList());
 
       return CompletableFuture.completedFuture(result);
    }
 
    @Override
-   public CompletionStage<Done> removeDataAccessRequest(String targetProjectId, String targetId, String id) {
-      var file = getRequestFile(targetProjectId, targetId, id);
-      Operators.ignoreExceptions(() -> Files.deleteIfExists(file));
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
-
-   /*
-    * Data Access Tokens
-    */
-   @Override
-   public CompletionStage<Done> insertDataAccessToken(String parentId, DataAccessToken token) {
-      var file = getTokenFile(parentId, token.getKey());
-
-      Operators.suppressExceptions(() -> {
-         try (OutputStream os = Files.newOutputStream(file)) {
-            om.writeValue(os, token);
-         }
-      });
-
-      return CompletableFuture.completedFuture(Done.getInstance());
+   public CompletionStage<List<Revision>> findAllRevisions(UID dataset) {
+      return revisionsCompanion.findAllRevisions(dataset);
    }
 
    @Override
-   public CompletionStage<Optional<DataAccessToken>> findDataAccessTokenByKey(String parentId, String key) {
-      return CompletableFuture.completedFuture(loadDataAccessToken(parentId, key));
+   public CompletionStage<List<CommittedRevision>> findAllVersions(UID dataset) {
+      return revisionsCompanion.findAllVersions(dataset);
    }
 
    @Override
-   public CompletionStage<List<DataAccessToken>> findDataAccessTokensByParent(String parentId) {
-      var result = Operators.suppressExceptions(() -> Files
-         .list(getTokensDirectory(parentId))
-         .filter(Files::isRegularFile)
-         .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> Optional.of(om.readValue(file.toFile(), DataAccessToken.class)),
-            Optional.<DataAccessToken>empty()))
-         .filter(Optional::isPresent)
-         .map(Optional::get)
-         .collect(Collectors.toList()));
+   public CompletionStage<Optional<DatasetProperties>> findDatasetById(UID dataset) {
+      var file = getDatasetFile(dataset);
 
-      return CompletableFuture.completedFuture(result);
+      if (Files.exists(file)) {
+         var result = Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetProperties.class));
+         return CompletableFuture.completedFuture(Optional.of(result));
+      } else {
+         return CompletableFuture.completedFuture(Optional.empty());
+      }
    }
 
    @Override
-   public CompletionStage<Done> removeDataAccessToken(String parentId, String key) {
-      var file = getTokenFile(parentId, key);
-      Operators.ignoreExceptions(() -> Files.deleteIfExists(file));
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
-
-   /*
-    * Owners
-    */
-   @Override
-   public CompletionStage<List<UserAuthorization>> findAllOwners(String parentId) {
-      var owners = Operators.suppressExceptions(() -> Files
-         .list(getOwnersDirectory(parentId))
-         .filter(Files::isRegularFile)
-         .map(p -> Operators.suppressExceptions(() -> om.readValue(p.toFile(), UserAuthorization.class)))
-         .collect(Collectors.toList()));
-
-      return CompletableFuture.completedFuture(owners);
+   public CompletionStage<Optional<DatasetProperties>> findDatasetByName(String name) {
+      return findAllDatasets()
+         .thenApply(datasets -> datasets
+            .stream()
+            .filter(d -> d.getName().equals(name))
+            .findFirst());
    }
 
    @Override
-   public CompletionStage<Done> insertOwner(String parentId, UserAuthorization owner) {
-      var file = getOwnerFile(parentId, owner.getUser());
-      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), owner));
+   public CompletionStage<Optional<Revision>> findRevisionById(UID dataset, UID revision) {
+      return revisionsCompanion.findRevisionById(dataset, revision);
+   }
+
+   @Override
+   public CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(UID dataset, DatasetVersion version) {
+      return revisionsCompanion.findRevisionByVersion(dataset, version);
+   }
+
+   @Override
+   public CompletionStage<Done> insertOrUpdateDataset(DatasetProperties dataset) {
+      var file = getDatasetFile(dataset.getId());
+      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), dataset));
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
    @Override
-   public CompletionStage<Done> removeOwner(String parentId, String userId) {
-      var file = getOwnerFile(parentId, userId);
-      Operators.suppressExceptions(() -> Files.deleteIfExists(file));
-      return CompletableFuture.completedFuture(Done.getInstance());
+   public CompletionStage<Done> insertOrUpdateRevision(UID dataset, Revision revision) {
+      return revisionsCompanion.insertOrUpdateRevision(dataset, revision);
+   }
+
+   @Override
+   public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID asset, UID request) {
+      return requestsCompanion.findDataAccessRequestById(asset, request);
+   }
+
+   @Override
+   public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequestProperties request) {
+      return requestsCompanion.insertOrUpdateDataAccessRequest(request);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByProject(UID project) {
+      return requestsCompanion.findDataAccessRequestsByProject(project);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByAsset(UID asset) {
+      return requestsCompanion.findDataAccessRequestsByAsset(asset);
+   }
+
+   @Override
+   public CompletionStage<Done> removeDataAccessRequest(UID asset, UID id) {
+      return requestsCompanion.removeDataAccessRequest(asset, id);
+   }
+
+   @Override
+   public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findAllMembers(UID parent) {
+      return membersCompanion.findAllMembers(parent);
+   }
+
+   @Override
+   public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findMembersByRole(UID parent, DataAssetMemberRole role) {
+      return membersCompanion.findMembersByRole(parent, role);
+   }
+
+   @Override
+   public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<DataAssetMemberRole> member) {
+      return membersCompanion.insertOrUpdateMember(parent, member);
+   }
+
+   @Override
+   public CompletionStage<Done> removeMember(UID parent, Authorization member) {
+      return membersCompanion.removeMember(parent, member);
    }
 }

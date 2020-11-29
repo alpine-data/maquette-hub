@@ -21,17 +21,13 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateRevisionCommand implements Command {
 
-   String project;
-
    String dataset;
 
    Schema schema;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) ||dataset.length() == 0) {
+      if (Objects.isNull(dataset) ||dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       } else if (Objects.isNull(schema)) {
          return CompletableFuture.failedFuture(new RuntimeException("`schema` must be supplied"));
@@ -39,13 +35,13 @@ public class CreateRevisionCommand implements Command {
 
       return services
          .getDatasetServices()
-         .createRevision(user, project, dataset, schema)
+         .createRevision(user, dataset, schema)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
       // TODO: Fill with real schema example
-      return CreateRevisionCommand.apply("my-funny-project", "Funny Dataset", null);
+      return CreateRevisionCommand.apply("some-dataset", null);
    }
 }
