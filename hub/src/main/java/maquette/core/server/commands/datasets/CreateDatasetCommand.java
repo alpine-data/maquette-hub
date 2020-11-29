@@ -57,7 +57,7 @@ public class CreateDatasetCommand implements Command {
       return services
          .getDatasetServices()
          .createDataset(user, title, name, summary, visibilityMapped, classificationMapped, personalInformationMapped)
-         .thenApply(pid -> MessageResult.apply("Successfully created dataset %s/%s", name));
+         .thenApply(pid -> MessageResult.apply("Successfully created dataset `%s`", name));
    }
 
    @Override

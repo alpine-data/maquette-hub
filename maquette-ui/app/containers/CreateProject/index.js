@@ -49,7 +49,7 @@ export function CreateProject({ createProject, user, dispatch }) {
           A project contains all kinds of resources you need to your Data Science and Machine Learning Project.
         </p>
 
-        { createProject.error && <Message type="error" description={ createProject.error } /> }
+        { createProject.error && <Message type="error" title="Couldn't create project" description={ createProject.error } /> }
 
         <hr />
         <CreateProjectForm user={ user } onSubmit={ data => dispatch(createProjectAction(data)) } />
