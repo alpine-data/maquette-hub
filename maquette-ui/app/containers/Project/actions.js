@@ -4,128 +4,45 @@
  *
  */
 
-import {
-  INIT, 
+import { 
+  LOAD,
+  UPDATE,
   FAILED,
-  GET_DATA_ASSETS_SUCCESS,
-  GET_PROJECT_SUCCESS,
-  GET_SANDBOXES_SUCCESS,
-  GET_STACKS_SUCCESS,
+  FETCHED,
+  DISMISS_ERROR } from './constants';
 
-  GRANT_ACCESS, GRANT_ACCESS_SUCCESS, GRANT_ACCESS_FAILED,
-  REVOKE_ACCESS, REVOKE_ACCESS_FAILED, REVOKE_ACCESS_SUCCESS,
-  UPDATE_PROJECT, UPDATE_PROJECT_FAILED, UPDATE_PROJECT_SUCCESS
-} from './constants';
-
-export function init(project) {
+export function load(project, clear = false) {
   return {
-    type: INIT,
-    project
+    type: LOAD,
+    project,
+    clear
   };
-}
+};
 
-export function failed(key, error) {
+export function update(command, request) {
+  return {
+    type: UPDATE,
+    command,
+    request
+  }
+};
+
+export function failed(error) {
   return {
     type: FAILED,
-    key,
     error
   };
-}
+};
 
-export function getDataAssetsSuccess(response) {
+export function fetched(response) {
   return {
-    type: GET_DATA_ASSETS_SUCCESS,
-    response
-  }
-}
-
-export function getProjectSuccess(response) {
-  return {
-    type: GET_PROJECT_SUCCESS,
+    type: FETCHED,
     response
   };
-}
+};
 
-export function getSandboxesSuccess(response) {
+export function dismissError() {
   return {
-    type: GET_SANDBOXES_SUCCESS,
-    response
-  }
-}
-
-export function getStacksSuccess(response) {
-  return {
-    type: GET_STACKS_SUCCESS,
-    response
+    type: DISMISS_ERROR
   };
-}
-
-export function grantAccess(project, type, name) {
- return {
-   type: GRANT_ACCESS,
-   project,
-   authorizationType: type, 
-   name
- }
-}
-
-export function grantAccessFailed(error) {
-  return {
-    type: GRANT_ACCESS_FAILED,
-    error
-  }
-}
-
-export function grantAccessSuccess(response) {
-  return {
-    type: GRANT_ACCESS_SUCCESS,
-    response
-  }
-}
-
-export function revokeAccess(project, type, name) {
-  return {
-    type: REVOKE_ACCESS,
-    project,
-    authorizationType: type, 
-    name
-  }
- }
- 
- export function revokeAccessFailed(error) {
-   return {
-     type: REVOKE_ACCESS_FAILED,
-     error
-   }
- }
- 
- export function revokeAccessSuccess(response) {
-   return {
-     type: REVOKE_ACCESS_SUCCESS,
-     response
-   }
- }
-
- export function updateProject(project, name, title, summary) {
-   return {
-     type: UPDATE_PROJECT,
-     project,
-     name,
-     title,
-     summary
-   };
- }
-
- export function updateProjectSuccess(response) {
-   return {
-     type: UPDATE_PROJECT_SUCCESS,
-     response
-   };
- }
-
- export function updateProjectFailed(error) {
-   return {
-     type: UPDATE_PROJECT_FAILED,
-     error
-   }
- }
+};

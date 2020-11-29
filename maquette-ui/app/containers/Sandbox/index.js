@@ -16,7 +16,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectSandbox from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { initialize } from './actions';
+import { load } from './actions';
 
 import Container from 'components/Container';
 import StackDeployment from 'components/StackDeployment';
@@ -27,8 +27,8 @@ import { Affix, Button, FlexboxGrid, Icon, Nav } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 export function Overview(props) {
-  const sandbox = _.get(props, 'sandbox.sandbox');
-  const stacks = _.get(props, 'sandbox.stacks');
+  const sandbox = _.get(props, 'sandbox.data.sandbox');
+  const stacks = _.get(props, 'sandbox.data.stacks');
 
   return <Container lg className="mq--main-content" background={ Background }>
     { 
@@ -38,14 +38,13 @@ export function Overview(props) {
 }
 
 export function Display(props) {
-  const project = _.get(props, 'sandbox.project');
-  const sandbox = _.get(props, 'sandbox.sandbox');
-  const tab = _.get(props, 'match.params.tab') || 'overview';
+  const project = _.get(props, 'sandbox.data.project');
+  const sandbox = _.get(props, 'sandbox.data.sandbox');
+  const tab = _.get(props, 'match.params.id') || 'overview';
 
   return <div>
     <Helmet>
-      <title>Sandbox</title>
-      <meta name="description" content="Description of Sandbox" />
+      <title>{ sandbox.name } &middot; { project.title } &middot; Maquette</title>
     </Helmet>
 
     <Affix>
@@ -53,7 +52,7 @@ export function Display(props) {
         <Container fluid>
           <FlexboxGrid align="middle">
             <FlexboxGrid.Item colspan={ 20 }>
-              <h1><Link to={ `/${project.name}` }>{ project.title }</Link> / <Link to={ `/${project.name}/resources/sandboxes` }>Sandboxes</Link> / <Link to={ `/${project.name}/resources/sandboxes/${sandbox.name}` }>{ sandbox.name }</Link></h1>
+              <h1><Link to={ `/${project.name}` }>{ project.title }</Link> / <Link to={ `/${project.name}/sandboxes` }>Sandboxes</Link> / <Link to={ `/${project.name}/sandboxes/${sandbox.name}` }>{ sandbox.name }</Link></h1>
             </FlexboxGrid.Item>
 
             <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
@@ -72,30 +71,32 @@ export function Display(props) {
   </div>
 }
 
-export function Loading() {
-  return <>Loading</>
-}
-
 export function Sandbox(props) {
   useInjectReducer({ key: 'sandbox', reducer });
   useInjectSaga({ key: 'sandbox', saga });
 
-  const projectName = _.get(props, 'match.params.name') || 'project';
-  const sandboxName = _.get(props, 'match.params.sandbox') || 'sandbox';
+  const project = _.get(props, 'match.params.project');
+  const sandbox = _.get(props, 'match.params.sandbox');
 
+  const data = _.get(props, 'sandbox.data');
+  const error = _.get(props, 'sandbox.error');
   const loading = _.get(props, 'sandbox.loading');
-  const isLoading = _.indexOf(loading, 'sandbox') > -1 || _.indexOf(loading, 'project') > -1 || _.indexOf(loading, 'stacks') > -1;
-
   const [initialized, setInitialized] = useState(initialized, setInitialized);
 
   useEffect(() => {
     if (!initialized) {
-      props.dispatch(initialize(projectName, sandboxName));
+      props.dispatch(load(project, sandbox));
       setInitialized(true);
     }
   })
   
-  return <>{ isLoading && <Loading { ...props } /> || <Display { ...props } /> }</>
+  if (!initialized || loading) {
+    return <div className="mq--loading" />
+  } else if (!data && error) {
+    return <Error background={ Background } message={ error } />
+  } else {
+    return <Display { ...props } />
+  }
 }
 
 Sandbox.propTypes = {

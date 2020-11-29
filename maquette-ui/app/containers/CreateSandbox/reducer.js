@@ -6,49 +6,49 @@
 import _ from 'lodash';
 import produce from 'immer';
 import { 
-  CREATE_SANDBOX, CREATE_SANDBOX_SUCCESS,
-  INITIALIZE, FAILED, 
-  GET_PROJECTS_SUCCESS, GET_STACKS_SUCCESS } from './constants';
+  INIT, FAILED, FETCHED,
+  SUBMIT, SUBMIT_FAILED, SUBMIT_SUCCESS } from './constants';
 
 export const initialState = {
-  projects: false,
-  stacks: false,
-  loading: [],
-  errors: {}
+  data: false,
+  error: false,
+  loading: false,
+
+  submitting: false,
+  submitError: false
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const createSandboxReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case CREATE_SANDBOX:
-        draft.errors = _.assign(draft.error, { 'create-sandbox': false });
-        draft.loading = _.concat(draft.loading, ['create-sandbox']);
-        break;
-
-      case CREATE_SANDBOX_SUCCESS:
-        draft.loading = _.without(draft.loading, 'create-sandbox');
-        break;
-
-      case INITIALIZE:
-        draft.errors = _.assign(draft.errors, { stacks: false, projects: false });
-        draft.loading = _.concat(draft.loading, ['stacks']);
-        draft.loading = _.concat(draft.loading, ['projects']);
+      case INIT:
+        draft.data = false;
+        draft.loading = true;
         break;
 
       case FAILED:
-        draft.loading = _.without(draft.loading, action.key);
-        draft.errors = _.assign(draft.errors, { [action.key]: action.error });
+        draft.loading = false;
+        draft.error = _.get(action, 'error.response.message') || '¯\_(ツ)_/¯ unknown error occurred, sorry.';
         break;
 
-      case GET_PROJECTS_SUCCESS:
-        draft.loading = _.without(draft.loading, 'projects');
-        draft.projects = action.response;
+      case FETCHED:
+        draft.loading = false;
+        draft.data = action.response;
         break;
 
-      case GET_STACKS_SUCCESS:
-        draft.loading = _.without(draft.loading, 'stacks');
-        draft.stacks = action.response.data;
+      case SUBMIT:
+        draft.submitting = true;
+        draft.submitError = false;
+        break;
+
+      case SUBMIT_FAILED:
+        draft.submitting = false;
+        draft.submitError = _.get(action, 'error.response.message') || '¯\_(ツ)_/¯ unknown error occurred, sorry.';
+        break;
+
+      case SUBMIT_SUCCESS:
+        draft.submitting = false;
         break;
     }
   });

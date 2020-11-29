@@ -16,33 +16,41 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectCreateSandbox from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { initialize, createSandbox } from './actions';
+import { init, submit } from './actions';
 
 import Container from '../../components/Container';
 import CreateSandboxForm from '../../components/CreateSandboxForm';
 
 import Background from '../../resources/sandboxes-background.png';
+import Error from '../../components/Error';
 
 export function CreateSandbox(props) {
   useInjectReducer({ key: 'createSandbox', reducer });
   useInjectSaga({ key: 'createSandbox', saga });
 
   const [initialized, setInitialized] = useState(false);
-  const stacks = _.get(props, 'createSandbox.stacks');
-  const projects = _.get(props, 'createSandbox.projects');
+  const data = _.get(props, 'createSandbox.data');
+  const loading = _.get(props, 'createSandbox.loading');
+  const error = _.get(props, 'createSandbox.error');
+  const stacks = _.get(props, 'createSandbox.data.stacks');
+  const projects = _.get(props, 'createSandbox.data.projects');
 
   const query = new URLSearchParams(_.get(props, 'location.search') || '');
   const showForm = stacks && projects;
 
   useEffect(() => {
     if (!initialized) {
-      props.dispatch(initialize());
+      props.dispatch(init());
       setInitialized(true);
     }
   });
 
-  return (
-    <div>
+  if (!initialized || loading) {
+    return <div className="mq--loading" />;
+  } else if (!data && error) {
+    return <Error background={ Background } message={ error } />
+  } else {
+    return <div>
       <Helmet>
         <title>CreateSandbox</title>
         <meta name="description" content="Description of CreateSandbox" />
@@ -67,11 +75,11 @@ export function CreateSandbox(props) {
             stacks={ stacks } 
             projects={ projects } 
             project={ query.get("project") || projects[0] }
-            onSubmit={ request => props.dispatch(createSandbox(request)) } /> 
+            onSubmit={ request => props.dispatch(submit(request)) } /> 
         }
       </Container>
-    </div>
-  );
+    </div>;
+  }
 }
 
 CreateSandbox.propTypes = {

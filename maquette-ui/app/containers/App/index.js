@@ -47,14 +47,10 @@ export function App({ app, onUserChanged }) {
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
 
-        <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
-        <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
-        <Route path="/:name/resources/datasets/:dataset/:tab/:id" exact component={Dataset} />
-        <Route path="/:name/resources/sandboxes/:sandbox" exact component={Sandbox} />
-        <Route path="/:name" exact component={Project} />
-        <Route path="/:name/:tab" exact component={Project} />
-        <Route path="/:name" exact component={Project} />
-        <Route path="/:name/:tab/:sub" exact component={Project} />
+        <Route path="/:project" exact component={Project} />
+        <Route path="/:project/sandboxes/:sandbox" exact component={Sandbox} />
+        <Route path="/:project/:tab" exact component={Project} />
+        <Route path="/:project/:tab/:id" exact component={Project} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />

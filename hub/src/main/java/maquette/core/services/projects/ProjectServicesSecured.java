@@ -69,7 +69,7 @@ public class ProjectServicesSecured implements ProjectServices {
    public CompletionStage<Done> update(User user, String name, String updatedName, String title, String summary) {
       return companion
          .isAuthorized(() -> companion.isMember(user, name, ProjectMemberRole.ADMIN))
-         .thenCompose(ok -> delegate.remove(user, name));
+         .thenCompose(ok -> delegate.update(user, name, updatedName, title, summary));
    }
 
    @Override

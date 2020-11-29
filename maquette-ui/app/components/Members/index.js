@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { AutoComplete, Button, Icon, SelectPicker, Table } from 'rsuite';
 
-function Members({ roles, members, users, groups, title, onGrant, onRevoke }) {
+function Members({ roles, members, users, groups, title, readOnly, onGrant, onRevoke }) {
   const [authType, setAuthType] = useState('user');
   const [authId, setAuthId] = useState('');
   const [authRole, setAuthRole] = useState(_.size(roles) > 0 && roles[0].value || '');
@@ -46,6 +46,7 @@ function Members({ roles, members, users, groups, title, onGrant, onRevoke }) {
                 return <SelectPicker 
                   block 
                   cleanable={ false } 
+                  disabled={ readOnly }
                   data={ roles } 
                   value={ row["role"] }
                   onSelect={ value => onGrant({ authorization: row.authorization, role: value }) } />
@@ -60,7 +61,11 @@ function Members({ roles, members, users, groups, title, onGrant, onRevoke }) {
             { 
               row => {
                 return <>
-                    <Button color="red" size="sm" onClick={ () => onRevoke({ authorization: row.authorization }) }><Icon icon="trash-o" /></Button>
+                    <Button 
+                      disabled={ readOnly }
+                      color="red" 
+                      size="sm" 
+                      onClick={ () => onRevoke({ authorization: row.authorization }) }><Icon icon="trash-o" /></Button>
                   </>;
               }
             }
@@ -68,76 +73,80 @@ function Members({ roles, members, users, groups, title, onGrant, onRevoke }) {
         </Table.Column>
       </Table>
 
-      <Table autoHeight data={ newMemberData } rowHeight={ 60 } showHeader={ false }>
-        <Table.Column flexGrow={ 4 } verticalAlign="middle">
-          <Table.HeaderCell></Table.HeaderCell>
-          <Table.Cell>
-            {
-              row => {
-                return <SelectPicker 
-                  block
-                  cleanable={ false }
-                  data={ [
-                    {
-                      label: "User",
-                      value: "user"
-                    },
-                    {
-                      label: "LDAP Role",
-                      value: "role"
-                    }
-                  ] }
-                  value={ row.authorization.type }
-                  onSelect={ type => setAuthType(type) } />
-              }
-            }
-          </Table.Cell>
-        </Table.Column>
-        <Table.Column flexGrow={ 9 } verticalAlign="middle">
-          <Table.HeaderCell></Table.HeaderCell>
-          <Table.Cell>
-            {
-              row => {
-                return <AutoComplete 
-                  data={ row.authorization.type == 'user' && users || groups }
-                  value={ row.authorization.name }
-                  onChange={ name => setAuthId(name) } />
-              }
-            }
-          </Table.Cell>
-        </Table.Column>
-        <Table.Column flexGrow={ 4 } verticalAlign="middle">
-          <Table.HeaderCell></Table.HeaderCell>
-          <Table.Cell>
-            { 
-              row => {
-                return <SelectPicker 
-                  block 
-                  cleanable={ false } 
-                  data={ roles } 
-                  value={ row.role }
-                  onSelect={ role => setAuthRole(role) } />
-              }
-            }
-          </Table.Cell>
-        </Table.Column>
-        <Table.Column flexGrow={ 2 } align="right" verticalAlign="middle">
-          <Table.HeaderCell></Table.HeaderCell>
-          <Table.Cell>
-            { 
-              row => {
-                return <>
-                    <Button 
-                      color="green" 
-                      disabled={ row.authorization.name.length == 0 }
-                      size="sm" 
-                      onClick={ () => { onGrant(row) } }><Icon icon="plus" /></Button>
-                  </>;
-              }
-            }
-          </Table.Cell>
-        </Table.Column>
-      </Table>
+      { 
+        readOnly || <>
+          <Table autoHeight data={ newMemberData } rowHeight={ 60 } showHeader={ false }>
+            <Table.Column flexGrow={ 4 } verticalAlign="middle">
+              <Table.HeaderCell></Table.HeaderCell>
+              <Table.Cell>
+                {
+                  row => {
+                    return <SelectPicker 
+                      block
+                      cleanable={ false }
+                      data={ [
+                        {
+                          label: "User",
+                          value: "user"
+                        },
+                        {
+                          label: "LDAP Role",
+                          value: "role"
+                        }
+                      ] }
+                      value={ row.authorization.type }
+                      onSelect={ type => setAuthType(type) } />
+                  }
+                }
+              </Table.Cell>
+            </Table.Column>
+            <Table.Column flexGrow={ 9 } verticalAlign="middle">
+              <Table.HeaderCell></Table.HeaderCell>
+              <Table.Cell>
+                {
+                  row => {
+                    return <AutoComplete 
+                      data={ row.authorization.type == 'user' && users || groups }
+                      value={ row.authorization.name }
+                      onChange={ name => setAuthId(name) } />
+                  }
+                }
+              </Table.Cell>
+            </Table.Column>
+            <Table.Column flexGrow={ 4 } verticalAlign="middle">
+              <Table.HeaderCell></Table.HeaderCell>
+              <Table.Cell>
+                { 
+                  row => {
+                    return <SelectPicker 
+                      block 
+                      cleanable={ false } 
+                      data={ roles } 
+                      value={ row.role }
+                      onSelect={ role => setAuthRole(role) } />
+                  }
+                }
+              </Table.Cell>
+            </Table.Column>
+            <Table.Column flexGrow={ 2 } align="right" verticalAlign="middle">
+              <Table.HeaderCell></Table.HeaderCell>
+              <Table.Cell>
+                { 
+                  row => {
+                    return <>
+                        <Button 
+                          color="green" 
+                          disabled={ row.authorization.name.length == 0 }
+                          size="sm" 
+                          onClick={ () => { onGrant(row) } }><Icon icon="plus" /></Button>
+                      </>;
+                  }
+                }
+              </Table.Cell>
+            </Table.Column>
+          </Table>
+        </>
+      }
     </>;
 }
 
@@ -158,6 +167,7 @@ Members.propTypes = {
   users: PropTypes.arrayOf(PropTypes.string),
   groups: PropTypes.arrayOf(PropTypes.string),
   title: PropTypes.string,
+  readOnly: PropTypes.bool,
 
   onGrant: PropTypes.func,
   onRevoke: PropTypes.func
@@ -169,6 +179,7 @@ Members.defaultProps = {
   users: [ 'alice', 'bob', 'clair' ],
   groups: [],
   title: "Manage members",
+  readOnly: false,
 
   onGrant: console.log,
   onRevoke: console.log

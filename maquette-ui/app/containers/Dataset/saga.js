@@ -1,4 +1,4 @@
-import _, { assign } from 'lodash';
+import _ from 'lodash';
 import { takeLatest, select, put, call } from 'redux-saga/effects';
 
 import { makeSelectCurrentUser } from '../App/selectors';
@@ -8,7 +8,6 @@ import { LOAD, UPDATE } from './constants';
 import { CHANGE_USER } from '../App/constants';
 
 import { command } from 'utils/request';
-import { push } from 'connected-react-router';
 
 export function* onChangeUser() {
   try {

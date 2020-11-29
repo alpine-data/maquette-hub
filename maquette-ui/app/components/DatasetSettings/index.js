@@ -17,7 +17,7 @@ import Members from '../Members';
 import Error from '../Error';
 
 function DatasetSettings(props) {
-  const dataset = _.get(props, 'match.params.dataset') || 'dataset';
+  const dataset = _.get(props, 'match.params.dataset');
   const tab = _.get(props, 'match.params.id') || 'options'
 
   const isOwner = _.get(props, 'dataset.data.isOwner');

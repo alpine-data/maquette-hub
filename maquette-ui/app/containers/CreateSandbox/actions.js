@@ -5,48 +5,46 @@
  */
 
 import { 
-  CREATE_SANDBOX, CREATE_SANDBOX_SUCCESS, 
-  INITIALIZE, FAILED, 
-  GET_PROJECTS_SUCCESS, GET_STACKS_SUCCESS } from './constants';
+  INIT, FAILED, FETCHED,
+  SUBMIT, SUBMIT_FAILED, SUBMIT_SUCCESS } from './constants';
 
-export function createSandbox(request) {
+export function init() {
   return {
-    type: CREATE_SANDBOX,
-    ...request
+    type: INIT
   };
-}
+};
 
-export function createSandboxSuccess(response) {
-  return {
-    type: CREATE_SANDBOX_SUCCESS,
-    response
-  };
-}
-
-export function initialize() {
-  return {
-    type: INITIALIZE
-  };
-}
-
-export function failed(key, error) {
+export function failed(error) {
   return {
     type: FAILED,
-    key,
     error
-  }
-}
+  };
+};
 
-export function getProjectsSuccess(response) {
+export function fetched(response) {
   return {
-    type: GET_PROJECTS_SUCCESS,
+    type: FETCHED,
     response
   }
-}
+};
 
-export function getStacksSuccess(response) {
+export function submit(request) {
   return {
-    type: GET_STACKS_SUCCESS,
+      type: SUBMIT,
+      request
+  };
+};
+
+export function submit_failed(error) {
+  return {
+    type: SUBMIT_FAILED,
+    error
+  };
+};
+
+export function submit_success(response) {
+  return {
+    type: SUBMIT_SUCCESS,
     response
   };
-}
+};

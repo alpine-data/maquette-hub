@@ -14,9 +14,8 @@ import maquette.core.server.commands.sandboxes.CreateSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetStacksCommand;
 import maquette.core.server.commands.sandboxes.ListSandboxesCommand;
-import maquette.core.server.commands.views.CreateDataAccessRequestViewCommand;
-import maquette.core.server.commands.views.DatasetViewCommand;
-import maquette.core.server.commands.views.ProjectViewCommand;
+import maquette.core.server.commands.views.*;
+import maquette.core.server.views.CreateSandboxView;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
@@ -67,8 +66,10 @@ import java.util.concurrent.CompletionStage;
 
       // Views
       @JsonSubTypes.Type(value = CreateDataAccessRequestViewCommand.class, name = "views create-data-access-request"),
+      @JsonSubTypes.Type(value = CreateSandboxViewCommand.class, name = "views create-sandbox"),
       @JsonSubTypes.Type(value = DatasetViewCommand.class, name = "views dataset"),
-      @JsonSubTypes.Type(value = ProjectViewCommand.class, name = "views project")
+      @JsonSubTypes.Type(value = ProjectViewCommand.class, name = "views project"),
+      @JsonSubTypes.Type(value = SandboxViewCommand.class, name = "views sandbox")
    })
 public interface Command {
 
