@@ -3,19 +3,33 @@
  * DataShop
  *
  */
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { Helmet } from 'react-helmet';
+import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
 
-import React, { useState } from 'react';
-// import PropTypes from 'prop-types';
+import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from 'utils/injectReducer';
+import makeSelectDataShop from './selectors';
+import reducer from './reducer';
+import saga from './saga';
+import { load } from './actions';
+
 import styled from 'styled-components';
 
-import Container from '../Container';
-import DataBadges from '../DataBadges';
-import StartSearch from '../StartSearch';
+import Container from '../../components/Container';
+import DataBadges from '../../components/DataBadges';
+import Error from '../../components/Error';
+import StartSearch from '../../components/StartSearch';
+import Summary from '../../components/Summary';
 
 import Background from '../../resources/datashop-background.png';
+
 import { Button, ButtonToolbar, Divider, FlexboxGrid, Form, FormGroup, Icon, IconButton, Input, InputGroup, Nav, Tag } from 'rsuite';
 import { Link } from 'react-router-dom';
-import Summary from '../Summary';
 
 const DataAssetGrid = styled(FlexboxGrid)`
   margin-bottom: 20px;
@@ -35,8 +49,6 @@ const icons = {
 }
 
 function New(props) {
-  const project = _.get(props, 'project.project.name');
-
   return <>
     <DataAssetGrid align="middle">
       <FlexboxGrid.Item colspan={ 3 }>
@@ -53,7 +65,7 @@ function New(props) {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/dataset?project=${project}` }>Create a dataset</IconButton>
+            to={ `/new/dataset` }>Create a dataset</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>
@@ -73,7 +85,7 @@ function New(props) {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/stream?project=${project}` }>Create a stream</IconButton>
+            to={ `/new/stream` }>Create a stream</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>
@@ -93,7 +105,7 @@ function New(props) {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/source?project=${project}` }>Create a data source</IconButton>
+            to={ `/new/source` }>Create a data source</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>
@@ -113,7 +125,7 @@ function New(props) {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/collection?project=${project}` }>Create a collection</IconButton>
+            to={ `/new/collection` }>Create a collection</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>
@@ -133,7 +145,7 @@ function New(props) {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/repository?project=${project}` }>Create a data repository</IconButton>
+            to={ `/new/repository` }>Create a data repository</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>
@@ -155,7 +167,7 @@ function GetStarted(props) {
     </p>
 
     <StartSearch 
-      title="Search existing data assets from other projects" 
+      title="Search existing data assets" 
       searchAllLabel="Browse existing 428 assets"
       searchLabel="Search within 428 asssets"
       link="/foo" />
@@ -171,14 +183,14 @@ function GetStarted(props) {
  * Search & Browse
  * 
  */
-function Asset({ project, asset }) {
+function Asset({ asset }) {
   const type = _.get(asset, 'type');
   const name = _.get(asset, 'name');
   const title = _.get(asset, 'title');
   const summary = _.get(asset, 'summary');
   const updatedAt = new Date(_.get(asset, 'updated.at')).toLocaleString();
 
-  return <Summary to={ `/${project.name}/resources/${type}s/${name}` }>
+  return <Summary to={ `/shop/resources/${type}s/${name}` }>
       <Summary.Header icon={ icons[type] } category={ _.capitalize(type) }>
         { title }
         <DataBadges resource={ asset } style={{ marginBottom: 0, marginTop: "10px" }} />
@@ -193,8 +205,7 @@ function Asset({ project, asset }) {
 }
 
 function Browse(props) {
-  const project = _.get(props, 'project.project');
-  const assets = _.get(props, 'project.data-assets') || [];
+  const assets = _.get(props, 'dataShop.data.userAssets') || [];
 
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState('all');
@@ -251,10 +262,6 @@ function Browse(props) {
         </Nav>
 
         <br />
-        <div style={{ textAlign: "center" }}>
-          <Button>Hide linked Assets</Button>
-        </div>
-        <br />
       </FlexboxGrid.Item>
 
       <FlexboxGrid.Item colspan={20} style={{ paddingLeft: "20px" }}>
@@ -262,7 +269,7 @@ function Browse(props) {
           _.size(lists[tab]) > 0 &&  <>
             <Summary.Summaries style={{ marginTop: 0 }}>
               {
-                _.map(_.slice(lists[tab], 0, maxCount), asset => <Asset project={ project } asset={ asset } key={ asset.name } />)
+                _.map(_.slice(lists[tab], 0, maxCount), asset => <Asset asset={ asset } key={ asset.name } />)
               }
             </Summary.Summaries>
 
@@ -289,12 +296,62 @@ function Browse(props) {
   </Container>
 }
 
-function DataShop(props) {
-  const assets = _.get(props, 'project.data-assets') || [];
+export function DataShop(props) {
+  useInjectReducer({ key: 'dataShop', reducer });
+  useInjectSaga({ key: 'dataShop', saga });
 
-  return _.isEmpty(assets) && <GetStarted {...props} /> || <Browse {...props} />;
+  const data = _.get(props, 'dataShop.data');
+  const error = _.get(props, 'dataShop.error');
+  const loading = _.get(props, 'dataShop.loading');
+  const [initialized, setInitialized] = useState(initialized, setInitialized);
+
+  useEffect(() => {
+    if (!initialized) {
+      props.dispatch(load(true));
+      setInitialized(true);
+    }
+  })
+
+  const component = () => {
+    if (!initialized || loading) {
+      return <div className="mq--loading" />;
+    } else if (!data && error) {
+      return <Error background={ Background } message={ error } />;
+    } else {
+      const assets = data.userAssets;
+      return <>{ _.isEmpty(assets) && <GetStarted {...props} /> || <Browse {...props} /> }</>;
+    }
+  }
+
+  return (
+    <div>
+      
+      <Helmet>
+        <title>DataShop &middot; Maquette</title>
+      </Helmet>
+
+      { component() }
+    </div>
+  );
 }
 
-DataShop.propTypes = {};
+DataShop.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+};
 
-export default DataShop;
+const mapStateToProps = createStructuredSelector({
+  dataShop: makeSelectDataShop(),
+});
+
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch,
+  };
+}
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(withConnect)(DataShop);

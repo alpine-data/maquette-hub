@@ -21,6 +21,7 @@ import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
+import DataShop from 'containers/DataShop/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
@@ -43,6 +44,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/sandbox" component={CreateSandbox} />
 
+        <Route path="/shop" exact component={DataShop} />
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />

@@ -10,12 +10,13 @@ import React from 'react';
 import { render } from 'react-testing-library';
 // import 'jest-dom/extend-expect'; // add some helpful assertions
 
-import DataShop from '../index';
+import { DataShop } from '../index';
 
 describe('<DataShop />', () => {
   it('Expect to not log errors in console', () => {
     const spy = jest.spyOn(global.console, 'error');
-    render(<DataShop />);
+    const dispatch = jest.fn();
+    render(<DataShop dispatch={dispatch} />);
     expect(spy).not.toHaveBeenCalled();
   });
 

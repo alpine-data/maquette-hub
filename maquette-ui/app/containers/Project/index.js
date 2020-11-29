@@ -19,11 +19,8 @@ import saga from './saga';
 import { load, update, dismissError } from './actions';
 
 import Container from 'components/Container';
-import DataShop from '../../components/DataShop';
 import EditableParagraph from 'components/EditableParagraph';
 import Error from '../../components/Error';
-import Members from '../../components/Members';
-import ResourceSettings from 'components/ResourceSettings';
 import Sandboxes from '../../components/Sandboxes';
 
 import { Button, ButtonToolbar, Nav, Icon, FlexboxGrid, Affix, Whisper, Tooltip } from 'rsuite';
@@ -32,56 +29,6 @@ import { Link } from 'react-router-dom';
 import ProjectBackground from '../../resources/projects-background.png';
 import ProjectSettings from '../../components/ProjectSettings';
 import ErrorMessage from '../../components/ErrorMessage';
-
-function Settings({ dispatch, ...props }) {
-  const project = _.get(props, 'match.params.name') || 'Unknown Project';
-  const sub = _.get(props, 'match.params.sub') || 'options';
-
-  const members = _.map(_.get(props, 'project.project.authorizations') || [], a => {
-    const user = _.get(a, 'authorization.user');
-    const role = _.get(a, 'authorization.role');
-    const type = _.get(a, 'authorization.type');
-
-    return {
-      id: user || role || '',
-      name: user && _.capitalize(user),
-      type: type,
-      role: 'member'
-    };
-  });
-
-  const roles = [
-    {
-      "label": "Member",
-      "value": "member",
-      "role": "Master"
-    }
-  ];
-
-  return <Container xlg className="mq--main-content">
-    <FlexboxGrid>
-      <FlexboxGrid.Item colspan={4}>
-        <Nav vertical activeKey={ sub } appearance="subtle">
-          <Nav.Item eventKey="options" componentClass={ Link } to={ `/${project}/settings` }>Options</Nav.Item>
-          <Nav.Item eventKey="members" componentClass={ Link } to={ `/${project}/settings/members` }>Manage members</Nav.Item>
-        </Nav>
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={19}>
-        { sub == 'options' && <ResourceSettings 
-            title={ _.get(props, 'project.project.title') }
-            name={ _.get(props, 'project.project.name') } 
-            onUpdate={ (title, name) => dispatch(updateProjectAction(project, name, title, _.get(props, 'project.project.summary'))) } /> }
-
-        { sub == 'members' && <Members 
-            members={ members } 
-            roles={ roles } 
-            onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
-            onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> }
-      </FlexboxGrid.Item>      
-    </FlexboxGrid>
-  </Container>
-}
 
 function Display(props) {
   const tab = _.get(props, 'match.params.tab') || 'sandboxes';
@@ -156,8 +103,6 @@ function Display(props) {
       {
         error && <ErrorMessage title="An error occurred saving the changes" message={ error } onDismiss={ () => props.dispatch(dismissError()) } />
       }
-      
-      { tab == 'datashop' && <DataShop { ...props} /> }
 
       { 
         tab == 'settings' && <>
