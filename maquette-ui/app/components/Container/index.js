@@ -35,7 +35,11 @@ function Container({ background, fluid, md, lg, xlg, children, className, ...pro
 }
 
 Container.propTypes = {
-  fluid: propTypes.bool
+  background: propTypes.any,
+  fluid: propTypes.bool,
+  md: propTypes.bool,
+  lg: propTypes.bool,
+  xlg: propTypes.bool
 };
 
 export default Container;

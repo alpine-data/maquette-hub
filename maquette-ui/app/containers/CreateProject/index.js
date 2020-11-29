@@ -25,6 +25,8 @@ import CreateProjectForm from 'components/CreateProjectForm'
 
 import { Message } from 'rsuite';
 
+import Background from '../../resources/projects-background.png';
+
 export function CreateProject({ createProject, user, dispatch }) {
   useInjectReducer({ key: 'createProject', reducer });
   useInjectSaga({ key: 'createProject', saga });
@@ -42,9 +44,9 @@ export function CreateProject({ createProject, user, dispatch }) {
         </Container>
       </div>
 
-      <Container md className="mq--main-content">
+      <Container md className="mq--main-content" background={ Background }>
         <p className="mq--p-leading">
-          A project contains all kinds of resources, including datasets, data sources or sandbox environments.
+          A project contains all kinds of resources you need to your Data Science and Machine Learning Project.
         </p>
 
         { createProject.error && <Message type="error" description={ createProject.error } /> }

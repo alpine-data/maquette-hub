@@ -118,12 +118,13 @@ function ConsumerView(props) {
 }
 
 function MemberView(props) {
+  const isOwnertMember = _.get(props, 'dataset.data.isProjectMember');
+
   return <Container xlg background={ Background } className="mq--main-content">
     <h4>Manage access requests</h4>
-
     <h4>Subscribe a project</h4>
     <p className="mq--p-leading">
-      Hallo Freunde!
+      You may subscribe other projects to the 
     </p>
   </Container>
 }
