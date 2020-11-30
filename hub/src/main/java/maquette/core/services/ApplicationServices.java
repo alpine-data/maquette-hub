@@ -37,7 +37,7 @@ public final class ApplicationServices {
            runtime.getSandboxes());
 
         var processServices = ProcessServicesImpl.apply(runtime.getProcessManager());
-        var userServices = UserServicesFactory.apply(runtime.getProjects(), runtime.getUsers());
+        var userServices = UserServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getUsers());
         var sandboxServices = SandboxServicesFactory.apply(runtime.getProcessManager(), runtime.getInfrastructureManager(), runtime.getProjects(), runtime.getSandboxes(), runtime.getDatasets());
         var datasetServices = DatasetServicesFactory.apply(runtime.getProjects(), runtime.getDatasets());
 

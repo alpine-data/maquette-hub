@@ -5,6 +5,9 @@
 **Data Access Token**
 Data Access Tokens can be generated on behalf of a project to access data without user authentication, but with access tokens instead (just like API keys for usual APIs). The token can be used to consume or produce data automatically from running applications.
 
+**Data Asset**
+Data Asset is the generic term for Datasets, Streams, Data Sources, Collections and Data Repositories.
+
 **Dataset**
 A dataset is a Maquette Data Resource. A dataset contains versioned sets of records. Each version must have a defined (Avro) schema.
 

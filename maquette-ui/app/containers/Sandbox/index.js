@@ -47,7 +47,7 @@ export function Display(props) {
       <title>{ sandbox.name } &middot; { project.title } &middot; Maquette</title>
     </Helmet>
 
-    <Affix>
+    <Affix top={ 56 }>
       <div className="mq--page-title">
         <Container fluid>
           <FlexboxGrid align="middle">

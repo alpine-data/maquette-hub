@@ -45,6 +45,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/new/sandbox" component={CreateSandbox} />
 
         <Route path="/shop" exact component={DataShop} />
+        <Route path="/shop/:tab" exact component={DataShop} />
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />

@@ -18,139 +18,15 @@ import reducer from './reducer';
 import saga from './saga';
 import { load } from './actions';
 
-import styled from 'styled-components';
-
 import Container from '../../components/Container';
-import DataBadges from '../../components/DataBadges';
+import DataAssetBrowser from '../../components/DataAssetBrowser';
 import Error from '../../components/Error';
+import NewDataAsset from '../../components/NewDataAsset';
 import StartSearch from '../../components/StartSearch';
-import Summary from '../../components/Summary';
 
 import Background from '../../resources/datashop-background.png';
-
-import { Button, ButtonToolbar, Divider, FlexboxGrid, Form, FormGroup, Icon, IconButton, Input, InputGroup, Nav, Tag } from 'rsuite';
+import { Affix, FlexboxGrid, Nav } from 'rsuite';
 import { Link } from 'react-router-dom';
-
-const DataAssetGrid = styled(FlexboxGrid)`
-  margin-bottom: 20px;
-`;
-
-const NavTag = styled(Tag)`
-  position: absolute;
-  right: 15px;
-`;
-
-const icons = {
-  collection: 'retention',
-  dataset: 'table',
-  stream: 'realtime',
-  source: 'database',
-  repository: 'code-fork'
-}
-
-function New(props) {
-  return <>
-    <DataAssetGrid align="middle">
-      <FlexboxGrid.Item colspan={ 3 }>
-        <Icon icon={ icons['dataset'] } size="2x" className="mq--icon-cycle" />
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={ 21 }>
-        <b>Dataset</b>
-        <p>
-          A dataset contains structured data, like table. A dataset may contain multiple, immutable versions of its data.
-        </p>
-        <ButtonToolbar>
-          <IconButton 
-            color="blue"
-            placement="right"
-            icon={ <Icon icon="arrow-circle-right" /> }
-            componentClass={ Link }
-            to={ `/new/dataset` }>Create a dataset</IconButton>
-        </ButtonToolbar>
-      </FlexboxGrid.Item>
-    </DataAssetGrid>
-
-    <DataAssetGrid align="middle">
-      <FlexboxGrid.Item colspan={ 3 }>
-        <Icon icon={ icons['stream'] } size="2x" className="mq--icon-cycle" />
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={ 21 }>
-        <b>Streams</b>
-        <p>
-          A stream publishes data as a stream of events/ updates. Existing data is retained for a specified amount of time. A consumer can `listen` to the data.
-        </p>
-        <ButtonToolbar>
-          <IconButton 
-            color="blue"
-            placement="right"
-            icon={ <Icon icon="arrow-circle-right" /> }
-            componentClass={ Link }
-            to={ `/new/stream` }>Create a stream</IconButton>
-        </ButtonToolbar>
-      </FlexboxGrid.Item>
-    </DataAssetGrid>
-
-    <DataAssetGrid align="middle">
-      <FlexboxGrid.Item colspan={ 3 }>
-        <Icon icon={ icons['source'] } size="2x" className="mq--icon-cycle" />
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={ 21 }>
-        <b>Data Sources</b>
-        <p>
-          A data source helps to offer access productive data stores. A consumer can access transactional data stores with near-realtime up-to-date data.
-        </p>
-        <ButtonToolbar>
-          <IconButton 
-            color="blue"
-            placement="right"
-            icon={ <Icon icon="arrow-circle-right" /> }
-            componentClass={ Link }
-            to={ `/new/source` }>Create a data source</IconButton>
-        </ButtonToolbar>
-      </FlexboxGrid.Item>
-    </DataAssetGrid>
-
-    <DataAssetGrid align="middle">
-      <FlexboxGrid.Item colspan={ 3 }>
-        <Icon icon={ icons['collection'] } size="2x" className="mq--icon-cycle" />
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={ 21 }>
-        <b>Collections</b>
-        <p>
-          A collection stores versioned file sets. Each set contains a immutable set of files for further processing.
-        </p>
-        <ButtonToolbar>
-          <IconButton 
-            color="blue"
-            placement="right"
-            icon={ <Icon icon="arrow-circle-right" /> }
-            componentClass={ Link }
-            to={ `/new/collection` }>Create a collection</IconButton>
-        </ButtonToolbar>
-      </FlexboxGrid.Item>
-    </DataAssetGrid>
-
-    <DataAssetGrid align="middle">
-      <FlexboxGrid.Item colspan={ 3 }>
-        <Icon icon={ icons['repository'] } size="2x" className="mq--icon-cycle" />
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={ 21 }>
-        <b>Data Repository</b>
-        <p>
-          A data repository can be used by data scientists to store intermediate data objects, e.g. feature-engineered matrices. A data repository cannot be shared across Maquette projects.
-        </p>
-        <ButtonToolbar>
-          <IconButton 
-            color="blue"
-            placement="right"
-            icon={ <Icon icon="arrow-circle-right" /> }
-            componentClass={ Link }
-            to={ `/new/repository` }>Create a data repository</IconButton>
-        </ButtonToolbar>
-      </FlexboxGrid.Item>
-    </DataAssetGrid>
-  </>
-}
 
 /*
  * 
@@ -159,7 +35,9 @@ function New(props) {
  */
 
 function GetStarted(props) {
-  return <Container md background={ Background } className="mq--main-content">
+  const allAssstes = _.size(_.get(props, 'dataShop.data.allAssets'));
+
+  return <>
     <h4>Get started with Maquette Data Shop</h4>
 
     <p className="mq--p-leading">
@@ -168,141 +46,51 @@ function GetStarted(props) {
 
     <StartSearch 
       title="Search existing data assets" 
-      searchAllLabel="Browse existing 428 assets"
-      searchLabel="Search within 428 asssets"
-      link="/foo" />
+      searchAllLabel={ `Browse existing ${allAssstes} assets` }
+      searchLabel= { `Search within ${allAssstes} asssets` }
+      link="/shop/browse" />
 
     <br /><br />
     <h5>Create a new data asset</h5>
-    <New { ...props } />
-  </Container>;
-}
-
-/*
- * 
- * Search & Browse
- * 
- */
-function Asset({ asset }) {
-  const type = _.get(asset, 'type');
-  const name = _.get(asset, 'name');
-  const title = _.get(asset, 'title');
-  const summary = _.get(asset, 'summary');
-  const updatedAt = new Date(_.get(asset, 'updated.at')).toLocaleString();
-
-  return <Summary to={ `/shop/resources/${type}s/${name}` }>
-      <Summary.Header icon={ icons[type] } category={ _.capitalize(type) }>
-        { title }
-        <DataBadges resource={ asset } style={{ marginBottom: 0, marginTop: "10px" }} />
-      </Summary.Header>
-      <Summary.Body>
-        { summary }
-      </Summary.Body>
-      <Summary.Footer>
-        Last update { updatedAt } &middot; 12 version &middot; 3 fields &middot; 712 records
-      </Summary.Footer>
-    </Summary>;
+    <NewDataAsset { ...props } />
+  </>;
 }
 
 function Browse(props) {
-  const assets = _.get(props, 'dataShop.data.userAssets') || [];
-
-  const [query, setQuery] = useState('');
-  const [tab, setTab] = useState('all');
-  const [maxCount, setMaxCount] = useState(5);
-
-  const showMore = (event) => {
-    event.preventDefault();
-    setMaxCount(maxCount + 5);
-  }
-
-  const all = _
-    .chain(assets)
-    .filter(a => {
-      if (_.size(query) > 0) {
-        const searchstring = a.name + " " + a.title + " " + a.summary;
-        return _.lowerCase(searchstring).indexOf(_.lowerCase(query)) >= 0;
-      } else {
-        return true;
-      }
-    })
-    .sortBy('name')
-    .value();
-
-  const datasets = _.filter(all, asset => asset.type == 'dataset');
-  const streams = _.filter(all, asset => asset.type == 'stream');
-  const sources = _.filter(all, asset => asset.type == 'source');
-  const collections = _.filter(all, asset => asset.type == 'collection');
-  const repositories = _.filter(all, asset => asset.type == 'repository');
-
-  const lists = { all, datasets, streams, sources, collections, repositories }
+  const assets = _.get(props, 'dataShop.data.userAssets');
 
   return <Container xlg background={ Background } className="mq--main-content">
-    <h4>Browse data assets</h4>
-    <Form fluid>
-      <FormGroup>
-        <InputGroup style={{ width: "100%" }}>
-          <Input placeholder="Filter assets" size="lg" value={ query } onChange={ v => setQuery(v) } />
-          <InputGroup.Button color="blue">
-            <Icon icon="filter" />&nbsp;&nbsp;Filter assets
-          </InputGroup.Button>
-        </InputGroup>
-      </FormGroup>
-    </Form>
+    <DataAssetBrowser {...props} assets={ assets } />
+  </Container>;
+}
 
-    <FlexboxGrid>
-      <FlexboxGrid.Item colspan={4}>
-        <Nav vertical activeKey={ tab } onSelect={ v => { setTab(v); setMaxCount(5); } } appearance="subtle">
-          <Nav.Item eventKey="all"><Icon icon="circle" /> All results <NavTag>{ _.size(all) }</NavTag></Nav.Item>
-          <Nav.Item eventKey="datasets"><Icon icon="table" /> Datasets <NavTag>{ _.size(datasets) }</NavTag></Nav.Item>
-          <Nav.Item eventKey="streams"><Icon icon="realtime" /> Streams <NavTag>{ _.size(streams) }</NavTag></Nav.Item>
-          <Nav.Item eventKey="sources"><Icon icon="database" /> Sources <NavTag>{ _.size(sources) }</NavTag></Nav.Item>
-          <Nav.Item eventKey="collections"><Icon icon="retention" /> Collections <NavTag>{ _.size(collections) }</NavTag></Nav.Item>
-          <Nav.Item eventKey="repositories"><Icon icon="code-fork" /> Repositories <NavTag>{ _.size(repositories) }</NavTag></Nav.Item>
-        </Nav>
+function Owned(props) {
+  const userAssets = _.get(props, 'dataShop.data.userAssets');
 
-        <br />
-      </FlexboxGrid.Item>
-
-      <FlexboxGrid.Item colspan={20} style={{ paddingLeft: "20px" }}>
-        {
-          _.size(lists[tab]) > 0 &&  <>
-            <Summary.Summaries style={{ marginTop: 0 }}>
-              {
-                _.map(_.slice(lists[tab], 0, maxCount), asset => <Asset asset={ asset } key={ asset.name } />)
-              }
-            </Summary.Summaries>
-
-            {
-              _.size(lists[tab]) > maxCount && 
-                <Divider><a href="#" onClick={ showMore }>Show more - { _.size(lists[tab]) - maxCount } remaining</a></Divider> ||
-                <Divider />
-            }
-          </>
-        }
-      </FlexboxGrid.Item>
-    </FlexboxGrid>
-
-    <h4>
-      Create a new data asset
-    </h4>
-
-    <FlexboxGrid>
-      <FlexboxGrid.Item colspan={ 4 } />
-      <FlexboxGrid.Item colspan={ 20 } style={{ paddingLeft: "20px" }}>
-        <New { ...props } />
-      </FlexboxGrid.Item>
-    </FlexboxGrid>
-  </Container>
+  if (_.isEmpty(userAssets)) {
+    return <Container md background={ Background } className="mq--main-content">
+      <GetStarted { ...props } />
+    </Container>
+  } else {
+    return <Container xlg background={ Background } className="mq--main-content">
+      <DataAssetBrowser {...props} assets={ userAssets } />
+      <br /><br />
+      <h4>Create a new data asset</h4>
+      <FlexboxGrid>
+        <FlexboxGrid.Item colspan={4} />
+        <FlexboxGrid.Item colspan={ 20 } style={{ paddingLeft: "20px" }}>
+          <NewDataAsset { ...props } />
+        </FlexboxGrid.Item>
+      </FlexboxGrid>
+    </Container>
+  }
 }
 
 export function DataShop(props) {
   useInjectReducer({ key: 'dataShop', reducer });
   useInjectSaga({ key: 'dataShop', saga });
 
-  const data = _.get(props, 'dataShop.data');
-  const error = _.get(props, 'dataShop.error');
-  const loading = _.get(props, 'dataShop.loading');
+  const tab = _.get(props, 'match.params.tab') || 'owned';
   const [initialized, setInitialized] = useState(initialized, setInitialized);
 
   useEffect(() => {
@@ -312,25 +100,25 @@ export function DataShop(props) {
     }
   })
 
-  const component = () => {
-    if (!initialized || loading) {
-      return <div className="mq--loading" />;
-    } else if (!data && error) {
-      return <Error background={ Background } message={ error } />;
-    } else {
-      const assets = data.userAssets;
-      return <>{ _.isEmpty(assets) && <GetStarted {...props} /> || <Browse {...props} /> }</>;
-    }
-  }
-
   return (
     <div>
-      
       <Helmet>
         <title>DataShop &middot; Maquette</title>
       </Helmet>
 
-      { component() }
+      <Affix top={ 56 }>
+        <div className="mq--page-title">
+          <Container fluid>
+            <h1>Data Shop</h1>
+          </Container>
+          <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
+            <Nav.Item eventKey="owned" componentClass={ Link } to="/shop">Your assets</Nav.Item>
+            <Nav.Item eventKey="browse" componentClass={ Link } to="/shop/browse">Browse assets</Nav.Item>
+          </Nav>
+        </div>
+      </Affix>
+      { tab == "owned" && <Owned { ...props } /> }
+      { tab == "browse" && <Browse { ...props } /> }
     </div>
   );
 }

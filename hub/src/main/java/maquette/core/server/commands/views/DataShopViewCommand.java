@@ -29,12 +29,8 @@ public class DataShopViewCommand implements Command {
             .collect(Collectors.toList()));
 
       var userDatasetsCS = services
-         .getDatasetServices()
-         .getDatasets(user)
-         .thenApply(list -> list
-            .stream()
-            .map(p -> (DataAssetProperties) p)
-            .collect(Collectors.toList()));
+         .getUserServices()
+         .getDataAssets(user);
 
       return Operators.compose(allDatasetsCS, userDatasetsCS, (allAssets, userAssets) -> DataShopView.apply(userAssets, allAssets));
    }

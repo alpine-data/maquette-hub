@@ -106,6 +106,10 @@ public final class DatasetCompanion extends ServiceCompanion {
       });
    }
 
+   public <T> CompletionStage<Optional<T>> filterMember(User user, String dataset, T passThrough) {
+      return filterMember(user, dataset, null, passThrough);
+   }
+
    public <T> CompletionStage<Optional<T>> filterMember(User user, String dataset, DataAssetMemberRole role, T passThrough) {
       return datasets
          .getDatasetByName(dataset)
