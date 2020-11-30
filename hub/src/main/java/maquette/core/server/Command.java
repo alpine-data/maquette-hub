@@ -66,6 +66,7 @@ import java.util.concurrent.CompletionStage;
       // Views
       @JsonSubTypes.Type(value = CreateDataAccessRequestViewCommand.class, name = "views create-data-access-request"),
       @JsonSubTypes.Type(value = CreateSandboxViewCommand.class, name = "views create-sandbox"),
+      @JsonSubTypes.Type(value = DashboardViewCommand.class, name = "views dashboard"),
       @JsonSubTypes.Type(value = DatasetViewCommand.class, name = "views dataset"),
       @JsonSubTypes.Type(value = ProjectViewCommand.class, name = "views project"),
       @JsonSubTypes.Type(value = SandboxViewCommand.class, name = "views sandbox"),

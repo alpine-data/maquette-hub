@@ -5,7 +5,7 @@
  */
 
 import _ from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -18,7 +18,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectDashboard from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { getProjects as getProjectsAction } from './actions';
+import { load } from './actions';
 
 import { makeSelectCurrentUser } from '../App/selectors';
 
@@ -55,17 +55,8 @@ function ProjectSummary({ project }) {
     </Summary>;
 }
 
-export function Dashboard({ dashboard, user, dispatch, ...props }) {
-  useInjectReducer({ key: 'dashboard', reducer });
-  useInjectSaga({ key: 'dashboard', saga });
-
-  useEffect(() => {
-    if (dashboard.user != user.id) {
-      dispatch(getProjectsAction(user.id))
-    }
-  });
-
-  var projects = dashboard.projects;
+function Display({ dashboard, user, dispatch, ...props }) {
+  var projects = dashboard.data.projects;
 
   return (
     <div>
@@ -126,7 +117,7 @@ export function Dashboard({ dashboard, user, dispatch, ...props }) {
                 <br />
                 <h4>Your Projects</h4>
                 <Summary.Summaries>
-                  { _.map(dashboard.projects, project => <ProjectSummary key={ project.id } project={ project } />) }
+                  { _.map(projects, project => <ProjectSummary key={ project.id } project={ project } />) }
                 </Summary.Summaries>
               </>
             }
@@ -135,6 +126,31 @@ export function Dashboard({ dashboard, user, dispatch, ...props }) {
       </Container>
     </div>
   );
+}
+
+export function Dashboard(props) {
+  useInjectReducer({ key: 'dashboard', reducer });
+  useInjectSaga({ key: 'dashboard', saga });
+
+  const data = _.get(props, 'dashboard.data');
+  const error = _.get(props, 'dashboard.error');
+  const loading = _.get(props, 'dashboard.loading');
+  const [initialized, setInitialized] = useState(initialized, setInitialized);
+
+  useEffect(() => {
+    if (!initialized) {
+      props.dispatch(load());
+      setInitialized(true);
+    }
+  })
+  
+  if (!initialized || loading) {
+    return <div className="mq--loading" />
+  } else if (!data && error) {
+    return <Error background={ Background } message={ error } />
+  } else {
+    return <Display { ...props } />
+  }
 }
 
 Dashboard.propTypes = {

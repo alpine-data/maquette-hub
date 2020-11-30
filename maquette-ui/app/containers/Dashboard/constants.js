@@ -4,6 +4,6 @@
  *
  */
 
-export const GET_PROJECTS = 'app/Dashboard/GET_PROJECTS';
-export const GET_PROJECTS_FAILED = 'app/Dashboard/GET_PROJECTS_FAILED';
-export const GET_PROJECTS_SUCCESS = 'app/Dashboard/GET_PROJECTS_SUCCESS';
+export const LOAD = 'app/Dashboard/LOAD';
+export const FAILED = 'app/Dashboard/FAILED';
+export const FETCHED ='app/Dashboard/FETCHED';
