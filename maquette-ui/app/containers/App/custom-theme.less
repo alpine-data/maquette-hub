@@ -79,6 +79,12 @@ body {
     background-color: #fff;
 }
 
+.mq--page-background.mq--dashboard {
+    background-size: auto 500px;
+    background-position: top center;
+    margin-top: -150px;
+}
+
 .mq--footer {
     background-color: #3c3c3c;
     margin-bottom: 100px;
@@ -321,6 +327,13 @@ a.mq-summary:hover {
 
 
 //== Navigation Tabs
+.rs-header {
+    .rs-nav-default .rs-nav-item:not(.rs-nav-item-active):not(.rs-nav-item-disabled) > .rs-nav-item-content:hover, .rs-nav-default .rs-nav-item:not(.rs-nav-item-active):not(.rs-nav-item-disabled) > .rs-nav-item-content:focus,
+    .rs-btn-subtle:focus, .rs-btn-subtle.rs-btn-focus, .rs-btn-subtle:hover {
+        background: @primary-medium-color;
+    }
+}
+
 .mq--nav-tabs.rs-nav-subtle.rs-nav-horizontal {
     margin-top: -20px;
 

@@ -65,7 +65,7 @@ function Browse(props) {
 }
 
 function Owned(props) {
-  const userAssets = _.get(props, 'dataShop.data.userAssets');
+  const userAssets = [] //_.get(props, 'dataShop.data.userAssets');
 
   if (_.isEmpty(userAssets)) {
     return <Container md background={ Background } className="mq--main-content">
@@ -86,19 +86,8 @@ function Owned(props) {
   }
 }
 
-export function DataShop(props) {
-  useInjectReducer({ key: 'dataShop', reducer });
-  useInjectSaga({ key: 'dataShop', saga });
-
+function Display(props) {
   const tab = _.get(props, 'match.params.tab') || 'owned';
-  const [initialized, setInitialized] = useState(initialized, setInitialized);
-
-  useEffect(() => {
-    if (!initialized) {
-      props.dispatch(load(true));
-      setInitialized(true);
-    }
-  })
 
   return (
     <div>
@@ -121,6 +110,33 @@ export function DataShop(props) {
       { tab == "browse" && <Browse { ...props } /> }
     </div>
   );
+}
+
+export function DataShop(props) {
+  useInjectReducer({ key: 'dataShop', reducer });
+  useInjectSaga({ key: 'dataShop', saga });
+
+  const tab = _.get(props, 'match.params.tab') || 'owned';
+  const [initialized, setInitialized] = useState(initialized, setInitialized);
+
+  const loading = _.get(props, 'dataShop.loading');
+  const data = _.get(props, 'dataShop.data');
+  const error = _.get(props, 'dataShop.error');
+
+  useEffect(() => {
+    if (!initialized) {
+      props.dispatch(load(true));
+      setInitialized(true);
+    }
+  })
+
+  if (!initialized || loading) {
+    return <div className="mq--loading" />
+  } else if (!data && error) {
+    return <Error background={ Background } message={ error } />
+  } else {
+    return <Display { ...props } />
+  }
 }
 
 DataShop.propTypes = {

@@ -4,8 +4,10 @@
  *
  */
 
+import _ from 'lodash';
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
@@ -21,9 +23,25 @@ import { getProjects as getProjectsAction } from './actions';
 import { makeSelectCurrentUser } from '../App/selectors';
 
 import Container from 'components/Container';
+import StartSearch from 'components/StartSearch';
 import Summary from 'components/Summary';
 
-import { Icon, FlexboxGrid, Button } from 'rsuite';
+import Background from '../../resources/platform-background.png'
+import Lifecycle from '../../resources/lifecycle.png'
+import DataShop from '../../resources/datashop.png'
+import Projects from '../../resources/projects.png'
+
+import { Icon, FlexboxGrid, Button, ButtonToolbar, IconButton } from 'rsuite';
+import { Link } from 'react-router-dom';
+
+const DataShopTeaser = styled.div`
+  background-image: url(${DataShop});
+  background-size: 40% auto;
+  background-position: top right;
+  height: 200px;
+
+  margin-top: 30px;
+`;
 
 function ProjectSummary({ project }) {
   return <Summary to={ `/${project.name}` }>
@@ -45,33 +63,75 @@ export function Dashboard({ dashboard, user, dispatch, ...props }) {
     if (dashboard.user != user.id) {
       dispatch(getProjectsAction(user.id))
     }
-  })
+  });
+
+  var projects = dashboard.projects;
 
   return (
     <div>
       <Helmet>
-        <title>Dashboard - Maquette</title>
-        <meta name="description" content="Description of Dashboard" />
+        <title>Maquette</title>
       </Helmet>
 
-      <div className="mq--page-title">
-        <Container fluid>
-          <FlexboxGrid align="middle">
-            <FlexboxGrid.Item colspan={ 20 }>
-              <h1>Welcome Alice</h1>
-            </FlexboxGrid.Item>
+      <Container xlg className="mq--main-content mq--dashboard" background={ Background }>
+        <img 
+          src={ Lifecycle } 
+          alt="Maquette Data Science &amp; Machine Learning Lifecycle"
+          width="100%"
+          style={{ marginTop: "250px", marginBottom: "100px" }} /> 
 
-            <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
-              <Button size="sm" active><Icon icon="user-o" />&nbsp;&nbsp;42</Button>
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
-        </Container>
-      </div>
+        <h3>Welcome to Maquette, { user.name }</h3>
 
-      <Container md className="mq--main-content">
-        <Summary.Summaries>      
-          { _.map(dashboard.projects, project => <ProjectSummary key={ project.id } project={ project } />) }
-        </Summary.Summaries>
+        <FlexboxGrid justify="space-between" style={{ marginTop: "30px", marginBottom: "30px" }} align="middle">
+          <FlexboxGrid.Item colspan={ 11 }>
+            <p className="mq--p-leading">
+              Offer, browse and consume data. Review and monitor the usage of your owned data, assess available data or refine existing data.
+            </p>
+
+            <StartSearch 
+              searchAllLabel={ `Browse existing assets` }
+              searchLabel= { `Search asssets` }
+              link="/shop/browse" />
+          </FlexboxGrid.Item>
+          <FlexboxGrid.Item colspan={ 12 }>
+            <img src={ DataShop } alt="Maquette Data Shop" width="100%" />
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
+        
+        <hr />
+
+        <FlexboxGrid justify="space-between" style={{ marginTop: "30px", marginBottom: "30px" }} align="top">
+          <FlexboxGrid.Item colspan={ 4 }>
+            <img src={ Projects } alt="Maquette Data Shop" width="100%" />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item colspan={ 18 }>
+            <p className="mq--p-leading">
+              A project contains all kinds of resources you need to your Data Science and Machine Learning Project.
+            </p>
+            <ButtonToolbar>
+              <IconButton 
+                color="green" 
+                placement="right" 
+                icon={<Icon icon="arrow-circle-right" />} 
+                size="lg"
+                componentClass={ Link }
+                to="/new/project" >Create Project</IconButton>
+            </ButtonToolbar>
+
+            {
+              !_.isEmpty(projects) && <>
+                <br />
+                <hr />
+                <br />
+                <h4>Your Projects</h4>
+                <Summary.Summaries>
+                  { _.map(dashboard.projects, project => <ProjectSummary key={ project.id } project={ project } />) }
+                </Summary.Summaries>
+              </>
+            }
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
       </Container>
     </div>
   );
