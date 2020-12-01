@@ -20,6 +20,5 @@ class Column(BaseModel):
 
 class ResponseBody(BaseModel):
     columns: List[Column]
-    project: str
     dataset: str
     version: str

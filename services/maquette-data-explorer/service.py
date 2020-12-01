@@ -8,4 +8,4 @@ app = FastAPI()
 
 @app.post("/api/statistics/", response_model=ResponseBody)
 async def statistics(request: RequestBody, plots: bool = False):
-    return get_statistics(project_name=request.project, dataset_name=request.dataset, version=request.version, with_images=plots)
+    return get_statistics(dataset_name=request.dataset, version=request.version, with_images=plots)
