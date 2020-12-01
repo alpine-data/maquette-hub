@@ -90,3 +90,4 @@ maquette-py/maquette_sdk/sample/mqpy-samples.ipynb
 maquette-py/maquette_sdk/sample/mqpy_sdk_sample.py
 services/maquette-data-explorer/examples/Data_Explorer.ipynb
 services/maquette-data-explorer/examples/.ipynb_checkpoints/Data_Explorer-checkpoint.ipynb
+data-assets/upload_datasets.ipynb

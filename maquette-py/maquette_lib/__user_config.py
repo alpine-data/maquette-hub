@@ -1,3 +1,5 @@
+import os
+
 class UserConfiguration:
 
     __mq_home: str = None
@@ -9,4 +11,4 @@ class UserConfiguration:
         return 'http://localhost:9042/api/'
 
     def user(self) -> str:
-        return 'johnDoe'
+        return os.environ.get('MQ_USERNAME', 'alice')

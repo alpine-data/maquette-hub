@@ -2,6 +2,8 @@ from enum import Enum
 from io import BytesIO
 from typing import Optional
 
+import os
+
 import pandas as pd
 import pandavro
 
@@ -11,38 +13,38 @@ from maquette_lib.__user_config import UserConfiguration
 client = Client.from_config(UserConfiguration('/home'))
 
 
-class EAuthorizationType(Enum):
+class EAuthorizationType(str, Enum):
     USER = "user"
     ROLE = "role"
     WILDCARD = "*"
 
 
-class EProjectPrivilege(Enum):
+class EProjectPrivilege(str, Enum):
     MEMBER = "member"
     PRODUCER = "producer"
     CONSUMER = "consumer"
     ADMIN = "admin"
 
 
-class EDatasetPrivilege(Enum):
+class EDatasetPrivilege(str, Enum):
     PRODUCER = "producer"
     CONSUMER = "consumer"
     ADMIN = "admin"
 
 
-class EDataClassification(Enum):
+class EDataClassification(str, Enum):
     PUBLIC = "public"
     INTERNAL = "internal"
     CONFIDENTIAL = "confidential"
     RESTRICTED = "restricted"
 
 
-class EDataVisibility(Enum):
+class EDataVisibility(str, Enum):
     PUBLIC = "public"
     PRIVATE = "private"
 
 
-class EPersonalInformation(Enum):
+class EPersonalInformation(str, Enum):
     NONE = "none"
     PERSONAL_INFORMATION = "pi"
     SENSITIVE_PERSONAL_INFORMATION = "spi"
@@ -107,17 +109,16 @@ class DatasetVersion:
 
     __version: str = None
 
-    def __init__(self, dataset: str, version: str = None, project: str = None):
+    def __init__(self, dataset: str, version: str = "", project: str = None):
         self.__project = project
         self.__dataset = dataset
         self.__version = version
 
     def get(self) -> pd.DataFrame:
-        pr = self.__project or '_'
         ds = self.__dataset
-        version = self.__version or 'latest'
+        version = self.__version
 
-        resp = client.get('data/datasets/' + pr + '/' + ds + '/' + version)
+        resp = client.get('data/datasets/' + ds + '/' + version)
         return pandavro.from_avro(BytesIO(resp.content))
 
 
@@ -129,8 +130,8 @@ class Dataset:
     def __init__(self, name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
-                 personal_information: str = EPersonalInformation.NONE, description="Lorem Ipsum",
-                 project: str = None):
+                 personal_information: str = EPersonalInformation.NONE,
+                 project_name: str = None):
 
         self.__name = name
         if title:
@@ -142,36 +143,16 @@ class Dataset:
         self.__visibility = visibility
         self.__classification = classification
         self.__personal_information = personal_information
-        self.__description = description
-        self.__project = project
+        self.__project = project_name
 
     def create(self) -> 'Dataset':
         client.command(cmd='datasets create',
                        args={'name': self.__name, 'title': self.__title, 'summary': self.__summary,
                              'visibility': self.__visibility, 'classification': self.__classification,
-                             'personalInformation': self.__personal_information, 'description': self.__description,
-                             'project': self.__project})
+                             'personalInformation': self.__personal_information},
+                       headers={'x-project': self.__project})
         return self
 
-    def create_consumer(self, for_user: str = None) -> 'Dataset':
-        status, resp = client.command(cmd='dataset create consumer', args={
-            'dataset': self.__name,
-            'project': self.__project,
-            'for-user': for_user
-        })
-
-        print(resp['output'])
-        return self
-
-    def create_producer(self, for_user: str = None) -> 'Dataset':
-        status, resp = client.command(cmd='dataset create producer', args={
-            'dataset': self.__name,
-            'project': self.__project,
-            'for-user': for_user
-        })
-
-        print(resp['output'])
-        return self
 
     def grant(self, grant: EDatasetPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Dataset':
         client.command(cmd='dataset grant', args={
@@ -201,17 +182,16 @@ class Dataset:
         return self
 
     def put(self, data: pd.DataFrame, short_description: str) -> DatasetVersion:
-        pr: str = self.__project or '_'
         ds: str = self.__name
 
         file: BytesIO = BytesIO()
         pandavro.to_avro(file, data)
         file.seek(0)
 
-        resp = client.post('data/datasets/' + pr + '/' + ds, files={
+        resp = client.post('data/datasets/' + ds, files={
             'message': short_description,
             'file': (short_description, file, 'avro/binary', {'Content-Type': 'avro/binary'})
-        }, headers={'Accept': 'application/csv'})
+        }, headers={'Accept': 'application/csv', 'x-project': self.__project})
 
         return self.version(resp.json())
 
@@ -225,7 +205,7 @@ class Dataset:
                                   args={'dataset': self.__name, 'project': self.__project})
         return resp[1]
 
-    def version(self, version: Optional[str] = None):
+    def version(self, version: Optional[str] = ""):
         return DatasetVersion(self.__name, version, self.__project)
 
     def __str__(self):
@@ -256,12 +236,12 @@ class Project:
         resp = client.command(cmd='project datasets', args={'project': self.__name})
         return resp['data'][0]
 
-    def dataset(self, dataset_name: str = None, dataset_title: str = None, summary: str = None, description: str = None,
+    def dataset(self, dataset_name: str = None, dataset_title: str = None, summary: str = None,
                 visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
         args = [arg for arg in
-                [dataset_name, dataset_title, summary, description, visibility, classification, personal_information] if
+                [dataset_name, dataset_title, summary, visibility, classification, personal_information] if
                 arg]
-        return Dataset(project=self.__name, *args)
+        return Dataset(project_name=self.__name, *args, )
 
     def grant(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
         client.command(cmd='project grant', args={
@@ -303,6 +283,12 @@ def admin() -> Administration:
 def project(name: str) -> Project:
     return Project(name=name)
 
+def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = None,
+                visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
+    args = [arg for arg in
+                [dataset_title, summary, visibility, classification, personal_information] if
+                arg]
+    return Dataset(name=dataset_name,project_name=os.environ.get('MQ_PROJECT_NAME', 'Project_42'),*args)
 
 def datasets(name: str, to_csv=False) -> pd.DataFrame:
     if to_csv:

@@ -46,5 +46,5 @@ class Client:
 
     def post(self, url: str, json = None, files = None, headers = None) -> requests.Response:
         if headers:
-            headers = {**self.__headers,**headers}
+            headers = {**self.__headers, **headers}
         return requests.post(self.__base_url + url, json = json, files = files, headers = headers)
