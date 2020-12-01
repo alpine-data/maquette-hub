@@ -12,8 +12,6 @@ import org.apache.avro.Schema;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateRevisionCommand {
 
-   String project;
-
    String dataset;
 
    Schema schema;

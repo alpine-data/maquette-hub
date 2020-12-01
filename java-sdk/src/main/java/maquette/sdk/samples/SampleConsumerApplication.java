@@ -13,18 +13,17 @@ public class SampleConsumerApplication {
         final MaquetteConfiguration config = MaquetteConfiguration
             .apply()
             .withBaseUrl("http://localhost:9042")
-            .withUser("hippo")
+            .withUser("alice")
             .withToken(null);
 
         final DatasetConsumerFactory dcf = DatasetConsumerFactory
             .apply()
             .withMaquette(config);
 
-        final String project = "sample-project";
         final String dataset = "some-dataset";
 
         final ActorSystem system = ActorSystem.create();
-        Source<Country, NotUsed> countries = dcf.createSource(project, dataset, "1.0.0", Country.class);
+        Source<Country, NotUsed> countries = dcf.createSource(dataset, "1.0.0", Country.class);
 
         countries
             .map(c -> {

@@ -13,22 +13,21 @@ public class SampleProducerApplication {
         final MaquetteConfiguration config = MaquetteConfiguration
             .apply()
             .withBaseUrl("http://localhost:9042")
-            .withUser("hippo")
+            .withUser("alice")
             .withToken(null);
 
         final DatasetProducerFactory dsf = DatasetProducerFactory
             .apply() // initialize with defaults
             .withMaquette(config);
 
-        final String project = "sample-project-test";
-        final String dataset = "noch-eins";
+        final String dataset = "some-dataset";
 
         final ActorSystem system = ActorSystem.apply("sample");
 
         Source
             .range(1,100)
             .mapConcat(i -> Country.getSample())
-            .runWith(dsf.createSink(project, dataset, Country.class), system)
+            .runWith(dsf.createSink(dataset, Country.class), system)
             .thenRun(system::terminate)
             .toCompletableFuture()
             .get();
