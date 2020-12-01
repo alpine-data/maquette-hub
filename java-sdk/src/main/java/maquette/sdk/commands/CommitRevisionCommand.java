@@ -12,8 +12,6 @@ import lombok.Value;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CommitRevisionCommand {
 
-   String project;
-
    String dataset;
 
    String revision;

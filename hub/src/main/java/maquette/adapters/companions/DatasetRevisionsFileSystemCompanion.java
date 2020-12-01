@@ -7,9 +7,7 @@ import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
-import maquette.core.ports.HasDataAccessRequests;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +33,7 @@ public final class DatasetRevisionsFileSystemCompanion {
          .resolve(asset.getValue())
          .resolve(PATH);
 
-      Operators.suppressExceptions(() -> Files.createDirectories(file.getParent()));
+      Operators.suppressExceptions(() -> Files.createDirectories(file));
 
       return file;
    }
@@ -71,7 +69,7 @@ public final class DatasetRevisionsFileSystemCompanion {
       var file = getRevisionFile(dataset, revision);
 
       if (Files.exists(file)) {
-         var result = Operators.suppressExceptions(() -> om.readValue(file.toString(), Revision.class));
+         var result = Operators.suppressExceptions(() -> om.readValue(file.toFile(), Revision.class));
          return CompletableFuture.completedFuture(Optional.of(result));
       } else {
          return CompletableFuture.completedFuture(Optional.empty());

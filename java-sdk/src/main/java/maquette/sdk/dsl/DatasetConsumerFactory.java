@@ -33,13 +33,13 @@ public final class DatasetConsumerFactory {
         return apply(MaquetteConfiguration.apply(), ObjectMapperFactory.apply().create(), new OkHttpClient(), 100);
     }
 
-    public <T> Source<T, NotUsed> createSource(String project, String dataset, String version, Class<T> recordType) {
-        return createSource(project, dataset, version, ReflectiveAvroDeserializer.apply(recordType));
+    public <T> Source<T, NotUsed> createSource(String dataset, String version, Class<T> recordType) {
+        return createSource(dataset, version, ReflectiveAvroDeserializer.apply(recordType));
     }
 
-    public <T> Source<T, NotUsed> createSource(String project, String dataset, String version, AvroDeserializer<T> deserializer) {
+    public <T> Source<T, NotUsed> createSource(String dataset, String version, AvroDeserializer<T> deserializer) {
         var request = maquette
-            .createRequestFor("/api/data/datasets/%s/%s/%s", project, dataset, version)
+            .createRequestFor("/api/data/datasets/%s/%s", dataset, version)
             .get()
             .build();
 

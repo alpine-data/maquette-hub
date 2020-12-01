@@ -42,24 +42,23 @@ public final class DatasetProducerFactory {
       return apply(MaquetteConfiguration.apply(), ObjectMapperFactory.apply().create(), new OkHttpClient(), 100);
    }
 
-   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String project, String dataset, Class<T> recordType) {
-      return createFlow(project, dataset, recordType, "Published new data from source application.");
+   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String dataset, Class<T> recordType) {
+      return createFlow(dataset, recordType, "Published new data from source application.");
    }
 
 
-   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String project, String dataset, Class<T> recordType, String message) {
+   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String dataset, Class<T> recordType, String message) {
       return createFlow(
-         project,
          dataset,
          ReflectiveAvroSerializer.apply(recordType),
          message);
    }
 
-   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String project, String dataset, AvroSerializer<T> serializer) {
-      return createFlow(project, dataset, serializer, "Published new data from source application.");
+   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String dataset, AvroSerializer<T> serializer) {
+      return createFlow(dataset, serializer, "Published new data from source application.");
    }
 
-   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String project, String dataset, AvroSerializer<T> serializer, String message) {
+   public <T> Flow<T, T, CompletionStage<Done>> createFlow(String dataset, AvroSerializer<T> serializer, String message) {
       var created = new AtomicReference<CreatedRevision<T>>(null);
 
       return Flow
@@ -68,7 +67,7 @@ public final class DatasetProducerFactory {
          .map(DatasetRequest::apply)
          .prepend(Source
             .single(1)
-            .map(i -> createRevision(project, dataset, serializer)))
+            .map(i -> createRevision(dataset, serializer)))
          .map(request -> {
             if (request instanceof CreatedRevision) {
                created.set((CreatedRevision<T>) request);
@@ -76,7 +75,7 @@ public final class DatasetProducerFactory {
             } else if (request instanceof PushRecordsRequest) {
                var revisionId = created.get().getRevisionId();
                var records = ((PushRecordsRequest<T>) request).records;
-               pushRecords(project, dataset, records, revisionId, serializer);
+               pushRecords(dataset, records, revisionId, serializer);
                return records;
             } else {
                return Lists.<T>newArrayList();
@@ -85,27 +84,26 @@ public final class DatasetProducerFactory {
          .mapConcat(list -> list)
          .watchTermination(Keep.right())
          .mapMaterializedValue(done -> done.thenApply(d -> {
-            publishDatasetVersion(project, dataset, created.get().revisionId, message);
+            publishDatasetVersion(dataset, created.get().revisionId, message);
             return Done.getInstance();
          }));
    }
 
-   public <T> Sink<T, CompletionStage<Done>> createSink(String namespace, String dataset, Class<T> recordType) {
+   public <T> Sink<T, CompletionStage<Done>> createSink(String dataset, Class<T> recordType) {
       return createSink(
-         namespace, dataset,
+         dataset,
          ReflectiveAvroSerializer.apply(recordType));
    }
 
-   public <T> Sink<T, CompletionStage<Done>> createSink(String namespace, String dataset, AvroSerializer<T> serializer) {
+   public <T> Sink<T, CompletionStage<Done>> createSink(String dataset, AvroSerializer<T> serializer) {
       return Flow
          .of(serializer.getModel())
-         .viaMat(createFlow(namespace, dataset, serializer), Keep.right())
+         .viaMat(createFlow(dataset, serializer), Keep.right())
          .toMat(Sink.ignore(), Keep.left());
    }
 
    private <T> void pushRecords(
-      String project, String dataset,
-      List<T> records, String revisionId, AvroSerializer<T> serializer) {
+      String dataset, List<T> records, String revisionId, AvroSerializer<T> serializer) {
 
       Path tmp = Operators.suppressExceptions(() -> Files.createTempFile("mq", "records"));
       serializer.mapRecords(records).toFile(tmp);
@@ -118,7 +116,7 @@ public final class DatasetProducerFactory {
          .build();
 
       Request request = maquette
-         .createRequestFor("/api/data/datasets/%s/%s/%s", project, dataset, revisionId)
+         .createRequestFor("/api/data/datasets/%s/%s", dataset, revisionId)
          .post(requestBody)
          .build();
 
@@ -129,8 +127,8 @@ public final class DatasetProducerFactory {
       }
    }
 
-   private <T> DatasetRequest<T> createRevision(String project, String dataset, AvroSerializer<T> serializer) {
-      var command = CreateRevisionCommand.apply(project, dataset, serializer.getSchema());
+   private <T> DatasetRequest<T> createRevision(String dataset, AvroSerializer<T> serializer) {
+      var command = CreateRevisionCommand.apply(dataset, serializer.getSchema());
       var json = Operators.suppressExceptions(() -> om.writeValueAsString(command));
 
       var request = maquette
@@ -153,12 +151,12 @@ public final class DatasetProducerFactory {
       });
    }
 
-   private void publishDatasetVersion(String project, String dataset, String revision, String message) {
-      var command = CommitRevisionCommand.apply(project, dataset, revision, message);
+   private void publishDatasetVersion(String dataset, String revision, String message) {
+      var command = CommitRevisionCommand.apply(dataset, revision, message);
       var json = Operators.suppressExceptions(() -> om.writeValueAsString(command));
 
       var request =  maquette
-         .createRequestFor("/api/commands", project, dataset, revision)
+         .createRequestFor("/api/commands", dataset, revision)
          .post(RequestBody.create(json, MediaType.parse("application/json; charset=utf-8")))
          .build();
 

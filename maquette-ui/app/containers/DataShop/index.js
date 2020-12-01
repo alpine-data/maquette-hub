@@ -57,7 +57,7 @@ function GetStarted(props) {
 }
 
 function Browse(props) {
-  const assets = _.get(props, 'dataShop.data.userAssets');
+  const assets = _.get(props, 'dataShop.data.allAssets');
 
   return <Container xlg background={ Background } className="mq--main-content">
     <DataAssetBrowser {...props} assets={ assets } />
@@ -65,7 +65,7 @@ function Browse(props) {
 }
 
 function Owned(props) {
-  const userAssets = [] //_.get(props, 'dataShop.data.userAssets');
+  const userAssets = _.get(props, 'dataShop.data.userAssets');
 
   if (_.isEmpty(userAssets)) {
     return <Container md background={ Background } className="mq--main-content">
