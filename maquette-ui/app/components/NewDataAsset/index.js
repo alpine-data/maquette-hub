@@ -27,7 +27,7 @@ function NewDataAsset() {
         <Icon icon={ icons['dataset'] } size="2x" className="mq--icon-cycle" />
       </FlexboxGrid.Item>
       <FlexboxGrid.Item colspan={ 21 }>
-        <b>Dataset</b>
+        <b>Datasets</b>
         <p>
           A dataset contains structured data, like table. A dataset may contain multiple, immutable versions of its data.
         </p>
