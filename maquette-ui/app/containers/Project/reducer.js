@@ -5,56 +5,53 @@
  */
 import _ from 'lodash';
 import produce from 'immer';
-import { 
-  INIT,
-  FAILED,
-  GET_DATA_ASSETS_SUCCESS,
-  GET_PROJECT_SUCCESS,
-  GET_STACKS_SUCCESS, 
-  GET_SANDBOXES_SUCCESS } from './constants';
+import { LOAD, FAILED, FETCHED, UPDATE, DISMISS_ERROR } from './constants';
 
 export const initialState = {
-  'data-assets': [],
-  sandboxes: [],
-  stacks: [],
-  project: false,
+  keys: {},
+  data: false,
 
-  loading: [],
-  errors: {},
+  error: false,
+  loading: false,
+  updating: false
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const projectReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
-      case INIT:
-        draft.errors = initialState.errors;
-        draft.loading = _.concat(draft.loading, ['data-assets', 'sandboxes', 'stacks', 'project'])
+      case LOAD:
+        draft.keys = action;
+        draft.error = false;
+
+        if (action.clear || !draft.data) {
+          draft.loading = true;
+          draft.data = false;
+        } else {
+          draft.updating = true;
+        }
+
+        break;
+
+      case UPDATE:
+        draft.updating = true;
         break;
 
       case FAILED:
-        draft.loading = _.without(draft.loading, action.key);
-        draft.errors = _.assign(draft.errors, { [action.key]: action.error });
+        draft.loading = false;
+        draft.updating = false;
+        draft.error = _.get(action, 'error.response.message') || 'Sorry, some error has occurred.';
+        window.scrollTo(0, 0);
         break;
 
-      case GET_PROJECT_SUCCESS:
-        draft.loading = _.without(draft.loading, 'project');
-        draft.project = action.response.data;
+      case FETCHED:
+        draft.loading = false;
+        draft.updating = false;
+        draft.data = action.response;
         break;
 
-      case GET_DATA_ASSETS_SUCCESS:
-        draft.loading = _.without(draft.loading, 'data-assets');
-        draft[`data-assets`] = action.response;
-        break;
-
-      case GET_SANDBOXES_SUCCESS:
-        draft.loading = _.without(draft.loading, 'sandboxes');
-        draft.sandboxes = action.response.data;
-        break;
-        
-      case GET_STACKS_SUCCESS:
-        draft.loading = _.without(draft.loading, 'stacks');
-        draft.stacks = action.response.data;
+      case DISMISS_ERROR:
+        draft.error = false;
         break;
     }
   });

@@ -23,7 +23,7 @@ function Title({ children }) {
   return <p><b style={{ display: "block", marginTop: "20px" }}>{ children }</b></p>
 }
 
-function DatasetCodeExamples({ project, dataset, version, canProduce = true, canConsume = true }) {
+function DatasetCodeExamples({ dataset, version, canProduce = true, canConsume = true }) {
 
   const pythonConsumer = <>
     <Title>Publish Data</Title>
@@ -31,7 +31,7 @@ function DatasetCodeExamples({ project, dataset, version, canProduce = true, can
       {
         `import mq\n\n` +
         `df = pandas.DataFrame(...)\n` +
-        `mq.project('${project}').datasets('${dataset}').put(df)`
+        `mq.datasets('${dataset}').put(df)`
       }
     </SyntaxHighlighter>
   </>
@@ -41,7 +41,7 @@ function DatasetCodeExamples({ project, dataset, version, canProduce = true, can
     <SyntaxHighlighter showLineNumbers language="python" style={docco}>
       {
         `import mq\n\n` +
-        `df = mq.project('${project}').datasets('${dataset}').get('${version}')`
+        `df = mq.datasets('${dataset}').get('${version}')`
       }
     </SyntaxHighlighter>
   </>
@@ -52,7 +52,7 @@ function DatasetCodeExamples({ project, dataset, version, canProduce = true, can
        {
          `import maquette.sdk.dsl.Maquette;\n\n` +
          `var data = List.of(/* ... */);\n\n` + 
-         `Maquette\n   .project("${project}")\n   .datasets("${dataset}")\n   .put("${version}", data);`
+         `Maquette\n   .datasets("${dataset}")\n   .put("${version}", data);`
        }
      </SyntaxHighlighter>
   </>
@@ -62,7 +62,7 @@ function DatasetCodeExamples({ project, dataset, version, canProduce = true, can
     <SyntaxHighlighter showLineNumbers language="java" style={docco}>
        {
          `import maquette.sdk.dsl.Maquette;\n\n` +
-         `var data = Maquette\n   .project("${project}")\n   .datasets("${dataset}")\n   .get("${version}");`
+         `var data = Maquette\n   .datasets("${dataset}")\n   .get("${version}");`
        }
      </SyntaxHighlighter>
   </>
@@ -100,7 +100,6 @@ function DatasetCodeExamples({ project, dataset, version, canProduce = true, can
 }
 
 DatasetCodeExamples.propTypes = {
-  project: PropTypes.string.isRequired,
   dataset: PropTypes.string.isRequired,
   version: PropTypes.string.isRequired,
   canProduce: PropTypes.bool,

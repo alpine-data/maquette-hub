@@ -51,64 +51,48 @@ export function PersonalInformtionFormGroup({ value, onChange }) {
   </FormGroup>;
 }
 
-function CreateDatasetForm({ project, projects = [], onSubmit = console.log }) {
+function CreateDatasetForm({ creating = false, onSubmit = console.log }) {
   const [state, setState] = useState({
-    title: "",
-    project: project || projects[0].value,
-    name: "",
-    summary: "",
-    visibility: "public",
-    classification: "public",
-    personalInformation: "none"
+    title: '',
+    name: '',
+    summary: '',
+    visibility: 'public',
+    classification: 'public',
+    personalInformation: 'none'
   });
 
   const onChange = (field) => (value) => {
     setState(produce(state, draft => {
-      draft[field] = value
-    }));
-  }
+      draft[field] = value;
 
-  const personalInformation_onChange = (value) => {
-    setState(produce(state, draft => {
-      if (value == "pi" && (state.classification == "public" || state.classification == "internal")) {
-        draft.classification = "confidential";
-      } else if (value == "spi" && state.classification != "restricted") {
-        draft.classification = "restricted";
+      if (field == 'personalInformation') {
+        if (value == 'pi' && (state.classification == 'public' || state.classification == 'internal')) {
+          draft.classification = 'confidential';
+        } else if (value == 'spi' && state.classification != 'restricted') {
+          draft.classification = 'restricted';
+        }
       }
 
-      draft.personalInformation = value;
-    }))
-    
-  }
-
-  const title_onChange = (value) => {
-    const id = kebabcase(value.toLowerCase());
-
-    setState(produce(state, draft => {
-      draft.title = value;
-      draft.name = id;
+      if (field == 'title') {
+        const id = kebabcase(value.toLowerCase());
+        draft.title = value;
+        draft.name = id;
+      }
     }));
   }
 
-  const isValid = state.title.length > 3 && state.name.length > 3 && state.project.length > 0;
+  const isValid = state.title.length > 3 && state.name.length > 3;
 
   return <Form fluid>
-      <FlexboxGrid>
-        <FlexboxGrid.Item colspan={ 24 }>
+      <FlexboxGrid justify="space-between">
+        <FlexboxGrid.Item colspan={ 11 }>
           <FormGroup>
             <ControlLabel>Dataset Title</ControlLabel>
-            <FormControl name="title" onChange={ title_onChange } value={ state.title } />
+            <FormControl name="title" onChange={ onChange('title') } value={ state.title } />
             <HelpBlock>Select a speaking, memorable title for the dataset.</HelpBlock>
           </FormGroup>
         </FlexboxGrid.Item>
 
-        <FlexboxGrid.Item colspan={ 11 }>
-          <FormGroup>
-            <ControlLabel>Project</ControlLabel>
-            <InputPicker data={ projects } name="project" style={{ width: "100%" }} onChange={ onChange('project') } value={ state.project } />
-          </FormGroup>
-        </FlexboxGrid.Item>
-        <FlexboxGrid.Item colspan={ 2 }></FlexboxGrid.Item>
         <FlexboxGrid.Item colspan={ 11 }>
           <FormGroup>
             <ControlLabel>Dataset Name</ControlLabel>
@@ -118,11 +102,10 @@ function CreateDatasetForm({ project, projects = [], onSubmit = console.log }) {
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item colspan={ 24 }>
-          <hr />
-
           <FormGroup>
             <ControlLabel>Dataset Summary</ControlLabel>
             <FormControl name="summary" onChange={ onChange('summary') } value={ state.summary } />
+            <HelpBlock>Describe in a few words which data is contained in your dataset.</HelpBlock>
           </FormGroup>
           
           <hr />   
@@ -130,7 +113,7 @@ function CreateDatasetForm({ project, projects = [], onSubmit = console.log }) {
           <hr />
           <DataClassificationFormGroup value={ state.classification } onChange={ onChange('classification') } personalInformation={ state.personalInformation } />
           <hr />
-          <PersonalInformtionFormGroup value={ state.personalInformation } onChange={ personalInformation_onChange } />
+          <PersonalInformtionFormGroup value={ state.personalInformation } onChange={ onChange('personalInformation') } />
           <hr />
 
           <FormGroup>
@@ -139,6 +122,7 @@ function CreateDatasetForm({ project, projects = [], onSubmit = console.log }) {
                 appearance="primary" 
                 type="submit" 
                 disabled={ !isValid }
+                loading={ creating }
                 onClick={ () => onSubmit(state) }>Create dataset</Button>
             </ButtonToolbar>
           </FormGroup>
@@ -148,8 +132,6 @@ function CreateDatasetForm({ project, projects = [], onSubmit = console.log }) {
 }
 
 CreateDatasetForm.propTypes = {
-  projects: PropTypes.arrayOf(PropTypes.object),
-  project: PropTypes.string,
   onSubmit: PropTypes.func.isRequired
 };
 

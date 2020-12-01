@@ -1,5 +1,7 @@
 package maquette.core.values.exceptions;
 
+import maquette.core.values.UID;
+
 public class ProjectNotFoundException extends RuntimeException implements DomainException {
 
    private ProjectNotFoundException(String message) {
@@ -11,7 +13,7 @@ public class ProjectNotFoundException extends RuntimeException implements Domain
       return new ProjectNotFoundException(msg);
    }
 
-   public static ProjectNotFoundException applyFromId(String id) {
+   public static ProjectNotFoundException applyFromId(UID id) {
       String msg = String.format("Project with id `%s` was not found.", id);
       return new ProjectNotFoundException(msg);
    }

@@ -3,206 +3,166 @@ package maquette.core.services.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.datasets.Datasets;
-import maquette.core.entities.data.datasets.model.DatasetDetails;
+import maquette.core.entities.data.datasets.DatasetEntities;
+import maquette.core.entities.data.datasets.DatasetEntity;
+import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
+import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestDetails;
-import maquette.core.values.access.DataAccessToken;
-import maquette.core.values.access.DataAccessTokenNarrowed;
-import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
-import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetServicesImpl implements DatasetServices {
 
-   private final Datasets datasets;
+   private final DatasetEntities datasets;
+
+   private final ProjectEntities projects;
 
    private final DatasetCompanion companion;
 
-   /*
-    * General
-    */
-
    @Override
-   public CompletionStage<DatasetProperties> createDataset(
-      User executor, String projectName, String title, String name, String summary, String description,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
-
-      return companion.withProjectByName(projectName, p -> datasets
-         .createDataset(
-            executor, p.getId(), title, name, summary, description,
-            visibility, classification, personalInformation)
-         .thenCompose(properties -> datasets.getDatasetById(p.getId(), properties.getId()))
-         .thenCompose(d -> {
-            if (executor instanceof AuthenticatedUser) {
-               return d
-                  .addOwner(executor, UserAuthorization.apply(((AuthenticatedUser) executor).getId()))
-                  .thenCompose(done -> d.getProperties());
-            } else {
-               return d.getProperties();
-            }
-         }));
+   public CompletionStage<DatasetProperties> createDataset(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      return datasets
+         .createDataset(executor, title, name, summary, visibility, classification, personalInformation)
+         .thenCompose(properties -> datasets
+            .getDatasetById(properties.getId())
+            .thenCompose(dataset -> dataset.members().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
+            .thenApply(done -> properties));
    }
 
    @Override
-   public CompletionStage<Done> deleteDataset(User executor, String projectName, String datasetName) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> datasets.removeDataset(p.getId(), d.getId()));
+   public CompletionStage<Done> deleteDataset(User executor, String dataset) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(d -> datasets.removeDataset(d.getId()));
    }
 
    @Override
-   public CompletionStage<List<DatasetProperties>> getDatasets(User executor, String projectName) {
-      return companion.withProjectByName(projectName, p -> datasets.findDatasets(p.getId()));
+   public CompletionStage<Dataset> getDataset(User executor, String dataset) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(companion::mapEntityToDataset);
    }
 
    @Override
-   public CompletionStage<Done> updateDetails(
-      User executor, String projectName, String datasetName, String name, String title, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
-
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.updateDetails(
-         executor, name, title, summary, visibility, classification, personalInformation));
-   }
-
-   /*
-    * Manage access
-    */
-
-   @Override
-   public CompletionStage<Done> grantDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner) {
-      return companion.withDatasetByName(projectName, datasetName, (project, dataset) -> dataset.addOwner(executor, owner));
+   public CompletionStage<List<DatasetProperties>> getDatasets(User executor) {
+      return datasets.findDatasets();
    }
 
    @Override
-   public CompletionStage<Done> revokeDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner) {
-      return companion.withDatasetByName(projectName, datasetName, (project, dataset) -> dataset.removeOwner(executor, owner));
+   public CompletionStage<Done> updateDetails(User executor, String dataset, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.updateProperties(executor, updatedName, title, summary, visibility, classification, personalInformation));
    }
 
    @Override
-   public CompletionStage<DatasetDetails> getDataset(User executor, String projectName, String datasetName) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.getDatasetDetails());
-   }
-
-   /*
-    * Access Tokens
-    */
-
-   @Override
-   public CompletionStage<DataAccessToken> createDataAccessToken(User executor, String projectName, String datasetName, String origin, String tokenName, String description) {
-      return companion.withProjectByName(origin, originProject -> companion.withDatasetByName(
-         projectName, datasetName, (p, d) -> d.accessTokens().createDataAccessToken(executor, originProject.getId(), tokenName, description)));
+   public CompletionStage<Done> grantDatasetMember(User executor, String dataset, Authorization member, DataAssetMemberRole role) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.members().addMember(executor, member, role));
    }
 
    @Override
-   public CompletionStage<List<DataAccessTokenNarrowed>> getDataAccessTokens(User executor, String projectName, String datasetName) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.accessTokens().getDataAccessTokens())
-         .thenApply(tokens -> tokens.stream().map(DataAccessToken::toNarrowed).collect(Collectors.toList()));
-   }
-
-   /*
-    * Access Requests
-    */
-
-   @Override
-   public CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, String projectName, String datasetName, String origin, String reason) {
-      return companion.withProjectByName(origin, target ->
-         companion.withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().createDataAccessRequest(executor, target.getId(), reason)));
+   public CompletionStage<Done> revokeDatasetMember(User executor, String dataset, Authorization member) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.members().removeMember(executor, member));
    }
 
    @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable Instant until, @Nullable String message) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().grantDataAccessRequest(executor, accessRequestId, until, message));
+   public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String dataset, String project, String reason) {
+      var dsCS = datasets.getDatasetByName(dataset);
+      var prCS = projects.getProjectByName(project);
+
+      return Operators
+         .compose(dsCS, prCS, (ds, pr) -> ds
+            .accessRequests()
+            .createDataAccessRequest(executor, pr.getId(), reason))
+         .thenCompose(cs -> cs);
    }
 
    @Override
-   public CompletionStage<Done> rejectDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().rejectDataAccessRequest(executor, accessRequestId, reason));
+   public CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String dataset, UID request) {
+      var datasetEntityCS = datasets.getDatasetByName(dataset);
+      var datasetPropertiesCS = datasetEntityCS.thenCompose(DatasetEntity::getProperties);
+      var accessRequestPropertiesCS = datasetEntityCS.thenCompose(ds -> ds.accessRequests().getDataAccessRequestById(request));
+
+      return Operators
+         .compose(datasetPropertiesCS, accessRequestPropertiesCS, companion::enrichDataAccessRequest)
+         .thenCompose(cs -> cs);
    }
 
    @Override
-   public CompletionStage<Done> updateDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().updateDataAccessRequest(executor, accessRequestId, reason));
+   public CompletionStage<Done> grantDataAccessRequest(User executor, String dataset, UID request, @Nullable Instant until, @Nullable String message) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.accessRequests().grantDataAccessRequest(executor, request, until, message));
    }
 
    @Override
-   public CompletionStage<Done> withdrawDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable String reason) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.accessRequests().withdrawDataAccessRequest(executor, accessRequestId, reason));
-   }
-
-   /*
-    * Data Management
-    */
-
-   @Override
-   public CompletionStage<CommittedRevision> commitRevision(User executor, String projectName, String datasetName, String revisionId, String message) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().commit(executor, revisionId, message));
+   public CompletionStage<Done> rejectDataAccessRequest(User executor, String dataset, UID request, String reason) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.accessRequests().rejectDataAccessRequest(executor, request, reason));
    }
 
    @Override
-   public CompletionStage<Revision> createRevision(User executor, String projectName, String datasetName, Schema schema) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().createRevision(executor, schema));
+   public CompletionStage<Done> updateDataAccessRequest(User executor, String dataset, UID request, String reason) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.accessRequests().updateDataAccessRequest(executor, request, reason));
    }
 
    @Override
-   public CompletionStage<Records> download(User executor, String projectName, String datasetName, DatasetVersion version) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().download(executor, version));
+   public CompletionStage<Done> withdrawDataAccessRequest(User executor, String dataset, UID request, @Nullable String reason) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.accessRequests().withdrawDataAccessRequest(executor, request, reason));
    }
 
    @Override
-   public CompletionStage<List<CommittedRevision>> getVersions(User executor, String projectName, String datasetName) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().getVersions());
+   public CompletionStage<CommittedRevision> commitRevision(User executor, String dataset, UID revision, String message) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.revisions().commit(executor, revision, message));
    }
 
    @Override
-   public CompletionStage<Done> upload(User executor, String projectName, String datasetName, String revisionId, Records records) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d.revisions().upload(executor, revisionId, records));
+   public CompletionStage<Revision> createRevision(User executor, String dataset, Schema schema) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.revisions().createRevision(executor, schema));
    }
 
    @Override
-   public CompletionStage<List<DataAccessRequestDetails>> getDataAccessRequests(User executor, String projectName, String datasetName) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d
-         .accessRequests()
-         .getDataAccessRequests()
-         .thenCompose(requests -> Operators.allOf(requests
-            .stream()
-            .map(r -> companion.mapDataAccessRequestToDetails(p, d, r))
-            .collect(Collectors.toList()))))
-         .thenApply(requests -> requests
-            .stream()
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList()));
+   public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.revisions().download(executor, version));
    }
 
    @Override
-   public CompletionStage<Optional<DataAccessRequestDetails>> getDataAccessRequestById(User executor, String projectName, String datasetName, String accessRequestId) {
-      return companion.withDatasetByName(projectName, datasetName, (p, d) -> d
-         .accessRequests()
-         .getDataAccessRequestById(accessRequestId)
-         .thenCompose(request -> {
-            if (request.isPresent()) {
-               return companion.mapDataAccessRequestToDetails(p, d, request.get());
-            } else {
-               return CompletableFuture.completedFuture(Optional.empty());
-            }
-         }));
+   public CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds.revisions().upload(executor, revision, records));
    }
-
 }

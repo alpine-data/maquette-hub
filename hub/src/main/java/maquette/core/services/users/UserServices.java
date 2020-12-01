@@ -3,6 +3,7 @@ package maquette.core.services.users;
 import akka.Done;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.users.model.UserNotification;
+import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -23,5 +24,7 @@ public interface UserServices {
     */
 
    CompletionStage<List<ProjectProperties>> getProjects(User user);
+
+   CompletionStage<List<DataAssetProperties>> getDataAssets(User user);
 
 }

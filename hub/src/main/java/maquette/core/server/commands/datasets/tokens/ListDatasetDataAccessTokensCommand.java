@@ -7,6 +7,7 @@ import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
+import maquette.core.server.results.MessageResult;
 import maquette.core.server.results.TableResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
@@ -37,6 +38,7 @@ public class ListDatasetDataAccessTokensCommand implements Command {
 
       // TODO mw: Better validation process
 
+      /*
       return services
          .getDatasetServices()
          .getDataAccessTokens(user, project, dataset)
@@ -54,7 +56,8 @@ public class ListDatasetDataAccessTokensCommand implements Command {
             });
 
             return TableResult.apply(table.sortOn("name"), tokens);
-         });
+         });*/
+      return CompletableFuture.completedFuture(MessageResult.apply("Ok"));
    }
 
    @Override

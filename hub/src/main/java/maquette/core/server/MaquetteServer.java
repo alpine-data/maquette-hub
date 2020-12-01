@@ -5,15 +5,22 @@ import io.javalin.http.Handler;
 import io.javalin.plugin.json.JavalinJackson;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public final class MaquetteServer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MaquetteServer.class);
 
     private final Javalin app;
 
@@ -35,18 +42,25 @@ public final class MaquetteServer {
                 .get("/api/commands", commandResource.getCommands())
                 .post("/api/commands/example", commandResource.getCommandExample())
 
-                .post("/api/data/datasets/:project/:dataset", dataResource.uploadFile())
-                .post("/api/data/datasets/:project/:dataset/:revision", dataResource.upload())
-                .get("/api/data/datasets/:project/:dataset/:version", dataResource.download())
+                .post("/api/data/datasets/:dataset", dataResource.uploadFile())
+                .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
+                .get("/api/data/datasets/:dataset/:version", dataResource.download())
 
                 .get("/api/v1/about", adminResource.getAbout())
                 .get("/api/v1/admin/user", adminResource.getUserInfo())
 
                 .exception(Exception.class, (e, ctx) -> {
-                    // TODO: Better error handling.
-                    e.printStackTrace();
-                    ctx.status(500);
-                    ctx.json(MessageResult.apply(String.format("Internal Server Error: %s", e.getMessage())));
+                    var maybeDomainException = Operators.hasCause(e, DomainException.class);
+
+                    if (maybeDomainException.isPresent()) {
+                        var error = maybeDomainException.get();
+                        ctx.status(error.getStatus());
+                        ctx.json(MessageResult.apply(error.getMessage()));
+                    } else {
+                        LOG.warn("Unhandled exception upon API call", e);
+                        ctx.status(500);
+                        ctx.json(MessageResult.apply("Internal Server Error"));
+                    }
                 });
 
         return apply(runtime.getApp());

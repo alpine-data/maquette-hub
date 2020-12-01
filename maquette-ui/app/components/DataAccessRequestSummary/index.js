@@ -10,10 +10,10 @@ import React from 'react';
 
 import Summary from '../Summary';
 
-function DataAccessRequestSummary({ project, dataset, request }) {
+function DataAccessRequestSummary({ dataset, request }) {
 
-  return <Summary to={ `/${project}/resources/datasets/${dataset}/access-requests/${request.id}` }>
-    <Summary.Header>{ request.origin.title } <span className="mq--sub">#{ request.id }</span></Summary.Header>
+  return <Summary to={ `/shop/datasets/${dataset}/access-requests/${request.id}` }>
+    <Summary.Header>{ request.project.title } <span className="mq--sub">#{ request.id }</span></Summary.Header>
     <Summary.Body>
       { _.last(request.events).reason }
     </Summary.Body>

@@ -3,7 +3,6 @@ package maquette.core.entities.data.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.common.Operators;
 import maquette.core.entities.data.datasets.exceptions.RevisionNotFoundException;
 import maquette.core.entities.data.datasets.exceptions.VersionNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
@@ -11,9 +10,10 @@ import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.OpenRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
-import maquette.core.ports.DatasetsStore;
 import maquette.core.ports.DatasetsRepository;
+import maquette.core.ports.DatasetsStore;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 
@@ -26,21 +26,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class Revisions {
 
-   private final String id;
-
-   private final String projectId;
-
-   private final String fullId;
-
-   private final String name;
+   private final UID id;
 
    private final DatasetsRepository repository;
 
    private final DatasetsStore store;
 
-   public CompletionStage<CommittedRevision> commit(User executor, String revisionId, String message) {
+   public CompletionStage<CommittedRevision> commit(User executor, UID revisionId, String message) {
       return repository
-         .findRevisionById(projectId, id, revisionId)
+         .findRevisionById(id, revisionId)
          .thenCompose(maybeRevision -> {
             if (maybeRevision.isPresent()) {
                var revision = maybeRevision.get();
@@ -52,7 +46,7 @@ public final class Revisions {
                         revision.getRecords(), revision.getSchema(), version, message);
 
                      return repository
-                        .insertOrUpdateRevision(projectId, id, revisionUpdated)
+                        .insertOrUpdateRevision(id, revisionUpdated)
                         .thenApply(d -> revisionUpdated);
                   });
             } else {
@@ -62,15 +56,15 @@ public final class Revisions {
    }
 
    public CompletionStage<Revision> createRevision(User executor, Schema schema) {
-      var revision = OpenRevision.apply(Operators.hash(), ActionMetadata.apply(executor), ActionMetadata.apply(executor), 0, schema);
+      var revision = OpenRevision.apply(UID.apply(), ActionMetadata.apply(executor), ActionMetadata.apply(executor), 0, schema);
       return repository
-         .insertOrUpdateRevision(projectId, id, revision)
+         .insertOrUpdateRevision(id, revision)
          .thenApply(d -> revision);
    }
 
    public CompletionStage<Records> download(User executor, DatasetVersion version) {
       return repository
-         .findRevisionByVersion(projectId, id, version)
+         .findRevisionByVersion(id, version)
          .thenCompose(maybeRevision -> {
             if (maybeRevision.isPresent()) {
                var revision = maybeRevision.get();
@@ -83,7 +77,7 @@ public final class Revisions {
 
    public CompletionStage<List<CommittedRevision>> getVersions() {
       return repository
-         .findAllRevisions(projectId, id)
+         .findAllRevisions(id)
          .thenApply(revisions -> revisions
             .stream()
             .filter(r -> r instanceof CommittedRevision)
@@ -92,9 +86,9 @@ public final class Revisions {
             .collect(Collectors.toList()));
    }
 
-   public CompletionStage<Done> upload(User executor, String revisionId, Records records) {
+   public CompletionStage<Done> upload(User executor, UID revisionId, Records records) {
       return repository
-         .findRevisionById(projectId, id, revisionId)
+         .findRevisionById(id, revisionId)
          .thenCompose(maybeRevision -> {
             if (maybeRevision.isPresent()) {
                var revision = maybeRevision.get();
@@ -107,7 +101,7 @@ public final class Revisions {
                         .withModified(ActionMetadata.apply(executor));
 
                      return repository
-                        .insertOrUpdateRevision(projectId, id, revisionUpdated);
+                        .insertOrUpdateRevision(id, revisionUpdated);
                   });
             } else {
                throw RevisionNotFoundException.apply(revisionId);
@@ -140,8 +134,8 @@ public final class Revisions {
          });
    }
 
-   private String getRevisionKey(String revisionId) {
-      return String.format("%s/%s/%s", projectId, id, revisionId);
+   private String getRevisionKey(UID revisionId) {
+      return String.format("%s_%s", id.getValue(), revisionId.getValue());
    }
 
 }

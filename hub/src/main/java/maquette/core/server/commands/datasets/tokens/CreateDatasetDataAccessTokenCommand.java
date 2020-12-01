@@ -8,6 +8,7 @@ import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;
+import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
@@ -41,10 +42,7 @@ public class CreateDatasetDataAccessTokenCommand implements Command {
 
       // TODO mw: Better validation process
 
-      return services
-         .getDatasetServices()
-         .createDataAccessToken(user, project, dataset, origin, token, description)
-         .thenApply(DataResult::apply);
+      return CompletableFuture.completedFuture(MessageResult.apply("ok"));
    }
 
    @Override

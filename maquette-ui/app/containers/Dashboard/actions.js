@@ -4,25 +4,28 @@
  *
  */
 
-import { GET_PROJECTS, GET_PROJECTS_FAILED, GET_PROJECTS_SUCCESS} from './constants';
+import { 
+  LOAD,
+  FAILED,
+  FETCHED } from './constants';
 
-export function getProjects(user) {
+export function load(clear = false) {
   return {
-    type: GET_PROJECTS,
-    user
+    type: LOAD,
+    clear
   };
-}
+};
 
-export function getProjectsFailed(error) {
+export function failed(error) {
   return {
-    type: GET_PROJECTS_FAILED,
+    type: FAILED,
     error
-  }
-}
+  };
+};
 
-export function getProjectsSuccess(response) {
+export function fetched(response) {
   return {
-    type: GET_PROJECTS_SUCCESS,
+    type: FETCHED,
     response
   };
-}
+};

@@ -2,6 +2,7 @@ package maquette.adapters.datasets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import maquette.core.ports.DatasetsRepository;
+import org.apache.commons.lang.NotImplementedException;
 
 public final class DatasetsRepositories {
 
@@ -21,7 +22,7 @@ public final class DatasetsRepositories {
          default:
          case "in-mem":
          case "in-memory":
-            return InMemoryDatasetsRepository.apply();
+            throw new NotImplementedException();
       }
    }
 

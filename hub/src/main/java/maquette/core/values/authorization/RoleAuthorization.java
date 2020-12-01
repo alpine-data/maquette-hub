@@ -11,11 +11,16 @@ import maquette.core.values.user.User;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class RoleAuthorization implements Authorization {
 
-    String role;
+    String name;
 
     @Override
-    public boolean isAuthorized(User user) {
-        return user.getRoles().stream().anyMatch(roleId -> roleId.equals(this.role));
+    public boolean authorizes(User user) {
+        return user.getRoles().stream().anyMatch(roleId -> roleId.equals(this.name));
+    }
+
+    @Override
+    public String getKey() {
+        return "role:" + name;
     }
 
 }

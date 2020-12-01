@@ -5,37 +5,38 @@
  */
 import _ from 'lodash';
 import produce from 'immer';
-import { GET_PROJECTS, GET_PROJECTS_FAILED, GET_PROJECTS_SUCCESS } from './constants';
+import { LOAD, FETCHED, FAILED } from './constants';
 
 export const initialState = {
-  loading: false,
+  data: false,
+
   error: false,
-  projects: false,
-  user: false
+  loading: false,
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const dashboardReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
-      case GET_PROJECTS:
-        draft.loading = true;
+      case LOAD:
         draft.error = false;
-        draft.user = action.user;
+
+        if (action.clear0) {
+          draft.loading = true;
+          draft.data = false;
+        } 
+
         break;
 
-      case GET_PROJECTS_FAILED:
+      case FAILED:
         draft.loading = false;
-        draft.error = _.get(action, 'error.response.message') || 'Unknown error occurred loading projects';
+        draft.error = _.get(action, 'error.response.message') || 'Sorry, some error has occurred.';
+        window.scrollTo(0, 0);
         break;
 
-      case GET_PROJECTS_SUCCESS:
+      case FETCHED:
         draft.loading = false;
-        draft.projects = action.response;
-        break;
-
-      case "@@router/LOCATION_CHANGE":
-        draft.user = false;
+        draft.data = action.response;
         break;
     }
   });

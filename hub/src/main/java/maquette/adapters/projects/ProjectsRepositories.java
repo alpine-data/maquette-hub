@@ -2,6 +2,7 @@ package maquette.adapters.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import maquette.core.ports.ProjectsRepository;
+import org.apache.commons.lang.NotImplementedException;
 
 public final class ProjectsRepositories {
 
@@ -18,7 +19,7 @@ public final class ProjectsRepositories {
          case "files":
             return FileSystemProjectsRepository.apply(config.getFs(), om);
          default:
-            return InMemoryProjectsRepository.apply();
+            throw new NotImplementedException();
       }
    }
 

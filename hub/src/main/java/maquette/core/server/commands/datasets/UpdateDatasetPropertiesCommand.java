@@ -21,8 +21,6 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class UpdateDatasetPropertiesCommand implements Command {
 
-   String project;
-
    String dataset;
 
    String name;
@@ -39,9 +37,7 @@ public final class UpdateDatasetPropertiesCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) ||dataset.length() == 0) {
+      if (Objects.isNull(dataset) ||dataset.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       } else if (Objects.isNull(title) ||title.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`title` must be supplied"));
@@ -61,13 +57,13 @@ public final class UpdateDatasetPropertiesCommand implements Command {
 
       return services
          .getDatasetServices()
-         .updateDetails(user, project, dataset, name, title, summary, visibilityMapped, classificationMapped, personalInformationMapped)
+         .updateDetails(user, dataset, name, title, summary, visibilityMapped, classificationMapped, personalInformationMapped)
          .thenApply(done -> MessageResult.apply("Successfully updated dataset."));
    }
 
    @Override
    public Command example() {
-      return apply("some-project", "some-dataset", "new-dataset-name", "title", "summary", "public", "confidential", "pi");
+      return apply("some-dataset", "new-dataset-name", "title", "summary", "public", "confidential", "pi");
    }
 
 }

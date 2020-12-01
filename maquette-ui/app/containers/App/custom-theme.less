@@ -44,6 +44,26 @@ body {
     color: @B700;
 }
 
+.mq--error-message {
+    background: #f44336;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    padding: 25px 35px 25px 25px;
+    color: #fff;
+    position: relative;
+
+    .rs-btn-ghost {
+        color: #fff;
+        border: 1px solid #fff;
+        background-color: transparent;
+
+        position: absolute;
+        right: 25px;
+        top: 50%;
+        margin-top: -15px;
+    }
+}
+
 .mq--container-wrap {
     margin-bottom: 60px;
     min-height: 70vh;
@@ -55,6 +75,14 @@ body {
     background-position: top right;
     margin-top: -10px;
     padding-top: 10px;
+
+    background-color: #fff;
+}
+
+.mq--page-background.mq--dashboard {
+    background-size: auto 500px;
+    background-position: top center;
+    margin-top: -150px;
 }
 
 .mq--footer {
@@ -299,6 +327,13 @@ a.mq-summary:hover {
 
 
 //== Navigation Tabs
+.rs-header {
+    .rs-nav-default .rs-nav-item:not(.rs-nav-item-active):not(.rs-nav-item-disabled) > .rs-nav-item-content:hover, .rs-nav-default .rs-nav-item:not(.rs-nav-item-active):not(.rs-nav-item-disabled) > .rs-nav-item-content:focus,
+    .rs-btn-subtle:focus, .rs-btn-subtle.rs-btn-focus, .rs-btn-subtle:hover {
+        background: @primary-medium-color;
+    }
+}
+
 .mq--nav-tabs.rs-nav-subtle.rs-nav-horizontal {
     margin-top: -20px;
 

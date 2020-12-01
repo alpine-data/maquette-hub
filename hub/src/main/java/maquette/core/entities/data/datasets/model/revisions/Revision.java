@@ -3,6 +3,7 @@ package maquette.core.entities.data.datasets.model.revisions;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import org.apache.avro.Schema;
 
 import java.util.Optional;
@@ -17,7 +18,7 @@ import java.util.Optional;
    })
 public interface Revision {
 
-   String getId();
+   UID getId();
 
    ActionMetadata getCreated();
 

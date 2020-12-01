@@ -1,8 +1,7 @@
 package maquette.core.services.datasets;
 
-import maquette.core.entities.data.datasets.Datasets;
-import maquette.core.entities.projects.Projects;
-import maquette.core.services.projects.ProjectCompanion;
+import maquette.core.entities.data.datasets.DatasetEntities;
+import maquette.core.entities.projects.ProjectEntities;
 
 public final class DatasetServicesFactory {
 
@@ -10,12 +9,11 @@ public final class DatasetServicesFactory {
 
    }
 
-   public static DatasetServices apply(Projects projects, Datasets datasets) {
+   public static DatasetServices apply(ProjectEntities projects, DatasetEntities datasets) {
       var comp = DatasetCompanion.apply(projects, datasets);
-      var projectCompanion = ProjectCompanion.apply(projects, datasets);
-      var impl = DatasetServicesImpl.apply(datasets, comp);
+      var impl = DatasetServicesImpl.apply(datasets, projects, comp);
 
-      return DatasetServicesSecured.apply(impl, projectCompanion, comp);
+      return DatasetServicesSecured.apply(impl, comp);
    }
 
 }

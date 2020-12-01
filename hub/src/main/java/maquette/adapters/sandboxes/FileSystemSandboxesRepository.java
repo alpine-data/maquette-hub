@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.ports.SandboxesRepository;
+import maquette.core.values.UID;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,23 +23,20 @@ public class FileSystemSandboxesRepository implements SandboxesRepository {
 
    private final ObjectMapper om;
 
-   /*
-    * Helper functions
-    */
-   private Path getProjectDirectory(String projectId) {
-      var path = config.getDirectory().resolve(projectId);
+   private Path getProjectDirectory(UID project) {
+      var path = config.getDirectory().resolve(project.getValue()).resolve("sandboxes");
       Operators.suppressExceptions(() -> Files.createDirectories(path));
       return path;
    }
 
-   private Path getSandboxFile(String projectId, String sandboxId) {
-      return getProjectDirectory(projectId).resolve(sandboxId + ".json");
+   private Path getSandboxFile(UID project, UID sandbox) {
+      return getProjectDirectory(project).resolve(sandbox.getValue() + ".sandbox.json");
    }
 
 
    @Override
-   public CompletionStage<Optional<SandboxProperties>> findSandboxById(String projectId, String sandboxId) {
-      var file = getSandboxFile(projectId, sandboxId);
+   public CompletionStage<Optional<SandboxProperties>> findSandboxById(UID project, UID sandbox) {
+      var file = getSandboxFile(project, sandbox);
 
       if (Files.exists(file)) {
          var result = Operators.suppressExceptions(() -> om.readValue(file.toFile(), SandboxProperties.class));
@@ -49,27 +47,28 @@ public class FileSystemSandboxesRepository implements SandboxesRepository {
    }
 
    @Override
-   public CompletionStage<Optional<SandboxProperties>> findSandboxByName(String projectId, String sandboxName) {
-      return listSandboxes(projectId).thenApply(sandboxes -> sandboxes
+   public CompletionStage<Optional<SandboxProperties>> findSandboxByName(UID project, String sandbox) {
+      return listSandboxes(project).thenApply(sandboxes -> sandboxes
          .stream()
-         .filter(s -> s.getName().equals(sandboxName))
+         .filter(s -> s.getName().equals(sandbox))
          .findFirst());
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateSandbox(String projectId, SandboxProperties sandbox) {
-      var file = getSandboxFile(projectId, sandbox.getId());
+   public CompletionStage<Done> insertOrUpdateSandbox(UID project, SandboxProperties sandbox) {
+      var file = getSandboxFile(project, sandbox.getId());
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), sandbox));
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
    @Override
-   public CompletionStage<List<SandboxProperties>> listSandboxes(String projectId) {
-      var result = Operators.suppressExceptions(() -> Files
-         .list(getProjectDirectory(projectId))
+   public CompletionStage<List<SandboxProperties>> listSandboxes(UID project) {
+      var result = Operators
+         .suppressExceptions(() -> Files.list(getProjectDirectory(project))
          .map(path -> Operators.suppressExceptions(() -> om.readValue(path.toFile(), SandboxProperties.class)))
          .collect(Collectors.toList()));
 
       return CompletableFuture.completedFuture(result);
    }
+
 }

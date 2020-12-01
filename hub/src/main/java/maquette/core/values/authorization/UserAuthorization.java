@@ -12,11 +12,16 @@ import maquette.core.values.user.User;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class UserAuthorization implements Authorization {
 
-    String user;
+    String name;
 
     @Override
-    public boolean isAuthorized(User user) {
-        return user instanceof AuthenticatedUser && ((AuthenticatedUser) user).getId().equals(this.user);
+    public boolean authorizes(User user) {
+        return user instanceof AuthenticatedUser && ((AuthenticatedUser) user).getId().equals(this.name);
+    }
+
+    @Override
+    public String getKey() {
+        return "user:" + name;
     }
 
 }

@@ -16,84 +16,51 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectProject from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { 
-  init as initAction,
-  grantAccess as grantAccessAction,
-  revokeAccess as revokeAccessAction,
-  updateProject as updateProjectAction } from './actions';
+import { load, update, dismissError } from './actions';
 
 import Container from 'components/Container';
-import DataShop from '../../components/DataShop';
 import EditableParagraph from 'components/EditableParagraph';
-import Members from '../../components/Members';
-import ResourceSettings from 'components/ResourceSettings';
+import Error from '../../components/Error';
 import Sandboxes from '../../components/Sandboxes';
-import Summary from 'components/Summary';
 
 import { Button, ButtonToolbar, Nav, Icon, FlexboxGrid, Affix, Whisper, Tooltip } from 'rsuite';
 import { Link } from 'react-router-dom';
 
-function Settings({ dispatch, ...props }) {
-  const project = _.get(props, 'match.params.name') || 'Unknown Project';
-  const sub = _.get(props, 'match.params.sub') || 'options';
-
-  const members = _.map(_.get(props, 'project.project.authorizations') || [], a => {
-    const user = _.get(a, 'authorization.user');
-    const role = _.get(a, 'authorization.role');
-    const type = _.get(a, 'authorization.type');
-
-    return {
-      id: user || role || '',
-      name: user && _.capitalize(user),
-      type: type,
-      role: 'member'
-    };
-  });
-
-  const roles = [
-    {
-      "label": "Member",
-      "value": "member",
-      "role": "Master"
-    }
-  ];
-
-  return <Container xlg className="mq--main-content">
-    <FlexboxGrid>
-      <FlexboxGrid.Item colspan={4}>
-        <Nav vertical activeKey={ sub } appearance="subtle">
-          <Nav.Item eventKey="options" componentClass={ Link } to={ `/${project}/settings` }>Options</Nav.Item>
-          <Nav.Item eventKey="members" componentClass={ Link } to={ `/${project}/settings/members` }>Manage members</Nav.Item>
-        </Nav>
-      </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={19}>
-        { sub == 'options' && <ResourceSettings 
-            title={ _.get(props, 'project.project.title') }
-            name={ _.get(props, 'project.project.name') } 
-            onUpdate={ (title, name) => dispatch(updateProjectAction(project, name, title, _.get(props, 'project.project.summary'))) } /> }
-
-        { sub == 'members' && <Members 
-            members={ members } 
-            roles={ roles } 
-            onMemberAdded={ (type, name) => dispatch(grantAccessAction(project, type, name)) }
-            onMemberRemoved={ (type, name) => dispatch(revokeAccessAction(project, type, name)) } /> }
-      </FlexboxGrid.Item>      
-    </FlexboxGrid>
-  </Container>
-}
+import ProjectBackground from '../../resources/projects-background.png';
+import ProjectSettings from '../../components/ProjectSettings';
+import ErrorMessage from '../../components/ErrorMessage';
 
 function Display(props) {
-  const name = _.get(props, 'match.params.name');
-  const tab = _.get(props, 'match.params.tab') || 'datashop';
-  const title = _.get(props, 'project.project.title') || _.get(props, 'project.project.name');
-  const summary = _.get(props, 'project.project.summary');
+  const tab = _.get(props, 'match.params.tab') || 'sandboxes';
+  const name = _.get(props, 'project.data.project.name');
+  const title = _.get(props, 'project.data.project.title');
+  const summary = _.get(props, 'project.data.project.summary');
+  const isAdmin = _.get(props, 'project.data.isAdmin');
+  const isMember = _.get(props, 'project.data.isMember');
+  const error = _.get(props, 'project.error');
+
+  const onUpdate = (values) => {
+    const current = _.pick(_.get(props, 'project.data.project'), 'name', 'title', 'summary');
+
+    const updated = _.assign(current, values, { project: name });
+
+    props.dispatch(update('projects update', updated));
+  }
+
+  const onGrant = (value) => {
+    const request = _.assign(value, { project: name });
+    props.dispatch(update('projects grant', request));
+  }
+
+  const onRevoke = (value) => {
+    const request = _.assign(value, { project: name });
+    props.dispatch(update('projects revoke', request));
+  }
 
   return (
     <div>
       <Helmet>
-        <title>Project</title>
-        <meta name="description" content="Description of Project" />
+        <title>{ title } &middot; Maquette</title>
       </Helmet>
 
       <Affix top={56}>
@@ -102,7 +69,11 @@ function Display(props) {
             <FlexboxGrid align="middle">
               <FlexboxGrid.Item colspan={ 20 }>
                 <h1><Link to={ `/${name}` }>{ title }</Link></h1>
-                <EditableParagraph value={ summary } className="mq--p-leading" />
+                <EditableParagraph 
+                  value={ summary } 
+                  onChange={ summary => onUpdate({ summary }) }
+                  disabled={ !isAdmin }
+                  className="mq--p-leading" />
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
                 <ButtonToolbar>
@@ -120,40 +91,32 @@ function Display(props) {
           </Container>
           
           <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-            <Nav.Item eventKey="datashop" componentClass={ Link } to={ `/${name}` }>Data Shop</Nav.Item>
             <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
             <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
             <Nav.Item eventKey="sandboxes" componentClass={ Link } to={ `/${name}/sandboxes` }>Sandboxes</Nav.Item>
-            <Nav.Item eventKey="projects" componentClass={ Link } to={ `/${name}/projects` }>Projects</Nav.Item>
             <Nav.Item eventKey="templates" componentClass={ Link } to={ `/${name}/templates` }>Templates</Nav.Item>
             <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${name}/settings` }>Settings</Nav.Item>
           </Nav>
         </div>
       </Affix>
-      
-      { tab == 'datashop' && <DataShop { ...props} /> }
-      { tab == 'settings' && <Settings { ...props} /> }
+
+      {
+        error && <ErrorMessage title="An error occurred saving the changes" message={ error } onDismiss={ () => props.dispatch(dismissError()) } />
+      }
+
+      { 
+        tab == 'settings' && <>
+          <ProjectSettings 
+            { ...props} 
+            onUpdate={ onUpdate }
+            onGrant={ onGrant }
+            onRevoke={ onRevoke } /> 
+        </>
+      }
+
       { tab == 'sandboxes' && <Sandboxes { ...props} /> }
     </div>
   );
-}
-
-function Error(props) {
-  const error = _.get(props, 'project.errors.project.response.message') || 'Unknown error occurred.';
-
-  return <div>
-    <Helmet>
-      <title>Project cannot be displayed &middot; Maquette</title>
-    </Helmet>
-
-    <Container md className="mq--main-content">
-      <Summary.Summaries>
-        <Summary.Empty>
-          ¯\_(ツ)_/¯<br />{ error }
-        </Summary.Empty>
-      </Summary.Summaries>
-    </Container>
-  </div>;
 }
 
 export function Project(props) {
@@ -161,21 +124,25 @@ export function Project(props) {
   useInjectSaga({ key: 'project', saga });
 
   const [initialized, setInitialized] = useState(false);
-  const error = _.get(props, 'project.errors.project');
+  const error = _.get(props, 'project.error');
+  const data = _.get(props, 'project.data');
   const loading = _.get(props, 'project.loading');
-  const name = _.get(props, 'match.params.name');
+  const project = _.get(props, 'match.params.project');
+  const isMember = _.get(props, 'project.data.isMember');
 
   useEffect(() => {
     if (!initialized) {
-      props.dispatch(initAction(name));
+      props.dispatch(load(project));
       setInitialized(true);
     }
   });
 
-  if (!_.isEmpty(loading)) {
-    return <div className="mq--loading" />;
-  } else if (error) {
-    return <Error { ...props } />;
+  if (!initialized || loading) {
+    return <div className="mq--loading" /> 
+  } else if (!data && error) {
+    return <Error background={ ProjectBackground } message={ error } />;
+  } else if (!isMember) {
+    return <Error background={ ProjectBackground } message="You are not authorized to view this project." />;
   } else {
     return <Display { ...props } />; 
   }

@@ -10,4 +10,8 @@ public class NotAuthorizedException extends RuntimeException implements DomainEx
       return new NotAuthorizedException(message);
    }
 
+   @Override
+   public int getStatus() {
+      return 401;
+   }
 }

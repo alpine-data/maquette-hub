@@ -5,51 +5,26 @@
  */
 
 import { 
-  CREATE_DATASET, CREATE_DATASET_FAILURE, CREATE_DATASET_SUCCESS, 
-  LOAD_PROJECTS, LOAD_PROJECTS_FAILURE, LOAD_PROJECTS_SUCCESS } from './constants';
+  CREATE, CREATE_FAILURE, CREATE_SUCCESS } from './constants';
 
-export function createDataset(project, title, name, summary, visibility, classification, personalInformation) {
+export function create(data) {
   return {
-    type: CREATE_DATASET,
-    project, title, name, summary, visibility, classification, personalInformation
+    type: CREATE,
+    ...data
   };
-}
+};
 
-export function createDatasetFailure(project, name, error) {
+export function createFailure(error) {
   return {
-    type: CREATE_DATASET_FAILURE,
-    project,
-    name,
+    type: CREATE_FAILURE,
     error
-  }
-}
+  };
+};
 
-export function createDatasetSuccess(project, name, response) {
+export function createSuccess(name, response) {
   return {
-    type: CREATE_DATASET_SUCCESS,
-    project,
+    type: CREATE_SUCCESS,
     name, 
     response
   };
-}
-
-export function loadProjects() {
-  return { 
-    type: LOAD_PROJECTS
-  }
-}
-
-export function loadProjectsFailure(error) {
-  return {
-    type: LOAD_PROJECTS_FAILURE,
-    error
-  };
-}
-
-export function loadProjectsSuccess(user, response) {
-  return {
-    type: LOAD_PROJECTS_SUCCESS,
-    user,
-    response
-  }
-}
+};

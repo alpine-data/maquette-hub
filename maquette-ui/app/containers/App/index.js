@@ -15,11 +15,13 @@ import { Switch, Route } from 'react-router-dom';
 
 import Layout from 'components/Layout';
 
+import CreateDataAccessRequest from '../CreateDataAccessRequest';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
+import DataShop from 'containers/DataShop/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
@@ -36,17 +38,22 @@ export function App({ app, onUserChanged }) {
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route path="/search" component={Search} />
+        
+        <Route path="/new/data-access-request" component={CreateDataAccessRequest} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/sandbox" component={CreateSandbox} />
-        <Route path="/:name/resources/datasets/:dataset" exact component={Dataset} />
-        <Route path="/:name/resources/datasets/:dataset/:tab" exact component={Dataset} />
-        <Route path="/:name/resources/datasets/:dataset/:tab/:id" exact component={Dataset} />
-        <Route path="/:name/resources/sandboxes/:sandbox" exact component={Sandbox} />
-        <Route path="/:name" exact component={Project} />
-        <Route path="/:name/:tab" exact component={Project} />
-        <Route path="/:name" exact component={Project} />
-        <Route path="/:name/:tab/:sub" exact component={Project} />
+
+        <Route path="/shop" exact component={DataShop} />
+        <Route path="/shop/:tab" exact component={DataShop} />
+        <Route path="/shop/datasets/:dataset" exact component={Dataset} />
+        <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
+        <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+
+        <Route path="/:project" exact component={Project} />
+        <Route path="/:project/sandboxes/:sandbox" exact component={Sandbox} />
+        <Route path="/:project/:tab" exact component={Project} />
+        <Route path="/:project/:tab/:id" exact component={Project} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />

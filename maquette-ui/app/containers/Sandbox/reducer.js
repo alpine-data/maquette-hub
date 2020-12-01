@@ -5,45 +5,41 @@
  */
 import _ from 'lodash';
 import produce from 'immer';
-import {
-  INITIALIZE, FAILED,
-  GET_SANDBOX_SUCCESS, GET_STACKS_SUCCESS, GET_PROJECT_SUCCESS } from './constants';
+import { LOAD, FETCHED, FAILED } from './constants';
 
 export const initialState = {
-  project: false,
-  stacks: false,
-  sandbox: false,
-  loading: [],
-  errors: {}
+  keys: {},
+  data: false,
+
+  error: false,
+  loading: false,
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const sandboxReducer = (state = initialState, action) =>
   produce(state, (draft => {
     switch (action.type) {
-      case INITIALIZE:
-        draft.errors = _.assign(draft.errors, { project: false, sandbox: false, stacks: false });
-        draft.loading = _.concat(draft.loading, ['project', 'stacks', 'sandbox']);
+      case LOAD:
+        draft.keys = action;
+        draft.error = false;
+
+        if (action.clear || !draft.data) {
+          draft.loading = true;
+          draft.data = false;
+        } 
+
         break;
 
       case FAILED:
-        draft.loading = _.without(draft.loading, action.key);
-        draft.errors = _.assign(draft.errors, { [action.key]: action.error });
+        draft.loading = false;
+        draft.error = _.get(action, 'error.response.message') || 'Sorry, some error has occurred.';
+        window.scrollTo(0, 0);
         break;
 
-      case GET_PROJECT_SUCCESS:
-        draft.loading = _.without(draft.loading, 'project');
-        draft.project = action.response.data;
+      case FETCHED:
+        draft.loading = false;
+        draft.data = action.response;
         break;
-
-      case GET_SANDBOX_SUCCESS:
-        draft.loading = _.without(draft.loading, 'sandbox');
-        draft.sandbox = action.response.data;
-        break;
-
-      case GET_STACKS_SUCCESS:
-        draft.loading = _.without(draft.loading, 'stacks');
-        draft.stacks = action.response.data;
     }
   }));
 

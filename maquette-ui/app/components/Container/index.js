@@ -26,7 +26,7 @@ function Container({ background, fluid, md, lg, xlg, children, className, ...pro
   </FlexboxGrid>;
 
   if (background) {
-    return <div className="mq--page-background" style={{ backgroundImage: `url(${background})` }}>
+    return <div className={ cx("mq--page-background", className) } style={{ backgroundImage: `url(${background})` }}>
       { content }
     </div>
   } else {
@@ -35,7 +35,11 @@ function Container({ background, fluid, md, lg, xlg, children, className, ...pro
 }
 
 Container.propTypes = {
-  fluid: propTypes.bool
+  background: propTypes.any,
+  fluid: propTypes.bool,
+  md: propTypes.bool,
+  lg: propTypes.bool,
+  xlg: propTypes.bool
 };
 
 export default Container;

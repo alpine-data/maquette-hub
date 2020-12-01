@@ -16,7 +16,7 @@ function StartSearch({ title, placeholder, searchAllLabel, searchLabel, link }) 
   const [value, setValue] = useState('');
 
   return <>
-    <h5>{ title }</h5>
+    { title && <h5>{ title }</h5> }
     <Form fluid>
       <FormGroup>
         <Input placeholder={ placeholder } value={ value } onChange={ v => setValue(v) } size="lg" />
@@ -48,7 +48,7 @@ function StartSearch({ title, placeholder, searchAllLabel, searchLabel, link }) 
 }
 
 StartSearch.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   placeholder: PropTypes.string,
   searchAllLabel: PropTypes.string,
   searchLabel: PropTypes.string,

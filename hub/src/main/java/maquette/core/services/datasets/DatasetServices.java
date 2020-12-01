@@ -1,17 +1,17 @@
 package maquette.core.services.datasets;
 
 import akka.Done;
-import maquette.core.entities.data.datasets.model.DatasetDetails;
+import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
+import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestDetails;
-import maquette.core.values.access.DataAccessToken;
-import maquette.core.values.access.DataAccessTokenNarrowed;
-import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
@@ -21,7 +21,6 @@ import org.apache.avro.Schema;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 public interface DatasetServices {
@@ -30,62 +29,50 @@ public interface DatasetServices {
     * General
     */
    CompletionStage<DatasetProperties> createDataset(
-      User executor, String projectName, String title, String name, String summary, String description,
+      User executor, String title, String name, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
 
-   CompletionStage<Done> deleteDataset(User executor, String projectName, String datasetName);
+   CompletionStage<Done> deleteDataset(User executor, String dataset);
 
-   CompletionStage<DatasetDetails> getDataset(User executor, String projectName, String datasetName);
+   CompletionStage<Dataset> getDataset(User executor, String dataset);
 
-   CompletionStage<List<DatasetProperties>> getDatasets(User executor, String projectName);
+   CompletionStage<List<DatasetProperties>> getDatasets(User executor);
 
    CompletionStage<Done> updateDetails(
-      User executor, String projectName, String datasetName, String name, String title, String summary,
+      User executor, String name, String updatedName, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
 
    /*
     * Manage access
     */
-   CompletionStage<Done> grantDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner);
+   CompletionStage<Done> grantDatasetMember(User executor, String dataset, Authorization member, DataAssetMemberRole role);
 
-   CompletionStage<Done> revokeDatasetOwner(User executor, String projectName, String datasetName, UserAuthorization owner);
-
-
-   /*
-    * Data Access Tokens
-    */
-   CompletionStage<DataAccessToken> createDataAccessToken(User executor, String projectName, String datasetName, String origin, String tokenName, String description);
-
-   CompletionStage<List<DataAccessTokenNarrowed>> getDataAccessTokens(User executor, String projectName, String datasetName);
+   CompletionStage<Done> revokeDatasetMember(User executor, String dataset, Authorization member);
 
    /*
     * Data Access Requests
     */
-   CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, String projectName, String datasetName, String origin, String reason);
+   CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String dataset, String project, String reason);
 
-   CompletionStage<List<DataAccessRequestDetails>> getDataAccessRequests(User executor, String projectName, String datasetName);
+   CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String dataset, UID request);
 
-   CompletionStage<Optional<DataAccessRequestDetails>> getDataAccessRequestById(User executor, String projectName, String datasetName, String accessRequestId);
+   CompletionStage<Done> grantDataAccessRequest(User executor, String dataset, UID request, @Nullable Instant until, @Nullable String message);
 
-   CompletionStage<Done> grantDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable Instant until, @Nullable String message);
+   CompletionStage<Done> rejectDataAccessRequest(User executor, String dataset, UID request, String reason);
 
-   CompletionStage<Done> rejectDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason);
+   CompletionStage<Done> updateDataAccessRequest(User executor, String dataset, UID request, String reason);
 
-   CompletionStage<Done> updateDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, String reason);
-
-   CompletionStage<Done> withdrawDataAccessRequest(User executor, String projectName, String datasetName, String accessRequestId, @Nullable  String reason);
+   CompletionStage<Done> withdrawDataAccessRequest(User executor, String dataset, UID request, @Nullable String reason);
 
    /*
     * Data Management
     */
-   CompletionStage<CommittedRevision> commitRevision(User executor, String projectName, String datasetName, String revisionId, String message);
+   CompletionStage<CommittedRevision> commitRevision(User executor, String dataset, UID revision, String message);
 
-   CompletionStage<Revision> createRevision(User executor, String projectName, String datasetName, Schema schema);
+   CompletionStage<Revision> createRevision(User executor, String dataset, Schema schema);
 
-   CompletionStage<Records> download(User executor, String projectName, String datasetName, DatasetVersion version);
+   CompletionStage<Records> download(User executor, String dataset, DatasetVersion version);
 
-   CompletionStage<List<CommittedRevision>> getVersions(User executor, String projectName, String datasetName);
-
-   CompletionStage<Done> upload(User executor, String projectName, String datasetName, String revisionId, Records records);
+   CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records);
 
 }

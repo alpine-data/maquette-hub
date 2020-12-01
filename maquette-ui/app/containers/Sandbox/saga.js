@@ -3,41 +3,35 @@ import { takeLatest, select, put, call } from 'redux-saga/effects';
 
 import { makeSelectCurrentUser } from '../App/selectors';
 
-import { getProjectSuccess, getSandboxSuccess, getStacksSuccess } from './actions';
-
-import {
-  INITIALIZE
-} from './constants'
+import { failed, fetched, load } from './actions';
+import { LOAD } from './constants';
+import { CHANGE_USER } from '../App/constants';
 
 import { command } from 'utils/request';
-import { push } from 'connected-react-router';
 
-export function* initialize(action) {
-  const user = yield select(makeSelectCurrentUser());
-
+export function* onChangeUser() {
   try {
-    const data = yield call(command, 'sandboxes get', _.omit(action, 'type'), user);
-    yield put(getSandboxSuccess(data));
+    const project = yield select(state => _.get(state, 'sandbox.keys.project'));
+    const sandbox = yield select(state => _.get(state, 'sandbox.keys.sandbox'));
+    yield put(load(project, sandbox, true));
   } catch (err) {
-    yield put(failed('sandbox', err));
+    yield put(failed(err));
   }
+}
 
+export function* onLoad(action) {
   try {
-    const data = yield call(command, 'projects get', { name: action.project }, user);
-    yield put(getProjectSuccess(data));
-  } catch (err) {
-    yield put(failed('project', err));
-  }
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'views sandbox', _.omit(action, 'type', 'clear'), user);
 
-  try {
-    const data = yield call(command, 'sandboxes stacks', {}, user);
-    yield put(getStacksSuccess(data));
+    yield put(fetched(data));
   } catch (err) {
-    yield put(failed('stacks', err));
+    yield put(failed(err));
   }
 }
 
 // Individual exports for testing
 export default function* sandboxSaga() {
-  yield takeLatest(INITIALIZE, initialize);
+  yield takeLatest(CHANGE_USER, onChangeUser);
+  yield takeLatest(LOAD, onLoad);
 }

@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
 public class ProjectProperties {
 
-    String id;
+    UID id;
 
     String name;
 

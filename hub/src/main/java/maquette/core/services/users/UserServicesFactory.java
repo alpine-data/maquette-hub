@@ -1,7 +1,9 @@
 package maquette.core.services.users;
 
-import maquette.core.entities.projects.Projects;
+import maquette.core.entities.data.datasets.DatasetEntities;
+import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.users.Users;
+import maquette.core.services.datasets.DatasetCompanion;
 
 public final class UserServicesFactory {
 
@@ -9,9 +11,10 @@ public final class UserServicesFactory {
 
    }
 
-   public static UserServices apply(Projects projects, Users users) {
+   public static UserServices apply(ProjectEntities projects, DatasetEntities datasets, Users users) {
       var comp = UserCompanion.apply(users);
-      return UserServicesImpl.apply(projects, comp);
+      var datasetCompanion = DatasetCompanion.apply(projects, datasets);
+      return UserServicesImpl.apply(datasets, projects, comp, datasetCompanion);
    }
 
 }

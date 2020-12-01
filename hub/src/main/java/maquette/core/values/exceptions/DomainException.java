@@ -4,4 +4,8 @@ public interface DomainException {
 
    String getMessage();
 
+   default int getStatus() {
+      return 400;
+   }
+
 }

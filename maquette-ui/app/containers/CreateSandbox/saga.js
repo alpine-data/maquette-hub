@@ -3,50 +3,36 @@ import { takeLatest, select, put, call } from 'redux-saga/effects';
 
 import { makeSelectCurrentUser } from '../App/selectors';
 
-import { 
-  createSandboxSuccess,
-  failed, 
-  getProjectsSuccess, 
-  getStacksSuccess } from './actions';
-
-import {
-  CREATE_SANDBOX, 
-  INITIALIZE } from './constants';
-
+import { failed, fetched, submit_failed, submit_success } from './actions';
+import { INIT, SUBMIT } from './constants';
 import { command } from 'utils/request';
 import { push } from 'connected-react-router';
 
-export function* initialize() {
-  const user = yield select(makeSelectCurrentUser());
-
+export function* onInit(action) {
   try {
-    const data = yield call(command, 'sandboxes stacks', {}, user);
-    yield put(getStacksSuccess(data));
-  } catch (err) {
-    yield put(failed('stacks', err));
-  }
+    const user = yield select(makeSelectCurrentUser());
+    const data = yield call(command, 'views create-sandbox', {}, user);
 
-  try {
-    const data = yield call(command, 'projects list', {}, user);
-    yield put(getProjectsSuccess(data));
+    yield put(fetched(data));
   } catch (err) {
-    yield put(failed('projects', err));
+    yield put(failed(err));
   }
 }
 
-export function* createSandbox(action) {
+export function* onSubmit(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'sandboxes create', _.omit(action, 'type'), user);
-    yield put(createSandboxSuccess(data));
-    yield put(push(`/${action.project}/sandboxes`));
+    const data = yield call(command, 'sandboxes create', action.request, user);
+
+    yield put(submit_success(data));
+    yield put(push(`/${action.request.project}/sandboxes/${action.request.name}`));
   } catch (err) {
-    yield put(failed('create-sandbox', err));
+    yield put(submit_failed(err));
   }
 }
 
 // Individual exports for testing
 export default function* createSandboxSaga() {
-  yield takeLatest(INITIALIZE, initialize);
-  yield takeLatest(CREATE_SANDBOX, createSandbox);
+  yield takeLatest(INIT, onInit);
+  yield takeLatest(SUBMIT, onSubmit);
 }

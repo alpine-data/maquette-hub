@@ -4,8 +4,9 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.entities.data.datasets.exceptions.AccessRequestNotFoundException;
-import maquette.core.ports.DatasetsRepository;
+import maquette.core.ports.HasDataAccessRequests;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import maquette.core.values.access.*;
 import maquette.core.values.user.User;
 
@@ -20,28 +21,25 @@ import java.util.function.Function;
 @AllArgsConstructor(staticName = "apply")
 public final class AccessRequests {
 
-   private final String id;
+   private final UID id;
 
-   private final String projectId;
+   private final HasDataAccessRequests repository;
 
-   private final String fullId;
-
-   private final String name;
-
-   private final DatasetsRepository repository;
-
-   public CompletionStage<DataAccessRequest> createDataAccessRequest(User executor, String origin, String reason) {
+   public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, UID project, String reason) {
       var created = ActionMetadata.apply(executor);
 
       return repository
-         .getDataAccessRequestsCountByParent(projectId, id)
-         .thenApply(count -> DataAccessRequest.apply(String.valueOf(count + 1), created, projectId, id, origin, reason))
+         .getDataAccessRequestsCountByParent(id)
+         .thenApply(count -> {
+            var requestId = UID.apply(String.valueOf(count + 1));
+            return DataAccessRequestProperties.apply(requestId, created, id, project, reason);
+         })
          .thenCompose(request -> repository
             .insertOrUpdateDataAccessRequest(request)
             .thenApply(done -> request));
    }
 
-   public CompletionStage<Done> expireDataAccessRequest(String accessRequestId) {
+   public CompletionStage<Done> expireDataAccessRequest(UID accessRequestId) {
       var expired = Expired.apply(Instant.now());
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(expired);
@@ -49,15 +47,19 @@ public final class AccessRequests {
       });
    }
 
-   public CompletionStage<List<DataAccessRequest>> getDataAccessRequests() {
-      return repository.findDataAccessRequestsByParent(projectId, id);
+   public CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests() {
+      return repository.findDataAccessRequestsByAsset(id);
    }
 
-   public CompletionStage<Optional<DataAccessRequest>> getDataAccessRequestById(String accessRequestId) {
-      return repository.findDataAccessRequestById(projectId, id, accessRequestId);
+   public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID accessRequestId) {
+      return repository.findDataAccessRequestById(id, accessRequestId);
    }
 
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String accessRequestId, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<DataAccessRequestProperties> getDataAccessRequestById(UID accessRequestId) {
+      return findDataAccessRequestById(accessRequestId).thenApply(opt -> opt.orElseThrow(() -> AccessRequestNotFoundException.apply(accessRequestId)));
+   }
+
+   public CompletionStage<Done> grantDataAccessRequest(User executor, UID accessRequestId, @Nullable Instant until, @Nullable String message) {
       var updated = ActionMetadata.apply(executor);
       var granted = Granted.apply(updated, until, message);
 
@@ -67,7 +69,7 @@ public final class AccessRequests {
       });
    }
 
-   public CompletionStage<Done> rejectDataAccessRequest(User executor, String accessRequestId, String reason) {
+   public CompletionStage<Done> rejectDataAccessRequest(User executor, UID accessRequestId, String reason) {
       var updated = ActionMetadata.apply(executor);
       var rejected = Rejected.apply(updated, reason);
 
@@ -77,7 +79,7 @@ public final class AccessRequests {
       });
    }
 
-   public CompletionStage<Done> updateDataAccessRequest(User executor, String accessRequestId, String reason) {
+   public CompletionStage<Done> updateDataAccessRequest(User executor, UID accessRequestId, String reason) {
       var updated = ActionMetadata.apply(executor);
       var requested = Requested.apply(updated, reason);
 
@@ -87,7 +89,7 @@ public final class AccessRequests {
       });
    }
 
-   public CompletionStage<Done> withdrawDataAccessRequest(User executor, String accessRequestId, @Nullable  String reason) {
+   public CompletionStage<Done> withdrawDataAccessRequest(User executor, UID accessRequestId, @Nullable  String reason) {
       var updated = ActionMetadata.apply(executor);
       var withdrawn = Withdrawn.apply(updated, reason);
 
@@ -97,15 +99,15 @@ public final class AccessRequests {
       });
    }
 
-   private <T> CompletionStage<T> withDataAccessRequest(String accessRequestId, Function<DataAccessRequest, CompletionStage<T>> func) {
+   private <T> CompletionStage<T> withDataAccessRequest(UID accessRequestId, Function<DataAccessRequestProperties, CompletionStage<T>> func) {
       return repository
-         .findDataAccessRequestById(projectId, id, accessRequestId)
+         .findDataAccessRequestById(id, accessRequestId)
          .thenCompose(maybeAccessRequest -> {
             if (maybeAccessRequest.isPresent()) {
                var accessRequest = maybeAccessRequest.get();
                return func.apply(accessRequest);
             } else {
-               throw AccessRequestNotFoundException.apply(getFullId(), name, accessRequestId);
+               throw AccessRequestNotFoundException.apply(accessRequestId);
             }
          });
    }

@@ -23,8 +23,6 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDatasetCommand implements Command {
 
-   String project;
-
    String title;
 
    String name;
@@ -37,13 +35,9 @@ public class CreateDatasetCommand implements Command {
 
    String personalInformation;
 
-   String description;
-
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(title) ||title.length() == 0) {
+      if (Objects.isNull(title) ||title.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`title` must be supplied"));
       } else if (Objects.isNull(name) ||name.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`name` must be supplied"));
@@ -62,14 +56,13 @@ public class CreateDatasetCommand implements Command {
 
       return services
          .getDatasetServices()
-         .createDataset(user, project, title, name, summary, description, visibilityMapped, classificationMapped, personalInformationMapped)
-         .thenApply(pid -> MessageResult.apply("Successfully created dataset %s/%s", project, name));
+         .createDataset(user, title, name, summary, visibilityMapped, classificationMapped, personalInformationMapped)
+         .thenApply(pid -> MessageResult.apply("Successfully created dataset `%s`", name));
    }
 
    @Override
    public Command example() {
       return CreateDatasetCommand.apply(
-         "my-funny-project", "Funny Dataset", "my-funny-dataset",
-         "Lorem ipsum", "public", "public", "none", "Lorem ipsum");
+         "Funny Dataset", "my-funny-dataset", "Lorem ipsum", "public", "public", "none");
    }
 }
