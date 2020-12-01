@@ -73,6 +73,8 @@ public interface DatasetServices {
 
    CompletionStage<Records> download(User executor, String dataset, DatasetVersion version);
 
+   CompletionStage<Records> download(User executor, String dataset);
+
    CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records);
 
 }

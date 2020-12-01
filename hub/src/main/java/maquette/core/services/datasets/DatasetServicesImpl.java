@@ -160,6 +160,17 @@ public final class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
+   public CompletionStage<Records> download(User executor, String dataset) {
+      return datasets
+         .getDatasetByName(dataset)
+         .thenCompose(ds -> ds
+            .revisions()
+            .getVersions()
+            .thenApply(versions -> versions.stream().map(CommittedRevision::getVersion).findFirst().orElse(DatasetVersion.apply("1.0.0")))
+            .thenCompose(version -> ds.revisions().download(executor, version)));
+   }
+
+   @Override
    public CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records) {
       return datasets
          .getDatasetByName(dataset)

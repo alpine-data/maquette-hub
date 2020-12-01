@@ -45,6 +45,7 @@ public final class MaquetteServer {
                 .post("/api/data/datasets/:dataset", dataResource.uploadFile())
                 .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
                 .get("/api/data/datasets/:dataset/:version", dataResource.download())
+                .get("/api/data/datasets/:dataset", dataResource.downloadLatest())
 
                 .get("/api/v1/about", adminResource.getAbout())
                 .get("/api/v1/admin/user", adminResource.getUserInfo())

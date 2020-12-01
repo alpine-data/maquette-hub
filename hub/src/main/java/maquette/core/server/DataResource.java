@@ -79,6 +79,8 @@ public final class DataResource {
          var file = Files.createTempFile("maquette", "upload");
          FileUtils.copyInputStreamToFile(uploaded.getContent(), file.toFile());
 
+         var message = ctx.formParam("message") != null ? ctx.formParam("message") : "New version with single file upload.";
+
          var records = Records.fromFile(file);
          var result = services
             .getDatasetServices()
@@ -88,7 +90,7 @@ public final class DataResource {
                .upload(user, dataset, revision.getId(), records)
                .thenCompose(done -> services
                   .getDatasetServices()
-                  .commitRevision(user, dataset, revision.getId(), "New version with single file upload.")))
+                  .commitRevision(user, dataset, revision.getId(), message)))
             .thenApply(committedRevision -> {
                Operators.suppressExceptions(() -> Files.deleteIfExists(file));
                return committedRevision;
@@ -107,9 +109,8 @@ public final class DataResource {
             op.description("Downloads from a revision of a dataset.");
             op.addTagsItem("Dataset");
          })
-         .pathParam("project", String.class, p -> p.description("The name of the project"))
          .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
-         .pathParam("revision", String.class, p -> p.description("The id of the revision"))
+         .pathParam("version", String.class, p -> p.description("The version"))
          .json("200", String.class);
 
       return OpenApiBuilder.documented(docs, ctx -> {
@@ -128,6 +129,37 @@ public final class DataResource {
             .toCompletableFuture();
 
          ctx.header("Content-Disposition", "attachment; filename=" + dataset + "-" + version + ".avro");
+         ctx.header("Content-Type", "application/octet-stream");
+         ctx.result(result);
+      });
+   }
+
+   public Handler downloadLatest() {
+      var docs = OpenApiBuilder
+         .document()
+         .operation(op -> {
+            op.summary("Download Latest Dataset Version");
+            op.description("Downloads the latest revision of a dataset.");
+            op.addTagsItem("Dataset");
+         })
+         .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
+         .json("200", String.class);
+
+      return OpenApiBuilder.documented(docs, ctx -> {
+         var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+         var dataset = ctx.pathParam("dataset");
+
+         var result = services
+            .getDatasetServices()
+            .download(user, dataset)
+            .thenApply(records -> {
+               var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+               records.toFile(file);
+               return DeleteOnCloseInputStream.apply(file);
+            })
+            .toCompletableFuture();
+
+         ctx.header("Content-Disposition", "attachment; filename=" + dataset + "-latest.avro");
          ctx.header("Content-Type", "application/octet-stream");
          ctx.result(result);
       });
