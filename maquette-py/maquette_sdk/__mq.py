@@ -127,17 +127,17 @@ class Dataset:
 
     __name: str = None
 
-    def __init__(self, name: str, title: str = None, summary: str = "Lorem Impsum",
+    def __init__(self, dataset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
                  project_name: str = None):
 
-        self.__name = name
+        self.__name = dataset_name
         if title:
             self.__title = title
         else:
-            self.__title = name
+            self.__title = dataset_name
 
         self.__summary = summary
         self.__visibility = visibility
@@ -288,7 +288,7 @@ def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = 
     args = [arg for arg in
                 [dataset_title, summary, visibility, classification, personal_information] if
                 arg]
-    return Dataset(name=dataset_name,project_name=os.environ.get('MQ_PROJECT_NAME', 'Project_42'),*args)
+    return Dataset(dataset_name=dataset_name, project_name=os.environ.get('MQ_PROJECT_NAME', 'Project_42'), *args)
 
 def datasets(name: str, to_csv=False) -> pd.DataFrame:
     if to_csv:

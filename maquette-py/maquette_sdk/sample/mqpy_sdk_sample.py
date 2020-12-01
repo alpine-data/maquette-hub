@@ -7,11 +7,11 @@ import pandas as pd
 #print(maquette_sdk.projects())
 
 # add a dataset to a project
-#maquette_sdk.dataset('another-dataset').create()
+# maquette_sdk.dataset('another-dataset').create()
 
 # upload data to the dataset
-# testdf = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
-# dsv = maquette_sdk.dataset('another-dataset').put(testdf, "muahahaha")
+testdf = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
+dsv = maquette_sdk.dataset('another-dataset').put(testdf, "muahahaha")
 # show a list of all datasets of a project
 #print(maquette_sdk.datasets('sample-project',True))
 
