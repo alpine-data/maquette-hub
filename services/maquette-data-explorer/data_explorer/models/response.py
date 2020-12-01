@@ -16,6 +16,7 @@ class Column(BaseModel):
     name: str
     type: Type
     stats: Stats
+    image: Optional[str]
 
 class ResponseBody(BaseModel):
     columns: List[Column]

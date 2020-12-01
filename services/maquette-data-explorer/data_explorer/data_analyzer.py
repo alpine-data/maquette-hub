@@ -1,4 +1,7 @@
 import pandas as pd
+import seaborn as sns
+import base64
+from io import BytesIO
 
 from data_explorer.models.response import Column, Stats, Type
 
@@ -25,8 +28,17 @@ def __generate_obj_statistic(desc, column_data):
     str_details.append(["Most Common", top, ""])
     top_freq = desc.freq
     str_details.append(["Most Common Frequency", top_freq.item(), ""])
-
     return [str_details]
+
+def __generate_obj_image(desc, column_data, df):
+    series = column_data.value_counts(dropna=False).sort_values(ascending=False).head(5)
+    plot = sns.barplot(x=series.index, y=series.values, data=df).get_figure()
+    img = BytesIO()
+    plot.savefig(img, format='png')
+    img.seek(0)
+    image = base64.b64encode(img.getvalue())
+    img.close()
+    return image
 
 def __generate_num_statistic(desc, column_data):
     num_details = []
@@ -41,22 +53,45 @@ def __generate_num_statistic(desc, column_data):
     quantiles.append(["", quant_dict["50%"], "50%"])
     quantiles.append(["", quant_dict["75%"], "75%"])
     quantiles.append(["", quant_dict["max"], "Max"])
-    return [num_details,quantiles]
+    return [num_details, quantiles]
 
-def generate_df_statistics(df: pd.DataFrame):
+def __generate_num_image(desc, column_data, df):
+    series = column_data.value_counts(dropna=False).sort_index(ascending=False).head(5)
+    plot = sns.barplot(x=series.index, y=series.values, data=df).get_figure()
+    img = BytesIO()
+    plot.savefig(img, format='png')
+    img.seek(0)
+    image = base64.b64encode(img.getvalue())
+    img.close()
+    return image
+
+def generate_df_statistics(df: pd.DataFrame, with_images: bool):
     column_list = []
     for (column_name, column_data) in df.iteritems():
         desc = column_data.describe()
         mismatched, valid, missing = __generate_general_statistic(desc, column_data)
         if desc.dtype == "object":
             type = Type.text
-            column_list.append(Column(name=column_name, type=type,
+            if with_images:
+                column_list.append(Column(name=column_name, type=type,
+                                        image=__generate_num_image(desc, column_data, df),
                                        stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
-                                                   details=__generate_obj_statistic(desc, column_data))))
+                                                   details=__generate_obj_statistic(desc, column_data),
+                                                      image=__generate_obj_image(desc, column_data, df))))
+            else:
+                column_list.append(Column(name=column_name, type=type,
+                                          stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
+                                                      details=__generate_obj_statistic(desc, column_data))))
         #TODO: alternative for datetimes
         else:
             type = Type.numeric
-            column_list.append(Column(name=column_name, type=type,
+            if with_images:
+                column_list.append(Column(name=column_name, type=type,
+                                    image=__generate_num_image(desc, column_data, df),
                                       stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
                                                   details=__generate_num_statistic(desc, column_data))))
+            else:
+                column_list.append(Column(name=column_name, type=type,
+                                          stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
+                                                      details=__generate_num_statistic(desc, column_data))))
     return column_list
