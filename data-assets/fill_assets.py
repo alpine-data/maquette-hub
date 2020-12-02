@@ -9,8 +9,8 @@ def init_weather():
     weather_df = pd.read_csv(weather_csv, sep=";")
     dataset('city-temperature').put(weather_df, "weather init")
     print("Uplodaded Weather Dataset")
-    print("Checking success:")
-    print(dataset('city-temperature').version().get())
+    # print("Checking success:")
+    # print(dataset('city-temperature').version().get())
 
 def init_fraud():
     # Upload Fraud Analysis Dataset
@@ -19,8 +19,8 @@ def init_fraud():
     fraud_df = pd.read_csv(fraud_csv)
     dataset('fraud-analysis').put(fraud_df, "fraud init")
     print("Uploaded Fraud Dataset")
-    print("Checking success:")
-    print(dataset('fraud-analysis').version().get())
+    # print("Checking success:")
+    # print(dataset('fraud-analysis').version().get())
 
 
 init_weather()
