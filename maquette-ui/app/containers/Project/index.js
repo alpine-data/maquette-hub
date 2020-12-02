@@ -29,9 +29,11 @@ import { Link } from 'react-router-dom';
 import ProjectBackground from '../../resources/projects-background.png';
 import ProjectSettings from '../../components/ProjectSettings';
 import ErrorMessage from '../../components/ErrorMessage';
+import DataAssetBrowser from '../../components/DataAssetBrowser';
+import ProjectDataAssets from '../../components/ProjectDataAssets';
 
 function Display(props) {
-  const tab = _.get(props, 'match.params.tab') || 'sandboxes';
+  const tab = _.get(props, 'match.params.tab') || 'assets';
   const name = _.get(props, 'project.data.project.name');
   const title = _.get(props, 'project.data.project.title');
   const summary = _.get(props, 'project.data.project.summary');
@@ -91,6 +93,7 @@ function Display(props) {
           </Container>
           
           <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
+            <Nav.Item eventKey="assets" componentClass={ Link } to={ `/${name}` }>Data Assets</Nav.Item>
             <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
             <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
             <Nav.Item eventKey="sandboxes" componentClass={ Link } to={ `/${name}/sandboxes` }>Sandboxes</Nav.Item>
@@ -102,6 +105,10 @@ function Display(props) {
 
       {
         error && <ErrorMessage title="An error occurred saving the changes" message={ error } onDismiss={ () => props.dispatch(dismissError()) } />
+      }
+
+      {
+        tab == 'assets' && <ProjectDataAssets { ...props } />
       }
 
       { 

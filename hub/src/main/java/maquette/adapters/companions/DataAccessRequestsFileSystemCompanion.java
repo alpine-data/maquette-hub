@@ -70,6 +70,7 @@ public final class DataAccessRequestsFileSystemCompanion implements HasDataAcces
          .flatMap(directory -> Operators.suppressExceptions(() -> Files.list(directory)))
          .filter(file -> file.toString().endsWith(FILE_ENDING))
          .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DataAccessRequestProperties.class)))
+         .filter(request -> request.getProject().equals(project))
          .collect(Collectors.toList());
 
       return CompletableFuture.completedFuture(result);
