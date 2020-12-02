@@ -8,6 +8,8 @@ import maquette.core.entities.processes.model.ProcessDetails;
 import maquette.core.entities.processes.model.ProcessSummary;
 import maquette.core.values.user.User;
 import org.apache.commons.compress.utils.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class ProcessManager {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessManager.class);
+
     private final List<Process> processes;
 
     public static ProcessManager apply() {
@@ -30,7 +34,15 @@ public final class ProcessManager {
         var pid = processes.size() + 1;
         var process = Process.apply(pid, ActionMetadata.apply(user, Instant.now()), description, runnable);
 
-        process.run();
+        process
+           .run()
+        .handle((done, ex) -> {
+            if (ex != null) {
+                LOG.warn("Process `" + description + "`" + pid + " failed.", ex);
+            }
+
+            return Done.getInstance();
+        });
 
         return CompletableFuture.completedFuture(pid);
     }

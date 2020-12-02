@@ -14,4 +14,4 @@ RUN ls -al && \
 
 EXPOSE 9085
 
-CMD /bin/bash -c "source /root/.cache/pypoetry/virtualenvs/maquette-data-explorer-*/bin/activate && ./run_server.sh" 
+CMD /bin/bash -c "source /root/.cache/pypoetry/virtualenvs/maquette-data-explorer-*/bin/activate && ./run_server.sh"

@@ -23,5 +23,5 @@ def init_fraud():
     # print(dataset('fraud-analysis').version().get())
 
 
-init_weather()
+# init_weather()
 init_fraud()

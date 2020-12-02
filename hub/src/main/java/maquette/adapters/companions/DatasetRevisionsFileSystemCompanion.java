@@ -44,11 +44,7 @@ public final class DatasetRevisionsFileSystemCompanion {
 
    public CompletionStage<List<Revision>> findAllRevisions(UID dataset) {
       var result = Operators
-         .suppressExceptions(() -> Files.list(directory))
-         .filter(Files::isDirectory)
-         .map(directory -> directory.resolve(PATH))
-         .filter(Files::isDirectory)
-         .flatMap(directory -> Operators.suppressExceptions(() -> Files.list(directory)))
+         .suppressExceptions(() -> Files.list(getAssetDirectory(dataset)))
          .filter(file -> file.toString().endsWith(FILE_ENDING))
          .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), Revision.class)))
          .collect(Collectors.toList());

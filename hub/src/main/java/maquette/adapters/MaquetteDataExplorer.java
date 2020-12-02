@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteDataExplorer implements DataExplorer {
@@ -28,37 +29,39 @@ public final class MaquetteDataExplorer implements DataExplorer {
    OkHttpClient client;
 
    public static MaquetteDataExplorer apply(ObjectMapper om) {
-      OkHttpClient client = new OkHttpClient();
+      OkHttpClient client = new OkHttpClient.Builder()
+         .readTimeout(3, TimeUnit.MINUTES)
+         .build();
       return apply(om, client);
    }
 
    @Override
    public CompletionStage<JsonNode> analyze(String dataset, DatasetVersion version) {
-      var json = Operators.suppressExceptions(() ->
-         om.writeValueAsString(AnalyzeRequest.apply(dataset, version.toString())));
+      return CompletableFuture.supplyAsync(() -> {
+         var json = Operators.suppressExceptions(() ->
+            om.writeValueAsString(AnalyzeRequest.apply(dataset, version.toString())));
 
-      var request = new Request.Builder()
-         .url("http://127.0.0.1:9085/api/statistics?plots=true")
-         .post(RequestBody.create(json, MediaType.parse("application/json")))
-         .build();
+         var request = new Request.Builder()
+            .url("http://127.0.0.1:9085/api/statistics?plots=true")
+            .post(RequestBody.create(json, MediaType.parse("application/json")))
+            .build();
 
-      var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+         var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
 
-      if (!response.isSuccessful()) {
+         if (!response.isSuccessful()) {
 
-         var body = response.body();
-         var content = body != null ? Operators.suppressExceptions(body::string) : "";
-         content = StringUtils.leftPad(content, 3);
-         LOG.warn("Received non-successful response from analysis service:\n" + content);
+            var body = response.body();
+            var content = body != null ? Operators.suppressExceptions(body::string) : "";
+            content = StringUtils.leftPad(content, 3);
+            LOG.warn("Received non-successful response from analysis service:\n" + content);
 
-         var result = Operators.suppressExceptions(() -> om.readValue("{}", JsonNode.class));
-         return CompletableFuture.completedFuture(result);
-      } else {
-         var body = response.body();
-         var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
-         var result = Operators.suppressExceptions(() -> om.readValue(content, JsonNode.class));
-         return CompletableFuture.completedFuture(result);
-      }
+            return Operators.suppressExceptions(() -> om.readValue("{}", JsonNode.class));
+         } else {
+            var body = response.body();
+            var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
+            return Operators.suppressExceptions(() -> om.readValue(content, JsonNode.class));
+         }
+      });
    }
 
    @Value
