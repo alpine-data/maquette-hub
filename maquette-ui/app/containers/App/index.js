@@ -18,6 +18,7 @@ import Layout from 'components/Layout';
 import CreateDataAccessRequest from '../CreateDataAccessRequest';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
+import CreateDataSource from 'containers/CreateDataSource/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
@@ -42,6 +43,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/new/data-access-request" component={CreateDataAccessRequest} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
+        <Route path="/new/datasource" component={CreateDataSource} />
         <Route path="/new/sandbox" component={CreateSandbox} />
 
         <Route path="/shop" exact component={DataShop} />

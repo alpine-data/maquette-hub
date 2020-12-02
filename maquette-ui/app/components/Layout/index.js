@@ -43,12 +43,13 @@ function Layout(props) {
                         <Nav pullRight>
                             <Nav.Item icon={ <Icon icon="bell" /> }>0</Nav.Item>
                             <Dropdown icon={<Icon icon="plus" />} placement="bottomEnd">
-                                <Dropdown.Item componentClass={ Link } to="/new/project">New Project</Dropdown.Item>
-                                <Dropdown.Item componentClass={ Link } to="/new/dataset">New Dataset</Dropdown.Item>
-                                <Dropdown.Item componentClass={ Link } to="/new/sandbox">New Sandbox</Dropdown.Item>
-                                <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>New Collection</Dropdown.Item>
-                                <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>New Signal</Dropdown.Item>
-                                <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>New Source</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/project">New project</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/dataset">New dataset</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/stream">New stream</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/datasource">New data source</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/collection">New collection</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/repositoy">New data repository</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/sandbox">New sandbox</Dropdown.Item>
                             </Dropdown>
                             <Dropdown icon={<Icon icon="user" />} title={ props.username } placement="bottomEnd">
                                 <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>Impersonate Alice</Dropdown.Item>
