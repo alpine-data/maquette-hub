@@ -21,11 +21,11 @@ import Background from '../../resources/datashop-background.png';
 
 function Browse(props) {
   const dataset = _.get(props, 'dataset.data.dataset');
-  const versions = _.get(props, 'dataset.data.versions') || [];
-  const version = _.get(props, 'dataset.version');
-  const project = _.get(props, 'dataset.data.project');
+  const versions = _.get(props, 'dataset.data.dataset.versions') || [];
+  const version = _.get(props, 'dataset.version') || _.first(versions).version;
 
   const schema = _.get(_.find(versions, v => v.version == version), 'schema') || {};
+  const statistics = _.get(_.find(versions, v => v.version == version), 'statistics.columns') || [];
 
 
   return <Container md background={ Background } className="mq--main-content">
@@ -49,11 +49,11 @@ function Browse(props) {
 
     <hr />
 
-    <DataExplorer />
+    <DataExplorer stats={ statistics } />
 
     <hr />
 
-    <DatasetCodeExamples project={ project.name } dataset={ dataset.name } version={ version } />
+    <DatasetCodeExamples dataset={ dataset.name } version={ version } />
   </Container>;
 }
 
@@ -67,14 +67,14 @@ function GetStarted(props) {
 
     <DatasetCodeExamples 
       canConsume={ false }
-      project={ _.get(props, 'dataset.data.project.name') } 
       dataset={ _.get(props, 'dataset.data.dataset.name') } 
       version={ '1.0' } />
   </Container>
 }
 
 function DatasetOverview(props) {
-  if (_.isEmpty(_.get(props, 'dataset.data.versions'))) {
+  console.log(props);
+  if (_.isEmpty(_.get(props, 'dataset.data.dataset.versions'))) {
     return <GetStarted { ...props } />;
   } else {
     return <Browse { ...props } />

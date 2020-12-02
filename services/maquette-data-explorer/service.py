@@ -6,6 +6,7 @@ from data_explorer.data_explorer import get_statistics
 app = FastAPI()
 
 
-@app.post("/api/statistics/", response_model=ResponseBody)
+@app.post("/api/statistics", response_model=ResponseBody)
 async def statistics(request: RequestBody, plots: bool = False):
+    print(request)
     return get_statistics(dataset_name=request.dataset, version=request.version, with_images=plots)

@@ -3,6 +3,8 @@ package maquette.core.entities.data.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.common.Operators;
+import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.exceptions.RevisionNotFoundException;
 import maquette.core.entities.data.datasets.exceptions.VersionNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
@@ -10,6 +12,7 @@ import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.OpenRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
+import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.ports.DatasetsStore;
 import maquette.core.values.ActionMetadata;
@@ -31,6 +34,27 @@ public final class Revisions {
    private final DatasetsRepository repository;
 
    private final DatasetsStore store;
+
+   private final DataExplorer explorer;
+
+   public CompletionStage<Done> analyze(DatasetVersion version) {
+      var revisionCS = repository
+         .findRevisionByVersion(id, version)
+         .thenApply(opt -> opt.orElseThrow(() -> VersionNotFoundException.apply(version)));
+
+      var datasetCS = repository
+         .findDatasetById(id)
+         .thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withId(id)));
+
+      return Operators
+         .compose(
+            revisionCS, datasetCS,
+            (revision, dataset) -> explorer
+               .analyze(dataset.getName(), revision.getVersion())
+               .thenApply(revision::withStatistics)
+               .thenCompose(r -> repository.insertOrUpdateRevision(id, r)))
+         .thenCompose(done -> done);
+   }
 
    public CompletionStage<CommittedRevision> commit(User executor, UID revisionId, String message) {
       return repository

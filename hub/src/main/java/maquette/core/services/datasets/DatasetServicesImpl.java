@@ -11,6 +11,7 @@ import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
+import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
@@ -36,6 +37,8 @@ public final class DatasetServicesImpl implements DatasetServices {
    private final ProjectEntities projects;
 
    private final DatasetCompanion companion;
+
+   private final ProcessManager processes;
 
    @Override
    public CompletionStage<DatasetProperties> createDataset(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
@@ -142,7 +145,24 @@ public final class DatasetServicesImpl implements DatasetServices {
    public CompletionStage<CommittedRevision> commitRevision(User executor, String dataset, UID revision, String message) {
       return datasets
          .getDatasetByName(dataset)
-         .thenCompose(ds -> ds.revisions().commit(executor, revision, message));
+         .thenCompose(ds -> ds
+            .revisions()
+            .commit(executor, revision, message)
+            .thenCompose(committedRevision -> {
+               var desc = String.format("Analyzing dataset `%s` version `%s` ...", dataset, committedRevision.getVersion());
+               return processes
+                  .schedule(executor, desc, log -> {
+                     log.info(desc);
+                     return ds
+                        .revisions()
+                        .analyze(committedRevision.getVersion())
+                        .thenApply(done -> {
+                           log.info("Finished analysis of dataset `%s`, version `%s`", dataset, committedRevision.getVersion());
+                           return done;
+                        });
+                  })
+                  .thenApply(i -> committedRevision);
+            }));
    }
 
    @Override

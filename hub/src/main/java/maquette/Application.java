@@ -1,5 +1,6 @@
 package maquette;
 
+import maquette.adapters.MaquetteDataExplorer;
 import maquette.adapters.datasets.DatasetsRepositories;
 import maquette.adapters.datasets.DatasetsStores;
 import maquette.adapters.infrastructure.InfrastructureProviders;
@@ -25,9 +26,12 @@ public class Application {
       var sandboxesRepository = SandboxesRepositories.create(om);
       var usersRepository = UsersRepositories.create(om);
 
+      var dataExplorer = MaquetteDataExplorer.apply(om);
+
       CoreApp.apply(
          config, infrastructureProvider, infrastructureRepository, projectsRepository,
-         datasetsRepository, datasetsStore, sandboxesRepository, usersRepository, om);
+         datasetsRepository, datasetsStore, sandboxesRepository, usersRepository,
+         dataExplorer, om);
    }
 
 }

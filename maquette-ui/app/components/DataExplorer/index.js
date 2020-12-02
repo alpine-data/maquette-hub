@@ -64,7 +64,7 @@ function StatisticGroup({ group }) {
       _.map(group, line => {
         return <FlexboxGrid key={ line }>
           <FlexboxGrid.Item colspan={14}>{ line[0] }</FlexboxGrid.Item>
-          <FlexboxGridItem colspan={5} className="number">{ line[1] }</FlexboxGridItem>
+          <FlexboxGridItem colspan={5} className="number"><nobr>{ line[1] }</nobr></FlexboxGridItem>
           <FlexboxGridItem colspan={5} className="number mq--sub">{ line[2] }</FlexboxGridItem>
         </FlexboxGrid>;
       })
@@ -73,7 +73,6 @@ function StatisticGroup({ group }) {
 }
 
 function Statistics({ stats }) {
-  console.log(stats);
   return <FlexboxGrid.Item colspan={11}>
     <div className="mq--explorer--field--correctness">
       <div className="valid" style={{ width: stats.valid[1] + "%" }} />
@@ -111,24 +110,28 @@ function Field({ field }) {
     bool: "check2"
   }
 
-  console.log(field);
-  console.log(field.stats);
+  const image = _.get(field, 'image')
 
   return <div className="mq--explorer--field">
     <p className="mq--explorer--field--name"><Icon icon={ icons[field.type] } size="2x" />&nbsp;{ field.name }<span className="mq--sub">, { field.type }</span></p>
-    <FlexboxGrid>
+    <FlexboxGrid align="top" justify="space-between">
       <FlexboxGrid.Item colspan={12}>
-        <img src={ SampleImage } className="mq--explorer--field--image" />
+        {
+          image && <>
+            <img src={ "data:image/png;base64," + image } className="mq--explorer--field--image"  />
+          </> || <>
+            <img src={ SampleImage } className="mq--explorer--field--image" />
+          </>
+        }
       </FlexboxGrid.Item>
-      <FlexboxGrid.Item colspan={1}></FlexboxGrid.Item>
       <Statistics stats={ field.stats } />
     </FlexboxGrid>
   </div>
 }
 
-function DataExplorer() {
+function DataExplorer({ stats }) {
   return <>
-      { _.map(sample, f => <Field field={ f } key={ f.name } />) }
+      { _.map(stats, f => <Field field={ f } key={ f.name } />) }
     </>;
 }
 

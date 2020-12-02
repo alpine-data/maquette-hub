@@ -9,7 +9,7 @@ import { LOAD, UPDATE, FETCHED, FAILED, SELECT_VERSION, DISMISS_ERROR } from './
 export const initialState = {
   keys: {},
   data: false,
-  version: '1.0.0',
+  version: false,
 
   error: false,
   loading: false,

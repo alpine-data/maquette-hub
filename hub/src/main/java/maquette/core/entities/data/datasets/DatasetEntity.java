@@ -6,6 +6,7 @@ import lombok.Getter;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.ports.DatasetsStore;
 import maquette.core.values.ActionMetadata;
@@ -30,12 +31,14 @@ public final class DatasetEntity {
 
    private final DatasetsStore store;
 
+   private final DataExplorer dataExplorer;
+
    public AccessRequests accessRequests() {
       return AccessRequests.apply(id, repository);
    }
 
    public Revisions revisions() {
-      return Revisions.apply(id, repository, store);
+      return Revisions.apply(id, repository, store, dataExplorer);
    }
 
    public MembersCompanion<DataAssetMemberRole> members() { return MembersCompanion.apply(id, repository); }
