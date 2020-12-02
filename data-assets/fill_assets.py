@@ -16,7 +16,7 @@ def init_fraud():
     # Upload Fraud Analysis Dataset
     Dataset('fraud-analysis', summary="Fraudulent banking transactions of a Spanish bank").create()
     fraud_csv = 'sources/banking_fraud.csv'
-    fraud_df = pd.read_csv(fraud_csv)
+    fraud_df = pd.read_csv(fraud_csv).head(10000)
     dataset('fraud-analysis').put(fraud_df, "fraud init")
     print("Uploaded Fraud Dataset")
     # print("Checking success:")
