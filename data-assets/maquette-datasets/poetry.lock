@@ -1,11 +1,11 @@
 [[package]]
 category = "dev"
-description = "Disable App Nap on OS X 10.9"
-marker = "sys_platform == \"darwin\" or platform_system == \"Darwin\" or python_version >= \"3.3\" and sys_platform == \"darwin\""
+description = "Disable App Nap on macOS >= 10.9"
+marker = "python_version >= \"3.3\" and sys_platform == \"darwin\" or platform_system == \"Darwin\""
 name = "appnope"
 optional = false
 python-versions = "*"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 category = "dev"
@@ -58,6 +58,7 @@ tests_no_zope = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0
 [[package]]
 category = "dev"
 description = "Specifications for callback functions passed in to an API"
+marker = "python_version >= \"3.3\""
 name = "backcall"
 optional = false
 python-versions = "*"
@@ -134,6 +135,7 @@ six = "*"
 [[package]]
 category = "dev"
 description = "Decorators for Humans"
+marker = "python_version >= \"3.3\""
 name = "decorator"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
@@ -259,6 +261,7 @@ test = ["pytest (>=3.6.0)", "pytest-cov", "mock"]
 [[package]]
 category = "dev"
 description = "An autocompletion tool for Python that can be used for text editors."
+marker = "python_version >= \"3.3\""
 name = "jedi"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
@@ -392,7 +395,7 @@ description = "A command line interface for Maquette Data Science and Machine Le
 name = "maquette"
 optional = false
 python-versions = ">=3.8,<3.9"
-version = "0.0.1"
+version = "0.0.4"
 
 [package.dependencies]
 click = ">=7.1.2,<8.0.0"
@@ -404,7 +407,7 @@ seaborn = ">=0.11.0,<0.12.0"
 [package.source]
 reference = ""
 type = "file"
-url = "../../maquette-py/dist/maquette-0.0.1-py3-none-any.whl"
+url = "../../maquette-py/dist/maquette-0.0.4-py3-none-any.whl"
 
 [[package]]
 category = "dev"
@@ -613,6 +616,7 @@ version = "1.4.3"
 [[package]]
 category = "dev"
 description = "A Python Parser"
+marker = "python_version >= \"3.3\""
 name = "parso"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
@@ -624,7 +628,7 @@ testing = ["docopt", "pytest (>=3.0.7)"]
 [[package]]
 category = "dev"
 description = "Pexpect allows easy control of interactive console applications."
-marker = "python_version >= \"3.3\" and sys_platform != \"win32\" or sys_platform != \"win32\""
+marker = "python_version >= \"3.3\" and sys_platform != \"win32\""
 name = "pexpect"
 optional = false
 python-versions = "*"
@@ -636,6 +640,7 @@ ptyprocess = ">=0.5"
 [[package]]
 category = "dev"
 description = "Tiny 'shelve'-like database with concurrency support"
+marker = "python_version >= \"3.3\""
 name = "pickleshare"
 optional = false
 python-versions = "*"
@@ -685,7 +690,7 @@ wcwidth = "*"
 [[package]]
 category = "dev"
 description = "Run a subprocess in a pseudo terminal"
-marker = "sys_platform != \"win32\" or os_name != \"nt\" or python_version >= \"3.3\" and sys_platform != \"win32\""
+marker = "python_version >= \"3.3\" and sys_platform != \"win32\" or os_name != \"nt\""
 name = "ptyprocess"
 optional = false
 python-versions = "*"
@@ -978,14 +983,14 @@ version = "3.5.1"
 notebook = ">=4.4.1"
 
 [metadata]
-content-hash = "a373bddfb61b8316fb858a90f1ff6584b27f4a4314b37c42a8304c165af6a1a7"
+content-hash = "d229f3ab864a582aa83577b8fdae0f1a0e60369fe58effd950c50d11c901ddfd"
 lock-version = "1.0"
 python-versions = "~3.8"
 
 [metadata.files]
 appnope = [
-    {file = "appnope-0.1.0-py2.py3-none-any.whl", hash = "sha256:5b26757dc6f79a3b7dc9fab95359328d5747fcb2409d331ea66d0272b90ab2a0"},
-    {file = "appnope-0.1.0.tar.gz", hash = "sha256:8b995ffe925347a2138d7ac0fe77155e4311a0ea6d6da4f5128fe4b3cbe5ed71"},
+    {file = "appnope-0.1.1-py2.py3-none-any.whl", hash = "sha256:d8096c5a6113c971509547ccf1dff1747a940b23e9ce34aff48f8305dbc0e6a0"},
+    {file = "appnope-0.1.1.tar.gz", hash = "sha256:caeb46680dc3859d6dfa0ca18e70778dbac4d9cf33502a4ff228714ba1e513a0"},
 ]
 argon2-cffi = [
     {file = "argon2-cffi-20.1.0.tar.gz", hash = "sha256:d8029b2d3e4b4cea770e9e5a0104dd8fa185c1724a0f01528ae4826a6d25f97d"},
@@ -1201,7 +1206,7 @@ kiwisolver = [
     {file = "kiwisolver-1.3.1.tar.gz", hash = "sha256:950a199911a8d94683a6b10321f9345d5a3a8433ec58b217ace979e18f16e248"},
 ]
 maquette = [
-    {file = "maquette-0.0.1-py3-none-any.whl", hash = "sha256:734b0c188eccc0bc71a41cb79a3769f5bebd9c70622a252f5aac8ecaa92ee22d"},
+    {file = "maquette-0.0.4-py3-none-any.whl", hash = "sha256:f348c2d0bda796de72271a4798a4376fe7dd4a46a6991ddf2da9e5714ad0056f"},
 ]
 markupsafe = [
     {file = "MarkupSafe-1.1.1-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161"},

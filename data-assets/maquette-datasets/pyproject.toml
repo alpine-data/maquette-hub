@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "maquette-datasets"
+name = "data-assets"
 version = "0.1.0"
 description = ""
 authors = ["AiPunk <johannes.forster@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "~3.8"
-maquette = {path = "../../maquette-py/dist/maquette-0.0.2-py3-none-any.whl"}
+maquette = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
