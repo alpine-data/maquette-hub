@@ -42,7 +42,8 @@ public class CoreApp {
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
        DatasetsRepository datasetsRepository, DatasetsStore datasetsStore,
-       SandboxesRepository sandboxesRepository, UsersRepository usersRepository, ObjectMapper om) {
+       SandboxesRepository sandboxesRepository, UsersRepository usersRepository,
+       DataExplorer dataExplorer, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -58,7 +59,7 @@ public class CoreApp {
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
         var processManager = ProcessManager.apply();
         var projects = ProjectEntities.apply(projectsRepository);
-        var datasets = DatasetEntities.apply(datasetsRepository, datasetsStore);
+        var datasets = DatasetEntities.apply(datasetsRepository, datasetsStore, dataExplorer);
         var sandboxes = SandboxEntities.apply(sandboxesRepository);
         var users = Users.apply(usersRepository);
 

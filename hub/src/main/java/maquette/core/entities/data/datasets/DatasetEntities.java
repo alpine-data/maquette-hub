@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.entities.data.datasets.exceptions.DatasetAlreadyExistsException;
 import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
 import maquette.core.ports.DatasetsStore;
 import maquette.core.values.ActionMetadata;
@@ -27,6 +28,8 @@ public final class DatasetEntities {
    private final DatasetsRepository repository;
 
    private final DatasetsStore store;
+
+   private final DataExplorer dataExplorer;
 
    public CompletionStage<DatasetProperties> createDataset(
       User executor, String title, String name, String summary,
@@ -53,13 +56,15 @@ public final class DatasetEntities {
    public CompletionStage<Optional<DatasetEntity>> findDatasetById(UID dataset) {
       return repository
          .findDatasetById(dataset)
-         .thenApply(maybeDataset -> maybeDataset.map(details -> DatasetEntity.apply(details.getId(), repository, store)));
+         .thenApply(maybeDataset -> maybeDataset.map(details ->
+            DatasetEntity.apply(details.getId(), repository, store, dataExplorer)));
    }
 
    public CompletionStage<Optional<DatasetEntity>> findDatasetByName(String dataset) {
       return repository
          .findDatasetByName(dataset)
-         .thenApply(maybeDataset -> maybeDataset.map(details -> DatasetEntity.apply(details.getId(), repository, store)));
+         .thenApply(maybeDataset -> maybeDataset.map(details ->
+            DatasetEntity.apply(details.getId(), repository, store, dataExplorer)));
    }
 
    public CompletionStage<List<DatasetProperties>> findDatasets() {

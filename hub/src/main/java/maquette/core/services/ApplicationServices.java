@@ -9,10 +9,8 @@ import maquette.core.services.projects.ProjectServices;
 import maquette.core.services.projects.ProjectServicesFactory;
 import maquette.core.services.sandboxes.SandboxServices;
 import maquette.core.services.sandboxes.SandboxServicesFactory;
-import maquette.core.services.sandboxes.SandboxServicesImpl;
 import maquette.core.services.users.UserServices;
 import maquette.core.services.users.UserServicesFactory;
-import maquette.core.services.users.UserServicesImpl;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
@@ -39,7 +37,7 @@ public final class ApplicationServices {
         var processServices = ProcessServicesImpl.apply(runtime.getProcessManager());
         var userServices = UserServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getUsers());
         var sandboxServices = SandboxServicesFactory.apply(runtime.getProcessManager(), runtime.getInfrastructureManager(), runtime.getProjects(), runtime.getSandboxes(), runtime.getDatasets());
-        var datasetServices = DatasetServicesFactory.apply(runtime.getProjects(), runtime.getDatasets());
+        var datasetServices = DatasetServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getProcessManager());
 
         return apply(processServices, projectServices, datasetServices, sandboxServices, userServices);
     }

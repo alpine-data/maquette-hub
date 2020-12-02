@@ -1,5 +1,6 @@
 package maquette.core.entities.data.datasets.model.revisions;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
@@ -31,8 +32,21 @@ public class CommittedRevision implements Revision {
 
    String message;
 
+   JsonNode statistics;
+
+   public static CommittedRevision apply(
+      UID id, ActionMetadata created, ActionMetadata modified, ActionMetadata committed,
+      long records, Schema schema, DatasetVersion version, String message) {
+
+      return apply(id, created, modified, committed, records, schema, version, message, null);
+   }
+
    @Override
    public Optional<CommittedRevision> getCommit() {
       return Optional.of(this);
+   }
+
+   public Optional<JsonNode> getStatistics() {
+      return Optional.ofNullable(statistics);
    }
 }
