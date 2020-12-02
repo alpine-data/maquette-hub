@@ -10,14 +10,27 @@ import PropTypes from 'prop-types';
 
 import Summary from '../Summary';
 
+import ElasticsearchLogo from './logos/elasticsearch.svg';
+import Neo4J from './logos/neo4j.svg';
+import PythonGPU from './logos/python-gpu.svg';
 import PostgreSQLLogo from './logos/postgresql.svg';
 import PythonLogo from './logos/python.svg';
+import RStudio from './logos/r-studio.svg';
+import TensorflowGPU from './logos/tensorflow-gpu.svg';
+import Tensorflow from './logos/tensorflow.svg';
+
 import { Button, FlexboxGrid } from 'rsuite';
 import { Link } from 'react-router-dom';
 
 const logos = {
+  "elasticsearch": ElasticsearchLogo,
+  "neo4j": Neo4J,
   "python": PythonLogo,
-  "postgresql": PostgreSQLLogo
+  "python-gpu": PythonGPU,
+  "postgresql": PostgreSQLLogo,
+  "r-studio": RStudio,
+  "tensorflow-gpu": TensorflowGPU,
+  "tensorflow": Tensorflow
 }
 
 export const StackIcon = ({ stack, ...props }) => {

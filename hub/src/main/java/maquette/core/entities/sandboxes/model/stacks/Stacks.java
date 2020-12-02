@@ -17,6 +17,12 @@ public class Stacks {
       var stacks = Lists.<Stack<?>>newArrayList();
       stacks.add(PythonStack.apply());
       stacks.add(PostgreSqlStack.apply());
+      stacks.add(ElasticsearchStack.apply());
+      stacks.add(Neo4JStack.apply());
+      stacks.add(PythonStackGPU.apply());
+      stacks.add(TensorflowStack.apply());
+      stacks.add(TensorflowStackGPU.apply());
+      stacks.add(RStudioStack.apply());
 
       this.stacks = List.copyOf(stacks);
    }

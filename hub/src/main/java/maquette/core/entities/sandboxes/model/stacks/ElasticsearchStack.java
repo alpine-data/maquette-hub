@@ -5,12 +5,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
-import maquette.common.Operators;
 import maquette.common.forms.Form;
 import maquette.common.forms.FormControl;
 import maquette.common.forms.FormRow;
 import maquette.common.forms.inputs.Input;
-import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfigs;
 import maquette.core.entities.infrastructure.model.DeploymentProperties;
@@ -22,13 +20,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuration> {
+public final class ElasticsearchStack implements Stack<ElasticsearchStack.Configuration> {
 
-   public static final String STACK_NAME = "postgresql";
+   public static final String STACK_NAME = "elasticsearch";
 
    @Override
    public String getTitle() {
-      return "PostgreSQL with pgAdmin";
+      return "Elasticsearch";
    }
 
    @Override
@@ -38,7 +36,7 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
 
    @Override
    public String getSummary() {
-      return "PostgreSQL RDBMS with PostgreSQL";
+      return "Elasticsearch with Kibana for document analysis";
    }
 
    @Override
@@ -59,68 +57,32 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    @Override
    public Form getConfigurationForm() {
       var dbUsername = FormControl.apply(
-         "Database username",
+         "Username",
          Input.apply("dbUsername"),
-         "The username for the database. Leave empty for random value.");
+         "Leave empty for random value.");
 
       var dbPassword = FormControl.apply(
-         "Database password",
+         "Password",
          Input.apply("dbPassword"),
-         "The password for the database. Leave empty for random value.");
-
-      var adminMail = FormControl.apply(
-         "pgAdmin E-Mail address",
-         Input.apply("pgAdminMail", "dev@maquette.ai"));
-
-      var adminPassword = FormControl.apply(
-         "pgAdmin password",
-         Input.apply("pgAdminPassword"),
-         "Password for accessing pgAdmin. Leave empty for random value.");
+         "Leave empty for random value.");
 
       return Form
          .apply()
          .withRow(FormRow
             .apply()
             .withFormControl(dbUsername)
-            .withFormControl(dbPassword))
-         .withRow(FormRow
-            .apply()
-            .withFormControl(adminMail)
-            .withFormControl(adminPassword));
+            .withFormControl(dbPassword));
    }
 
    @Override
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
-      var postgresContainerCfg = ContainerConfig
-         .builder(String.format("mq__%s_%s__psql", project.getId(), sandbox.getId()), "postgres:12.4")
-         .withEnvironmentVariable("POSTGRES_USER", Operators.hash())
-         .withEnvironmentVariable("POSTGRES_PASSWORD", Operators.hash())
-         .withEnvironmentVariable("PGDATA", "/data")
-         .withPort(5432)
-         .build();
-
-      var pgAdminConfig = ContainerConfig
-         .builder(String.format("mq__%s_%s__pgadmin", project.getId(), sandbox.getId()), "dpage/pgadmin4:latest")
-         .withEnvironmentVariable("PGADMIN_DEFAULT_EMAIL", properties.getPgAdminMail())
-         .withEnvironmentVariable("PGADMIN_DEFAULT_PASSWORD", properties.getPgAdminPassword().length() > 0 ? properties.getPgAdminPassword() : Operators.hash())
-         .withPort(80)
-         .withPort(443)
-         .withCommand("server /data")
-         .build();
-
-      System.out.println();
-
-      return DeploymentConfig
-         .builder(String.format("mq__%s", project.getId()))
-         .withContainerConfig(postgresContainerCfg)
-         .withContainerConfig(pgAdminConfig)
-         .build();
+      return DeploymentConfigs.sample(project.getId().getValue(), sandbox.getId().getValue());
    }
 
    @Override
    public CompletionStage<DeployedStackParameters> getParameters(DeploymentProperties deployment, Configuration configuration) {
       var launch_pgAdmin = DeployedStackParameters
-         .apply(deployment.getProperties().get(1).getMappedPortUrls().get(80).toString().replace("localhost", "hub.maquette.ai.internal"), "Launch pgAdmin")
+         .apply("http://pgadmin.postgres.maquettte.local:3829", "Launch pgAdmin")
          .withParameter("Database Username", configuration.dbUsername)
          .withParameter("Database Password", configuration.dbPassword)
          .withParameter("pgAdmin Login", configuration.pgAdminMail)
