@@ -70,13 +70,11 @@ def generate_df_statistics(df: pd.DataFrame, with_images: bool):
     for (column_name, column_data) in df.iteritems():
         desc = column_data.describe()
         mismatched, valid, missing = __generate_general_statistic(desc, column_data)
-        if missing[1] != 100.0 and with_images:
-            column_image = True
-        else:
-            column_image = False
+        if missing[1] == 100.0:
+            continue
         if desc.dtype == "object":
             type = Type.text
-            if column_image:
+            if with_images:
                 column_list.append(Column(name=column_name, type=type,
                                         image=__generate_num_image(desc, column_data, df),
                                        stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
@@ -88,7 +86,7 @@ def generate_df_statistics(df: pd.DataFrame, with_images: bool):
                                                       details=__generate_obj_statistic(desc, column_data))))
         else:
             type = Type.numeric
-            if column_image:
+            if with_images:
                 column_list.append(Column(name=column_name, type=type,
                                     image=__generate_num_image(desc, column_data, df),
                                       stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
