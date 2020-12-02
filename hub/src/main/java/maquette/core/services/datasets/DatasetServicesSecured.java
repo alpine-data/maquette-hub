@@ -220,6 +220,7 @@ public class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Records> download(User executor, String dataset) {
       return companion
          .withAuthorization(
+            () -> companion.isSubscribedConsumer(executor, dataset),
             () -> companion.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> companion.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> companion.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))

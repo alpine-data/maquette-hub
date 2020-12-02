@@ -75,9 +75,11 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
    @Override
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
       var postgresContainerCfg = ContainerConfig
-         .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "jupyter/datascience-notebook:python-3.8.6")
-         .withCommand("start.sh jupyter notebook --NotebookApp.token=''")
+         .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:latest")
+         .withEnvironmentVariable("MQ_USERNAME", sandbox.getCreated().getBy())
+         .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.hash())
          .withPort(8888)
+         .withPort(9085)
          .build();
 
       return DeploymentConfig
@@ -88,8 +90,9 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
 
    @Override
    public CompletionStage<DeployedStackParameters> getParameters(DeploymentProperties deployment, Configuration configuration) {
+      var token = deployment.getConfig().getContainers().get(0).getEnvironment().get("MQ_JUPYTER_TOKEN");
       var parameters = DeployedStackParameters
-         .apply(deployment.getProperties().get(0).getMappedPortUrls().get(8888).toString().replace("localhost", "hub.maquette.ai.internal"), "Launch Jupyter Notebook")
+         .apply(deployment.getProperties().get(0).getMappedPortUrls().get(8888).toString().replace("localhost", "hub.maquette.ai.internal") + "?token=" + token, "Launch Jupyter Notebook")
          .withParameter("Python Version", configuration.getVersion());
       return CompletableFuture.completedFuture(parameters);
    }

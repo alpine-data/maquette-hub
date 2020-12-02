@@ -14,7 +14,7 @@ def init_weather():
 
 def init_fraud():
     # Upload Fraud Analysis Dataset
-    Dataset('fraud-analysis', summary="Fraudulent banking transactions of a Spanish bank").create()
+    Dataset('fraud-analysis', summary="Fraudulent banking transactions of a Spanish bank", classification="internal").create()
     fraud_csv = 'sources/banking_fraud.csv'
     fraud_df = pd.read_csv(fraud_csv).head(10000)
     dataset('fraud-analysis').put(fraud_df, "fraud init")
@@ -23,5 +23,5 @@ def init_fraud():
     # print(dataset('fraud-analysis').version().get())
 
 
-# init_weather()
+init_weather()
 init_fraud()

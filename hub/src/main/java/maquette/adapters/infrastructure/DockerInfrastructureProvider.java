@@ -56,7 +56,13 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
    public CompletionStage<Container> runContainer(ContainerConfig config) {
       var ops = DockerOperations.apply(client, LOG);
 
-      return ops.pullImage(config.getImage())
+      CompletionStage<Done> pulled = CompletableFuture.completedFuture(Done.getInstance());
+
+      if (!config.getImage().startsWith("mq")) {
+         pulled = ops.pullImage(config.getImage());
+      }
+
+      return pulled
          .thenApply(done -> ops.createContainer(config))
          .thenApply(containerId -> ops.startContainer(config, containerId));
    }
