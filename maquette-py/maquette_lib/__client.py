@@ -39,7 +39,12 @@ class Client:
             return response.status_code, result
 
     def get(self, url: str) -> requests.Response:
-        return requests.get(self.__base_url + url, headers = self.__headers)
+        response = requests.get(self.__base_url + url, headers = self.__headers)
+        if response.status_code < 200 or response.status_code > 299:
+            raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
+                               "status code: " + str(response.status_code) + ", content:\n" + response.text)
+        else:
+            return response
 
     def put(self, url: str, json = None, files = None) -> requests.Response:
         return requests.put(self.__base_url + url, json = json, files = files, headers = self.__headers)
