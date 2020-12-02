@@ -43,9 +43,9 @@ def __generate_obj_image(desc, column_data, df):
 def __generate_num_statistic(desc, column_data):
     num_details = []
     mean = desc.mean()
-    num_details.append(["Mean", mean.item(), ""])
+    num_details.append(["Mean", round(mean.item(), 3), ""])
     std = desc.std()
-    num_details.append(["Standard Deviation", std.item(), ""])
+    num_details.append(["Standard Deviation", round(std.item(), 3), ""])
     quantiles = []
     quant_dict = dict(desc)
     quantiles.append(["Quantiles", quant_dict["min"], "Min"])
