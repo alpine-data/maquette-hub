@@ -27,6 +27,7 @@ import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
 import Search from 'containers/Search/Loadable';
+import Stream from 'containers/Stream/Loadable';
 
 import GlobalStyle from '../../global-styles';
 import './custom-theme.less';
@@ -51,6 +52,10 @@ export function App({ app, onUserChanged }) {
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+
+        <Route path="/shop/streams/:stream" exact component={Stream} />
+        <Route path="/shop/streams/:stream/:tab" exact component={Stream} />
+        <Route path="/shop/streams/:stream/:tab/:id" exact component={Stream} />
 
         <Route path="/:project" exact component={Project} />
         <Route path="/:project/sandboxes/:sandbox" exact component={Sandbox} />

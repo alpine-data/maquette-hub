@@ -33,7 +33,7 @@ function Asset({ asset }) {
         { summary }
       </Summary.Body>
       <Summary.Footer>
-        Last update { updatedAt } &middot; 12 version &middot; 3 fields &middot; 712 records
+        Last update { updatedAt } &middot;
       </Summary.Footer>
     </Summary>;
 }

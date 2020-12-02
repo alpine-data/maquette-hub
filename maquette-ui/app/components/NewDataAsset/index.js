@@ -77,7 +77,7 @@ function NewDataAsset() {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/source` }>Create a data source</IconButton>
+            to={ `/new/datasource` }>Create a data source</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>
