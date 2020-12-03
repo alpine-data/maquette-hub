@@ -5,7 +5,8 @@
  */
 
 import React from 'react';
-import { ButtonToolbar, FlexboxGrid, Icon, IconButton, Link } from 'rsuite';
+import { Link } from 'react-router-dom';
+import { ButtonToolbar, FlexboxGrid, Icon, IconButton } from 'rsuite';
 import styled from 'styled-components';
 
 const DataAssetGrid = styled(FlexboxGrid)`
