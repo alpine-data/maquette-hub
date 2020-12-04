@@ -1,4 +1,4 @@
-package maquette.common.postman;
+package maquette.common.apidocs;
 
 public enum HttpMethod {
 

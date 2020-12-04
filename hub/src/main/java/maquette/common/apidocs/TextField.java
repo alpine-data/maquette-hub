@@ -1,14 +1,14 @@
-package maquette.common.postman;
+package maquette.common.apidocs;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Item {
+public class TextField implements Field {
 
-   String name;
+   String key;
 
-
+   String value;
 
 }

@@ -1,4 +1,4 @@
-package maquette.common.postman;
+package maquette.common.apidocs;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;

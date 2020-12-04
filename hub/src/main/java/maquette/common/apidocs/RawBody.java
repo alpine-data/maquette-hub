@@ -1,4 +1,4 @@
-package maquette.common.postman;
+package maquette.common.apidocs;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;

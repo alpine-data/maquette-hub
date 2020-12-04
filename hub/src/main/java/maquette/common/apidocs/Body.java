@@ -1,4 +1,4 @@
-package maquette.common.postman;
+package maquette.common.apidocs;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
