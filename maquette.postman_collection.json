@@ -315,12 +315,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:9042/api/commands/example",
+					"raw": "http://{{HOSTNAME}}/api/commands/example",
 					"protocol": "http",
 					"host": [
-						"localhost"
+						"{{HOSTNAME}}"
 					],
-					"port": "9042",
 					"path": [
 						"api",
 						"commands",
@@ -351,7 +350,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:9042/api/commands",
+					"raw": "http://localhost:9042/api/commands/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -359,11 +358,52 @@
 					"port": "9042",
 					"path": [
 						"api",
-						"commands"
+						"commands",
+						""
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "/api/commands - datasets list",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"command\": \"datasets list\",\n    \"project\": \"sample-project-test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9042/api/commands/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9042",
+							"path": [
+								"api",
+								"commands",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
 		},
 		{
 			"name": "/api/commands - datasets get",
@@ -922,7 +962,7 @@
 	],
 	"variable": [
 		{
-			"id": "a229ec42-56c1-4e3a-b357-0948018a5f56",
+			"id": "41e734fe-7591-43f1-9dd8-c0ca5c013ea7",
 			"key": "FOO",
 			"value": "bar"
 		}

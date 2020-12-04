@@ -3,12 +3,16 @@ package maquette.common.postman;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Item {
+public class Request {
 
-   String name;
+   HttpMethod method;
 
+   List<TextField> header;
 
+   Body body;
 
 }

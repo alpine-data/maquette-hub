@@ -5,10 +5,10 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Item {
+public class TextField implements Field {
 
-   String name;
+   String key;
 
-
+   String value;
 
 }
