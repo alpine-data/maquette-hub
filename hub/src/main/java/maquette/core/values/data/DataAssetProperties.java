@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.entities.data.collections.CollectionProperties;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
-import maquette.core.entities.data.datasources.DataSourceProperties;
+import maquette.core.entities.data.datasources.model.DataSourceProperties;
 import maquette.core.entities.data.repositories.RepositoryProperties;
 import maquette.core.entities.data.streams.StreamProperties;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.core.values.user.User;
 
 @JsonTypeInfo(
    use = JsonTypeInfo.Id.NAME,
@@ -19,9 +20,8 @@ import maquette.core.values.UID;
       @JsonSubTypes.Type(value = DatasetProperties.class, name = "dataset"),
       @JsonSubTypes.Type(value = StreamProperties.class, name = "stream"),
       @JsonSubTypes.Type(value = DataSourceProperties.class, name = "datasource"),
-      @JsonSubTypes.Type(value = RepositoryProperties.class, name = "repository"),
    })
-public interface DataAssetProperties {
+public interface DataAssetProperties<T> {
 
    UID getId();
 
@@ -34,5 +34,17 @@ public interface DataAssetProperties {
    ActionMetadata getCreated();
 
    ActionMetadata getUpdated();
+
+   DataVisibility getVisibility();
+
+   DataClassification getClassification();
+
+   PersonalInformation getPersonalInformation();
+
+   T withUpdated(ActionMetadata updated);
+
+   default T withUpdated(User by) {
+      return withUpdated(ActionMetadata.apply(by));
+   }
 
 }

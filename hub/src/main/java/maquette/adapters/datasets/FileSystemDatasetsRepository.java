@@ -67,7 +67,7 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<List<DatasetProperties>> findAllDatasets() {
+   public CompletionStage<List<DatasetProperties>> findAllAssets() {
       var result = Operators
          .suppressExceptions(() -> Files.list(config.getDirectory()))
          .filter(Files::isDirectory)
@@ -90,7 +90,7 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<DatasetProperties>> findDatasetById(UID dataset) {
+   public CompletionStage<Optional<DatasetProperties>> findAssetById(UID dataset) {
       var file = getDatasetFile(dataset);
 
       if (Files.exists(file)) {
@@ -102,8 +102,8 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<DatasetProperties>> findDatasetByName(String name) {
-      return findAllDatasets()
+   public CompletionStage<Optional<DatasetProperties>> findAssetByName(String name) {
+      return findAllAssets()
          .thenApply(datasets -> datasets
             .stream()
             .filter(d -> d.getName().equals(name))
@@ -121,7 +121,7 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateDataset(DatasetProperties dataset) {
+   public CompletionStage<Done> insertOrUpdateAsset(DatasetProperties dataset) {
       var file = getDatasetFile(dataset.getId());
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), dataset));
       return CompletableFuture.completedFuture(Done.getInstance());

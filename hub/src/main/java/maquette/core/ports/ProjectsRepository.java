@@ -3,7 +3,7 @@ package maquette.core.ports;
 import akka.Done;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.ProjectMemberRole;
-import maquette.core.values.ActionMetadata;
+import maquette.core.ports.common.HasMembers;
 import maquette.core.values.UID;
 
 import java.util.List;

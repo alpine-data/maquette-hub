@@ -1,4 +1,4 @@
-package maquette.core.ports;
+package maquette.core.ports.common;
 
 import akka.Done;
 import maquette.core.values.access.DataAccessToken;

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "85fd48af-f46a-4c99-8c2a-b32a58889146",
+		"_postman_id": "b247f029-cf10-479e-8b7f-be5234f09216",
 		"name": "maquette",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -280,12 +280,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/commands",
+					"raw": "http://localhost:9042/api/commands",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9042",
 					"path": [
 						"api",
 						"commands"
@@ -315,12 +315,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/commands/example",
+					"raw": "http://localhost:9042/api/commands/example",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9042",
 					"path": [
 						"api",
 						"commands",
@@ -343,7 +343,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"command\": \"datasets list\",\n    \"project\": \"sample-project\"\n}",
+					"raw": "{\n    \"command\": \"datasets list\",\n    \"project\": \"sample-project-test\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -444,6 +444,12 @@
 						"key": "Content-Type",
 						"value": "application/json",
 						"type": "text"
+					},
+					{
+						"key": "x-user-id",
+						"value": "alice",
+						"description": "The name if the authenticated user.",
+						"type": "text"
 					}
 				],
 				"body": {
@@ -483,7 +489,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"command\": \"projects get\",\n    \"name\": \"sample-project\"\n}",
+					"raw": "{\n    \"command\": \"projects get\",\n    \"name\": \"sample-project-foo-bar\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -553,13 +559,53 @@
 					{
 						"key": "Accept",
 						"value": "text/plain",
-						"type": "text",
-						"disabled": true
+						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"command\": \"projects list\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9042/api/commands",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9042",
+					"path": [
+						"api",
+						"commands"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/commands - projects data-assets list",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "text/plain",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"command\": \"projects data-assets list\",\n    \"project\": \"sample-project-test\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -781,7 +827,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"command\": \"sandboxes get\",\n    \"project\": \"project-renamed\"\n}",
+					"raw": "{\n    \"command\": \"sandboxes get\",\n    \"project\": \"project-renamed\",\n    \"sandbox\": \"social_williams\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -802,6 +848,83 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "/api/data/datasets/:project/:dataset",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"description": "foo bar sowieso",
+							"type": "file",
+							"src": "/Users/michaelwellner/Downloads/some-dataset-1.0.0.avro"
+						}
+					],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9042/api/data/datasets/sample-project-test/ein-zweites-dataset",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9042",
+					"path": [
+						"api",
+						"data",
+						"datasets",
+						"sample-project-test",
+						"ein-zweites-dataset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/statistics - data explorer statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "8d657505-280b-437b-a997-a76f3968f2ae",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "77327a93-b23e-4993-8a74-11ee1a5ef14e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "a229ec42-56c1-4e3a-b357-0948018a5f56",
+			"key": "FOO",
+			"value": "bar"
 		}
 	],
 	"protocolProfileBehavior": {}

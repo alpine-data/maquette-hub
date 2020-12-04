@@ -43,7 +43,7 @@ public final class Revisions {
          .thenApply(opt -> opt.orElseThrow(() -> VersionNotFoundException.apply(version)));
 
       var datasetCS = repository
-         .findDatasetById(id)
+         .findAssetById(id)
          .thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withId(id)));
 
       return Operators

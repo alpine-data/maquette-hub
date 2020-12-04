@@ -2,7 +2,7 @@ package maquette.core.entities.companions;
 
 import akka.Done;
 import lombok.Getter;
-import maquette.core.ports.HasMembers;
+import maquette.core.ports.common.HasMembers;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;

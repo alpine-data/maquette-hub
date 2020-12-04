@@ -4,7 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.ports.HasDataAccessRequests;
+import maquette.core.ports.common.HasDataAccessRequests;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
 

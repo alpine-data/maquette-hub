@@ -122,6 +122,11 @@ public final class CommandResource {
             try {
                var constructor = type.getType().getDeclaredConstructor();
                constructor.setAccessible(true);
+
+               var javaType = om.getTypeFactory().constructType(type.getType());
+               om.getSerializationConfig().introspect(javaType).findProperties()
+                  .forEach(property -> System.out.println(property.getName()));
+
                var command = (Command) constructor.newInstance();
                return Optional.of(Pair.of(type.getName(), command));
             } catch (Exception e) {

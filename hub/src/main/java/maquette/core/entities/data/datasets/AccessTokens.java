@@ -2,9 +2,7 @@ package maquette.core.entities.data.datasets;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.core.ports.DatasetsRepository;
-import maquette.core.ports.HasDataAccessTokens;
-import maquette.core.values.ActionMetadata;
+import maquette.core.ports.common.HasDataAccessTokens;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessToken;
 import maquette.core.values.user.User;
@@ -12,7 +10,6 @@ import org.apache.commons.lang.NotImplementedException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 @Getter
