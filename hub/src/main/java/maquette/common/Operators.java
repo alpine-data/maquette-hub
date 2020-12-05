@@ -4,6 +4,7 @@ import akka.japi.function.Function2;
 import akka.japi.function.Function3;
 import akka.japi.function.Function4;
 import akka.japi.function.Function5;
+import com.github.javafaker.Faker;
 import com.google.common.hash.Hashing;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -189,6 +190,11 @@ public final class Operators {
 
     public static <T> T ignoreExceptionsWithDefault(ExceptionalSupplier<T> supplier, T defaultValue) {
         return ignoreExceptionsWithDefault(supplier, defaultValue, null);
+    }
+
+    public static String lorem() {
+        var f = new Faker();
+        return f.lebowski().quote();
     }
 
     public static void require(boolean condition, String message, Object... args) {

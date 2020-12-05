@@ -3,6 +3,7 @@ package maquette.core.server.commands.projects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -27,10 +28,6 @@ public final class UpdateProjectPropertiesCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         throw new IllegalArgumentException("`project` must be defined");
-      }
-
       return services
          .getProjectServices()
          .update(user, project, name, title, summary)
@@ -39,7 +36,7 @@ public final class UpdateProjectPropertiesCommand implements Command {
 
    @Override
    public Command example() {
-      return apply("some-project", "other-project-name", "Other Project Name", "Some summary.");
+      return apply("some-project", "some-project", "Some Project", Operators.lorem());
    }
 
 }

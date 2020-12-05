@@ -25,6 +25,6 @@ public interface UserServices {
 
    CompletionStage<List<ProjectProperties>> getProjects(User user);
 
-   CompletionStage<List<DataAssetProperties>> getDataAssets(User user);
+   CompletionStage<List<DataAssetProperties<?>>> getDataAssets(User user);
 
 }

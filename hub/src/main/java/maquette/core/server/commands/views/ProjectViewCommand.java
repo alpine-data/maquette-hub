@@ -25,10 +25,6 @@ public class ProjectViewCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      }
-
       return services
          .getProjectServices()
          .get(user, project)
@@ -42,7 +38,7 @@ public class ProjectViewCommand implements Command {
 
    @Override
    public Command example() {
-      return null;
+      return apply("some-project");
    }
 
 }

@@ -25,10 +25,6 @@ public final class RevokeProjectAccessCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         throw new IllegalArgumentException("`project` must be defined");
-      }
-
       return services
          .getProjectServices()
          .revoke(user, project, authorization)

@@ -18,6 +18,7 @@ import maquette.core.server.commands.views.*;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 

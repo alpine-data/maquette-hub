@@ -11,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class DataShopView implements CommandResult {
 
-   List<DataAssetProperties> userAssets;
+   List<DataAssetProperties<?>> userAssets;
 
-   List<DataAssetProperties> allAssets;
+   List<DataAssetProperties<?>> allAssets;
 
 }

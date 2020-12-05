@@ -27,7 +27,7 @@ public final class CreateSandboxViewCommand implements Command {
 
    @Override
    public Command example() {
-      return null;
+      return new CreateSandboxViewCommand();
    }
 
 }

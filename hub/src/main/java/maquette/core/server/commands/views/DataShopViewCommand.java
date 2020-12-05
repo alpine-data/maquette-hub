@@ -35,7 +35,7 @@ public class DataShopViewCommand implements Command {
          .getDatasets(user)
          .thenApply(list -> list
             .stream()
-            .map(p -> (DataAssetProperties) p)
+            .map(p -> (DataAssetProperties<?>) p)
             .collect(Collectors.toList()));
 
       var userDatasetsCS = services
@@ -46,7 +46,7 @@ public class DataShopViewCommand implements Command {
          StreamProperties stream = StreamProperties.apply(UID.apply(), "Stock Prices", "stock-prices", "Continuously updated stock prices from common exchanges.", "", DataVisibility.PUBLIC, DataClassification.INTERNAL, PersonalInformation.NONE, ActionMetadata.apply(user), ActionMetadata.apply(user));
          CollectionProperties collection = CollectionProperties.apply(UID.apply(), "Customer Reviews", "customer-reviews", "Collected customer reviews to analyze sentiment of our clients.", "", DataVisibility.PUBLIC, DataClassification.CONFIDENTIAL, PersonalInformation.PERSONAL_INFORMATION, ActionMetadata.apply(user), ActionMetadata.apply(user));
 
-         List<DataAssetProperties> all = Lists.newArrayList();
+         List<DataAssetProperties<?>> all = Lists.newArrayList();
          all.addAll(allAssets);
          all.add(stream);
          all.add(collection);
@@ -58,7 +58,7 @@ public class DataShopViewCommand implements Command {
 
    @Override
    public Command example() {
-      return null;
+      return apply();
    }
 
 }

@@ -8,7 +8,6 @@ import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.services.datasets.DatasetCompanion;
-import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 import org.apache.commons.compress.utils.Lists;
@@ -59,7 +58,7 @@ public final class UserServicesImpl implements UserServices {
    }
 
    @Override
-   public CompletionStage<List<DataAssetProperties>> getDataAssets(User user) {
+   public CompletionStage<List<DataAssetProperties<?>>> getDataAssets(User user) {
       return datasets
          .findDatasets()
          .thenApply(datasets1 -> datasets1
@@ -70,7 +69,7 @@ public final class UserServicesImpl implements UserServices {
             .stream()
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .map(properties -> (DataAssetProperties) properties)
+            .map(properties -> (DataAssetProperties<?>) properties)
             .collect(Collectors.toList()));
    }
 
