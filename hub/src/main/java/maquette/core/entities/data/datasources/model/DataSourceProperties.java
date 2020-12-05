@@ -23,7 +23,9 @@ public class DataSourceProperties implements DataAssetProperties<DataSourcePrope
 
    String summary;
 
+   DataSourceDatabaseProperties database;
 
+   DataSourceType type;
 
    DataVisibility visibility;
 

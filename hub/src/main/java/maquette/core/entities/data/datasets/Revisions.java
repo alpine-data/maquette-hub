@@ -14,7 +14,7 @@ import maquette.core.entities.data.datasets.model.revisions.OpenRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
-import maquette.core.ports.DatasetsStore;
+import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
@@ -33,7 +33,7 @@ public final class Revisions {
 
    private final DatasetsRepository repository;
 
-   private final DatasetsStore store;
+   private final RecordsStore store;
 
    private final DataExplorer explorer;
 

@@ -41,7 +41,7 @@ public class CoreApp {
     public static CoreApp apply(
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
-       DatasetsRepository datasetsRepository, DatasetsStore datasetsStore,
+       DatasetsRepository datasetsRepository, RecordsStore recordsStore,
        SandboxesRepository sandboxesRepository, UsersRepository usersRepository,
        DataExplorer dataExplorer, ObjectMapper om) {
 
@@ -59,7 +59,7 @@ public class CoreApp {
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
         var processManager = ProcessManager.apply();
         var projects = ProjectEntities.apply(projectsRepository);
-        var datasets = DatasetEntities.apply(datasetsRepository, datasetsStore, dataExplorer);
+        var datasets = DatasetEntities.apply(datasetsRepository, recordsStore, dataExplorer);
         var sandboxes = SandboxEntities.apply(sandboxesRepository);
         var users = Users.apply(usersRepository);
 

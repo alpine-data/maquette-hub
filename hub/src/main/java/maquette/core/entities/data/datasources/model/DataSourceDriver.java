@@ -1,14 +1,14 @@
-package maquette.core.entities.data.datasources;
+package maquette.core.entities.data.datasources.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum EDataSourceDriver {
+public enum DataSourceDriver {
 
-   POSTGRE_SQL("postgre-sql");
+   POSTGRESQL("postgresql");
 
    private final String value;
 
-   EDataSourceDriver(String value) {
+   DataSourceDriver(String value) {
       this.value = value;
    }
 
@@ -16,5 +16,4 @@ public enum EDataSourceDriver {
    public String getValue() {
       return value;
    }
-
 }

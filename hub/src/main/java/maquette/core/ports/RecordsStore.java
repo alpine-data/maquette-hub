@@ -5,7 +5,7 @@ import maquette.core.entities.data.datasets.model.records.Records;
 
 import java.util.concurrent.CompletionStage;
 
-public interface DatasetsStore {
+public interface RecordsStore {
 
    CompletionStage<Done> append(String key, Records records);
 

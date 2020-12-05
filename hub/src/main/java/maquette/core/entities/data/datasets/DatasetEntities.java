@@ -7,7 +7,7 @@ import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
-import maquette.core.ports.DatasetsStore;
+import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -27,7 +27,7 @@ public final class DatasetEntities {
 
    private final DatasetsRepository repository;
 
-   private final DatasetsStore store;
+   private final RecordsStore store;
 
    private final DataExplorer dataExplorer;
 
