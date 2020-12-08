@@ -1,19 +1,20 @@
-package maquette.core.entities.data.streams;
+package maquette.core.entities.data.streams.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataAssetProperties;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.access.DataAccessRequest;
+import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.data.*;
+
+import java.util.List;
 
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class StreamProperties implements DataAssetProperties<StreamProperties> {
+public class Stream implements DataAsset<Stream> {
 
    UID id;
 
@@ -22,8 +23,6 @@ public class StreamProperties implements DataAssetProperties<StreamProperties> {
    String name;
 
    String summary;
-
-   String description;
 
    DataVisibility visibility;
 
@@ -34,5 +33,9 @@ public class StreamProperties implements DataAssetProperties<StreamProperties> {
    ActionMetadata created;
 
    ActionMetadata updated;
+
+   List<GrantedAuthorization<DataAssetMemberRole>> members;
+
+   List<DataAccessRequest> accessRequests;
 
 }

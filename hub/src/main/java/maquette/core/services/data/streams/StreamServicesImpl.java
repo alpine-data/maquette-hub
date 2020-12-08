@@ -1,10 +1,11 @@
-package maquette.core.services.data.datasources;
+package maquette.core.services.data.streams;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.datasources.DataSourceEntities;
-import maquette.core.entities.data.datasources.DataSourceEntity;
-import maquette.core.entities.data.datasources.model.*;
+import maquette.core.entities.data.streams.StreamEntities;
+import maquette.core.entities.data.streams.StreamEntity;
+import maquette.core.entities.data.streams.model.Stream;
+import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.services.data.DataAssetServices;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
@@ -22,61 +23,42 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class DataSourceServicesImpl implements DataSourceServices {
+public final class StreamServicesImpl implements StreamServices {
 
-   private final DataSourceEntities entities;
+   private final StreamEntities entities;
 
-   private final DataAssetServices<DataSourceProperties, DataSourceEntity> assets;
+   private final DataAssetServices<StreamProperties, StreamEntity> assets;
 
-   private final DataSourceCompanion comp;
+   private final StreamCompanion comp;
 
    @Override
-   public CompletionStage<DataSourceProperties> create(
+   public CompletionStage<StreamProperties> create(
       User executor, String title, String name, String summary,
-      DataSourceDatabaseProperties properties, DataSourceType type, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
-      return entities.create(
-         executor, title, name, summary,
-         properties, type, visibility, classification, personalInformation);
+      return entities.create(executor, title, name, summary, visibility, classification, personalInformation);
    }
 
    @Override
-   public CompletionStage<DataSource> get(User executor, String dataSource) {
-      return assets.get(executor, dataSource, comp::mapEntityToDataSource);
+   public CompletionStage<Stream> get(User executor, String asset) {
+      return assets.get(executor, asset, comp::mapEntityToAsset);
    }
 
    @Override
-   public CompletionStage<List<DataSourceProperties>> list(User executor) {
+   public CompletionStage<List<StreamProperties>> list(User executor) {
       return assets.list(executor);
    }
 
    @Override
-   public CompletionStage<Done> remove(User executor, String dataSource) {
-      return assets.remove(executor, dataSource);
+   public CompletionStage<Done> remove(User executor, String asset) {
+      return assets.remove(executor, asset);
    }
 
    @Override
    public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
       return entities
          .getByName(name)
-         .thenCompose(ds -> ds.update(executor, updatedName, title, summary, visibility, classification, personalInformation));
-   }
-
-   @Override
-   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String query) {
-      return entities
-         .getByName(dataSource)
-         .thenCompose(ds -> ds.update(executor, driver, connection, query));
-   }
-
-   @Override
-   public CompletionStage<Done> grant(User executor, String asset, Authorization member, DataAssetMemberRole role) {
-      return assets.grant(executor, asset, member, role);
-   }
-
-   @Override
-   public CompletionStage<Done> revoke(User executor, String asset, Authorization member) {
-      return assets.revoke(executor, asset, member);
+         .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation));
    }
 
    @Override
@@ -107,6 +89,16 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    @Override
    public CompletionStage<Done> withdrawDataAccessRequest(User executor, String asset, UID request, @Nullable String reason) {
       return assets.withdrawDataAccessRequest(executor, asset, request, reason);
+   }
+
+   @Override
+   public CompletionStage<Done> grant(User executor, String asset, Authorization member, DataAssetMemberRole role) {
+      return assets.grant(executor, asset, member, role);
+   }
+
+   @Override
+   public CompletionStage<Done> revoke(User executor, String asset, Authorization member) {
+      return assets.revoke(executor, asset, member);
    }
 
 }

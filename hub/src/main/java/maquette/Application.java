@@ -1,6 +1,7 @@
 package maquette;
 
 import maquette.adapters.MaquetteDataExplorer;
+import maquette.adapters.collections.CollectionsRepositories;
 import maquette.adapters.datasets.DatasetsRepositories;
 import maquette.adapters.datasets.DatasetsStores;
 import maquette.adapters.datasources.DataSourcesRepositories;
@@ -8,11 +9,11 @@ import maquette.adapters.infrastructure.InfrastructureProviders;
 import maquette.adapters.infrastructure.InfrastructureRepositories;
 import maquette.adapters.projects.ProjectsRepositories;
 import maquette.adapters.sandboxes.SandboxesRepositories;
+import maquette.adapters.streams.StreamsRepositories;
 import maquette.adapters.users.UsersRepositories;
 import maquette.common.ObjectMapperFactory;
 import maquette.core.CoreApp;
 import maquette.core.config.ApplicationConfiguration;
-import maquette.core.ports.DataSourcesRepository;
 
 public class Application {
 
@@ -24,8 +25,10 @@ public class Application {
       var infrastructureRepository = InfrastructureRepositories.create(om);
       var projectsRepository = ProjectsRepositories.create(om);
 
+      var collectionsRepository = CollectionsRepositories.create(om);
       var datasetsRepository = DatasetsRepositories.create(om);
       var dataSourcesRepository = DataSourcesRepositories.create(om);
+      var streamsRepository = StreamsRepositories.create(om);
 
       var datasetsStore = DatasetsStores.create();
       var sandboxesRepository = SandboxesRepositories.create(om);
@@ -35,8 +38,8 @@ public class Application {
 
       CoreApp.apply(
          config, infrastructureProvider, infrastructureRepository, projectsRepository,
-         datasetsRepository, datasetsStore, dataSourcesRepository, sandboxesRepository, usersRepository,
-         dataExplorer, om);
+         collectionsRepository, datasetsRepository, datasetsStore, dataSourcesRepository, streamsRepository,
+         sandboxesRepository, usersRepository, dataExplorer, om);
    }
 
 }

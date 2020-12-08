@@ -34,7 +34,7 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
 
    private final DataExplorer explorer;
 
-   public CompletionStage<DataSourceProperties> createDataSource(
+   public CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
       DataSourceDatabaseProperties properties, DataSourceType type,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
@@ -45,7 +45,7 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
             if (maybeDataSource.isPresent()) {
                return CompletableFuture.failedFuture(DataSourceAlreadyExistsException.withName(name));
             } else {
-               var created = ActionMetadata.apply("executor");
+               var created = ActionMetadata.apply(executor);
                var dataSource = DataSourceProperties.apply(
                   UID.apply(), title, name, summary,
                   properties, type,

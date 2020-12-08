@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasources.DataSourceEntities;
+import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
@@ -23,9 +25,13 @@ public final class RuntimeConfiguration {
 
     private final ObjectMapper objectMapper;
 
+    private final CollectionEntities collections;
+
     private final DatasetEntities datasets;
 
     private final DataSourceEntities dataSources;
+
+    private final StreamEntities streams;
 
     private final InfrastructureManager infrastructureManager;
 

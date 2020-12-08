@@ -3,10 +3,14 @@ package maquette.core.services;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.services.data.collections.CollectionServices;
+import maquette.core.services.data.collections.CollectionServicesFactory;
 import maquette.core.services.data.datasets.DatasetServices;
 import maquette.core.services.data.datasets.DatasetServicesFactory;
 import maquette.core.services.data.datasources.DataSourceServices;
 import maquette.core.services.data.datasources.DataSourceServicesFactory;
+import maquette.core.services.data.streams.StreamServices;
+import maquette.core.services.data.streams.StreamServicesFactory;
 import maquette.core.services.projects.ProjectServices;
 import maquette.core.services.projects.ProjectServicesFactory;
 import maquette.core.services.sandboxes.SandboxServices;
@@ -22,9 +26,13 @@ public final class ApplicationServices {
 
     ProjectServices projectServices;
 
+    CollectionServices collectionServices;
+
     DatasetServices datasetServices;
 
     DataSourceServices dataSourceServices;
+
+    StreamServices streamServices;
 
     SandboxServices sandboxServices;
 
@@ -42,10 +50,14 @@ public final class ApplicationServices {
         var processServices = ProcessServicesImpl.apply(runtime.getProcessManager());
         var userServices = UserServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getDataSources(), runtime.getUsers());
         var sandboxServices = SandboxServicesFactory.apply(runtime.getProcessManager(), runtime.getInfrastructureManager(), runtime.getProjects(), runtime.getSandboxes(), runtime.getDatasets());
+        var collectionServices = CollectionServicesFactory.apply(runtime.getCollections(), runtime.getProjects());
         var datasetServices = DatasetServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getProcessManager());
         var dataSourceServices = DataSourceServicesFactory.apply(runtime.getDataSources(), runtime.getProjects());
+        var streamServices = StreamServicesFactory.apply(runtime.getStreams(), runtime.getProjects());
 
-        return apply(processServices, projectServices, datasetServices, dataSourceServices, sandboxServices, userServices);
+        return apply(
+           processServices, projectServices, collectionServices, datasetServices, dataSourceServices, streamServices,
+           sandboxServices, userServices);
     }
 
 }

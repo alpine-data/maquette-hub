@@ -1,4 +1,4 @@
-package maquette.core.entities.data.collections;
+package maquette.core.entities.data.streams.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -13,7 +13,7 @@ import maquette.core.values.data.PersonalInformation;
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class CollectionProperties implements DataAssetProperties<CollectionProperties> {
+public class StreamProperties implements DataAssetProperties<StreamProperties> {
 
    UID id;
 
@@ -22,8 +22,6 @@ public class CollectionProperties implements DataAssetProperties<CollectionPrope
    String name;
 
    String summary;
-
-   String description;
 
    DataVisibility visibility;
 

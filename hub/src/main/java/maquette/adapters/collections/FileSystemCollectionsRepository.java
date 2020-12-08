@@ -1,4 +1,4 @@
-package maquette.adapters.datasources;
+package maquette.adapters.collections;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
-import maquette.core.entities.data.datasources.model.DataSourceProperties;
-import maquette.core.ports.DataSourcesRepository;
+import maquette.core.entities.data.collections.model.CollectionProperties;
+import maquette.core.ports.CollectionsRepository;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
@@ -20,39 +20,39 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FileSystemDataSourcesRepository implements DataSourcesRepository {
+public final class FileSystemCollectionsRepository implements CollectionsRepository {
 
-   private final FileSystemDataAssetRepository<DataSourceProperties> assetsCompanion;
+   private final FileSystemDataAssetRepository<CollectionProperties> assetsCompanion;
 
    private final DataAccessRequestsFileSystemCompanion requestsCompanion;
 
    private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
 
-   public static FileSystemDataSourcesRepository apply(FileSystemDataSourcesRepositoryConfiguration config, ObjectMapper om) {
-      var assetsCompanion = FileSystemDataAssetRepository.apply(DataSourceProperties.class, config.getDirectory(), om);
+   public static FileSystemCollectionsRepository apply(FileSystemCollectionsRepositoryConfiguration config, ObjectMapper om) {
+      var assetsCompanion = FileSystemDataAssetRepository.apply(CollectionProperties.class, config.getDirectory(), om);
       var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
       var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
 
-      return new FileSystemDataSourcesRepository(assetsCompanion, requestsCompanion, membersCompanion);
+      return new FileSystemCollectionsRepository(assetsCompanion, requestsCompanion, membersCompanion);
    }
 
    @Override
-   public CompletionStage<List<DataSourceProperties>> findAllAssets() {
+   public CompletionStage<List<CollectionProperties>> findAllAssets() {
       return assetsCompanion.findAllAssets();
    }
 
    @Override
-   public CompletionStage<Optional<DataSourceProperties>> findAssetById(UID asset) {
+   public CompletionStage<Optional<CollectionProperties>> findAssetById(UID asset) {
       return assetsCompanion.findAssetById(asset);
    }
 
    @Override
-   public CompletionStage<Optional<DataSourceProperties>> findAssetByName(String name) {
+   public CompletionStage<Optional<CollectionProperties>> findAssetByName(String name) {
       return assetsCompanion.findAssetByName(name);
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateAsset(DataSourceProperties asset) {
+   public CompletionStage<Done> insertOrUpdateAsset(CollectionProperties asset) {
       return assetsCompanion.insertOrUpdateAsset(asset);
    }
 
