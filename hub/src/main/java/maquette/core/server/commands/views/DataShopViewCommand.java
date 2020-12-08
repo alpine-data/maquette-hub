@@ -32,7 +32,7 @@ public class DataShopViewCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       var allDatasetsCS = services
          .getDatasetServices()
-         .getDatasets(user)
+         .list(user)
          .thenApply(list -> list
             .stream()
             .map(p -> (DataAssetProperties<?>) p)

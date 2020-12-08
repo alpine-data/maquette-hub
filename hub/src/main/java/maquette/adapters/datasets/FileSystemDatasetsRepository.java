@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.DatasetRevisionsFileSystemCompanion;
+import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
@@ -30,11 +31,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileSystemDatasetsRepository implements DatasetsRepository {
 
-   private static final String PROPERTIES_FILE = "asset.json";
-
-   private final FileSystemDatasetsRepositoryConfiguration config;
-
-   private final ObjectMapper om;
+   private final FileSystemDataAssetRepository<DatasetProperties> assetsCompanion;
 
    private final DataAccessRequestsFileSystemCompanion requestsCompanion;
 
@@ -43,40 +40,17 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    private final DatasetRevisionsFileSystemCompanion revisionsCompanion;
 
    public static FileSystemDatasetsRepository apply(FileSystemDatasetsRepositoryConfiguration config, ObjectMapper om) {
+      var assetsCompanion = FileSystemDataAssetRepository.apply(DatasetProperties.class, config.getDirectory(), om);
       var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
       var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
       var revisionsCompanion = DatasetRevisionsFileSystemCompanion.apply(config.getDirectory(), om);
 
-      Operators.suppressExceptions(() -> Files.createDirectories(config.getDirectory()));
-
-      return new FileSystemDatasetsRepository(config, om, requestsCompanion, membersCompanion, revisionsCompanion);
-   }
-
-   private Path getDatasetDirectory(UID dataset) {
-      var dir = config
-         .getDirectory()
-         .resolve(dataset.getValue());
-
-      Operators.suppressExceptions(() -> Files.createDirectories(dir));
-
-      return dir;
-   }
-
-   private Path getDatasetFile(UID dataset) {
-      return getDatasetDirectory(dataset).resolve(PROPERTIES_FILE);
+      return new FileSystemDatasetsRepository(assetsCompanion, requestsCompanion, membersCompanion, revisionsCompanion);
    }
 
    @Override
    public CompletionStage<List<DatasetProperties>> findAllAssets() {
-      var result = Operators
-         .suppressExceptions(() -> Files.list(config.getDirectory()))
-         .filter(Files::isDirectory)
-         .map(directory -> directory.resolve(PROPERTIES_FILE))
-         .filter(Files::exists)
-         .map(file -> Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetProperties.class)))
-         .collect(Collectors.toList());
-
-      return CompletableFuture.completedFuture(result);
+      return assetsCompanion.findAllAssets();
    }
 
    @Override
@@ -90,24 +64,13 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Optional<DatasetProperties>> findAssetById(UID dataset) {
-      var file = getDatasetFile(dataset);
-
-      if (Files.exists(file)) {
-         var result = Operators.suppressExceptions(() -> om.readValue(file.toFile(), DatasetProperties.class));
-         return CompletableFuture.completedFuture(Optional.of(result));
-      } else {
-         return CompletableFuture.completedFuture(Optional.empty());
-      }
+   public CompletionStage<Optional<DatasetProperties>> findAssetById(UID asset) {
+      return assetsCompanion.findAssetById(asset);
    }
 
    @Override
    public CompletionStage<Optional<DatasetProperties>> findAssetByName(String name) {
-      return findAllAssets()
-         .thenApply(datasets -> datasets
-            .stream()
-            .filter(d -> d.getName().equals(name))
-            .findFirst());
+      return assetsCompanion.findAssetByName(name);
    }
 
    @Override
@@ -121,10 +84,8 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateAsset(DatasetProperties dataset) {
-      var file = getDatasetFile(dataset.getId());
-      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), dataset));
-      return CompletableFuture.completedFuture(Done.getInstance());
+   public CompletionStage<Done> insertOrUpdateAsset(DatasetProperties asset) {
+      return assetsCompanion.insertOrUpdateAsset(asset);
    }
 
    @Override

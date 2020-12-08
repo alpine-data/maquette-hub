@@ -32,7 +32,7 @@ public class DatasetViewCommand implements Command {
 
       return services
          .getDatasetServices()
-         .getDataset(user, dataset)
+         .get(user, dataset)
          .thenApply(dataset -> {
             var isOwner = dataset.isMember(user, DataAssetMemberRole.OWNER);
             var isConsumer = dataset.isMember(user, DataAssetMemberRole.CONSUMER);

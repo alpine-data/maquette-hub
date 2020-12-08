@@ -10,6 +10,7 @@ import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.datasets.DatasetEntities;
+import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
@@ -42,6 +43,7 @@ public class CoreApp {
        ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
        InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository,
        DatasetsRepository datasetsRepository, RecordsStore recordsStore,
+       DataSourcesRepository dataSourceRepository,
        SandboxesRepository sandboxesRepository, UsersRepository usersRepository,
        DataExplorer dataExplorer, ObjectMapper om) {
 
@@ -60,11 +62,12 @@ public class CoreApp {
         var processManager = ProcessManager.apply();
         var projects = ProjectEntities.apply(projectsRepository);
         var datasets = DatasetEntities.apply(datasetsRepository, recordsStore, dataExplorer);
+        var dataSources = DataSourceEntities.apply(dataSourceRepository, recordsStore, dataExplorer);
         var sandboxes = SandboxEntities.apply(sandboxesRepository);
         var users = Users.apply(usersRepository);
 
         var runtime = RuntimeConfiguration.apply(
-           app, system, om, datasets, infrastructureManager,
+           app, system, om, datasets, dataSources, infrastructureManager,
            processManager, projects, sandboxes, users);
 
         var services = ApplicationServices.apply(runtime);

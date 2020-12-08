@@ -3,15 +3,14 @@ package maquette.core.entities.data.datasources;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.companions.MembersCompanion;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.AccessRequests;
-import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
-import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
 import maquette.core.entities.data.datasources.model.DataSourceProperties;
 import maquette.core.ports.DataExplorer;
-import maquette.core.ports.DataSourceRepository;
+import maquette.core.ports.DataSourcesRepository;
 import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -26,29 +25,33 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply")
-public final class DataSourceEntity {
+public final class DataSourceEntity implements DataAssetEntity<DataSourceProperties> {
 
    private final UID id;
 
-   private final DataSourceRepository repository;
+   private final DataSourcesRepository repository;
 
    private final RecordsStore recordsStore;
 
    private final DataExplorer explorer;
 
-   public AccessRequests<DataSourceProperties> accessRequests() {
+   public AccessRequests<DataSourceProperties> getAccessRequests() {
       return AccessRequests.apply(id, repository, this::getProperties);
    }
 
-   public MembersCompanion<DataAssetMemberRole> members() {
+   public MembersCompanion<DataAssetMemberRole> getMembers() {
       return MembersCompanion.apply(id, repository);
+   }
+
+   public UID getId() {
+      return id;
    }
 
    public CompletionStage<DataSourceProperties> getProperties() {
       return withProperties(CompletableFuture::completedFuture);
    }
 
-   public CompletionStage<Done> updateProperties(
+   public CompletionStage<Done> update(
       User executor, String name, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
@@ -68,7 +71,7 @@ public final class DataSourceEntity {
       });
    }
 
-   public CompletionStage<Done> updateDatabaseProperties(
+   public CompletionStage<Done> update(
       User executor, DataSourceDriver driver, String connection, String query) {
 
       return  withProperties(properties -> {

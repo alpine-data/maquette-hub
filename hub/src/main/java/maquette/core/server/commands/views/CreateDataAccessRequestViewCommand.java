@@ -36,7 +36,7 @@ public class CreateDataAccessRequestViewCommand implements Command {
 
       var datasetCS = services
          .getDatasetServices()
-         .getDataset(user, asset);
+         .get(user, asset);
 
       var projectsCS = services
          .getUserServices()

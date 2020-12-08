@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasets.DatasetEntity;
+import maquette.core.entities.data.datasets.model.Dataset;
+import maquette.core.entities.data.datasets.model.DatasetProperties;
+import maquette.core.entities.data.datasources.DataSourceEntities;
+import maquette.core.entities.data.datasources.model.DataSourceProperties;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
@@ -15,10 +19,12 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.sandboxes.model.stacks.Stack;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
-import maquette.core.services.datasets.DatasetCompanion;
+import maquette.core.services.data.datasets.DatasetCompanion;
+import maquette.core.services.data.datasources.DataSourceCompanion;
 import maquette.core.services.sandboxes.SandboxCompanion;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAsset;
+import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -36,6 +42,8 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    DatasetEntities datasets;
 
+   DataSourceEntities dataSources;
+
    SandboxEntities sandboxes;
 
    InfrastructureManager infrastructure;
@@ -43,6 +51,8 @@ public final class ProjectServicesImpl implements ProjectServices {
    ProjectCompanion companion;
 
    DatasetCompanion datasetCompanion;
+
+   DataSourceCompanion dataSourceCompanion;
 
    SandboxCompanion sandboxCompanion;
 
@@ -102,20 +112,30 @@ public final class ProjectServicesImpl implements ProjectServices {
 
             var accessRequestsCS = Operators
                .compose(
-                  datasets.findDataAccessRequestsByProject(project.getId()), propertiesCS,
+                  datasets.findAccessRequestsByProject(project.getId()), propertiesCS,
                   (requests, properties) -> requests
                      .stream()
                      .map(request -> companion.enrichDataAccessRequest(
                         properties, request,
-                        id -> datasets.getDatasetById(id).thenCompose(DatasetEntity::getProperties).thenApply(p -> p))))
+                        id -> datasets.getById(id).thenCompose(DatasetEntity::getProperties).thenApply(p -> p))))
                .thenCompose(Operators::allOf);
 
             var linkedDataAssetsCS = accessRequestsCS.thenApply(requests -> requests
                .stream()
-               .map(r -> datasets
-                  .getDatasetById(r.getAsset().getId())
-                  .thenCompose(datasetCompanion::mapEntityToDataset)
-                  .thenApply(ds -> (DataAsset) ds)))
+               .map(r -> {
+                  if (r.getAsset() instanceof DatasetProperties) {
+                     return datasets
+                        .getById(r.getAsset().getId())
+                        .thenCompose(datasetCompanion::mapEntityToDataset);
+                  } else if (r.getAsset() instanceof DataSourceProperties) {
+                     return dataSources
+                        .getById(r.getAsset().getId())
+                        .thenCompose(dataSourceCompanion::mapEntityToDataSource);
+                  } else {
+                     return CompletableFuture.<Dataset>failedFuture(new IllegalArgumentException("Unknown data asset type."));
+                  }
+               })
+               .map(cs -> cs.thenApply(as -> (DataAsset<?>) as)))
                .thenCompose(Operators::allOf);
 
             var stacks = Stacks.apply()
@@ -128,7 +148,9 @@ public final class ProjectServicesImpl implements ProjectServices {
                propertiesCS, membersCS, accessRequestsCS, sandboxesCS, linkedDataAssetsCS,
                (properties, members, accessRequests, sandboxes, linkedDataAssets) -> Project.apply(
                   project.getId(), properties.getName(), properties.getTitle(), properties.getSummary(),
-                  properties.getCreated(), properties.getModified(), accessRequests, members, linkedDataAssets, sandboxes, stacks));
+                  properties.getCreated(), properties.getModified(), accessRequests, members,
+                  linkedDataAssets.stream().map(as -> (DataAsset<?>) as).collect(Collectors.toList()),
+                  sandboxes, stacks));
          });
    }
 
