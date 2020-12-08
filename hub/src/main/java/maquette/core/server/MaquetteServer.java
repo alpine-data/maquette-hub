@@ -13,7 +13,6 @@ import maquette.core.services.ApplicationServices;
 import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,15 +39,15 @@ public final class MaquetteServer {
 
                 .post("/api/commands", commandResource.getCommand())
                 .get("/api/commands", commandResource.getCommands())
-                .post("/api/commands/example", commandResource.getCommandExample())
+                .get("/api/commands/examples", commandResource.getCommandExamples())
 
                 .post("/api/data/datasets/:dataset", dataResource.uploadFile())
                 .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
                 .get("/api/data/datasets/:dataset/:version", dataResource.download())
                 .get("/api/data/datasets/:dataset", dataResource.downloadLatest())
 
-                .get("/api/v1/about", adminResource.getAbout())
-                .get("/api/v1/admin/user", adminResource.getUserInfo())
+                .get("/api/about", adminResource.getAbout())
+                .get("/api/about/user", adminResource.getUserInfo())
 
                 .exception(Exception.class, (e, ctx) -> {
                     var maybeDomainException = Operators.hasCause(e, DomainException.class);

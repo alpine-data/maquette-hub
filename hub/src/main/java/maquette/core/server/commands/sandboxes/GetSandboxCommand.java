@@ -11,8 +11,6 @@ import maquette.core.server.results.DataResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -26,12 +24,6 @@ public class GetSandboxCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(sandbox) || sandbox.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`sandbox` must be supplied"));
-      }
-
       return services
          .getSandboxServices()
          .getSandbox(user, project, sandbox)
@@ -40,7 +32,7 @@ public class GetSandboxCommand implements Command {
 
    @Override
    public Command example() {
-      return GetSandboxCommand.apply("my-funny-project", "laughing-edgar");
+      return GetSandboxCommand.apply("some-project", "some-sandbox");
    }
 
 }

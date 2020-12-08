@@ -33,8 +33,8 @@ public final class DatasetEntity {
 
    private final DataExplorer dataExplorer;
 
-   public AccessRequests accessRequests() {
-      return AccessRequests.apply(id, repository);
+   public AccessRequests<DatasetProperties> accessRequests() {
+      return AccessRequests.<DatasetProperties>apply(id, repository, this::getProperties);
    }
 
    public Revisions revisions() {
@@ -63,13 +63,13 @@ public final class DatasetEntity {
             .withPersonalInformation(personalInformation)
             .withUpdated(ActionMetadata.apply(executor));
 
-         return repository.insertOrUpdateDataset(updated);
+         return repository.insertOrUpdateAsset(updated);
       });
    }
 
    private <T> CompletionStage<T> withProperties(Function<DatasetProperties, CompletionStage<T>> func) {
       return repository
-         .findDatasetById(id)
+         .findAssetById(id)
          .thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withId(id)))
          .thenCompose(func);
    }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.ports.HasMembers;
+import maquette.core.ports.common.HasMembers;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;

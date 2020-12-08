@@ -26,12 +26,6 @@ public final class RevokeDatasetAccessCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(authorization)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`authorization` must be supplied"));
-      }
-
       return services
          .getDatasetServices()
          .revokeDatasetMember(user,dataset, authorization)
@@ -40,7 +34,7 @@ public final class RevokeDatasetAccessCommand implements Command {
 
    @Override
    public Command example() {
-      return apply("user", RoleAuthorization.apply("A_TEAM"));
+      return apply("some-dataset", RoleAuthorization.apply("A_TEAM"));
    }
 
 }

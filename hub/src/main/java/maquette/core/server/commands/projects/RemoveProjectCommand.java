@@ -36,6 +36,6 @@ public class RemoveProjectCommand implements Command {
 
     @Override
     public Command example() {
-        return RemoveProjectCommand.apply("my-funny-project");
+        return apply("some-project");
     }
 }

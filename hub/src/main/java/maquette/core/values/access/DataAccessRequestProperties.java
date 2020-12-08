@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @With
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DataAccessRequestProperties {
+public final class DataAccessRequestProperties {
 
    private static final String ID = "id";
    private static final String CREATED = "created";

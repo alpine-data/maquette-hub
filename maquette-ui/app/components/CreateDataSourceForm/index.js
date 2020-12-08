@@ -71,6 +71,8 @@ function CreateDataSourceForm() {
     query: 'SELECT * FROM <DATABASE>.<TABLE_NAME>'
   });
 
+  const [testConnectionState, setTestConnectionState] = useState("disabled");
+
   const onChange = (field) => (value) => {
     setState(produce(state, draft => {
       draft[field] = value;
@@ -121,6 +123,7 @@ function CreateDataSourceForm() {
         <FlexboxGrid.Item colspan={ 24 }>
           <hr />
         </FlexboxGrid.Item>
+
         <FlexboxGrid.Item colspan={ 11 }>
           <FormGroup>
             <ControlLabel>Data Source Driver</ControlLabel>
@@ -135,6 +138,24 @@ function CreateDataSourceForm() {
             <ControlLabel>Connection String</ControlLabel>
             <FormControl name="connection" value={ state.connection } onChange={ onChange('connection') } />
             <HelpBlock>A JDBC connection string to connect to the database, including username and password.</HelpBlock>
+          </FormGroup>
+        </FlexboxGrid.Item>
+
+        <FlexboxGrid.Item colspan={ 24 }>
+          <FormGroup>
+            <ControlLabel>Query</ControlLabel>
+            <FormControl name="connection" value={ state.query } onChange={ onChange('query') } />
+            <HelpBlock>The query to execute to fetch the data from the database.</HelpBlock>
+          </FormGroup>
+          <FormGroup>
+            <ButtonToolbar>
+              <Button 
+                disabled={ testConnectionState == "disabled" }
+                color={ testConnectionState == "failed" && "red" || "green" }>
+                  { (testConnectionState == "disabled" || testConnectionState == "test") && <>Test connection and query.</> }
+                  { testConnectionState == "failed" && <>Connection or query failed.</> }
+              </Button>
+            </ButtonToolbar>
           </FormGroup>
         </FlexboxGrid.Item>
 

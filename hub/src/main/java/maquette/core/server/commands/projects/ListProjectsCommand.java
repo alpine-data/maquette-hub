@@ -45,7 +45,7 @@ public final class ListProjectsCommand implements Command {
 
    @Override
    public Command example() {
-      return ListProjectsCommand.apply();
+      return apply();
    }
 
 }

@@ -68,16 +68,19 @@ function DatasetCodeExamples({ dataset, version, canProduce = true, canConsume =
   </>
 
   return <>
+  {/*}
     { canProduce && canConsume && <h4>Produce &amp; Consume Data</h4> }
     { canProduce && !canConsume && <h4>Produce Data</h4> }
     { !canProduce && canConsume && <h4>Consume Data</h4> }
+      */ }
+    <h4>Consume and Produce data</h4>
     <Tabs content={ [
       {
         key: "python",
         label: "Python SDK",
         component: <>
-          { canConsume && pythonConsumer }
-          { canProduce && pythonProducer }
+          { pythonConsumer }
+          { pythonProducer }
           <p style={{ fontSize: "14px" }}>
             See more details about the Maquette Python SDK <Link to="/python">here</Link>.
           </p>
@@ -87,8 +90,8 @@ function DatasetCodeExamples({ dataset, version, canProduce = true, canConsume =
       key: "java",
       label: "Java SDK",
       component: <>
-        { canConsume && javaConsumer }
-        { canProduce && javaProducer }
+        { javaConsumer }
+        { javaProducer }
 
         <p style={{ fontSize: "14px" }}>
           See more details about the Maquette Java SDK <Link to="/java">here</Link>.

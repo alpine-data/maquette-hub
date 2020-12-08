@@ -5,7 +5,8 @@
  */
 
 import React from 'react';
-import { ButtonToolbar, FlexboxGrid, Icon, IconButton, Link } from 'rsuite';
+import { Link } from 'react-router-dom';
+import { ButtonToolbar, FlexboxGrid, Icon, IconButton } from 'rsuite';
 import styled from 'styled-components';
 
 const DataAssetGrid = styled(FlexboxGrid)`
@@ -77,7 +78,7 @@ function NewDataAsset() {
             placement="right"
             icon={ <Icon icon="arrow-circle-right" /> }
             componentClass={ Link }
-            to={ `/new/source` }>Create a data source</IconButton>
+            to={ `/new/datasource` }>Create a data source</IconButton>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </DataAssetGrid>

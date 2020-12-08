@@ -4,14 +4,18 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.plugin.openapi.dsl.DocumentedResponse;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import maquette.common.ObjectMapperFactory;
+import maquette.common.Operators;
+import maquette.common.apidocs.*;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -25,14 +29,6 @@ public final class CommandResource {
    private final RuntimeConfiguration runtime;
 
    private final ApplicationServices services;
-
-   @AllArgsConstructor(staticName = "apply")
-   @NoArgsConstructor(access = AccessLevel.PRIVATE)
-   private static class ExampleRequest {
-
-      String name;
-
-   }
 
    public Handler getCommand() {
       var docs = OpenApiBuilder
@@ -82,30 +78,89 @@ public final class CommandResource {
       });
    }
 
-   public Handler getCommandExample() {
+   public Handler getCommandExamples() {
       var docs = OpenApiBuilder
          .document()
          .operation(op -> {
             op.summary("Command Example");
-            op.description("Get an example for the command.");
+            op.description("Get a postman collection with all available commands and examples.");
             op.addTagsItem("Commands");
          })
-         .body(ExampleRequest.class)
-         .jsonArray("200", String.class);
+         .result("200");
 
       return OpenApiBuilder.documented(docs, ctx -> {
-         var request = ctx.bodyAsClass(ExampleRequest.class);
+         var collection = Collection
+            .apply("Maquette Hub API")
+            .withVariable(Variable.apply("HOSTNAME", "localhost:9042"))
+            .withVariable(Variable.apply("DATASET", "sample-dataset"))
+            .withVariable(Variable.apply("REVISION", "af10-cc-fc-40"))
+            .withVariable(Variable.apply("VERSION", "1.0"))
+            .withItem(Item.apply(
+               "/api/data/datasets/:dataset",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.POST)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/datasets/{{DATASET}}"))
+                  .withBody(FormDataBody
+                     .apply()
+                     .withField(FileField.apply("file", "./sample.avro")))))
+            .withItem(Item.apply(
+               "/api/data/datasets/:dataset/:revision",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.POST)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/datasets/{{DATASET}}/{{REVISION}}"))
+                  .withBody(FormDataBody
+                     .apply()
+                     .withField(FileField.apply("file", "./sample.avro")))))
+            .withItem(Item.apply(
+               "/api/data/datasets/:dataset/:version",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/datasets/{{DATASET}}/{{VERSION}}"))))
+            .withItem(Item.apply(
+               "/api/about",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/about"))))
+            .withItem(Item.apply(
+               "/api/about/user",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/about/user"))));
 
-         getAvailableCommands()
-            .stream()
-            .filter(pair -> pair.getLeft().equals(request.name))
-            .findFirst()
-            .ifPresentOrElse(
-               pair -> ctx.json(pair.getRight().example()),
-               () -> {
-                  throw new NotFoundResponse(String.format("Unknown command `%s`", request.name));
-               }
-            );
+         getAvailableCommands().forEach(pair -> {
+            var cmd = pair.getLeft();
+            var command = pair.getRight();
+
+            var json = Operators.suppressExceptions(() -> runtime.getObjectMapper().writeValueAsString(command.example()));
+
+            var request = Request
+               .apply()
+               .withMethod(HttpMethod.POST)
+               .withHeader("Content-Type", "application/json")
+               .withHeader("x-user-id", "alice")
+               .withHeader("x-user-roles", "a-team,b-team")
+               .withHeader("x-project", "af10ccfc40")
+               .withBody(RawBody.apply(json))
+               .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/commands"));
+
+            collection.withItem(Item.apply("/api/commands - " + cmd, request));
+         });
+
+         ctx.json(collection);
       });
    }
 
@@ -122,6 +177,7 @@ public final class CommandResource {
             try {
                var constructor = type.getType().getDeclaredConstructor();
                constructor.setAccessible(true);
+
                var command = (Command) constructor.newInstance();
                return Optional.of(Pair.of(type.getName(), command));
             } catch (Exception e) {

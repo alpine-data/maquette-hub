@@ -36,7 +36,7 @@ public final class DatasetEntities {
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
       return repository
-         .findDatasetByName(name)
+         .findAssetByName(name)
          .thenCompose(maybeDataset -> {
             if (maybeDataset.isPresent()) {
                return CompletableFuture.failedFuture(DatasetAlreadyExistsException.withName(name));
@@ -47,7 +47,7 @@ public final class DatasetEntities {
                   visibility, classification, personalInformation, created, created);
 
                return repository
-                  .insertOrUpdateDataset(dataset)
+                  .insertOrUpdateAsset(dataset)
                   .thenApply(d -> dataset);
             }
          });
@@ -55,20 +55,20 @@ public final class DatasetEntities {
 
    public CompletionStage<Optional<DatasetEntity>> findDatasetById(UID dataset) {
       return repository
-         .findDatasetById(dataset)
+         .findAssetById(dataset)
          .thenApply(maybeDataset -> maybeDataset.map(details ->
             DatasetEntity.apply(details.getId(), repository, store, dataExplorer)));
    }
 
    public CompletionStage<Optional<DatasetEntity>> findDatasetByName(String dataset) {
       return repository
-         .findDatasetByName(dataset)
+         .findAssetByName(dataset)
          .thenApply(maybeDataset -> maybeDataset.map(details ->
             DatasetEntity.apply(details.getId(), repository, store, dataExplorer)));
    }
 
    public CompletionStage<List<DatasetProperties>> findDatasets() {
-      return repository.findAllDatasets();
+      return repository.findAllAssets();
    }
 
    public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByProject(UID project) {

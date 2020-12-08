@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.sandboxes.model.stacks.PostgreSqlStack;
+import maquette.core.entities.sandboxes.model.stacks.PythonStack;
 import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -30,10 +32,6 @@ public class CreateSandboxCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      }
-
       return services
          .getSandboxServices()
          .createSandbox(user, project, name, stacks)
@@ -42,7 +40,10 @@ public class CreateSandboxCommand implements Command {
 
    @Override
    public Command example() {
-      return CreateSandboxCommand.apply("my-funny-project", null, List.of());
+      return apply("some-project", "some-sandbox", List.of(
+         PythonStack.Configuration.apply("3.8"),
+         PostgreSqlStack.Configuration.apply("user", "password", "admin@maquette.ai", "password")
+      ));
    }
 
 }

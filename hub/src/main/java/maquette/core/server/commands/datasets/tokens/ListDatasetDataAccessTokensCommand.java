@@ -30,14 +30,6 @@ public class ListDatasetDataAccessTokensCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      }
-
-      // TODO mw: Better validation process
-
       /*
       return services
          .getDatasetServices()
@@ -62,6 +54,6 @@ public class ListDatasetDataAccessTokensCommand implements Command {
 
    @Override
    public Command example() {
-      return ListDatasetDataAccessTokensCommand.apply("my-funny-project", "my-funny-dataset");
+      return apply("some-project", "some-dataset");
    }
 }

@@ -24,10 +24,6 @@ public class ListSandboxesCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      }
-
       return services
          .getSandboxServices()
          .getSandboxes(user, project)
@@ -36,7 +32,7 @@ public class ListSandboxesCommand implements Command {
 
    @Override
    public Command example() {
-      return ListSandboxesCommand.apply("my-funny-project");
+      return ListSandboxesCommand.apply("some-project");
    }
 
 }

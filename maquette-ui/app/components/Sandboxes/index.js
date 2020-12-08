@@ -23,9 +23,12 @@ function Sandboxes(props) {
     <p className="mq--p-leading">
       You may add multiple stacks to a single sandbox. Select a stack below to start the setup of a new sandbox.
     </p>
+    <p className="mq--p-leading">
+      Most common sandboxes:
+    </p>
     <FlexboxGrid justify="space-between">
       { 
-        _.map(stacks, s => <React.Fragment key={ s.name }>
+        _.map(_.take(stacks, 2), s => <React.Fragment key={ s.name }>
           <FlexboxGrid.Item colspan={ 11 }>
             <StackCard 
               stack={ s }

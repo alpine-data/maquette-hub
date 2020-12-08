@@ -29,12 +29,6 @@ public class SandboxViewCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(sandbox) || sandbox.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`sandbox` must be supplied"));
-      }
-
       var projectCS = services
          .getProjectServices()
          .get(user, project);
@@ -52,7 +46,7 @@ public class SandboxViewCommand implements Command {
 
    @Override
    public Command example() {
-      return null;
+      return apply("some-project", "some-sandbox");
    }
 
 }

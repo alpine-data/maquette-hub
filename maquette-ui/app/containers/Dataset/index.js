@@ -75,7 +75,7 @@ function Display(props) {
         <Container fluid>
           <FlexboxGrid align="middle">
             <FlexboxGrid.Item colspan={ 16 }>
-              <h1><Link to={ `/shop/datasets/${dataset}` }>{ _.get(props, 'dataset.data.dataset.title') }</Link></h1>
+              <h1><Link to="/shop/browse">Data Shop</Link> / <Link to={ `/shop/datasets/${dataset}` }>{ _.get(props, 'dataset.data.dataset.title') }</Link></h1>
               <EditableParagraph 
                 value={ _.get(props, 'dataset.data.dataset.summary') } 
                 onChange={ summary => onUpdate({ summary }) }

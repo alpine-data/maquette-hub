@@ -29,7 +29,7 @@ public class DashboardViewCommand implements Command {
 
    @Override
    public Command example() {
-      return null;
+      return new DashboardViewCommand();
    }
 
 }

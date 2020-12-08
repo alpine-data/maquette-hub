@@ -11,9 +11,8 @@ import maquette.core.server.results.DataResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -27,12 +26,6 @@ public class CreateRevisionCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) ||dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(schema)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`schema` must be supplied"));
-      }
-
       return services
          .getDatasetServices()
          .createRevision(user, dataset, schema)
@@ -41,7 +34,14 @@ public class CreateRevisionCommand implements Command {
 
    @Override
    public Command example() {
-      // TODO: Fill with real schema example
-      return CreateRevisionCommand.apply("some-dataset", null);
+      return CreateRevisionCommand.apply(
+         "some-dataset",
+         SchemaBuilder
+            .record("Test")
+            .fields()
+            .requiredLong("id")
+            .requiredString("color")
+            .optionalDouble("price")
+            .endRecord());
    }
 }

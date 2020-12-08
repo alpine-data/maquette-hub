@@ -24,10 +24,6 @@ public class GetProjectCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-        if (Objects.isNull(name) || name.length() == 0) {
-            return CompletableFuture.failedFuture(new RuntimeException("`name` must be supplied"));
-        }
-
         return services
                 .getProjectServices()
                 .get(user, name)
@@ -36,7 +32,7 @@ public class GetProjectCommand implements Command {
 
     @Override
     public Command example() {
-        return GetProjectCommand.apply("my-funny-project");
+        return apply("some-project");
     }
 
 }

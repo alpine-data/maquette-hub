@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -29,14 +30,6 @@ public class CommitRevisionCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(revision)) {
-         return CompletableFuture.failedFuture(new RuntimeException("`revision` must be supplied"));
-      } else if (Objects.isNull(message) || message.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`message` must be supplied"));
-      }
-
       return services
          .getDatasetServices()
          .commitRevision(user, dataset, revision, message)
@@ -45,6 +38,6 @@ public class CommitRevisionCommand implements Command {
 
    @Override
    public Command example() {
-      return CommitRevisionCommand.apply("Funny Dataset", UID.apply(), "message");
+      return apply("some-dataset", UID.apply(), Operators.lorem());
    }
 }

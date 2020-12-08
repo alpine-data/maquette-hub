@@ -27,10 +27,6 @@ public class GetDatasetDataAccessRequestCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      }
-
       return services
          .getDatasetServices()
          .getDataAccessRequest(user, dataset, id)
@@ -39,6 +35,7 @@ public class GetDatasetDataAccessRequestCommand implements Command {
 
    @Override
    public Command example() {
-      return GetDatasetDataAccessRequestCommand.apply("my-funny-dataset", UID.apply("123"));
+      return apply("some-dataset", UID.apply("1"));
    }
+
 }

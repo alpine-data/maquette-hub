@@ -3,6 +3,7 @@ package maquette.core.server.commands.datasets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -13,8 +14,6 @@ import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -29,41 +28,25 @@ public final class UpdateDatasetPropertiesCommand implements Command {
 
    String summary;
 
-   String visibility;
+   DataVisibility visibility;
 
-   String classification;
+   DataClassification classification;
 
-   String personalInformation;
+   PersonalInformation personalInformation;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) ||dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      } else if (Objects.isNull(title) ||title.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`title` must be supplied"));
-      } else if (Objects.isNull(name) ||name.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`name` must be supplied"));
-      } else if (Objects.isNull(visibility) ||visibility.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`visibility` must be supplied"));
-      } else if (Objects.isNull(classification) ||classification.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`classification` must be supplied"));
-      } else if (Objects.isNull(personalInformation) ||personalInformation.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`personalInformation` must be supplied"));
-      }
-
-      var visibilityMapped = DataVisibility.forValue(visibility);
-      var classificationMapped = DataClassification.forValue(classification);
-      var personalInformationMapped = PersonalInformation.forValue(personalInformation);
-
       return services
          .getDatasetServices()
-         .updateDetails(user, dataset, name, title, summary, visibilityMapped, classificationMapped, personalInformationMapped)
+         .updateDetails(user, dataset, name, title, summary, visibility, classification, personalInformation)
          .thenApply(done -> MessageResult.apply("Successfully updated dataset."));
    }
 
    @Override
    public Command example() {
-      return apply("some-dataset", "new-dataset-name", "title", "summary", "public", "confidential", "pi");
+      return apply(
+         "some-dataset", "some-dataset", "title", Operators.lorem(),
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
    }
 
 }

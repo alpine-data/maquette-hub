@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -34,19 +35,11 @@ public class CreateDatasetDataAccessTokenCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(project) || project.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`project` must be supplied"));
-      } else if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      }
-
-      // TODO mw: Better validation process
-
       return CompletableFuture.completedFuture(MessageResult.apply("ok"));
    }
 
    @Override
    public Command example() {
-      return CreateDatasetDataAccessTokenCommand.apply("my-funny-project", "my-funny-dataset", "some-origin-project", "some-token", "Lorem ipsum");
+      return CreateDatasetDataAccessTokenCommand.apply("some-project", "some-dataset", "some-origin", "some-token", Operators.lorem());
    }
 }

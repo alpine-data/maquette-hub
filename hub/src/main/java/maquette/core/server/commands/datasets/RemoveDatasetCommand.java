@@ -23,10 +23,6 @@ public class RemoveDatasetCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
-         return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
-      }
-
       return services
          .getDatasetServices()
          .deleteDataset(user, dataset)
@@ -35,7 +31,7 @@ public class RemoveDatasetCommand implements Command {
 
    @Override
    public Command example() {
-      return RemoveDatasetCommand.apply("some-funny-dataset");
+      return RemoveDatasetCommand.apply("some-dataset");
    }
 
 }

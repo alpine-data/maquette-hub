@@ -64,7 +64,7 @@ public class CreateDataAccessRequestViewCommand implements Command {
 
    @Override
    public Command example() {
-      return null;
+      return apply("some-asset");
    }
 
 }
