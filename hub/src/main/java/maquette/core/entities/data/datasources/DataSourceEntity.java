@@ -72,12 +72,12 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
    }
 
    public CompletionStage<Done> update(
-      User executor, DataSourceDriver driver, String connection, String query) {
+      User executor, DataSourceDriver driver, String connection, String username, String password, String query) {
 
       return  withProperties(properties -> {
          var updated = properties
             .withDatabase(DataSourceDatabaseProperties.apply(
-               driver, connection, query))
+               driver, connection, username, password, query))
             .withUpdated(ActionMetadata.apply(executor));
 
          return repository.insertOrUpdateAsset(updated);

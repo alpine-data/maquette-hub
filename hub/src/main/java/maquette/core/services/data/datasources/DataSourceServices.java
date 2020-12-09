@@ -29,6 +29,8 @@ public interface DataSourceServices extends MemberServices, AccessRequestService
       User executor, String name, String updatedName, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
 
-   CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String query);
+   CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query);
+
+   CompletionStage<ConnectionTestResult> test(User executor, DataSourceDriver driver, String connection, String username, String password, String query);
 
 }

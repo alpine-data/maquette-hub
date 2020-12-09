@@ -27,17 +27,21 @@ public class UpdateDataSourceDatabasePropertiesCommand implements Command {
 
    String query;
 
+   String username;
+
+   String password;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataSourceServices()
-         .updateDatabaseProperties(user, source, driver, connection, query)
+         .updateDatabaseProperties(user, source, driver, connection, username, password, query)
          .thenApply(done -> MessageResult.apply("Successfully updated data source."));
    }
 
    @Override
    public Command example() {
-      return apply("some-data-source", DataSourceDriver.POSTGRESQL, "jdbc://h2:mem", "SELECT * FROM TABLE");
+      return apply("some-data-source", DataSourceDriver.POSTGRESQL, "//host/database", "SELECT * FROM TABLE", "egon", "secret123");
    }
 
 }

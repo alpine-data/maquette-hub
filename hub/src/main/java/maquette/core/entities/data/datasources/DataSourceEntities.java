@@ -5,11 +5,10 @@ import lombok.AllArgsConstructor;
 import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.data.datasources.exceptions.DataSourceAlreadyExistsException;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
-import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
-import maquette.core.entities.data.datasources.model.DataSourceProperties;
-import maquette.core.entities.data.datasources.model.DataSourceType;
+import maquette.core.entities.data.datasources.model.*;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DataSourcesRepository;
+import maquette.core.ports.JdbcPort;
 import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -29,6 +28,8 @@ import java.util.concurrent.CompletionStage;
 public final class DataSourceEntities implements DataAssetEntities<DataSourceProperties, DataSourceEntity> {
 
    private final DataSourcesRepository repository;
+
+   private final JdbcPort jdbcPort;
 
    private final RecordsStore recordsStore;
 
@@ -91,6 +92,10 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
 
    public CompletionStage<Done> remove(UID dataSource) {
       throw new NotImplementedException();
+   }
+
+   public CompletionStage<ConnectionTestResult> test(DataSourceDriver driver, String connection, String username, String password, String query) {
+      return jdbcPort.test(driver, connection, username, password, query);
    }
 
 }

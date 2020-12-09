@@ -61,11 +61,16 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    }
 
    @Override
-   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String query) {
+   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query) {
       return companion
          .withAuthorization(
             () -> assets.isMember(executor, dataSource, DataAssetMemberRole.OWNER))
-         .thenCompose(ok -> delegate.updateDatabaseProperties(executor, dataSource, driver, connection, query));
+         .thenCompose(ok -> delegate.updateDatabaseProperties(executor, dataSource, driver, connection, username, password, query));
+   }
+
+   @Override
+   public CompletionStage<ConnectionTestResult> test(User executor, DataSourceDriver driver, String connection, String username, String password, String query) {
+      return delegate.test(executor, driver, connection, username, password, query);
    }
 
    @Override

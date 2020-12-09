@@ -68,7 +68,9 @@ function CreateDataSourceForm() {
     accessType: 'direct',
     schedule: 'daily',
     driver: 'postgresql',
-    query: 'SELECT * FROM <DATABASE>.<TABLE_NAME>'
+    query: '',
+    username: '',
+    password: ''
   });
 
   const [testConnectionState, setTestConnectionState] = useState("disabled");
@@ -136,15 +138,45 @@ function CreateDataSourceForm() {
         <FlexboxGrid.Item colspan={ 11 }>
           <FormGroup>
             <ControlLabel>Connection String</ControlLabel>
-            <FormControl name="connection" value={ state.connection } onChange={ onChange('connection') } />
+            <FormControl 
+              name="connection" 
+              value={ state.connection } 
+              onChange={ onChange('connection') }
+              placeholder="//host:port/database" />
             <HelpBlock>A JDBC connection string to connect to the database, including username and password.</HelpBlock>
+          </FormGroup>
+        </FlexboxGrid.Item>
+
+        <FlexboxGrid.Item colspan={ 11 }>
+          <FormGroup>
+            <ControlLabel>Username</ControlLabel>
+            <FormControl 
+              name="username" 
+              value={ state.username } 
+              onChange={ onChange('username') } />
+          </FormGroup>
+        </FlexboxGrid.Item>
+          
+
+        <FlexboxGrid.Item colspan={ 11 }>
+          <FormGroup>
+            <ControlLabel>Password</ControlLabel>
+            <FormControl 
+              name="password" 
+              value={ state.password } 
+              onChange={ onChange('password') }
+              type="password" />
           </FormGroup>
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item colspan={ 24 }>
           <FormGroup>
             <ControlLabel>Query</ControlLabel>
-            <FormControl name="connection" value={ state.query } onChange={ onChange('query') } />
+            <FormControl 
+              name="connection" 
+              value={ state.query } 
+              onChange={ onChange('query') }
+              placeholder="SELECT * FROM <DATABASE>.<TABLE_NAME>" />
             <HelpBlock>The query to execute to fetch the data from the database.</HelpBlock>
           </FormGroup>
           <FormGroup>

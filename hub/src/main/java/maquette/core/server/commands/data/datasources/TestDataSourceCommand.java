@@ -6,11 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
-import maquette.core.entities.data.datasources.model.DataSourceType;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
+import maquette.core.server.results.DataResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.data.DataClassification;
@@ -23,38 +22,29 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CreateDataSourceCommand implements Command {
+public class TestDataSourceCommand implements Command {
 
-   String title;
+   DataSourceDriver driver;
 
-   String name;
+   String connection;
 
-   String summary;
+   String query;
 
-   DataSourceDatabaseProperties properties;
+   String username;
 
-   DataSourceType type;
-
-   DataVisibility visibility;
-
-   DataClassification classification;
-
-   PersonalInformation personalInformation;
+   String password;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataSourceServices()
-         .create(user, title, name, summary, properties, type, visibility, classification, personalInformation)
-         .thenApply(pid -> MessageResult.apply("Successfully created data source `%s`", name));
+         .test(user, driver, connection, username, password, query)
+         .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return apply(
-         "Some Data Source", "some-data-source", Operators.lorem(),
-         DataSourceDatabaseProperties.apply(DataSourceDriver.POSTGRESQL, "jdbc:h2://hostname:7291", "SELECT * FROM TABLE", "egon", "secret123"), DataSourceType.DIRECT,
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
+      return apply(DataSourceDriver.POSTGRESQL, "host:5432", "SELECT * FROM TABLE", "edgar", "secret123");
    }
 
 }

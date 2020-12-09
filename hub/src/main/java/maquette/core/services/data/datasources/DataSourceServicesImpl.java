@@ -63,10 +63,15 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    }
 
    @Override
-   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String query) {
+   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query) {
       return entities
          .getByName(dataSource)
-         .thenCompose(ds -> ds.update(executor, driver, connection, query));
+         .thenCompose(ds -> ds.update(executor, driver, connection, username, password, query));
+   }
+
+   @Override
+   public CompletionStage<ConnectionTestResult> test(User executor, DataSourceDriver driver, String connection, String username, String password, String query) {
+      return entities.test(driver, connection, username, password, query);
    }
 
    @Override

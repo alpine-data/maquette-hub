@@ -5,16 +5,12 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class DataSourceDatabaseProperties {
+public class FailedConnectionTestResult implements ConnectionTestResult {
 
-   DataSourceDriver driver;
+   String message;
 
-   String connection;
-
-   String query;
-
-   String username;
-
-   String password;
-
+   @Override
+   public String getResult() {
+      return "failed";
+   }
 }

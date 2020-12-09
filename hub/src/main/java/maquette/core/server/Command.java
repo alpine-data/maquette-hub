@@ -79,6 +79,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = CreateDataSourceCommand.class, name = "sources create"),
       @JsonSubTypes.Type(value = GetDataSourceCommand.class, name = "sources get"),
       @JsonSubTypes.Type(value = ListDataSourcesCommand.class, name = "sources list"),
+      @JsonSubTypes.Type(value = TestDataSourceCommand.class, name = "sources test"),
       @JsonSubTypes.Type(value = RemoveDataSourceCommand.class, name = "sources remove"),
       @JsonSubTypes.Type(value = UpdateDataSourcePropertiesCommand.class, name = "sources update"),
       @JsonSubTypes.Type(value = UpdateDataSourceDatabasePropertiesCommand.class, name = "sources updated db"),
