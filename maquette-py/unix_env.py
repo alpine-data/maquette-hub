@@ -1,6 +1,6 @@
 import pipes
 
-from maquette_cli.__environment import MqEnvironment
+from maquette_lib.__environment import MqEnvironment
 
 env = MqEnvironment.from_config('resources/env_conf.json')
 for (key, value) in env._config.items():

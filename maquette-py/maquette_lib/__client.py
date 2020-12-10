@@ -18,7 +18,7 @@ class Client:
 
     @staticmethod
     def from_config(config: UserConfiguration) -> 'Client':
-        return Client(config.url(), config.user(), [])
+        return Client(config.url(), config.user(), config.roles())
 
     def command(self, cmd: str, args: dict = None, headers: dict = None) -> Tuple[int,dict]:
         request_body = { 'command': cmd }
@@ -26,6 +26,8 @@ class Client:
             request_body.update(args)
         if headers:
             headers = {**self.__headers,**headers}
+        else:
+            headers = self.__headers
         response = requests.post(self.__base_url + 'commands', json = request_body, headers = headers)
         if response.status_code < 200 or response.status_code > 299:
 
@@ -38,18 +40,38 @@ class Client:
                 result = response.json()
             return response.status_code, result
 
-    def get(self, url: str) -> requests.Response:
-        response = requests.get(self.__base_url + url, headers = self.__headers)
+    def get(self, url: str, headers = None) -> requests.Response:
+        if headers:
+            headers = {**self.__headers,**headers}
+        else:
+            headers = self.__headers
+        response = requests.get(self.__base_url + url, headers = headers)
         if response.status_code < 200 or response.status_code > 299:
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
         else:
             return response
 
-    def put(self, url: str, json = None, files = None) -> requests.Response:
-        return requests.put(self.__base_url + url, json = json, files = files, headers = self.__headers)
+    def put(self, url: str, json = None, files = None, headers = None) -> requests.Response:
+        if headers:
+            headers = {**self.__headers,**headers}
+        else:
+            headers = self.__headers
+        response = requests.put(self.__base_url + url, json = json, files = files, headers = headers)
+        if response.status_code < 200 or response.status_code > 299:
+            raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
+                               "status code: " + str(response.status_code) + ", content:\n" + response.text)
+        else:
+            return response
 
     def post(self, url: str, json = None, files = None, headers = None) -> requests.Response:
         if headers:
-            headers = {**self.__headers, **headers}
-        return requests.post(self.__base_url + url, json = json, files = files, headers = headers)
+            headers = {**self.__headers,**headers}
+        else:
+            headers = self.__headers
+        response = requests.post(self.__base_url + url, json = json, files = files, headers = headers)
+        if response.status_code < 200 or response.status_code > 299:
+            raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
+                               "status code: " + str(response.status_code) + ", content:\n" + response.text)
+        else:
+            return response

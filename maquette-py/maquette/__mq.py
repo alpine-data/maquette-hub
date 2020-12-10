@@ -50,58 +50,6 @@ class EPersonalInformation(str, Enum):
     SENSITIVE_PERSONAL_INFORMATION = "spi"
 
 
-class Administration:
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def delete_token(name: str, for_user: str = None) -> str:
-        status, resp = client.command(cmd='user token delete', args={
-            'name': name,
-            'for-user': for_user
-        })
-        if status == 200:
-            return resp['output']
-        else:
-            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
-                               'status code: ' + str(status) + ', content:\n' + resp)
-
-    @staticmethod
-    def renew_token(name: str, for_user: str = None) -> str:
-        status, resp = client.command(cmd='user token renew', args={
-            'name': name,
-            'for-user': for_user
-        })
-        if status == 200:
-            return resp['output']
-        else:
-            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
-                               'status code: ' + str(status) + ', content:\n' + resp)
-
-    @staticmethod
-    def register_token(name: str, for_user: str = None) -> str:
-        status, resp = client.command(cmd='user token register', args={
-            'name': name,
-            'for-user': for_user
-        })
-        if status == 200:
-            return resp['output']
-        else:
-            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
-                               'status code: ' + str(status) + ', content:\n' + resp)
-
-    @staticmethod
-    def tokens() -> pd.DataFrame:
-        status, resp = client.command('user tokens')
-        if status == 200:
-            table_df = pd.json_normalize(resp)
-            return table_df
-        else:
-            raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
-                               'status code: ' + str(status) + ', content:\n' + resp)
-
-
 class DatasetVersion:
     __project: str = None
 
@@ -153,28 +101,12 @@ class Dataset:
                        headers={'x-project': self.__project})
         return self
 
-
-    def grant(self, grant: EDatasetPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Dataset':
-        client.command(cmd='dataset grant', args={
-            'dataset': self.__name,
-            'project': self.__project,
-            'privilege': grant.value,
-            'authorization': to_auth.value,
-            'to': to_name
-        })
-
-        return self
-
-    def revoke(self, revoke: EDatasetPrivilege, auth: EAuthorizationType, from_name: str = None) -> 'Dataset':
-        client.command(cmd='dataset revoke', args={
-            'dataset': self.__name,
-            'project': self.__project,
-            'privilege': revoke.value,
-            'authorization': auth.value,
-            'from': from_name
-        })
-
-        return self
+    def remove(self):
+        client.command(cmd='datasets remove',
+                       args={'name': self.__name},
+                       headers={'x-project': self.__project})
+    def delete(self):
+        self.remove()
 
     def print(self):
         resp = client.command(cmd='datasets get', args={'dataset': self.__name, 'project': self.__project})
@@ -195,15 +127,6 @@ class Dataset:
 
         return self.version(resp.json())
 
-    def revisions(self, to_csv=False) -> pd.DataFrame:
-        if to_csv:
-            resp = client.command(cmd='datasets revisions list',
-                                  args={'dataset': self.__name, 'project': self.__project},
-                                  headers={'Accept': 'application/csv'})
-        else:
-            resp = client.command(cmd='datasets revisions list',
-                                  args={'dataset': self.__name, 'project': self.__project})
-        return resp[1]
 
     def version(self, version: Optional[str] = ""):
         return DatasetVersion(self.__name, version, self.__project)
@@ -219,22 +142,37 @@ class Dataset:
 class Project:
     __name: str = None
     __title: str = None
+    __summary: str = None
 
-    def __init__(self, name: str, title: str = None):
-        # TODO:  self.__name = generate_unique_name(title)
+    def __init__(self, name: str, title: str = None, summary:str = None):
         self.__name = name
+        self.__summary = summary
         if title:
             self.__title = title
         else:
             self.__title = name
 
     def create(self) -> 'Project':
-        client.command(cmd='projects create', args={'title': self.__title, 'name': self.__name})
+        client.command(cmd='projects create', args={'title': self.__title, 'name': self.__name, 'summary': self.__summary})
         return self
 
-    def datasets(self) -> pd.DataFrame:
-        resp = client.command(cmd='project datasets', args={'project': self.__name})
-        return resp['data'][0]
+
+    def remove(self):
+        resp = client.command(cmd='projects remove',
+                       args={'name': self.__name})
+        return resp[1]
+
+    def delete(self):
+        return self.remove()
+
+    def datasets(self, to_csv=False) -> pd.DataFrame:
+        if to_csv:
+            resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv',
+                                                                'x-project': self.__name})
+        else:
+            resp = client.command(cmd='datasets list',
+                                  headers={'x-project': self.__name})
+        return resp[1]
 
     def dataset(self, dataset_name: str = None, dataset_title: str = None, summary: str = None,
                 visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
@@ -243,25 +181,6 @@ class Project:
                 arg]
         return Dataset(project_name=self.__name, *args, )
 
-    def grant(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
-        client.command(cmd='project grant', args={
-            'project': self.__name,
-            'privilege': grant.value,
-            'authorization': to_auth.value,
-            'to': to_name
-        })
-
-        return self
-
-    def revoke(self, grant: EProjectPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Project':
-        client.command(cmd='project revoke', args={
-            'project': self.__name,
-            'privilege': grant.value,
-            'authorization': to_auth.value,
-            'from': to_name
-        })
-
-        return self
 
     def print(self) -> 'Project':
         resp = client.command(cmd='project get', args={'project': self.__name}, headers={'Accept': 'text/plain'})
@@ -276,12 +195,8 @@ class Project:
         return self.__str__()
 
 
-def admin() -> Administration:
-    return Administration()
-
-
-def project(name: str) -> Project:
-    return Project(name=name)
+def project(name: str, title: str=None, summary: str=None) -> Project:
+    return Project(name=name, title=title, summary=summary)
 
 def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = None,
                 visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
@@ -290,17 +205,17 @@ def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = 
                 arg]
     return Dataset(dataset_name=dataset_name, project_name=os.environ.get('MQ_PROJECT_NAME', 'Project_42'), *args)
 
-def datasets(name: str, to_csv=False) -> pd.DataFrame:
+def datasets(to_csv=False) -> pd.DataFrame:
     if to_csv:
-        resp = client.command(cmd='datasets list', args={'project': name}, headers={'Accept': 'application/csv'})
+        resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv', 'x-project':os.environ.get('MQ_PROJECT_NAME', 'Project_42')})
     else:
-        resp = client.command(cmd='datasets list', args={'project': name})
+        resp = client.command(cmd='datasets list', headers={'x-project':os.environ.get('MQ_PROJECT_NAME', 'Project_42')})
     return resp[1]
 
 
 def projects(to_csv=False) -> pd.DataFrame:
     if to_csv:
-        resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv'})
+        resp = client.command(cmd='projects list', headers={'Accept': 'application/csv'})
     else:
         resp = client.command(cmd='projects list')
     return resp[1]

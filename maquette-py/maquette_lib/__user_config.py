@@ -12,3 +12,6 @@ class UserConfiguration:
 
     def user(self) -> str:
         return os.environ.get('MQ_USERNAME', 'alice')
+
+    def roles(self) -> str:
+        return os.environ.get('MQ_ROLES', 'a-team, b-team').split(", ")

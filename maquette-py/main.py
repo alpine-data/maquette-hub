@@ -4,7 +4,7 @@ import os
 
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import UserConfiguration
-from maquette_cli.__environment import MqEnvironment
+from maquette_lib.__environment import MqEnvironment
 
 client = Client.from_config(UserConfiguration('/home'))
 env = MqEnvironment.from_config('resources/env_conf.json')
