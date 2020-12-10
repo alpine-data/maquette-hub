@@ -17,7 +17,7 @@ import java.util.List;
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Dataset implements DataAsset {
+public class Dataset implements DataAsset<Dataset> {
 
    UID id;
 

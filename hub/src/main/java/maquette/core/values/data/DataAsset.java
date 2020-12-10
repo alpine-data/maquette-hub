@@ -3,8 +3,10 @@ package maquette.core.values.data;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.entities.data.datasets.model.Dataset;
+import maquette.core.entities.data.datasources.model.DataSource;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 
@@ -16,9 +18,10 @@ import java.util.Objects;
    property = "type")
 @JsonSubTypes(
    {
-      @JsonSubTypes.Type(value = Dataset.class, name = "dataset")
+      @JsonSubTypes.Type(value = Dataset.class, name = "dataset"),
+      @JsonSubTypes.Type(value = DataSource.class, name = "source")
    })
-public interface DataAsset {
+public interface DataAsset<T extends DataAsset<T>> {
 
    UID getId();
 
@@ -32,6 +35,8 @@ public interface DataAsset {
 
    ActionMetadata getUpdated();
 
+   List<DataAccessRequest> getAccessRequests();
+
    List<GrantedAuthorization<DataAssetMemberRole>> getMembers();
 
    default boolean isMember(User user, DataAssetMemberRole role) {
@@ -43,5 +48,7 @@ public interface DataAsset {
    default boolean isMember(User user) {
       return isMember(user, null);
    }
+
+   T withAccessRequests(List<DataAccessRequest> accessRequests);
 
 }

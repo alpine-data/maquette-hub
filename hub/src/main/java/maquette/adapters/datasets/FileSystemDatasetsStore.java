@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.records.Records;
-import maquette.core.ports.DatasetsStore;
+import maquette.core.ports.RecordsStore;
 import org.apache.avro.generic.GenericData;
 import org.apache.commons.io.FileUtils;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class FileSystemDatasetsStore implements DatasetsStore {
+public final class FileSystemDatasetsStore implements RecordsStore {
 
    private final FileSystemDatasetsStoreConfiguration config;
 

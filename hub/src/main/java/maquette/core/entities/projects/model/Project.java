@@ -36,7 +36,7 @@ public class Project {
 
     List<GrantedAuthorization<ProjectMemberRole>> members;
 
-    List<DataAsset> assets;
+    List<DataAsset<?>> assets;
 
     List<Sandbox> sandboxes;
 

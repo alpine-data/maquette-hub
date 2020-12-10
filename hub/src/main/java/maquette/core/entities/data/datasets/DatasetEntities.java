@@ -2,12 +2,13 @@ package maquette.core.entities.data.datasets;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.data.datasets.exceptions.DatasetAlreadyExistsException;
 import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
-import maquette.core.ports.DatasetsStore;
+import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -23,15 +24,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class DatasetEntities {
+public final class DatasetEntities implements DataAssetEntities<DatasetProperties, DatasetEntity> {
 
    private final DatasetsRepository repository;
 
-   private final DatasetsStore store;
+   private final RecordsStore store;
 
    private final DataExplorer dataExplorer;
 
-   public CompletionStage<DatasetProperties> createDataset(
+   public CompletionStage<DatasetProperties> create(
       User executor, String title, String name, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
@@ -53,37 +54,37 @@ public final class DatasetEntities {
          });
    }
 
-   public CompletionStage<Optional<DatasetEntity>> findDatasetById(UID dataset) {
+   public CompletionStage<Optional<DatasetEntity>> findById(UID dataset) {
       return repository
          .findAssetById(dataset)
          .thenApply(maybeDataset -> maybeDataset.map(details ->
             DatasetEntity.apply(details.getId(), repository, store, dataExplorer)));
    }
 
-   public CompletionStage<Optional<DatasetEntity>> findDatasetByName(String dataset) {
+   public CompletionStage<Optional<DatasetEntity>> findByName(String dataset) {
       return repository
          .findAssetByName(dataset)
          .thenApply(maybeDataset -> maybeDataset.map(details ->
             DatasetEntity.apply(details.getId(), repository, store, dataExplorer)));
    }
 
-   public CompletionStage<List<DatasetProperties>> findDatasets() {
+   public CompletionStage<List<DatasetProperties>> list() {
       return repository.findAllAssets();
    }
 
-   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByProject(UID project) {
+   public CompletionStage<List<DataAccessRequestProperties>> findAccessRequestsByProject(UID project) {
       return repository.findDataAccessRequestsByProject(project);
    }
 
-   public CompletionStage<DatasetEntity> getDatasetById(UID dataset) {
-      return findDatasetById(dataset).thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withId(dataset)));
+   public CompletionStage<DatasetEntity> getById(UID dataset) {
+      return findById(dataset).thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withId(dataset)));
    }
 
-   public CompletionStage<DatasetEntity> getDatasetByName(String dataset) {
-      return findDatasetByName(dataset).thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withName(dataset)));
+   public CompletionStage<DatasetEntity> getByName(String dataset) {
+      return findByName(dataset).thenApply(opt -> opt.orElseThrow(() -> DatasetNotFoundException.withName(dataset)));
    }
 
-   public CompletionStage<Done> removeDataset(UID dataset) {
+   public CompletionStage<Done> remove(UID dataset) {
       throw new NotImplementedException(); // TODO
    }
 

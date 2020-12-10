@@ -12,10 +12,10 @@ public interface DataAssetRepository<T extends DataAssetProperties> {
 
    CompletionStage<List<T>> findAllAssets();
 
-   CompletionStage<Optional<T>> findAssetById(UID dataset);
+   CompletionStage<Optional<T>> findAssetById(UID asset);
 
    CompletionStage<Optional<T>> findAssetByName(String name);
 
-   CompletionStage<Done> insertOrUpdateAsset(T dataset);
+   CompletionStage<Done> insertOrUpdateAsset(T asset);
 
 }

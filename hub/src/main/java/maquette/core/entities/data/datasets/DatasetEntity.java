@@ -4,11 +4,12 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.entities.companions.MembersCompanion;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DatasetsRepository;
-import maquette.core.ports.DatasetsStore;
+import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.DataAssetMemberRole;
@@ -23,31 +24,31 @@ import java.util.function.Function;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
-public final class DatasetEntity {
+public final class DatasetEntity implements DataAssetEntity<DatasetProperties> {
 
    private final UID id;
 
    private final DatasetsRepository repository;
 
-   private final DatasetsStore store;
+   private final RecordsStore store;
 
    private final DataExplorer dataExplorer;
 
-   public AccessRequests<DatasetProperties> accessRequests() {
-      return AccessRequests.<DatasetProperties>apply(id, repository, this::getProperties);
+   public AccessRequests<DatasetProperties> getAccessRequests() {
+      return AccessRequests.apply(id, repository, this::getProperties);
    }
 
-   public Revisions revisions() {
+   public Revisions getRevisions() {
       return Revisions.apply(id, repository, store, dataExplorer);
    }
 
-   public MembersCompanion<DataAssetMemberRole> members() { return MembersCompanion.apply(id, repository); }
+   public MembersCompanion<DataAssetMemberRole> getMembers() { return MembersCompanion.apply(id, repository); }
 
    public CompletionStage<DatasetProperties> getProperties() {
       return withProperties(CompletableFuture::completedFuture);
    }
 
-   public CompletionStage<Done> updateProperties(
+   public CompletionStage<Done> update(
       User executor, String name, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
