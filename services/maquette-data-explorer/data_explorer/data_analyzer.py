@@ -73,26 +73,26 @@ def generate_df_statistics(df: pd.DataFrame, with_images: bool):
         if missing[1] == 100.0:
             continue
         if desc.dtype == "object":
-            type = Type.text
+            type_ = Type.text
             if with_images:
-                column_list.append(Column(name=column_name, type=type,
+                column_list.append(Column(name=column_name, type=type_,
                                         image=__generate_num_image(desc, column_data, df),
                                        stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
                                                    details=__generate_obj_statistic(desc, column_data),
                                                       image=__generate_obj_image(desc, column_data, df))))
             else:
-                column_list.append(Column(name=column_name, type=type,
+                column_list.append(Column(name=column_name, type=type_,
                                           stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
                                                       details=__generate_obj_statistic(desc, column_data))))
         else:
-            type = Type.numeric
+            type_ = Type.numeric
             if with_images:
-                column_list.append(Column(name=column_name, type=type,
+                column_list.append(Column(name=column_name, type=type_,
                                     image=__generate_num_image(desc, column_data, df),
                                       stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
                                                   details=__generate_num_statistic(desc, column_data))))
             else:
-                column_list.append(Column(name=column_name, type=type,
+                column_list.append(Column(name=column_name, type=type_,
                                           stats=Stats(mismatched=mismatched, valid=valid, missing=missing,
                                                       details=__generate_num_statistic(desc, column_data))))
     return column_list
