@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.data.streams.model.DurationUnit;
+import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
@@ -14,6 +16,8 @@ import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
+import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 
 import java.util.concurrent.CompletionStage;
 
@@ -28,6 +32,10 @@ public class CreateStreamCommand implements Command {
 
    String summary;
 
+   Retention retention;
+
+   Schema schema;
+
    DataVisibility visibility;
 
    DataClassification classification;
@@ -38,7 +46,7 @@ public class CreateStreamCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getStreamServices()
-         .create(user, title, name, summary, visibility, classification, personalInformation)
+         .create(user, title, name, summary, retention, schema, visibility, classification, personalInformation)
          .thenApply(pid -> MessageResult.apply("Successfully created stream `%s`", name));
    }
 
@@ -46,6 +54,13 @@ public class CreateStreamCommand implements Command {
    public Command example() {
       return apply(
          "Some Stream", "some-stream", Operators.lorem(),
+         Retention.apply(6, DurationUnit.HOURS), SchemaBuilder
+               .record("Test")
+               .fields()
+               .requiredLong("id")
+               .requiredString("color")
+               .optionalDouble("price")
+               .endRecord(),
          DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
    }
 

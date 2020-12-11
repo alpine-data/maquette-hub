@@ -61,7 +61,7 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
     <h4>Delete { resource }</h4>
     <Form fluid>
       <FormGroup>
-        <ControlLabel>Type { resource } Name</ControlLabel>
+        <ControlLabel>Type { _.lowerCase(resource) } name</ControlLabel>
         <FormControl name="repeat-name" value={ state.delete_title } onChange={ onChanged('delete_title') } />
       </FormGroup>
 

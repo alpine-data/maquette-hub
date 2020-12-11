@@ -20,6 +20,7 @@ import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateDataSource from 'containers/CreateDataSource/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
+import CreateStream from 'containers/CreateStream/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
 import DataShop from 'containers/DataShop/Loadable';
@@ -47,6 +48,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/datasource" component={CreateDataSource} />
         <Route path="/new/sandbox" component={CreateSandbox} />
+        <Route path="/new/stream" component={CreateStream} />
 
         <Route path="/shop" exact component={DataShop} />
         <Route path="/shop/:tab" exact component={DataShop} />

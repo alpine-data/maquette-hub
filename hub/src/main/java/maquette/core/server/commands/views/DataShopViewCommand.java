@@ -22,6 +22,14 @@ public class DataShopViewCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
+      var allCollectionsCS = services
+         .getCollectionServices()
+         .list(user)
+         .thenApply(list -> list
+            .stream()
+            .map(p -> (DataAssetProperties<?>) p)
+            .collect(Collectors.toList()));
+
       var allDatasetsCS = services
          .getDatasetServices()
          .list(user)
@@ -38,11 +46,21 @@ public class DataShopViewCommand implements Command {
             .map(p -> (DataAssetProperties<?>) p)
             .collect(Collectors.toList()));
 
+      var allStreamsCS = services
+         .getStreamServices()
+         .list(user)
+         .thenApply(list -> list
+            .stream()
+            .map(p -> (DataAssetProperties<?>) p)
+            .collect(Collectors.toList()));
+
       var allAssetsCS = Operators
-         .compose(allDatasetsCS, allDataSourcesCS, (datasets, sources) -> {
+         .compose(allCollectionsCS, allDatasetsCS, allDataSourcesCS, allStreamsCS, (collections, datasets, sources, streams) -> {
             var all = Lists.<DataAssetProperties<?>>newArrayList();
+            all.addAll(collections);
             all.addAll(datasets);
             all.addAll(sources);
+            all.addAll(streams);
 
             return all
                .stream()

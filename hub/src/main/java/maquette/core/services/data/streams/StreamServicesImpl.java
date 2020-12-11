@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.data.streams.StreamEntity;
+import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.entities.data.streams.model.Stream;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.services.data.DataAssetServices;
@@ -16,6 +17,7 @@ import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
+import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -33,10 +35,10 @@ public final class StreamServicesImpl implements StreamServices {
 
    @Override
    public CompletionStage<StreamProperties> create(
-      User executor, String title, String name, String summary,
+      User executor, String title, String name, String summary, Retention retention, Schema schema,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
-      return entities.create(executor, title, name, summary, visibility, classification, personalInformation);
+      return entities.create(executor, title, name, summary, retention, schema, visibility, classification, personalInformation);
    }
 
    @Override
@@ -55,10 +57,13 @@ public final class StreamServicesImpl implements StreamServices {
    }
 
    @Override
-   public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<Done> update(
+      User executor, String name, String updatedName, String title, String summary, Retention retention, Schema schema,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+
       return entities
          .getByName(name)
-         .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation));
+         .thenCompose(as -> as.update(executor, name, title, summary, retention, schema, visibility, classification, personalInformation));
    }
 
    @Override

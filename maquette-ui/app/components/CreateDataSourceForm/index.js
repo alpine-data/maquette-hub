@@ -6,7 +6,6 @@
 
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-// import styled from 'styled-components';
 
 import produce from 'immer';
 import kebabcase from 'lodash.kebabcase';
@@ -65,7 +64,7 @@ export function DataSourceSettings({ state, testing, testResult, onChange, onTes
       <FormGroup>
         <ControlLabel>Data Source Driver</ControlLabel>
         <InputPicker data={ drivers } style={{ width: "100%" }} onChange={ onChange('driver') } value={ state.driver } />
-        <HelpBlock>Describe in a few words which data is contained in your dataset.</HelpBlock>
+        <HelpBlock>Select the database type of your source.</HelpBlock>
       </FormGroup>
     </FlexboxGrid.Item>
       
@@ -163,6 +162,7 @@ function CreateDataSourceForm(props) {
     visibility: 'public',
     classification: 'public',
     personalInformation: 'none',
+
     accessType: 'direct',
     schedule: 'daily',
 
@@ -202,7 +202,7 @@ function CreateDataSourceForm(props) {
           <FormGroup>
             <ControlLabel>Data Source Title</ControlLabel>
             <FormControl name="title" onChange={ onChange('title') } value={ state.title } />
-            <HelpBlock>Select a speaking, memorable title for the dataset.</HelpBlock>
+            <HelpBlock>Select a speaking, memorable title for the data source.</HelpBlock>
           </FormGroup>
         </FlexboxGrid.Item>
 
@@ -218,7 +218,7 @@ function CreateDataSourceForm(props) {
           <FormGroup>
             <ControlLabel>Data Source Summary</ControlLabel>
             <FormControl name="summary" onChange={ onChange('summary') } value={ state.summary } />
-            <HelpBlock>Describe in a few words which data is contained in your dataset.</HelpBlock>
+            <HelpBlock>Describe in a few words which data is contained in your data source.</HelpBlock>
           </FormGroup>
         </FlexboxGrid.Item>
         <FlexboxGrid.Item colspan={ 24 }>

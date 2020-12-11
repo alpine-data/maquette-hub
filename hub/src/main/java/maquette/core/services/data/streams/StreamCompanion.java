@@ -46,7 +46,7 @@ public final class StreamCompanion extends ServiceCompanion {
 
       return Operators.compose(propertiesCS, membersCS, accessRequestsCS, (p, members, accessRequests) ->
          Stream.apply(
-            p.getId(), p.getTitle(), p.getName(), p.getSummary(),
+            p.getId(), p.getTitle(), p.getName(), p.getSummary(), p.getRetention(), p.getSchema().orElse(null),
             p.getVisibility(), p.getClassification(), p.getPersonalInformation(), p.getCreated(), p.getUpdated(),
             members, accessRequests));
    }
