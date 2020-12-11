@@ -82,7 +82,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = TestDataSourceCommand.class, name = "sources test"),
       @JsonSubTypes.Type(value = RemoveDataSourceCommand.class, name = "sources remove"),
       @JsonSubTypes.Type(value = UpdateDataSourcePropertiesCommand.class, name = "sources update"),
-      @JsonSubTypes.Type(value = UpdateDataSourceDatabasePropertiesCommand.class, name = "sources updated db"),
+      @JsonSubTypes.Type(value = UpdateDataSourceDatabasePropertiesCommand.class, name = "sources update db"),
 
       @JsonSubTypes.Type(value = GrantDataSourceMemberCommand.class, name = "sources grant"),
       @JsonSubTypes.Type(value = RevokeDataSourceMemberCommand.class, name = "sources revoke"),
@@ -134,7 +134,8 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = DatasetViewCommand.class, name = "views dataset"),
       @JsonSubTypes.Type(value = ProjectViewCommand.class, name = "views project"),
       @JsonSubTypes.Type(value = SandboxViewCommand.class, name = "views sandbox"),
-      @JsonSubTypes.Type(value = DataShopViewCommand.class, name = "views shop")
+      @JsonSubTypes.Type(value = DataShopViewCommand.class, name = "views shop"),
+      @JsonSubTypes.Type(value = DataSourceViewCommand.class, name = "views source")
    })
 public interface Command {
 

@@ -1,24 +1,31 @@
 package maquette.sdk.dsl;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
-
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final  class Maquette {
 
-   private static final MaquetteConfiguration config = MaquetteConfiguration
-      .apply()
-      .withBaseUrl("http://localhost:9042")
-            .withUser("alice")
-            .withToken(null);
+   private final MaquetteConfiguration config;
+
+   public static Maquette apply(MaquetteConfiguration config) {
+      return new Maquette(config);
+   }
+
+   public static Maquette apply() {
+      var config = MaquetteConfiguration
+         .apply()
+         .withBaseUrl("http://localhost:9042")
+         .withUser("alice")
+         .withToken(null);
+
+      return apply(config);
+   }
 
    public Dataset datasets(String name) {
       return Dataset.apply(name, config);
    }
 
-   public <T> void put(List<T> data) {
-
-   }
+   public DataSource source(String name) { return DataSource.apply(name, config); }
 
 }

@@ -10,7 +10,7 @@ import { ControlLabel, FlexboxGrid, Form, FormGroup, Input, InputPicker, HelpBlo
 
 function CreateDataAccessRequestForm(props) {
   const [state, setState] = useState({
-    dataset: props.asset,
+    asset: props.asset,
     project: props.projects[0].value,
     reason: ""
   });
@@ -46,7 +46,7 @@ function CreateDataAccessRequestForm(props) {
       <FlexboxGrid.Item colspan={ 11 }>
         <FormGroup>
           <ControlLabel>Target asset</ControlLabel>
-          <Input disabled={ true } value={ `datasets/${props.asset}` } />
+          <Input disabled={ true } value={ `${props.assetType}s/${props.asset}` } />
         </FormGroup>
       </FlexboxGrid.Item>
 

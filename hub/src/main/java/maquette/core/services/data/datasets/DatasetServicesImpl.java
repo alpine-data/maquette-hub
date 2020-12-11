@@ -42,11 +42,7 @@ public final class DatasetServicesImpl implements DatasetServices {
    @Override
    public CompletionStage<DatasetProperties> create(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
       return datasets
-         .create(executor, title, name, summary, visibility, classification, personalInformation)
-         .thenCompose(properties -> datasets
-            .getById(properties.getId())
-            .thenCompose(dataset -> dataset.getMembers().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
-            .thenApply(done -> properties));
+         .create(executor, title, name, summary, visibility, classification, personalInformation);
    }
 
    @Override

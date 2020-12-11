@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class CreateDataAccessRequestView implements CommandResult {
 
-   DataAsset asset;
+   DataAsset<?> asset;
 
    List<ProjectProperties> projects;
 

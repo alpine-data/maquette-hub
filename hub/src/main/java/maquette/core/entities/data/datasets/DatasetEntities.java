@@ -12,6 +12,8 @@ import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
@@ -49,6 +51,8 @@ public final class DatasetEntities implements DataAssetEntities<DatasetPropertie
 
                return repository
                   .insertOrUpdateAsset(dataset)
+                  .thenCompose(d -> getById(dataset.getId()))
+                  .thenCompose(entity -> entity.getMembers().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
                   .thenApply(d -> dataset);
             }
          });

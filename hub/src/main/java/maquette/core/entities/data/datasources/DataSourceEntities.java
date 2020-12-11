@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.data.datasources.exceptions.DataSourceAlreadyExistsException;
+import maquette.core.entities.data.datasources.exceptions.DataSourceFetchException;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.entities.data.datasources.model.*;
 import maquette.core.ports.DataExplorer;
@@ -13,12 +14,14 @@ import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 import org.apache.commons.lang.NotImplementedException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +40,7 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
 
    public CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
-      DataSourceDatabaseProperties properties, DataSourceType type,
+      DataSourceDatabaseProperties properties, DataSourceAccessType type,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
       return repository
@@ -46,15 +49,32 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
             if (maybeDataSource.isPresent()) {
                return CompletableFuture.failedFuture(DataSourceAlreadyExistsException.withName(name));
             } else {
-               var created = ActionMetadata.apply(executor);
-               var dataSource = DataSourceProperties.apply(
-                  UID.apply(), title, name, summary,
-                  properties, type,
-                  visibility, classification, personalInformation, created, created);
+               return jdbcPort
+                  .test(properties)
+                  .thenCompose(result -> {
+                     if (result instanceof FailedConnectionTestResult) {
+                        return CompletableFuture.failedFuture(DataSourceFetchException.apply((FailedConnectionTestResult) result));
+                     } else if (result instanceof SuccessfulConnectionTestResult) {
+                        var schema = ((SuccessfulConnectionTestResult) result).getSchema();
+                        var records = ((SuccessfulConnectionTestResult) result).getRecords();
+                        var fetched = Instant.now();
 
-               return repository
-                  .insertOrUpdateAsset(dataSource)
-                  .thenApply(d -> dataSource);
+                        var created = ActionMetadata.apply(executor);
+                        var dataSource = DataSourceProperties.apply(
+                           UID.apply(), title, name, summary,
+                           properties, type,
+                           visibility, classification, personalInformation,
+                           schema, fetched, records, created, created);
+
+                        return repository
+                           .insertOrUpdateAsset(dataSource)
+                           .thenCompose(d -> getById(dataSource.getId()))
+                           .thenCompose(e -> e.getMembers().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
+                           .thenApply(d -> dataSource);
+                     } else {
+                        return CompletableFuture.failedFuture(new RuntimeException("unknown result type"));
+                     }
+                  });
             }
          });
    }
@@ -68,14 +88,14 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
       return repository
          .findAssetById(dataSource)
          .thenApply(maybeDataSource -> maybeDataSource.map(properties ->
-            DataSourceEntity.apply(properties.getId(), repository, recordsStore, explorer)));
+            DataSourceEntity.apply(properties.getId(), repository, jdbcPort, recordsStore, explorer)));
    }
 
    public CompletionStage<Optional<DataSourceEntity>> findByName(String dataSource) {
       return repository
          .findAssetByName(dataSource)
          .thenApply(maybeDataSource -> maybeDataSource.map(properties ->
-            DataSourceEntity.apply(properties.getId(), repository, recordsStore, explorer)));
+            DataSourceEntity.apply(properties.getId(), repository, jdbcPort, recordsStore, explorer)));
    }
 
    public CompletionStage<DataSourceEntity> getById(UID dataSource) {

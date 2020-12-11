@@ -93,8 +93,18 @@ public final class CommandResource {
             .apply("Maquette Hub API")
             .withVariable(Variable.apply("HOSTNAME", "localhost:9042"))
             .withVariable(Variable.apply("DATASET", "sample-dataset"))
+            .withVariable(Variable.apply("SOURCE", "sample-source"))
             .withVariable(Variable.apply("REVISION", "af10-cc-fc-40"))
             .withVariable(Variable.apply("VERSION", "1.0"))
+            .withItem(Item.apply(
+               "/api/data/sources/:source",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/sources/{{DATASET}}"))))
             .withItem(Item.apply(
                "/api/data/datasets/:dataset",
                Request
@@ -126,6 +136,15 @@ public final class CommandResource {
                   .withHeader("x-user-roles", "a-team,b-team")
                   .withHeader("x-project", "af10ccfc40")
                   .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/datasets/{{DATASET}}/{{VERSION}}"))))
+            .withItem(Item.apply(
+               "/api/data/datasets/:dataset",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/datasets/{{DATASET}}"))))
             .withItem(Item.apply(
                "/api/about",
                Request

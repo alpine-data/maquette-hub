@@ -23,6 +23,7 @@ import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
 import DataShop from 'containers/DataShop/Loadable';
+import DataSource from 'containers/DataSource/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
@@ -52,6 +53,10 @@ export function App({ app, onUserChanged }) {
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+        
+        <Route path="/shop/sources/:source" exact component={DataSource} />
+        <Route path="/shop/sources/:source/:tab" exact component={DataSource} />
+        <Route path="/shop/sources/:source/:tab/:id" exact component={DataSource} />
 
         <Route path="/shop/streams/:stream" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab" exact component={Stream} />

@@ -1,12 +1,18 @@
 package maquette.adapters.jdbc;
 
+import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecordBuilder;
 
+import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 
 import static java.sql.Types.*;
 
@@ -16,6 +22,65 @@ public final class JdbcAvroHelper {
 
    private JdbcAvroHelper() {
 
+   }
+
+   @AllArgsConstructor(staticName = "apply")
+   private static class Mapper {
+
+      String fieldName;
+
+      Operators.ExceptionalFunction<ResultSet, Object> readValue;
+
+      public static Mapper apply(ResultSetMetaData meta, int columnIndex) {
+         return Operators.suppressExceptions(() -> {
+            final String columnName;
+
+            if (meta.getColumnName(columnIndex).isEmpty()) {
+               columnName = meta.getColumnLabel(columnIndex);
+            } else {
+               columnName = meta.getColumnName(columnIndex);
+            }
+
+            var columnType = meta.getColumnType(columnIndex);
+            var precision = meta.getPrecision(columnIndex);
+
+            var fieldName = normalizeForAvro(columnName);
+            var readValue = fieldAvroValueMapper(columnType, columnIndex, precision);
+            return apply(fieldName, readValue);
+         });
+      }
+
+      public void setField(GenericRecordBuilder builder, ResultSet rs) {
+         builder.set(fieldName, Operators.ignoreExceptionsWithDefault(() -> readValue.apply(rs), null));
+      }
+
+   }
+
+   public static List<Mapper> createRecordMappers(ResultSet rs) {
+      return Operators.suppressExceptions(() -> {
+         var meta = rs.getMetaData();
+         var mappings = Lists.<Mapper>newArrayList();
+
+         for (int i = 1; i <= meta.getColumnCount(); i++) {
+            mappings.add(Mapper.apply(meta, i));
+         }
+
+         return mappings;
+      });
+   }
+
+   public static GenericData.Record createRecord(ResultSet rs, Schema schema, List<Mapper> mappings) {
+      return Operators.suppressExceptions(() -> {
+         var builder = new GenericRecordBuilder(schema);
+
+         mappings.forEach(mapping -> {
+            if (schema.getField(mapping.fieldName) != null) {
+               mapping.setField(builder, rs);
+            }
+         });
+
+         return builder.build();
+      });
    }
 
    public static Schema createAvroSchema(final ResultSet resultSet) {
@@ -49,7 +114,7 @@ public final class JdbcAvroHelper {
          int columnType = meta.getColumnType(i);
          fieldAvroType(
             columnType, meta.getPrecision(i),
-            builder.name(normalizeForAvro(columnName)));
+            builder.name(normalizeForAvro(columnName)).prop("column_name", columnName));
       }
 
       return builder;
@@ -110,6 +175,59 @@ public final class JdbcAvroHelper {
          default:
             field.stringType().endUnion().nullDefault();
             break;
+      }
+   }
+
+   private static ByteBuffer nullableBytes(final byte[] bts) {
+      if (bts != null) {
+         return ByteBuffer.wrap(bts);
+      } else {
+         return null;
+      }
+   }
+
+   private static Operators.ExceptionalFunction<ResultSet, Object> fieldAvroValueMapper(
+      int columnType,
+      int columnIndex,
+      int precision) {
+
+      switch (columnType) {
+         case BIGINT:
+            if (precision > 0 && precision <= MAX_DIGITS_BIGINT) {
+               return rs -> rs.getLong(columnIndex);
+            } else {
+               return rs -> rs.getString(columnIndex);
+            }
+         case INTEGER:
+         case SMALLINT:
+         case TINYINT:
+            return rs -> rs.getInt(columnIndex);
+         case TIMESTAMP:
+         case DATE:
+         case TIME:
+         case TIME_WITH_TIMEZONE:
+            return rs -> rs.getLong(columnIndex);
+         case BOOLEAN:
+            return rs -> rs.getBoolean(columnIndex);
+         case BIT:
+            if (precision <= 1) {
+               return rs -> rs.getBoolean(columnIndex);
+            } else {
+               return rs -> nullableBytes(rs.getBytes(columnIndex));
+            }
+         case BINARY:
+         case VARBINARY:
+         case LONGVARBINARY:
+         case ARRAY:
+         case BLOB:
+            return rs -> nullableBytes(rs.getBytes(columnIndex));
+         case DOUBLE:
+            return rs -> rs.getDouble(columnIndex);
+         case FLOAT:
+         case REAL:
+            return rs -> rs.getFloat(columnIndex);
+         default:
+            return rs -> rs.getString(columnIndex);
       }
    }
 

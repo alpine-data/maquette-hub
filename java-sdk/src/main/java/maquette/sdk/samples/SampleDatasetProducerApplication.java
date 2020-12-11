@@ -6,7 +6,7 @@ import maquette.sdk.dsl.Maquette;
 
 import java.util.concurrent.ExecutionException;
 
-public class SampleProducerApplication {
+public class SampleDatasetProducerApplication {
 
     public static void main(String ...args) throws ExecutionException, InterruptedException {
         final ActorSystem system = ActorSystem.apply("sample");

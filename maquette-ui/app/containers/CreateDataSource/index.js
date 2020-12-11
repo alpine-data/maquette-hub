@@ -16,7 +16,9 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectCreateDataSource from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { Affix } from 'rsuite';
+import { create, testConnection } from './actions';
+
+import { Affix, Message } from 'rsuite';
 
 import Container from 'components/Container'
 import CreateDataSourceForm from 'components/CreateDataSourceForm'
@@ -53,7 +55,10 @@ export function CreateDataSource(props) {
         }
         <hr />
 
-        <CreateDataSourceForm { ...props } />
+        <CreateDataSourceForm 
+          { ...props }
+          onCreateDataSource={ data => props.dispatch(create(data)) }
+          onTestConnection={ data => props.dispatch(testConnection(data)) } />
       </Container>
     </div>
   );

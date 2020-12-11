@@ -2,6 +2,7 @@ package maquette.core.services.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.datasources.DataSourceEntity;
 import maquette.core.entities.data.datasources.model.*;
@@ -33,11 +34,18 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    @Override
    public CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
-      DataSourceDatabaseProperties properties, DataSourceType type, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataSourceDatabaseProperties properties, DataSourceAccessType type, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
       return entities.create(
          executor, title, name, summary,
          properties, type, visibility, classification, personalInformation);
+   }
+
+   @Override
+   public CompletionStage<Records> download(User executor, String dataSource) {
+      return entities
+         .getByName(dataSource)
+         .thenCompose(ds -> ds.download(executor));
    }
 
    @Override
@@ -63,10 +71,13 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    }
 
    @Override
-   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query) {
+   public CompletionStage<Done> updateDatabaseProperties(
+      User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query,
+      DataSourceAccessType accessType) {
+
       return entities
          .getByName(dataSource)
-         .thenCompose(ds -> ds.update(executor, driver, connection, username, password, query));
+         .thenCompose(ds -> ds.update(executor, driver, connection, username, password, query, accessType));
    }
 
    @Override

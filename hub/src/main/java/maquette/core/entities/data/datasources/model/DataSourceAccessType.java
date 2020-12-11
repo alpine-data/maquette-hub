@@ -2,13 +2,13 @@ package maquette.core.entities.data.datasources.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum DataSourceType {
+public enum DataSourceAccessType {
 
    DIRECT("direct"), CACHED("cached");
 
    private final String value;
 
-   DataSourceType(String value) {
+   DataSourceAccessType(String value) {
       this.value = value;
    }
 

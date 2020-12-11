@@ -8,7 +8,9 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.*;
+import org.apache.avro.Schema;
 
+import java.time.Instant;
 import java.util.List;
 
 @With
@@ -26,13 +28,19 @@ public class DataSource implements DataAsset<DataSource> {
 
    DataSourceDatabaseProperties database;
 
-   DataSourceType type;
+   DataSourceAccessType accessType;
 
    DataVisibility visibility;
 
    DataClassification classification;
 
    PersonalInformation personalInformation;
+
+   Schema schema;
+
+   Instant fetched;
+
+   Long records;
 
    ActionMetadata created;
 

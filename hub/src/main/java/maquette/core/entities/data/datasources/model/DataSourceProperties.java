@@ -9,6 +9,9 @@ import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import org.apache.avro.Schema;
+
+import java.time.Instant;
 
 @With
 @Value
@@ -25,7 +28,7 @@ public class DataSourceProperties implements DataAssetProperties<DataSourcePrope
 
    DataSourceDatabaseProperties database;
 
-   DataSourceType type;
+   DataSourceAccessType accessType;
 
    DataVisibility visibility;
 
@@ -33,8 +36,16 @@ public class DataSourceProperties implements DataAssetProperties<DataSourcePrope
 
    PersonalInformation personalInformation;
 
+   Schema schema;
+
+   Instant fetched;
+
+   Long records;
+
    ActionMetadata created;
 
    ActionMetadata updated;
+
+
 
 }

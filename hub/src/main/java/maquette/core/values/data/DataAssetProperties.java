@@ -18,7 +18,7 @@ import maquette.core.values.user.User;
       @JsonSubTypes.Type(value = CollectionProperties.class, name = "collection"),
       @JsonSubTypes.Type(value = DatasetProperties.class, name = "dataset"),
       @JsonSubTypes.Type(value = StreamProperties.class, name = "stream"),
-      @JsonSubTypes.Type(value = DataSourceProperties.class, name = "datasource"),
+      @JsonSubTypes.Type(value = DataSourceProperties.class, name = "source"),
    })
 public interface DataAssetProperties<T> {
 

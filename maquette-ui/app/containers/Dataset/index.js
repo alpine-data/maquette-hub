@@ -121,6 +121,8 @@ function Display(props) {
       tab == 'access-requests' && <>
         <DataAccessRequests 
           { ...props }
+          asset={ props.dataset.data.dataset }
+          view={ props.dataset }
           onGrant={ request => props.dispatch(update("datasets access-requests grant", request)) }
           onReject={ request => props.dispatch(update("datasets access-requests reject", request)) }
           onRequest={ request => props.dispatch(update("datasets access-requests update", request)) }

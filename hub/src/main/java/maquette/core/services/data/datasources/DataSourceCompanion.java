@@ -45,9 +45,10 @@ public final class DataSourceCompanion extends ServiceCompanion {
          .thenCompose(Operators::allOf);
 
       return Operators.compose(propertiesCS, membersCS, accessRequestsCS, (p, members, accessRequests) -> DataSource.apply(
-         p.getId(), p.getTitle(), p.getName(), p.getSummary(), p.getDatabase(), p.getType(),
-         p.getVisibility(), p.getClassification(), p.getPersonalInformation(), p.getCreated(), p.getUpdated(),
-         members, accessRequests));
+         p.getId(), p.getTitle(), p.getName(), p.getSummary(), p.getDatabase(), p.getAccessType(),
+         p.getVisibility(), p.getClassification(), p.getPersonalInformation(),
+         p.getSchema(), p.getFetched(), p.getRecords(),
+         p.getCreated(), p.getUpdated(), members, accessRequests));
    }
 
 }

@@ -41,7 +41,6 @@ export function* onUpdate(action) {
   }
 }
 
-// Individual exports for testing
 export default function* datasetSaga() {
   yield takeLatest(CHANGE_USER, onChangeUser);
   yield takeLatest(LOAD, onLoad);

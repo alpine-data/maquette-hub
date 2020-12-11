@@ -5,12 +5,15 @@ import lombok.AllArgsConstructor;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.AccessRequests;
+import maquette.core.entities.data.datasets.model.records.Records;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
+import maquette.core.entities.data.datasources.model.DataSourceAccessType;
 import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
 import maquette.core.entities.data.datasources.model.DataSourceProperties;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.DataSourcesRepository;
+import maquette.core.ports.JdbcPort;
 import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -31,9 +34,15 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
 
    private final DataSourcesRepository repository;
 
+   private final JdbcPort jdbcPort;
+
    private final RecordsStore recordsStore;
 
    private final DataExplorer explorer;
+
+   public CompletionStage<Records> download(User executor) {
+      return withProperties(props -> jdbcPort.read(props.getDatabase()));
+   }
 
    public AccessRequests<DataSourceProperties> getAccessRequests() {
       return AccessRequests.apply(id, repository, this::getProperties);
@@ -72,12 +81,14 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
    }
 
    public CompletionStage<Done> update(
-      User executor, DataSourceDriver driver, String connection, String username, String password, String query) {
+      User executor, DataSourceDriver driver, String connection, String username, String password, String query,
+      DataSourceAccessType accessType) {
 
       return  withProperties(properties -> {
          var updated = properties
             .withDatabase(DataSourceDatabaseProperties.apply(
-               driver, connection, username, password, query))
+               driver, connection, query, username, password))
+            .withAccessType(accessType)
             .withUpdated(ActionMetadata.apply(executor));
 
          return repository.insertOrUpdateAsset(updated);
