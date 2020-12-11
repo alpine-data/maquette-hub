@@ -15,7 +15,9 @@ import { Switch, Route } from 'react-router-dom';
 
 import Layout from 'components/Layout';
 
-import CreateDataAccessRequest from '../CreateDataAccessRequest';
+import Collection from '../Collection/Loadable';
+import CreateDataAccessRequest from '../CreateDataAccessRequest/Loadable';
+import CreateCollection from 'containers/CreateCollection/Loadable';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateDataSource from 'containers/CreateDataSource/Loadable';
@@ -44,6 +46,7 @@ export function App({ app, onUserChanged }) {
         <Route path="/search" component={Search} />
         
         <Route path="/new/data-access-request" component={CreateDataAccessRequest} />
+        <Route path="/new/collection" component={CreateCollection} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/datasource" component={CreateDataSource} />
@@ -52,6 +55,11 @@ export function App({ app, onUserChanged }) {
 
         <Route path="/shop" exact component={DataShop} />
         <Route path="/shop/:tab" exact component={DataShop} />
+
+        <Route path="/shop/collections/:collection" exact component={Collection} />
+        <Route path="/shop/collections/:collection/:tab" exact component={Collection} />
+        <Route path="/shop/collections/:collection/:tab/:id" exact component={Collection} />
+
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
