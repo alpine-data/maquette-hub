@@ -24,8 +24,8 @@ const NavTag = styled(Tag)`
 `;
 
 function PublicConsumer(props) {
-  const asset = _.get(props, 'dataset.data.dataset.name');
-  const requests = _.get(props, 'dataset.data.dataset.accessRequests');
+  const asset = _.get(props, 'asset');
+  const requests = _.get(asset, 'accessRequests');
 
   if (_.isEmpty(requests)) {
     return <Container md background={ Background } className="mq--main-content">
@@ -37,7 +37,7 @@ function PublicConsumer(props) {
         <Button 
           color="green" 
           componentClass={ Link } 
-          to={ `/new/data-access-request?asset=${ asset }` }>Subscribe a project</Button>
+          to={ `/new/data-access-request?asset=${ asset.name }&type=${ asset.type }` }>Subscribe a project</Button>
       </ButtonToolbar>
     </Container>;
   } else {
@@ -50,7 +50,7 @@ function PublicConsumer(props) {
         <Button 
           color="green" 
           componentClass={ Link } 
-          to={ `/new/data-access-request?asset=${ asset }` }>Subscribe another project</Button>
+          to={ `/new/data-access-request?asset=${ asset.name }&type=${ asset.type }` }>Subscribe another project</Button>
       </ButtonToolbar>
       <hr />
       <h4>Existing Subscriptions</h4>
@@ -64,33 +64,33 @@ function PublicConsumer(props) {
 }
 
 function Consumer(props) {
-  const asset = _.get(props, 'dataset.data.dataset.name');
-  const requests = _.get(props, 'dataset.data.dataset.accessRequests');
+  const asset = _.get(props, 'asset');
+  const requests = _.get(asset, 'accessRequests');
 
   if (_.isEmpty(requests)) {
     return <Container md background={ Background } className="mq--main-content">
       <h4>Get started with acccess requests</h4>
       <p className="mq--p-leading">
-        This data asset is classified as <b>{ _.get(props, 'dataset.data.dataset.classification') }</b>. To access the data, you need to send a request to the data owners of this asset. As soon as the owners have granted your access, you can browse it and work with the data.
+        This data asset is classified as <b>{ asset.classification }</b>. To access the data, you need to send a request to the data owners of this asset. As soon as the owners have granted your access, you can browse it and work with the data.
       </p>
       <ButtonToolbar style={{ marginTop: '30px' }}>
         <Button 
           componentClass={ Link }
           color="green"
-          to={ `/new/data-access-request?asset=${ asset }` }>Create new access request</Button>
+          to={ `/new/data-access-request?asset=${ asset.name }&type=${ asset.type }` }>Create new access request</Button>
       </ButtonToolbar>
     </Container>;
   } else {
     return <Container lg background={ Background } className="mq--main-content">
       <h4>Manage your access requests</h4>
       <p className="mq--p-leading">
-        This data asset is classified as <b>{ _.get(props, 'dataset.data.dataset.classification') }</b>. To access the data, you need to send a request to the data owners of this asset. You already have projects with access to this data. If you need access to this data for another endeavor, create a new request.
+        This data asset is classified as <b>{ asset.classification }</b>. To access the data, you need to send a request to the data owners of this asset. You already have projects with access to this data. If you need access to this data for another endeavor, create a new request.
       </p>
       <ButtonToolbar style={{ marginTop: '30px' }}>
         <Button 
           componentClass={ Link }
           color="green"
-          to={ `/new/data-access-request?asset=${ asset }` }>Create another access request</Button>
+          to={ `/new/data-access-request?asset=${ asset.name }&type=${ asset.type }` }>Create another access request</Button>
       </ButtonToolbar>
       <hr />
       <h4>Existing Requests</h4>
@@ -104,14 +104,14 @@ function Consumer(props) {
 }
 
 function Owner(props) {
-  const asset = _.get(props, 'dataset.data.dataset.name');
-  const requests = _.get(props, 'dataset.data.dataset.accessRequests');
+  const asset = _.get(props, 'asset');
+  const requests = _.get(asset, 'accessRequests');
 
   if (_.isEmpty(requests)) {
     return <Container md background={ Background } className="mq--main-content">
       <h4>Manage access requests</h4>
       <p className="mq--p-leading">
-        This data asset is classified as <b>{ _.get(props, 'dataset.data.dataset.classification') }</b>. Users who want to use access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
+        This data asset is classified as <b>{ asset.classification }</b>. Users who want to use access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
       </p>
 
       <p className="mq--p-leading">
@@ -122,7 +122,7 @@ function Owner(props) {
         <Button 
           componentClass={ Link }
           color="green"
-          to={ `/new/data-access-request?asset=${ asset }` }>Grant access to a project</Button>
+          to={ `/new/data-access-request?asset=${ asset.name }&type=${ asset.type }` }>Grant access to a project</Button>
       </ButtonToolbar>
     </Container>;
   } else {
@@ -130,7 +130,7 @@ function Owner(props) {
       <h4>Manage access requests</h4>
 
       <p className="mq--p-leading">
-        This data asset is classified as <b>{ _.get(props, 'dataset.data.dataset.classification') }</b>. Users who want to use access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
+        This data asset is classified as <b>{ asset.classification }</b>. Users who want to use access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
       </p>
 
       <p className="mq--p-leading">
@@ -142,7 +142,7 @@ function Owner(props) {
         <Button 
           componentClass={ Link }
           color="green"
-          to={ `/new/data-access-request?asset=${ asset }` }>Grant access to a project</Button>
+          to={ `/new/data-access-request?asset=${ asset.name }&type=${ asset.type }` }>Grant access to a project</Button>
       </ButtonToolbar>
 
       <hr />
@@ -157,9 +157,13 @@ function Owner(props) {
   }
 }
 
-function Request({ id, ...props }) {
-  const requests = _.get(props, 'dataset.data.dataset.accessRequests');
-  const updating = _.get(props, 'dataset.updating');
+function Request(props) {
+  const id = _.get(props, 'match.params.id');
+  const asset = _.get(props, 'asset');
+  const view = _.get(props, 'view');
+
+  const requests = _.get(asset, 'accessRequests');
+  const updating = _.get(view, 'updating');
   const request = _.find(requests, r => r.id == id);
 
   if (request) {
@@ -181,11 +185,14 @@ function Request({ id, ...props }) {
 
 function DataAccessRequests(props) {
   const id = _.get(props, 'match.params.id');
-  const isPublic = _.get(props, 'dataset.data.dataset.classification') == 'public';
-  const isOwner = _.get(props, 'dataset.data.isOwner');
+  const asset = _.get(props, 'asset');
+  const view = _.get(props, 'view');
+
+  const isPublic = asset.classification == 'public';
+  const isOwner = _.get(view, 'data.isOwner');
 
   if (id) {
-    return <Request { ...props } id={ id } />
+    return <Request { ...props } />
   } else if (isOwner) {
     return <Owner { ...props } />;
   } else if (isPublic) {
@@ -196,6 +203,10 @@ function DataAccessRequests(props) {
 }
 
 DataAccessRequests.propTypes = {
+  asset: PropTypes.object.isRequired,
+  updating: PropTypes.bool,
+  view: PropTypes.object.isRequired,
+
   onGrant: PropTypes.func,
   onReject: PropTypes.func,
   onRequest: PropTypes.func,

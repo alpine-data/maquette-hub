@@ -4,16 +4,24 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DataSourceDriver {
 
-   POSTGRESQL("postgresql");
+   POSTGRESQL("postgresql", "jdbc:postgresql");
 
    private final String value;
 
-   DataSourceDriver(String value) {
+   private final String connectionPrefix;
+
+   DataSourceDriver(String value, String connectionPrefix) {
       this.value = value;
+      this.connectionPrefix = connectionPrefix;
    }
 
    @JsonValue
    public String getValue() {
       return value;
    }
+
+   public String getConnectionPrefix() {
+      return connectionPrefix;
+   }
+   
 }

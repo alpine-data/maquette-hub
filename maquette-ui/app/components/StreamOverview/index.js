@@ -8,7 +8,6 @@ import React from 'react';
 // import PropTypes from 'prop-types';
 
 import Container from '../Container';
-import DatasetCodeExamples from '../DatasetCodeExamples';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';

@@ -6,7 +6,7 @@ import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.services.data.DataAssetCompanion;
@@ -129,6 +129,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return companion
          .withAuthorization(
+            () -> assets.isSubscribedConsumer(executor, dataset),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))

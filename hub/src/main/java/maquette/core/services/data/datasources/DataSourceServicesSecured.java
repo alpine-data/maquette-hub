@@ -2,6 +2,7 @@ package maquette.core.services.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.datasources.model.*;
 import maquette.core.services.data.DataAssetCompanion;
@@ -31,10 +32,21 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    private final DataAssetCompanion<DataSourceProperties, DataSourceEntities> assets;
 
    @Override
-   public CompletionStage<DataSourceProperties> create(User executor, String title, String name, String summary, DataSourceDatabaseProperties properties, DataSourceType type, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<DataSourceProperties> create(User executor, String title, String name, String summary, DataSourceDatabaseProperties properties, DataSourceAccessType type, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
          .thenCompose(ok -> delegate.create(executor, title, name, summary, properties, type, visibility, classification, personalInformation));
+   }
+
+   @Override
+   public CompletionStage<Records> download(User executor, String dataSource) {
+      return companion
+         .withAuthorization(
+            () -> assets.isSubscribedConsumer(executor, dataSource),
+            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.download(executor, dataSource));
    }
 
    @Override
@@ -61,11 +73,19 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    }
 
    @Override
-   public CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String query) {
+   public CompletionStage<Done> updateDatabaseProperties(
+      User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query,
+      DataSourceAccessType accessType) {
+
       return companion
          .withAuthorization(
             () -> assets.isMember(executor, dataSource, DataAssetMemberRole.OWNER))
-         .thenCompose(ok -> delegate.updateDatabaseProperties(executor, dataSource, driver, connection, query));
+         .thenCompose(ok -> delegate.updateDatabaseProperties(executor, dataSource, driver, connection, username, password, query, accessType));
+   }
+
+   @Override
+   public CompletionStage<ConnectionTestResult> test(User executor, DataSourceDriver driver, String connection, String username, String password, String query) {
+      return delegate.test(executor, driver, connection, username, password, query);
    }
 
    @Override

@@ -8,7 +8,7 @@ import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.exceptions.RevisionNotFoundException;
 import maquette.core.entities.data.datasets.exceptions.VersionNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.OpenRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;

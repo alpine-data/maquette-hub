@@ -8,7 +8,7 @@ import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
-import maquette.core.entities.data.datasources.model.DataSourceType;
+import maquette.core.entities.data.datasources.model.DataSourceAccessType;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
@@ -33,7 +33,7 @@ public class CreateDataSourceCommand implements Command {
 
    DataSourceDatabaseProperties properties;
 
-   DataSourceType type;
+   DataSourceAccessType accessType;
 
    DataVisibility visibility;
 
@@ -45,7 +45,7 @@ public class CreateDataSourceCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataSourceServices()
-         .create(user, title, name, summary, properties, type, visibility, classification, personalInformation)
+         .create(user, title, name, summary, properties, accessType, visibility, classification, personalInformation)
          .thenApply(pid -> MessageResult.apply("Successfully created data source `%s`", name));
    }
 
@@ -53,7 +53,7 @@ public class CreateDataSourceCommand implements Command {
    public Command example() {
       return apply(
          "Some Data Source", "some-data-source", Operators.lorem(),
-         DataSourceDatabaseProperties.apply(DataSourceDriver.POSTGRESQL, "jdbc://h2:7291", "SELECT * FROM TABLE"), DataSourceType.DIRECT,
+         DataSourceDatabaseProperties.apply(DataSourceDriver.POSTGRESQL, "jdbc:h2://hostname:7291", "SELECT * FROM TABLE", "egon", "secret123"), DataSourceAccessType.DIRECT,
          DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
    }
 

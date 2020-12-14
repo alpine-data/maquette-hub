@@ -13,4 +13,8 @@ public class DataSourceDatabaseProperties {
 
    String query;
 
+   String username;
+
+   String password;
+
 }

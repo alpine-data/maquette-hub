@@ -19,7 +19,7 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDatasetDataAccessRequestCommand implements Command {
 
-   String dataset;
+   String asset;
 
    String project;
 
@@ -29,7 +29,7 @@ public class CreateDatasetDataAccessRequestCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDatasetServices()
-         .createDataAccessRequest(user, dataset, project, reason)
+         .createDataAccessRequest(user, asset, project, reason)
          .thenApply(DataResult::apply);
    }
 

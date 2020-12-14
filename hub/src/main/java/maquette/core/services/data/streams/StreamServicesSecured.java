@@ -3,6 +3,7 @@ package maquette.core.services.data.streams;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.data.streams.StreamEntities;
+import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.entities.data.streams.model.Stream;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.services.data.DataAssetCompanion;
@@ -15,6 +16,7 @@ import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
+import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -31,10 +33,13 @@ public final class StreamServicesSecured implements StreamServices {
    private final DataAssetCompanion<StreamProperties, StreamEntities> assets;
 
    @Override
-   public CompletionStage<StreamProperties> create(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<StreamProperties> create(
+      User executor, String title, String name, String summary, Retention retention, Schema schema,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, title, name, summary, visibility, classification, personalInformation));
+         .thenCompose(ok -> delegate.create(executor, title, name, summary, retention, schema, visibility, classification, personalInformation));
    }
 
    @Override
@@ -53,11 +58,14 @@ public final class StreamServicesSecured implements StreamServices {
    }
 
    @Override
-   public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<Done> update(
+      User executor, String name, String updatedName, String title, String summary, Retention retention, Schema schema,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+
       return companion
          .withAuthorization(
             () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER))
-         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation));
+         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, retention, schema, visibility, classification, personalInformation));
    }
 
    @Override

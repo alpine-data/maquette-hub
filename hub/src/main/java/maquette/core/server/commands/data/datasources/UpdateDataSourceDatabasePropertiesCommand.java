@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.data.datasources.model.DataSourceAccessType;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -27,17 +28,23 @@ public class UpdateDataSourceDatabasePropertiesCommand implements Command {
 
    String query;
 
+   String username;
+
+   String password;
+
+   DataSourceAccessType accessType;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataSourceServices()
-         .updateDatabaseProperties(user, source, driver, connection, query)
+         .updateDatabaseProperties(user, source, driver, connection, username, password, query, accessType)
          .thenApply(done -> MessageResult.apply("Successfully updated data source."));
    }
 
    @Override
    public Command example() {
-      return apply("some-data-source", DataSourceDriver.POSTGRESQL, "jdbc://h2:mem", "SELECT * FROM TABLE");
+      return apply("some-data-source", DataSourceDriver.POSTGRESQL, "//host/database", "SELECT * FROM TABLE", "egon", "secret123", DataSourceAccessType.DIRECT);
    }
 
 }

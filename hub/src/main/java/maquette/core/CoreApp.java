@@ -47,7 +47,7 @@ public class CoreApp {
        CollectionsRepository collectionsRepository, DatasetsRepository datasetsRepository, RecordsStore recordsStore,
        DataSourcesRepository dataSourceRepository, StreamsRepository streamsRepository,
        SandboxesRepository sandboxesRepository, UsersRepository usersRepository,
-       DataExplorer dataExplorer, ObjectMapper om) {
+       DataExplorer dataExplorer, JdbcPort jdbcPort, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -66,7 +66,7 @@ public class CoreApp {
 
         var collections = CollectionEntities.apply(collectionsRepository);
         var datasets = DatasetEntities.apply(datasetsRepository, recordsStore, dataExplorer);
-        var dataSources = DataSourceEntities.apply(dataSourceRepository, recordsStore, dataExplorer);
+        var dataSources = DataSourceEntities.apply(dataSourceRepository, jdbcPort, recordsStore, dataExplorer);
         var streams = StreamEntities.apply(streamsRepository);
 
         var sandboxes = SandboxEntities.apply(sandboxesRepository);

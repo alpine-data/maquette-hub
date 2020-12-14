@@ -79,9 +79,10 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = CreateDataSourceCommand.class, name = "sources create"),
       @JsonSubTypes.Type(value = GetDataSourceCommand.class, name = "sources get"),
       @JsonSubTypes.Type(value = ListDataSourcesCommand.class, name = "sources list"),
+      @JsonSubTypes.Type(value = TestDataSourceCommand.class, name = "sources test"),
       @JsonSubTypes.Type(value = RemoveDataSourceCommand.class, name = "sources remove"),
       @JsonSubTypes.Type(value = UpdateDataSourcePropertiesCommand.class, name = "sources update"),
-      @JsonSubTypes.Type(value = UpdateDataSourceDatabasePropertiesCommand.class, name = "sources updated db"),
+      @JsonSubTypes.Type(value = UpdateDataSourceDatabasePropertiesCommand.class, name = "sources update db"),
 
       @JsonSubTypes.Type(value = GrantDataSourceMemberCommand.class, name = "sources grant"),
       @JsonSubTypes.Type(value = RevokeDataSourceMemberCommand.class, name = "sources revoke"),
@@ -127,13 +128,16 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = ListSandboxesCommand.class, name = "sandboxes list"),
 
       // Views
+      @JsonSubTypes.Type(value = CollectionViewCommand.class, name = "views collection"),
       @JsonSubTypes.Type(value = CreateDataAccessRequestViewCommand.class, name = "views create-data-access-request"),
       @JsonSubTypes.Type(value = CreateSandboxViewCommand.class, name = "views create-sandbox"),
       @JsonSubTypes.Type(value = DashboardViewCommand.class, name = "views dashboard"),
       @JsonSubTypes.Type(value = DatasetViewCommand.class, name = "views dataset"),
       @JsonSubTypes.Type(value = ProjectViewCommand.class, name = "views project"),
       @JsonSubTypes.Type(value = SandboxViewCommand.class, name = "views sandbox"),
-      @JsonSubTypes.Type(value = DataShopViewCommand.class, name = "views shop")
+      @JsonSubTypes.Type(value = DataShopViewCommand.class, name = "views shop"),
+      @JsonSubTypes.Type(value = DataSourceViewCommand.class, name = "views source"),
+      @JsonSubTypes.Type(value = StreamViewCommand.class, name = "views stream")
    })
 public interface Command {
 

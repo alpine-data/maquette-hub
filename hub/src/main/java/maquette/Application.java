@@ -1,5 +1,6 @@
 package maquette;
 
+import maquette.adapters.jdbc.JdbcJdbiImpl;
 import maquette.adapters.MaquetteDataExplorer;
 import maquette.adapters.collections.CollectionsRepositories;
 import maquette.adapters.datasets.DatasetsRepositories;
@@ -35,11 +36,12 @@ public class Application {
       var usersRepository = UsersRepositories.create(om);
 
       var dataExplorer = MaquetteDataExplorer.apply(om);
+      var jdbcPort = JdbcJdbiImpl.apply();
 
       CoreApp.apply(
          config, infrastructureProvider, infrastructureRepository, projectsRepository,
          collectionsRepository, datasetsRepository, datasetsStore, dataSourcesRepository, streamsRepository,
-         sandboxesRepository, usersRepository, dataExplorer, om);
+         sandboxesRepository, usersRepository, dataExplorer, jdbcPort, om);
    }
 
 }

@@ -1,6 +1,7 @@
 package maquette.core.services.data.datasources;
 
 import akka.Done;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.model.*;
 import maquette.core.services.data.AccessRequestServices;
 import maquette.core.services.data.MemberServices;
@@ -16,8 +17,10 @@ public interface DataSourceServices extends MemberServices, AccessRequestService
 
    CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
-      DataSourceDatabaseProperties properties, DataSourceType type,
+      DataSourceDatabaseProperties properties, DataSourceAccessType type,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+
+   CompletionStage<Records> download(User executor, String dataSource);
 
    CompletionStage<DataSource> get(User executor, String dataSource);
 
@@ -29,6 +32,8 @@ public interface DataSourceServices extends MemberServices, AccessRequestService
       User executor, String name, String updatedName, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
 
-   CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String query);
+   CompletionStage<Done> updateDatabaseProperties(User executor, String dataSource, DataSourceDriver driver, String connection, String username, String password, String query, DataSourceAccessType accessType);
+
+   CompletionStage<ConnectionTestResult> test(User executor, DataSourceDriver driver, String connection, String username, String password, String query);
 
 }

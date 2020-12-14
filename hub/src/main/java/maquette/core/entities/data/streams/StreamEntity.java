@@ -6,6 +6,7 @@ import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.AccessRequests;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
+import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.ports.StreamsRepository;
 import maquette.core.values.ActionMetadata;
@@ -15,6 +16,7 @@ import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
+import org.apache.avro.Schema;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -48,7 +50,7 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
    }
 
    public CompletionStage<Done> update(
-      User executor, String name, String title, String summary,
+      User executor, String name, String title, String summary, Retention retention, Schema schema,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
 
       // TODO mw: value validation ...
@@ -58,6 +60,8 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
             .withName(name)
             .withTitle(title)
             .withSummary(summary)
+            .withRetention(retention)
+            .withSchema(schema)
             .withVisibility(visibility)
             .withClassification(classification)
             .withPersonalInformation(personalInformation)

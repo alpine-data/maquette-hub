@@ -8,8 +8,10 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.*;
+import org.apache.avro.Schema;
 
 import java.util.List;
+import java.util.Optional;
 
 @With
 @Value
@@ -24,6 +26,10 @@ public class Stream implements DataAsset<Stream> {
 
    String summary;
 
+   Retention retention;
+
+   Schema schema;
+
    DataVisibility visibility;
 
    DataClassification classification;
@@ -37,5 +43,9 @@ public class Stream implements DataAsset<Stream> {
    List<GrantedAuthorization<DataAssetMemberRole>> members;
 
    List<DataAccessRequest> accessRequests;
+
+   public Optional<Schema> getSchema() {
+      return Optional.ofNullable(schema);
+   }
 
 }

@@ -38,6 +38,9 @@ export function Error({ error }) {
 }
 
 export function Form(props) {
+  const query = new URLSearchParams(_.get(props, 'location.search') || '');
+  const assetType = query.get('type');
+
   return <Container md className="mq--main-content" background={ Background }>
     <p className="mq--p-leading">
       To gain access to an data asset for a specific project a data access request must be issued. The request will be answered by the data owner.
@@ -47,7 +50,7 @@ export function Form(props) {
 
     <CreateDataAccessRequestForm 
       { ...props } 
-      onSubmit={ req => props.dispatch(submit(req)) } />
+      onSubmit={ req => props.dispatch(submit(req, assetType)) } />
   </Container>;
 }
 
@@ -86,6 +89,7 @@ export function CreateDataAccessRequest(props) {
 
   const query = new URLSearchParams(_.get(props, 'location.search') || '');
   const asset = query.get('asset');
+  const assetType = query.get('type');
 
   const missingParameters = !asset;
   const error = _.get(props, 'createDataAccessRequest.error');
@@ -101,7 +105,7 @@ export function CreateDataAccessRequest(props) {
 
   useEffect(() => {
     if (!missingParameters && !initialized) {
-      props.dispatch(init(asset));
+      props.dispatch(init(asset, assetType));
       setInitialized(true);
     }
   })
@@ -125,7 +129,7 @@ export function CreateDataAccessRequest(props) {
         (loading && <div className="mq--loading" />) || 
         (error && <Error error={ error } /> ) || 
         (_.isEmpty(projects) && <NoProjects />) ||
-        <Form { ...props } asset={ asset } projects={ projects } />
+        <Form { ...props } asset={ asset } assetType={ assetType } projects={ projects } />
       }
     </div>
   );

@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
@@ -101,13 +101,44 @@ public final class DataResource {
       });
    }
 
-   public Handler download() {
+   public Handler downloadDatasource() {
+      var docs = OpenApiBuilder
+         .document()
+         .operation(op -> {
+            op.summary("Download Datasource");
+            op.description("Downloads data from a data source.");
+            op.addTagsItem("Data Assets");
+         })
+         .pathParam("source", String.class, p -> p.description("The name of the data source"))
+         .json("200", String.class);
+
+      return OpenApiBuilder.documented(docs, ctx -> {
+         var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+         var source = ctx.pathParam("source");
+
+         var result = services
+            .getDataSourceServices()
+            .download(user, source)
+            .thenApply(records -> {
+               var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+               records.toFile(file);
+               return DeleteOnCloseInputStream.apply(file);
+            })
+            .toCompletableFuture();
+
+         ctx.header("Content-Disposition", "attachment; filename=" + source + ".avro");
+         ctx.header("Content-Type", "application/octet-stream");
+         ctx.result(result);
+      });
+   }
+
+   public Handler downloadDatasetVersion() {
       var docs = OpenApiBuilder
          .document()
          .operation(op -> {
             op.summary("Download Dataset Data");
             op.description("Downloads from a revision of a dataset.");
-            op.addTagsItem("Dataset");
+            op.addTagsItem("Data Assets");
          })
          .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
          .pathParam("version", String.class, p -> p.description("The version"))
@@ -134,13 +165,13 @@ public final class DataResource {
       });
    }
 
-   public Handler downloadLatest() {
+   public Handler downloadLatestDatasetVersion() {
       var docs = OpenApiBuilder
          .document()
          .operation(op -> {
             op.summary("Download Latest Dataset Version");
             op.description("Downloads the latest revision of a dataset.");
-            op.addTagsItem("Dataset");
+            op.addTagsItem("Data Assets");
          })
          .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
          .json("200", String.class);

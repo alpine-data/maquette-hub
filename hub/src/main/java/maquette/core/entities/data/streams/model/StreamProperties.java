@@ -5,10 +5,13 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataAssetProperties;
+import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import org.apache.avro.Schema;
+
+import java.util.Optional;
 
 @With
 @Value
@@ -23,6 +26,10 @@ public class StreamProperties implements DataAssetProperties<StreamProperties> {
 
    String summary;
 
+   Retention retention;
+
+   Schema schema;
+
    DataVisibility visibility;
 
    DataClassification classification;
@@ -32,5 +39,9 @@ public class StreamProperties implements DataAssetProperties<StreamProperties> {
    ActionMetadata created;
 
    ActionMetadata updated;
+
+   public Optional<Schema> getSchema() {
+      return Optional.ofNullable(schema);
+   }
 
 }

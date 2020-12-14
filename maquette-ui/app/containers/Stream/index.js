@@ -4,7 +4,7 @@
  *
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -16,6 +16,8 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectStream from './selectors';
 import reducer from './reducer';
 import saga from './saga';
+import { load, update, dismissError } from './actions';
+
 import { Affix, FlexboxGrid, Nav } from 'rsuite';
 import { Link } from 'react-router-dom';
 
@@ -23,14 +25,40 @@ import Container from 'components/Container';
 import DataAccessRequests from '../../components/DataAccessRequests';
 import DataBadges from 'components/DataBadges';
 import EditableParagraph from 'components/EditableParagraph';
+import Error from '../../components/Error';
+import ErrorMessage from '../../components/ErrorMessage';
 import StreamOverview from 'components/StreamOverview';
+import StreamSettings from 'components/StreamSettings';
+
+import Background from '../../resources/datashop-background.png';
 
 function Display(props) {
-
-  const isOwner = false;
-  const stream = 'stock-prices';
-  const streamData = { classification: 'internal', personalInformation: 'none', visibility: 'public' }
+  const stream = _.get(props, 'match.params.stream');
   const tab = _.get(props, 'match.params.tab') || 'overview';
+
+  const isOwner = _.get(props, 'stream.data.isOwner');
+  const canAccessData = _.get(props, 'stream.data.canAccessData');
+  const error = _.get(props, 'stream.error');
+
+  const onUpdate = (values) => {
+    const current = _.pick(
+      _.get(props, 'stream.data.stream'), 
+      'name', 'title', 'summary', 'retention', 'schema', 'visibility', 'classification', 'personalInformation');
+
+    const updated = _.assign(current, values, { stream });
+
+    props.dispatch(update('streams update', updated));
+  }
+
+  const onGrant = (value) => {
+    const request = _.assign(value, { stream });
+    props.dispatch(update('streams grant', request));
+  }
+
+  const onRevoke = (value) => {
+    const request = _.assign(value, { stream });
+    props.dispatch(update('streams revoke', request));
+  }
 
   return <div>
     <Helmet>
@@ -42,27 +70,40 @@ function Display(props) {
         <Container fluid>
           <FlexboxGrid align="middle">
             <FlexboxGrid.Item colspan={ 16 }>
-            <h1><Link to="/shop/browse">Data Shop</Link> / <Link to={ `/shop/streams/stock-prices` }>Stock Prices</Link></h1>
+            <h1><Link to="/shop/browse">Data Shop</Link> / <Link to={ `/shop/streams/${stream}` }>{ _.get(props, 'stream.data.stream.title') }</Link></h1>
 
             <EditableParagraph 
-              value="Continuously updated stock prices from common exchanges." 
-              onChange={ console.log }
-              disabled={ true }
-              className="mq--p-leading" />
+                value={ _.get(props, 'stream.data.stream.summary') } 
+                onChange={ summary => onUpdate({ summary }) }
+                disabled={ !isOwner }
+                className="mq--p-leading" />
             </FlexboxGrid.Item>
 
             <FlexboxGrid.Item colspan={ 8 } className="mq--buttons">
-              <DataBadges resource={ streamData  } />
+              <DataBadges resource={ _.get(props, 'stream.data.stream') } />
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Container>
         
         <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
           <Nav.Item eventKey="overview" componentClass={ Link } to={ `/shop/streams/${stream}` }>Overview</Nav.Item>
+
+          {
+              canAccessData && <Nav.Item eventKey="data" componentClass={ Link } to={ `/shop/streams/${stream}/data` }>Data</Nav.Item>
+          }
+
           <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/shop/streams/${stream}/access-requests` }>Access requests</Nav.Item>
+
+          { 
+            isOwner && <Nav.Item eventKey="settings" componentClass={ Link } to={ `/shop/streams/${stream}/settings` }>Settings</Nav.Item>
+          }
         </Nav>
       </div>
     </Affix>
+
+    {
+      error && <ErrorMessage title="An error occurred saving the changes" message={ error } onDismiss={ () => props.dispatch(dismissError()) } />
+    }
 
     { 
       tab == 'overview' && <>
@@ -74,11 +115,23 @@ function Display(props) {
       tab == 'access-requests' && <>
         <DataAccessRequests 
           { ...props }
-          onGrant={ request => props.dispatch(update("datasets access-requests grant", request)) }
-          onReject={ request => props.dispatch(update("datasets access-requests reject", request)) }
-          onRequest={ request => props.dispatch(update("datasets access-requests update", request)) }
-          onWithdraw={ request => props.dispatch(update("datasets access-requests withdraw", request)) } />
+          asset={ props.stream.data.stream }
+          view={ props.stream }
+          onGrant={ request => props.dispatch(update("streams access-requests grant", request)) }
+          onReject={ request => props.dispatch(update("streams access-requests reject", request)) }
+          onRequest={ request => props.dispatch(update("streams access-requests update", request)) }
+          onWithdraw={ request => props.dispatch(update("streams access-requests withdraw", request)) } />
       </> 
+    }
+
+    { 
+      tab == 'settings' && <>
+        <StreamSettings 
+          { ...props }
+          onUpdate={ onUpdate }
+          onGrant={ onGrant }
+          onRevoke={ onRevoke } />
+      </>
     }
   </div>;
 }
@@ -87,9 +140,26 @@ export function Stream(props) {
   useInjectReducer({ key: 'stream', reducer });
   useInjectSaga({ key: 'stream', saga });
 
-  return (
-    <Display { ...props } />
-  );
+  const stream = _.get(props, 'match.params.stream');
+  const data = _.get(props, 'stream.data');
+  const error = _.get(props, 'stream.error');
+  const loading = _.get(props, 'stream.loading');
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!initialized) {
+      props.dispatch(load(stream))
+      setInitialized(true);
+    }
+  });
+
+  if (!initialized || loading) {
+    return <div className="mq--loading" />
+  } else if (!data && error) {
+    return <Error background={ Background } message={ error } />
+  } else {
+    return <Display { ...props } />
+  }
 }
 
 Stream.propTypes = {

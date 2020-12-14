@@ -5,12 +5,13 @@
  */
 
 import React from 'react';
-import Container from '../Container';
 import PropTypes from 'prop-types';
 
-import Background from '../../resources/datashop-background.png';
 import { FlexboxGrid, Nav } from 'rsuite';
 import { Link } from 'react-router-dom';
+
+import Background from '../../resources/datashop-background.png';
+import Container from '../Container';
 import ResourceSettings from '../ResourceSettings';
 import DataGovernanceOptions from '../DataGovernanceOptions';
 import Members from '../Members';
@@ -77,9 +78,7 @@ function DatasetSettings(props) {
     return <Error 
       background={ Background }
       message="You are not authorized to view the settings of this asset." />
-  }
-
-  
+  }  
 }
 
 DatasetSettings.propTypes = {

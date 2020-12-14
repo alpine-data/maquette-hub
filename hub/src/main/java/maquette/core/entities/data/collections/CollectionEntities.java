@@ -10,6 +10,7 @@ import maquette.core.ports.CollectionsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
@@ -43,6 +44,8 @@ public final class CollectionEntities implements DataAssetEntities<CollectionPro
 
                return repository
                   .insertOrUpdateAsset(collection)
+                  .thenCompose(d -> getById(collection.getId()))
+                  .thenCompose(c -> c.getMembers().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
                   .thenApply(d -> collection);
             }
          });

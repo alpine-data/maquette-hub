@@ -15,14 +15,18 @@ import { Switch, Route } from 'react-router-dom';
 
 import Layout from 'components/Layout';
 
-import CreateDataAccessRequest from '../CreateDataAccessRequest';
+import Collection from '../Collection/Loadable';
+import CreateDataAccessRequest from '../CreateDataAccessRequest/Loadable';
+import CreateCollection from 'containers/CreateCollection/Loadable';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
 import CreateDataSource from 'containers/CreateDataSource/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
+import CreateStream from 'containers/CreateStream/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
 import DataShop from 'containers/DataShop/Loadable';
+import DataSource from 'containers/DataSource/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
@@ -42,16 +46,27 @@ export function App({ app, onUserChanged }) {
         <Route path="/search" component={Search} />
         
         <Route path="/new/data-access-request" component={CreateDataAccessRequest} />
+        <Route path="/new/collection" component={CreateCollection} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
         <Route path="/new/datasource" component={CreateDataSource} />
         <Route path="/new/sandbox" component={CreateSandbox} />
+        <Route path="/new/stream" component={CreateStream} />
 
         <Route path="/shop" exact component={DataShop} />
         <Route path="/shop/:tab" exact component={DataShop} />
+
+        <Route path="/shop/collections/:collection" exact component={Collection} />
+        <Route path="/shop/collections/:collection/:tab" exact component={Collection} />
+        <Route path="/shop/collections/:collection/:tab/:id" exact component={Collection} />
+
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+        
+        <Route path="/shop/sources/:source" exact component={DataSource} />
+        <Route path="/shop/sources/:source/:tab" exact component={DataSource} />
+        <Route path="/shop/sources/:source/:tab/:id" exact component={DataSource} />
 
         <Route path="/shop/streams/:stream" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab" exact component={Stream} />

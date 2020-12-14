@@ -16,7 +16,7 @@ function* onCreate(action) {
     const data = yield call(command, 'datasets create', _.omit(action, 'type'), user);
 
     yield put(createSuccess(action.name, data));
-    yield put(push(`/shop/datasets/${action.name}`))
+    yield put(push(`/shop/datasets/${action.name}`));
   } catch (error) {
     yield put(createFailure(error));
   }

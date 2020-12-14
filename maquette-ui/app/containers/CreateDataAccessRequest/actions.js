@@ -8,10 +8,11 @@ import {
   INIT, FAILED, FETCHED,
   SUBMIT, SUBMIT_FAILED, SUBMIT_SUCCESS } from './constants';
 
-export function init(asset) {
+export function init(asset, assetType) {
   return {
     type: INIT,
-    asset
+    asset,
+    assetType
   };
 };
 
@@ -29,10 +30,11 @@ export function fetched(response) {
   }
 };
 
-export function submit(request) {
+export function submit(request, assetType) {
   return {
       type: SUBMIT,
-      request
+      request,
+      assetType
   };
 };
 

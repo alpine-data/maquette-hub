@@ -2,8 +2,10 @@ package maquette.core.values.data;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import maquette.core.entities.data.collections.model.Collection;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasources.model.DataSource;
+import maquette.core.entities.data.streams.model.Stream;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
@@ -18,8 +20,10 @@ import java.util.Objects;
    property = "type")
 @JsonSubTypes(
    {
+      @JsonSubTypes.Type(value = Collection.class, name = "collection"),
       @JsonSubTypes.Type(value = Dataset.class, name = "dataset"),
-      @JsonSubTypes.Type(value = DataSource.class, name = "source")
+      @JsonSubTypes.Type(value = DataSource.class, name = "source"),
+      @JsonSubTypes.Type(value = Stream.class, name = "stream")
    })
 public interface DataAsset<T extends DataAsset<T>> {
 
@@ -30,6 +34,12 @@ public interface DataAsset<T extends DataAsset<T>> {
    String getName();
 
    String getSummary();
+
+   DataVisibility getVisibility();
+
+   DataClassification getClassification();
+
+   PersonalInformation getPersonalInformation();
 
    ActionMetadata getCreated();
 

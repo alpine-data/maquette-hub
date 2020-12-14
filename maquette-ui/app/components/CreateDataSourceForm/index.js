@@ -5,13 +5,12 @@
  */
 
 import React, {useState} from 'react';
-// import PropTypes from 'prop-types';
-// import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
 import produce from 'immer';
 import kebabcase from 'lodash.kebabcase';
 
-import { ControlLabel, FlexboxGrid, Form, FormControl, FormGroup, InputPicker, HelpBlock, ButtonToolbar, Button, Radio, RadioGroup } from 'rsuite';
+import { ControlLabel, FlexboxGrid, Form, FormControl, FormGroup, InputPicker, HelpBlock, ButtonToolbar, Button, Radio, RadioGroup, Message } from 'rsuite';
 import { DataClassificationFormGroup, PersonalInformtionFormGroup, VisibilityFormGroup } from '../CreateDatasetForm';
 
 function AccessTypeForm({ value, onChange }) {
@@ -42,7 +41,7 @@ function ScheduleForm({ value, onChange, accessType }) {
   }
 }
 
-function CreateDataSourceForm() {
+export function DataSourceSettings({ state, testing, testResult, onChange, onTestConnection }) {
   const drivers = [
     {
       "value": "postgresql",
@@ -58,6 +57,104 @@ function CreateDataSourceForm() {
     }
   ]
 
+  const testConnectionDisabled = _.isEmpty(state.connection) || _.isEmpty(state.query) || _.isEmpty(state.username) || _.isEmpty(state.password);
+
+  return <>
+    <FlexboxGrid.Item colspan={ 11 }>
+      <FormGroup>
+        <ControlLabel>Data Source Driver</ControlLabel>
+        <InputPicker data={ drivers } style={{ width: "100%" }} onChange={ onChange('driver') } value={ state.driver } />
+        <HelpBlock>Select the database type of your source.</HelpBlock>
+      </FormGroup>
+    </FlexboxGrid.Item>
+      
+
+    <FlexboxGrid.Item colspan={ 11 }>
+      <FormGroup>
+        <ControlLabel>Connection String</ControlLabel>
+        <FormControl 
+          name="connection" 
+          value={ state.connection } 
+          onChange={ onChange('connection') }
+          placeholder="//host:port/database" />
+        <HelpBlock>A JDBC connection string to connect to the database, including username and password.</HelpBlock>
+      </FormGroup>
+    </FlexboxGrid.Item>
+
+    <FlexboxGrid.Item colspan={ 11 }>
+      <FormGroup>
+        <ControlLabel>Username</ControlLabel>
+        <FormControl 
+          name="username" 
+          value={ state.username } 
+          onChange={ onChange('username') } />
+      </FormGroup>
+    </FlexboxGrid.Item>
+      
+
+    <FlexboxGrid.Item colspan={ 11 }>
+      <FormGroup>
+        <ControlLabel>Password</ControlLabel>
+        <FormControl 
+          name="password" 
+          value={ state.password } 
+          onChange={ onChange('password') }
+          type="password" />
+      </FormGroup>
+    </FlexboxGrid.Item>
+
+    <FlexboxGrid.Item colspan={ 24 }>
+      <FormGroup>
+        <ControlLabel>Query</ControlLabel>
+        <FormControl 
+          name="connection" 
+          value={ state.query } 
+          onChange={ onChange('query') }
+          placeholder="SELECT * FROM <DATABASE>.<TABLE_NAME>" />
+        <HelpBlock>The query to execute to fetch the data from the database.</HelpBlock>
+      </FormGroup>
+      <FormGroup>
+        <ButtonToolbar>
+          <Button 
+            disabled={ testConnectionDisabled }
+            color="green"
+            loading={ testing }
+            onClick={ () => {
+              onTestConnection({
+                driver: state.driver,
+                connection: state.connection,
+                username: state.username,
+                password: state.password,
+                query: state.query
+              })
+            }}>
+              Test connection and query.
+          </Button>
+        </ButtonToolbar>
+      </FormGroup>
+
+      {
+        testResult.result == 'success' && <>
+          <Message type="success" description="Connection has been tested successfully" closable />
+        </>
+      }
+
+      {
+        testResult.result == 'failed' && <>
+          <Message type="error" description={ testResult.message } closable />
+        </>
+      }
+    </FlexboxGrid.Item>
+
+    <FlexboxGrid.Item colspan={ 24 }>
+      <hr />
+      <AccessTypeForm value={ state.accessType } onChange={ onChange('accessType') } />
+      <ScheduleForm value={ state.schedule } onChange={ onChange('schedule')} accessType={ state.accessType } />
+    </FlexboxGrid.Item>
+  </>
+}
+
+function CreateDataSourceForm(props) {
   const [state, setState] = useState({
     title: '',
     name: '',
@@ -65,13 +162,16 @@ function CreateDataSourceForm() {
     visibility: 'public',
     classification: 'public',
     personalInformation: 'none',
+
     accessType: 'direct',
     schedule: 'daily',
-    driver: 'postgresql',
-    query: 'SELECT * FROM <DATABASE>.<TABLE_NAME>'
-  });
 
-  const [testConnectionState, setTestConnectionState] = useState("disabled");
+    driver: 'postgresql',
+    connection: '',
+    query: '',
+    username: '',
+    password: '',
+  });
 
   const onChange = (field) => (value) => {
     setState(produce(state, draft => {
@@ -93,7 +193,8 @@ function CreateDataSourceForm() {
     }));
   }
 
-  const isValid = state.title.length > 3 && state.name.length > 3;
+  const testConnectionDisabled = _.isEmpty(state.connection) || _.isEmpty(state.query) || _.isEmpty(state.username) || _.isEmpty(state.password);
+  const createdDisabled = _.size(state.title) < 3 || _.size(state.name) < 3 || testConnectionDisabled;
 
   return <Form fluid>
       <FlexboxGrid justify="space-between">
@@ -101,7 +202,7 @@ function CreateDataSourceForm() {
           <FormGroup>
             <ControlLabel>Data Source Title</ControlLabel>
             <FormControl name="title" onChange={ onChange('title') } value={ state.title } />
-            <HelpBlock>Select a speaking, memorable title for the dataset.</HelpBlock>
+            <HelpBlock>Select a speaking, memorable title for the data source.</HelpBlock>
           </FormGroup>
         </FlexboxGrid.Item>
 
@@ -117,52 +218,21 @@ function CreateDataSourceForm() {
           <FormGroup>
             <ControlLabel>Data Source Summary</ControlLabel>
             <FormControl name="summary" onChange={ onChange('summary') } value={ state.summary } />
-            <HelpBlock>Describe in a few words which data is contained in your dataset.</HelpBlock>
+            <HelpBlock>Describe in a few words which data is contained in your data source.</HelpBlock>
           </FormGroup>
         </FlexboxGrid.Item>
         <FlexboxGrid.Item colspan={ 24 }>
           <hr />
         </FlexboxGrid.Item>
 
-        <FlexboxGrid.Item colspan={ 11 }>
-          <FormGroup>
-            <ControlLabel>Data Source Driver</ControlLabel>
-            <InputPicker data={ drivers } style={{ width: "100%" }} onChange={ onChange('driver') } value={ state.driver } />
-            <HelpBlock>Describe in a few words which data is contained in your dataset.</HelpBlock>
-          </FormGroup>
-        </FlexboxGrid.Item>
-          
-
-        <FlexboxGrid.Item colspan={ 11 }>
-          <FormGroup>
-            <ControlLabel>Connection String</ControlLabel>
-            <FormControl name="connection" value={ state.connection } onChange={ onChange('connection') } />
-            <HelpBlock>A JDBC connection string to connect to the database, including username and password.</HelpBlock>
-          </FormGroup>
-        </FlexboxGrid.Item>
+        <DataSourceSettings 
+          state={ state } 
+          testing={ _.get(props, 'createDataSource.testing') } 
+          testResult={ _.get(props, 'createDataSource.testResult') }
+          onTestConnection={ props.onTestConnection } 
+          onChange={ onChange } />
 
         <FlexboxGrid.Item colspan={ 24 }>
-          <FormGroup>
-            <ControlLabel>Query</ControlLabel>
-            <FormControl name="connection" value={ state.query } onChange={ onChange('query') } />
-            <HelpBlock>The query to execute to fetch the data from the database.</HelpBlock>
-          </FormGroup>
-          <FormGroup>
-            <ButtonToolbar>
-              <Button 
-                disabled={ testConnectionState == "disabled" }
-                color={ testConnectionState == "failed" && "red" || "green" }>
-                  { (testConnectionState == "disabled" || testConnectionState == "test") && <>Test connection and query.</> }
-                  { testConnectionState == "failed" && <>Connection or query failed.</> }
-              </Button>
-            </ButtonToolbar>
-          </FormGroup>
-        </FlexboxGrid.Item>
-
-        <FlexboxGrid.Item colspan={ 24 }>
-          <hr />
-          <AccessTypeForm value={ state.accessType } onChange={ onChange('accessType') } />
-          <ScheduleForm value={ state.schedule } onChange={ onChange('schedule')} accessType={ state.accessType } />
           <hr />   
           <VisibilityFormGroup value={ state.visibility } onChange={ onChange('visibility') } />
           <hr />
@@ -176,8 +246,26 @@ function CreateDataSourceForm() {
               <Button 
                 appearance="primary" 
                 type="submit" 
-                disabled={ !isValid }
-                onClick={ () => onSubmit(state) }>Create data source</Button>
+                disabled={ createdDisabled }
+                loading={ _.get(props, 'createDataSource.creating') }
+                onClick={ () => {
+                  props.onCreateDataSource({
+                    title: state.title,
+                    name: state.name,
+                    summary: state.summary,
+                    properties: {
+                      driver: state.driver,
+                      connection: state.connection,
+                      username: state.username,
+                      password: state.password,
+                      query: state.query
+                    },
+                    accessType: state.accessType,
+                    visibility: state.visibility,
+                    classification: state.classification,
+                    personalInformation: state.personalInformation
+                  })
+                } }>Create data source</Button>
             </ButtonToolbar>
           </FormGroup>
         </FlexboxGrid.Item>
@@ -185,6 +273,29 @@ function CreateDataSourceForm() {
     </Form>;
 }
 
-CreateDataSourceForm.propTypes = {};
+CreateDataSourceForm.propTypes = {
+  createDataSource: PropTypes.shape({
+    creating: PropTypes.bool,
+    testing: PropTypes.bool,
+    testResult: PropTypes.oneOfType([
+      PropTypes.bool, 
+      PropTypes.shape({
+        result: PropTypes.string,
+        message: PropTypes.string
+      }) 
+    ])
+  }),
+
+  onCreateDataSource: PropTypes.func,
+  onTestConnection: PropTypes.func,
+};
+
+CreateDataSourceForm.defaultProps = {
+  testing: false,
+  testResult: false,
+
+  onCreateDataSource: console.log,
+  onTestConnection: console.log
+}
 
 export default CreateDataSourceForm;

@@ -4,6 +4,7 @@
  *
  */
 
+import _ from 'lodash';
 import React, { useState } from 'react';
 import { Button, ButtonToolbar, ControlLabel, FlexboxGrid, Form, FormControl, FormGroup } from 'rsuite';
 import PropTypes from 'prop-types';
@@ -30,7 +31,7 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
       <FlexboxGrid>
         <FlexboxGrid.Item colspan={11}>
           <FormGroup>
-            <ControlLabel>{ resource } Title</ControlLabel>
+            <ControlLabel>{ _.capitalize(resource) } title</ControlLabel>
             <FormControl name="title" value={ state.title } onChange={ onChanged('title') } />
           </FormGroup>
         </FlexboxGrid.Item>
@@ -39,7 +40,7 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
 
         <FlexboxGrid.Item colspan={11}>
           <FormGroup>
-            <ControlLabel>{ resource } Name</ControlLabel>
+            <ControlLabel>{ _.capitalize(resource) } name</ControlLabel>
             <FormControl name="name" value={ state.name } onChange={ onChanged('name') } />
           </FormGroup>
         </FlexboxGrid.Item>
@@ -50,7 +51,7 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
               disabled={ !changed }
               onClick={ () => onUpdate(state.title, state.name) }
               appearance="primary" 
-              type="submit">Update { resource }</Button>
+              type="submit">Save changes</Button>
           </ButtonToolbar>
         </FlexboxGrid.Item>
       </FlexboxGrid>
@@ -60,7 +61,7 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
     <h4>Delete { resource }</h4>
     <Form fluid>
       <FormGroup>
-        <ControlLabel>Type { resource } Name</ControlLabel>
+        <ControlLabel>Type { _.lowerCase(resource) } name</ControlLabel>
         <FormControl name="repeat-name" value={ state.delete_title } onChange={ onChanged('delete_title') } />
       </FormGroup>
 
@@ -69,7 +70,7 @@ function ResourceSettings({ resource = "Project", title, name, onUpdate }) {
           appearance="primary" 
           color="red"
           disabled={ state.delete_title != name }
-          type="submit">Delete { resource }</Button>
+          type="submit">Delete { resource.toLocaleLowerCase() }</Button>
       </ButtonToolbar>
     </Form>
   </>;
