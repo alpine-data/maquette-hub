@@ -7,7 +7,7 @@ import maquette.core.entities.data.datasets.DatasetEntity;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.entities.processes.ProcessManager;

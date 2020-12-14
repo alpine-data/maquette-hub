@@ -3,14 +3,13 @@ package maquette.adapters.jdbc;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.model.ConnectionTestResult;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
 import maquette.core.entities.data.datasources.model.FailedConnectionTestResult;
 import maquette.core.entities.data.datasources.model.SuccessfulConnectionTestResult;
 import maquette.core.ports.JdbcPort;
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.jdbi.v3.core.Jdbi;
 

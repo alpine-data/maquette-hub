@@ -1,4 +1,4 @@
-package maquette.core.entities.data.datasets.model.records;
+package maquette.core.values.data.records;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

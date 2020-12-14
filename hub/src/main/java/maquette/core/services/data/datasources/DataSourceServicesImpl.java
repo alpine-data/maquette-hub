@@ -2,7 +2,7 @@ package maquette.core.services.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.datasources.DataSourceEntity;
 import maquette.core.entities.data.datasources.model.*;

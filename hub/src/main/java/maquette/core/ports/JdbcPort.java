@@ -1,6 +1,6 @@
 package maquette.core.ports;
 
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.model.ConnectionTestResult;
 import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;

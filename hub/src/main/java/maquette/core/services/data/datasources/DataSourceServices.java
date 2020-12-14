@@ -1,7 +1,7 @@
 package maquette.core.services.data.datasources;
 
 import akka.Done;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.model.*;
 import maquette.core.services.data.AccessRequestServices;
 import maquette.core.services.data.MemberServices;

@@ -1,4 +1,4 @@
-package maquette.core.entities.data.datasets.model.records;
+package maquette.core.values.data.records;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;

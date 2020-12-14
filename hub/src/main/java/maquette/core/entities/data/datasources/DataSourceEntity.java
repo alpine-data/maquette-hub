@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.AccessRequests;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.entities.data.datasources.model.DataSourceAccessType;
 import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;

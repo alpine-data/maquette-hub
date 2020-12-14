@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.records.Records;
+import maquette.core.values.data.records.Records;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
