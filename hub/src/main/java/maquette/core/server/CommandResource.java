@@ -92,10 +92,45 @@ public final class CommandResource {
          var collection = Collection
             .apply("Maquette Hub API")
             .withVariable(Variable.apply("HOSTNAME", "localhost:9042"))
+            .withVariable(Variable.apply("FILE", "some-file.bin"))
+            .withVariable(Variable.apply("COLLECTION", "sample-collection"))
             .withVariable(Variable.apply("DATASET", "sample-dataset"))
             .withVariable(Variable.apply("SOURCE", "sample-source"))
+            .withVariable(Variable.apply("REPOSITORY", "repository"))
             .withVariable(Variable.apply("REVISION", "af10-cc-fc-40"))
+            .withVariable(Variable.apply("STREAM", "sample-stream"))
+            .withVariable(Variable.apply("TAG", "tag"))
             .withVariable(Variable.apply("VERSION", "1.0"))
+            .withItem(Item.apply(
+               "/api/data/collections/:collection",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.POST)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}"))
+                  .withBody(FormDataBody
+                     .apply()
+                     .withField(TextField.apply("target", "/sample.avro"))
+                     .withField(FileField.apply("file", "./sample.avro")))))
+            .withItem(Item.apply(
+               "/api/data/collections/:collection/latest/:file",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}/latest/{{FILE}}"))))
+            .withItem(Item.apply(
+               "/api/data/collections/:collection/tags/:tag/:file",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}/tags/{{TAG}}/{{FILE}}"))))
             .withItem(Item.apply(
                "/api/data/sources/:source",
                Request
@@ -145,6 +180,15 @@ public final class CommandResource {
                   .withHeader("x-user-roles", "a-team,b-team")
                   .withHeader("x-project", "af10ccfc40")
                   .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/datasets/{{DATASET}}"))))
+            .withItem(Item.apply(
+               "/api/data/streams/:stream",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/streams/{{STREAM}}"))))
             .withItem(Item.apply(
                "/api/about",
                Request
