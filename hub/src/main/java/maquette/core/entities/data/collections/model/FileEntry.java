@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -33,6 +34,38 @@ public abstract class FileEntry {
          @JsonProperty(CHILDREN) Map<String, FileEntry> children) {
 
          return new Directory(Map.copyOf(children));
+      }
+
+      public Optional<RegularFile> getFile(String name) {
+         var path = Arrays
+            .stream(name.split("/"))
+            .filter(s -> !s.trim().isEmpty())
+            .collect(Collectors.toList());
+
+         if (path.isEmpty()) {
+            throw new IllegalArgumentException("Invalid file name");
+         } else if (path.size() == 1) {
+            var elementName = path.get(0);
+            var exists = children.get(elementName);
+
+            if (exists instanceof RegularFile) {
+               return Optional.of((RegularFile) exists);
+            } else {
+               return Optional.empty();
+            }
+         } else {
+            var elementName = path.get(0);
+            var exists = children.get(elementName);
+            var remaining = String.join("/", path.subList(1, path.size()));
+
+            if (exists != null && !(exists instanceof Directory)) {
+               return Optional.empty();
+            } else if (exists != null) { // is a Directory ...
+               return getFile(remaining);
+            } else {
+               return Optional.empty();
+            }
+         }
       }
 
       public Directory withFile(String name, RegularFile entry) {
@@ -66,6 +99,46 @@ public abstract class FileEntry {
                childrenNext.put(elementName, ((Directory) exists).withFile(remaining, entry));
             } else {
                childrenNext.put(elementName, (Directory.apply()).withFile(remaining, entry));
+            }
+         }
+
+         return new Directory(childrenNext);
+      }
+
+      public Directory withoutFile(String name) {
+         Map<String, FileEntry> childrenNext = Maps.newHashMap();
+         childrenNext.putAll(children);
+
+         var path = Arrays
+            .stream(name.split("/"))
+            .filter(s -> !s.trim().isEmpty())
+            .collect(Collectors.toList());
+
+         if (path.isEmpty()) {
+            throw new IllegalArgumentException("Invalid file name");
+         } else if (path.size() == 1) {
+            var elementName = path.get(0);
+            var exists = children.get(elementName);
+
+            if (exists != null && !(exists instanceof RegularFile)) {
+               throw new IllegalArgumentException("Cannot replace directory with file");
+            } else {
+               return this;
+            }
+         } else {
+            var elementName = path.get(0);
+            var exists = children.get(elementName);
+            var remaining = String.join("/", path.subList(1, path.size()));
+
+            if (exists != null && !(exists instanceof Directory)) {
+               throw new IllegalArgumentException("Invalid path!");
+            } else if (exists != null) { // is a Directory ...
+               var directoryNext = ((Directory) exists).withoutFile(remaining);
+               if (directoryNext.children.isEmpty()) {
+                  childrenNext.remove(elementName);
+               } else {
+                  childrenNext.put(elementName, directoryNext);
+               }
             }
          }
 

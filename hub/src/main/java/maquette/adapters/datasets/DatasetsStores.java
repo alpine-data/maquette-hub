@@ -1,5 +1,6 @@
 package maquette.adapters.datasets;
 
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.RecordsStore;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -10,7 +11,7 @@ public final class DatasetsStores {
    }
 
    public static RecordsStore create() {
-      var config = DatasetsStoreConfiguration.apply();
+      var config = RepositoryConfiguration.apply("datasets-store");
 
       switch (config.getType()) {
          case "filesystem":

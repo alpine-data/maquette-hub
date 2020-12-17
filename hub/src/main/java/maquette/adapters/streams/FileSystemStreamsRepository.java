@@ -4,10 +4,10 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.adapters.collections.FileSystemCollectionsRepositoryConfiguration;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.ports.StreamsRepository;
 import maquette.core.values.UID;
@@ -29,10 +29,11 @@ public final class FileSystemStreamsRepository implements StreamsRepository {
 
    private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
 
-   public static FileSystemStreamsRepository apply(FileSystemStreamsRepositoryConfiguration config, ObjectMapper om) {
-      var assetsCompanion = FileSystemDataAssetRepository.apply(StreamProperties.class, config.getDirectory(), om);
-      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
-      var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
+   public static FileSystemStreamsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
+      var directory = config.getDirectory().resolve("shop").resolve("streams");
+      var assetsCompanion = FileSystemDataAssetRepository.apply(StreamProperties.class, directory, om);
+      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
+      var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
 
       return new FileSystemStreamsRepository(assetsCompanion, requestsCompanion, membersCompanion);
    }

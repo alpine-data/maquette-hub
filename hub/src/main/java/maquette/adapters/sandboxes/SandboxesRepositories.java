@@ -1,6 +1,7 @@
 package maquette.adapters.sandboxes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.SandboxesRepository;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -11,7 +12,7 @@ public final class SandboxesRepositories {
    }
 
    public static SandboxesRepository create(ObjectMapper om) {
-      var config = SandboxesRepositoryConfiguration.apply();
+      var config = RepositoryConfiguration.apply("sandboxes-repository");
 
       switch (config.getType()) {
          case "filesystem":

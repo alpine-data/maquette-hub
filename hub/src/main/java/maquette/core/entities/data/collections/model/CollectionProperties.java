@@ -23,6 +23,8 @@ public class CollectionProperties implements DataAssetProperties<CollectionPrope
 
    String summary;
 
+   FileEntry.Directory files;
+
    DataVisibility visibility;
 
    DataClassification classification;

@@ -59,7 +59,7 @@ public final class DataResource {
       });
    }
 
-   public Handler uploadFile() {
+   public Handler uploadDatasetFile() {
       var docs = OpenApiBuilder
          .document()
          .operation(op -> {
@@ -197,7 +197,7 @@ public final class DataResource {
    }
 
    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-   private static class DeleteOnCloseInputStream extends InputStream {
+   public static class DeleteOnCloseInputStream extends InputStream {
 
       private final Path file;
 

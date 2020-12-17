@@ -1,7 +1,6 @@
 package maquette.core.entities.sandboxes.model.stacks;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.concurrent.CompletedFuture;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -12,12 +11,10 @@ import maquette.common.forms.FormControl;
 import maquette.common.forms.inputs.InputPicker;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.infrastructure.model.DeploymentConfigs;
 import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 
-import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -77,7 +74,7 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
       var postgresContainerCfg = ContainerConfig
          .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:latest")
          .withEnvironmentVariable("MQ_USERNAME", sandbox.getCreated().getBy())
-         .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.hash())
+         .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.randomHash())
          .withPort(8888)
          .withPort(9085)
          .build();

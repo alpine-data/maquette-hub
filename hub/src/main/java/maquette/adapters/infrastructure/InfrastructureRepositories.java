@@ -1,7 +1,7 @@
 package maquette.adapters.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.typesafe.config.ConfigFactory;
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.InfrastructureRepository;
 
 public final class InfrastructureRepositories {
@@ -11,7 +11,7 @@ public final class InfrastructureRepositories {
    }
 
    public static InfrastructureRepository create(ObjectMapper om) {
-      var config = InfrastructureRepositoryConfiguration.apply();
+      var config = RepositoryConfiguration.apply("infrastructure-repository");
 
       switch (config.getType()) {
          case "filesystem":

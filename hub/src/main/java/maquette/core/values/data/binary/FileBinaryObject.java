@@ -8,27 +8,21 @@ import maquette.common.Operators;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PROTECTED)
-final class ByteArrayBinaryObject implements BinaryObject {
+public final class FileBinaryObject implements BinaryObject {
 
-   private final byte[] bytes;
+   private final Path file;
 
    @Override
    public FileSize getSize() {
-      return FileSize.apply(bytes.length, FileSize.Unit.BYTES);
+      return Operators.suppressExceptions(() -> FileSize.apply(Files.size(file), FileSize.Unit.BYTES));
    }
 
    @Override
-   public CompletableFuture<Done> toFile(Path file) {
-      Operators.suppressExceptions(() -> {
-         try (var os = Files.newOutputStream(file)) {
-            os.write(bytes);
-         }
-      });
-
-
+   public CompletionStage<Done> toFile(Path file) {
+      Operators.suppressExceptions(() -> Files.copy(this.file, file));
       return CompletableFuture.completedFuture(Done.getInstance());
    }
-
 }

@@ -8,10 +8,10 @@ import java.util.concurrent.CompletionStage;
 
 public interface ObjectStore {
 
-   CompletionStage<Done> save(String key, BinaryObject records);
+   CompletionStage<Done> saveObject(String key, BinaryObject binary);
 
-   CompletionStage<Done> delete(String key);
+   CompletionStage<Done> deleteObject(String key);
 
-   CompletionStage<Optional<BinaryObject>> read(String key);
+   CompletionStage<Optional<BinaryObject>> readObject(String key);
 
 }

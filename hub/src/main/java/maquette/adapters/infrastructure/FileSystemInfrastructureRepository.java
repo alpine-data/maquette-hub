@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.infrastructure.model.DeploymentMemento;
 import maquette.core.ports.InfrastructureRepository;
 
@@ -20,20 +21,21 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileSystemInfrastructureRepository implements InfrastructureRepository {
 
-   private final FileSystemInfrastructureRepositoryConfiguration config;
+   private final Path directory;
 
    private final ObjectMapper om;
 
    public static FileSystemInfrastructureRepository apply(
-      FileSystemInfrastructureRepositoryConfiguration config,
+      FileSystemRepositoryConfiguration config,
       ObjectMapper om) {
 
-      Operators.suppressExceptions(() -> Files.createDirectories(config.getDirectory()));
-      return new FileSystemInfrastructureRepository(config, om);
+      var directory = config.getDirectory().resolve("infrastructure");
+      Operators.suppressExceptions(() -> Files.createDirectories(directory));
+      return new FileSystemInfrastructureRepository(directory, om);
    }
 
    private Path getFile(String deploymentName) {
-      return config.getDirectory().resolve(deploymentName + ".json");
+      return directory.resolve(deploymentName + ".json");
    }
 
    @Override
@@ -60,7 +62,7 @@ public final class FileSystemInfrastructureRepository implements InfrastructureR
    @Override
    public CompletionStage<List<DeploymentMemento>> getDeployments() {
       var result = Operators.suppressExceptions(() -> Files
-         .list(config.getDirectory())
+         .list(directory)
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DeploymentMemento.class)),

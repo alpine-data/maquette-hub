@@ -1,4 +1,4 @@
-package maquette.adapters.infrastructure;
+package maquette.config;
 
 import com.typesafe.config.Config;
 import lombok.AllArgsConstructor;
@@ -8,11 +8,11 @@ import java.nio.file.Path;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class FileSystemInfrastructureRepositoryConfiguration {
+public class FileSystemRepositoryConfiguration {
 
    Path directory;
 
-   public static FileSystemInfrastructureRepositoryConfiguration apply(Config config) {
+   public static FileSystemRepositoryConfiguration apply(Config config) {
       var path = config.getString("directory");
       return apply(Path.of(path));
    }

@@ -12,7 +12,6 @@ import maquette.common.forms.FormRow;
 import maquette.common.forms.inputs.Input;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.infrastructure.model.DeploymentConfigs;
 import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
@@ -93,8 +92,8 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
       var postgresContainerCfg = ContainerConfig
          .builder(String.format("mq__%s_%s__psql", project.getId(), sandbox.getId()), "postgres:12.4")
-         .withEnvironmentVariable("POSTGRES_USER", Operators.hash())
-         .withEnvironmentVariable("POSTGRES_PASSWORD", Operators.hash())
+         .withEnvironmentVariable("POSTGRES_USER", Operators.randomHash())
+         .withEnvironmentVariable("POSTGRES_PASSWORD", Operators.randomHash())
          .withEnvironmentVariable("PGDATA", "/data")
          .withPort(5432)
          .build();
@@ -102,7 +101,7 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
       var pgAdminConfig = ContainerConfig
          .builder(String.format("mq__%s_%s__pgadmin", project.getId(), sandbox.getId()), "dpage/pgadmin4:latest")
          .withEnvironmentVariable("PGADMIN_DEFAULT_EMAIL", properties.getPgAdminMail())
-         .withEnvironmentVariable("PGADMIN_DEFAULT_PASSWORD", properties.getPgAdminPassword().length() > 0 ? properties.getPgAdminPassword() : Operators.hash())
+         .withEnvironmentVariable("PGADMIN_DEFAULT_PASSWORD", properties.getPgAdminPassword().length() > 0 ? properties.getPgAdminPassword() : Operators.randomHash())
          .withPort(80)
          .withPort(443)
          .withCommand("server /data")

@@ -1,6 +1,7 @@
 package maquette.adapters.datasources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.DataSourcesRepository;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -11,7 +12,7 @@ public final class DataSourcesRepositories {
    }
 
    public static DataSourcesRepository create(ObjectMapper om) {
-      var config = DataSourcesRepositoryConfiguration.apply();
+      var config = RepositoryConfiguration.apply("sources-repository");
 
       switch (config.getType()) {
          case "filesystem":

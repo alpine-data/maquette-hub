@@ -123,6 +123,15 @@ public final class CommandResource {
                   .withHeader("x-project", "af10ccfc40")
                   .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}/latest/{{FILE}}"))))
             .withItem(Item.apply(
+               "/api/data/collections/:collection/latest/:file",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.DELETE)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}/latest/{{FILE}}"))))
+            .withItem(Item.apply(
                "/api/data/collections/:collection/tags/:tag/:file",
                Request
                   .apply()

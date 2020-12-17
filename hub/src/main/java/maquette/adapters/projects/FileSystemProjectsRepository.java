@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.adapters.companions.MembersFileSystemCompanion;
 import maquette.common.Operators;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.ports.ProjectsRepository;
@@ -26,20 +27,21 @@ public class FileSystemProjectsRepository implements ProjectsRepository {
 
    private static final String PROPERTIES_FILE = "project.json";
 
-   private final FileSystemProjectsRepositoryConfiguration config;
+   private final Path directory;
 
    private final ObjectMapper om;
 
    private final MembersFileSystemCompanion<ProjectMemberRole> membersCompanion;
 
-   public static FileSystemProjectsRepository apply(FileSystemProjectsRepositoryConfiguration config, ObjectMapper om) {
-      var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, ProjectMemberRole.class);
-      Operators.suppressExceptions(() -> Files.createDirectories(config.getDirectory()));
-      return new FileSystemProjectsRepository(config, om, membersCompanion);
+   public static FileSystemProjectsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
+      var directory = config.getDirectory().resolve("projects");
+      var membersCompanion = MembersFileSystemCompanion.apply(directory, om, ProjectMemberRole.class);
+      Operators.suppressExceptions(() -> Files.createDirectories(directory));
+      return new FileSystemProjectsRepository(directory, om, membersCompanion);
    }
 
    private Path getProjectFile(UID id) {
-      var file = config.getDirectory().resolve(id.getValue()).resolve(PROPERTIES_FILE);
+      var file = directory.resolve(id.getValue()).resolve(PROPERTIES_FILE);
       Operators.suppressExceptions(() -> Files.createDirectories(file.getParent()));
       return file;
    }
@@ -75,7 +77,7 @@ public class FileSystemProjectsRepository implements ProjectsRepository {
    @Override
    public CompletionStage<List<ProjectProperties>> getProjects() {
       var result = Operators
-         .suppressExceptions(() -> Files.list(config.getDirectory()))
+         .suppressExceptions(() -> Files.list(directory))
          .filter(Files::isDirectory)
          .map(directory -> directory.resolve(PROPERTIES_FILE))
          .filter(Files::exists)

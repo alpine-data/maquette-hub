@@ -4,8 +4,9 @@ import akka.Done;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.values.data.records.Records;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.ports.RecordsStore;
+import maquette.core.values.data.records.Records;
 import org.apache.avro.generic.GenericData;
 import org.apache.commons.io.FileUtils;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class FileSystemDatasetsStore implements RecordsStore {
 
-   private final FileSystemDatasetsStoreConfiguration config;
+   private final FileSystemRepositoryConfiguration config;
 
    @Override
    public CompletionStage<Done> append(String key, Records records) {

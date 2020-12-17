@@ -7,13 +7,16 @@ import lombok.AllArgsConstructor;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.data.collections.model.CollectionProperties;
+import maquette.core.entities.data.collections.model.CollectionTag;
 import maquette.core.ports.CollectionsRepository;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.binary.BinaryObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,12 +31,19 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
 
    private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
 
-   public static FileSystemCollectionsRepository apply(FileSystemCollectionsRepositoryConfiguration config, ObjectMapper om) {
-      var assetsCompanion = FileSystemDataAssetRepository.apply(CollectionProperties.class, config.getDirectory(), om);
-      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
-      var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
+   private final FileSystemCollectionTagsCompanion tagsCompanion;
 
-      return new FileSystemCollectionsRepository(assetsCompanion, requestsCompanion, membersCompanion);
+   private final FileSystemObjectsStore objectsStore;
+
+   public static FileSystemCollectionsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
+      var directory = config.getDirectory().resolve("shop").resolve("collections");
+      var assetsCompanion = FileSystemDataAssetRepository.apply(CollectionProperties.class, directory, om);
+      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
+      var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
+      var tagsCompanion = FileSystemCollectionTagsCompanion.apply(directory, om);
+      var objectsStore = FileSystemObjectsStore.apply(directory.resolve("_objects"));
+
+      return new FileSystemCollectionsRepository(assetsCompanion, requestsCompanion, membersCompanion, tagsCompanion, objectsStore);
    }
 
    @Override
@@ -101,4 +111,33 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
       return membersCompanion.removeMember(parent, member);
    }
 
+   @Override
+   public CompletionStage<List<CollectionTag>> findAllTags(UID collection) {
+      return tagsCompanion.findAllTags(collection);
+   }
+
+   @Override
+   public CompletionStage<Optional<CollectionTag>> findTagByName(UID collection, String name) {
+      return tagsCompanion.findTagByName(collection, name);
+   }
+
+   @Override
+   public CompletionStage<Done> insertOrUpdateTag(UID collection, CollectionTag tag) {
+      return tagsCompanion.insertOrUpdateTag(collection, tag);
+   }
+
+   @Override
+   public CompletionStage<Done> saveObject(String key, BinaryObject binary) {
+      return objectsStore.saveObject(key, binary);
+   }
+
+   @Override
+   public CompletionStage<Done> deleteObject(String key) {
+      return objectsStore.deleteObject(key);
+   }
+
+   @Override
+   public CompletionStage<Optional<BinaryObject>> readObject(String key) {
+      return objectsStore.readObject(key);
+   }
 }

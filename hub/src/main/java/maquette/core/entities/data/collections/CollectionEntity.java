@@ -8,6 +8,7 @@ import maquette.core.entities.data.collections.model.CollectionProperties;
 import maquette.core.entities.data.datasets.AccessRequests;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.ports.CollectionsRepository;
+import maquette.core.ports.ObjectStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.DataAssetMemberRole;
@@ -30,6 +31,10 @@ public final class CollectionEntity implements DataAssetEntity<CollectionPropert
    @Override
    public AccessRequests<CollectionProperties> getAccessRequests() {
       return AccessRequests.apply(id, repository, this::getProperties);
+   }
+
+   public CollectionFiles getFiles() {
+      return CollectionFiles.apply(id, repository);
    }
 
    @Override
