@@ -24,6 +24,10 @@ public class Collection implements DataAsset<Collection> {
 
    String summary;
 
+   FileEntry.Directory files;
+
+   List<CollectionTag> tags;
+
    DataVisibility visibility;
 
    DataClassification classification;

@@ -1,6 +1,7 @@
 package maquette.adapters.streams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.StreamsRepository;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -11,7 +12,7 @@ public class StreamsRepositories {
    }
 
    public static StreamsRepository create(ObjectMapper om) {
-      var config = StreamsRepositoryConfiguration.apply();
+      var config = RepositoryConfiguration.apply("streams-repository");
 
       switch (config.getType()) {
          case "filesystem":

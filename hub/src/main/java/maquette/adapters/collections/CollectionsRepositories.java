@@ -1,6 +1,7 @@
 package maquette.adapters.collections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.CollectionsRepository;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -11,7 +12,7 @@ public final class CollectionsRepositories {
    }
 
    public static CollectionsRepository create(ObjectMapper om) {
-      var config = CollectionsRepositoryConfiguration.apply();
+      var config = RepositoryConfiguration.apply("collections-repository");
 
       switch (config.getType()) {
          case "filesystem":

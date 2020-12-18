@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.datasources.model.DataSourceAccessType;
+import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
 import maquette.core.entities.data.datasources.model.DataSourceDriver;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -22,29 +23,25 @@ public class UpdateDataSourceDatabasePropertiesCommand implements Command {
 
    String source;
 
-   DataSourceDriver driver;
-
-   String connection;
-
-   String query;
-
-   String username;
-
-   String password;
+   DataSourceDatabaseProperties properties;
 
    DataSourceAccessType accessType;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
+      if (properties == null) {
+         throw new IllegalArgumentException("properties must not be null"); // TODO better error message (domain exception)
+      }
+
       return services
          .getDataSourceServices()
-         .updateDatabaseProperties(user, source, driver, connection, username, password, query, accessType)
+         .updateDatabaseProperties(user, source, properties.getDriver(), properties.getConnection(), properties.getUsername(), properties.getPassword(), properties.getQuery(), accessType)
          .thenApply(done -> MessageResult.apply("Successfully updated data source."));
    }
 
    @Override
    public Command example() {
-      return apply("some-data-source", DataSourceDriver.POSTGRESQL, "//host/database", "SELECT * FROM TABLE", "egon", "secret123", DataSourceAccessType.DIRECT);
+      return apply("some-data-source", DataSourceDatabaseProperties.apply(DataSourceDriver.POSTGRESQL, "//host/database", "SELECT * FROM TABLE", "egon", "secret123"), DataSourceAccessType.DIRECT);
    }
 
 }

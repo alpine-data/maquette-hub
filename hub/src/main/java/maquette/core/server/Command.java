@@ -39,6 +39,7 @@ import java.util.concurrent.CompletionStage;
    {
       // Collections
       @JsonSubTypes.Type(value = CreateCollectionCommand.class, name = "collections create"),
+      @JsonSubTypes.Type(value = CreateCollectionTagCommand.class, name = "collections tag"),
       @JsonSubTypes.Type(value = GetCollectionCommand.class, name = "collections get"),
       @JsonSubTypes.Type(value = ListCollectionsCommand.class, name = "collections list"),
       @JsonSubTypes.Type(value = RemoveCollectionCommand.class, name = "collections remove"),

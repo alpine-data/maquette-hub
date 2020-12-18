@@ -74,7 +74,7 @@ public class TensorflowStackGPU implements Stack<TensorflowStackGPU.Configuratio
       var postgresContainerCfg = ContainerConfig
          .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:latest")
          .withEnvironmentVariable("MQ_USERNAME", sandbox.getCreated().getBy())
-         .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.hash())
+         .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.randomHash())
          .withPort(8888)
          .withPort(9085)
          .build();

@@ -1,6 +1,7 @@
 package maquette.adapters.datasets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import maquette.config.RepositoryConfiguration;
 import maquette.core.ports.DatasetsRepository;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -11,7 +12,7 @@ public final class DatasetsRepositories {
    }
 
    public static DatasetsRepository create(ObjectMapper om) {
-      var config = DatasetsRepositoryConfiguration.apply();
+      var config = RepositoryConfiguration.apply("datasets-repository");
 
       switch (config.getType()) {
          case "filesystem":

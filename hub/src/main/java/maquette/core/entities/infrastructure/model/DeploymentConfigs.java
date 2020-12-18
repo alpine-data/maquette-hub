@@ -11,8 +11,8 @@ public final class DeploymentConfigs {
    public static DeploymentConfig sample(String projectId, String sandboxId) {
       var postgresContainerCfg = ContainerConfig
          .builder(String.format("mq__%s_%s__psql", projectId, sandboxId), "postgres:12.4")
-         .withEnvironmentVariable("POSTGRES_USER", Operators.hash())
-         .withEnvironmentVariable("POSTGRES_PASSWORD", Operators.hash())
+         .withEnvironmentVariable("POSTGRES_USER", Operators.randomHash())
+         .withEnvironmentVariable("POSTGRES_PASSWORD", Operators.randomHash())
          .withEnvironmentVariable("PGDATA", "/data")
          .withPort(5432)
          .build();

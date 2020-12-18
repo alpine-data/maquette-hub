@@ -6,6 +6,7 @@ import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.data.collections.exceptions.CollectionAlreadyExistsException;
 import maquette.core.entities.data.collections.exceptions.CollectionNotFoundException;
 import maquette.core.entities.data.collections.model.CollectionProperties;
+import maquette.core.entities.data.collections.model.FileEntry;
 import maquette.core.ports.CollectionsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -39,7 +40,7 @@ public final class CollectionEntities implements DataAssetEntities<CollectionPro
             } else {
                var created = ActionMetadata.apply(executor);
                var collection = CollectionProperties.apply(
-                  UID.apply(), title, name, summary,
+                  UID.apply(), title, name, summary, FileEntry.Directory.apply(),
                   visibility, classification, personalInformation, created, created);
 
                return repository

@@ -15,7 +15,7 @@ public class Variable {
    String value;
 
    public static Variable apply(String key, String value) {
-      return apply(Operators.hash(), key, value);
+      return apply(Operators.randomHash(), key, value);
    }
 
 }

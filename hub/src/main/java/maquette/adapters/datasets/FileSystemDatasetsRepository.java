@@ -9,6 +9,7 @@ import maquette.adapters.companions.DatasetRevisionsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
 import maquette.common.Operators;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
@@ -29,7 +30,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileSystemDatasetsRepository implements DatasetsRepository {
+public final class FileSystemDatasetsRepository implements DatasetsRepository {
 
    private final FileSystemDataAssetRepository<DatasetProperties> assetsCompanion;
 
@@ -39,11 +40,12 @@ public class FileSystemDatasetsRepository implements DatasetsRepository {
 
    private final DatasetRevisionsFileSystemCompanion revisionsCompanion;
 
-   public static FileSystemDatasetsRepository apply(FileSystemDatasetsRepositoryConfiguration config, ObjectMapper om) {
-      var assetsCompanion = FileSystemDataAssetRepository.apply(DatasetProperties.class, config.getDirectory(), om);
-      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
-      var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
-      var revisionsCompanion = DatasetRevisionsFileSystemCompanion.apply(config.getDirectory(), om);
+   public static FileSystemDatasetsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
+      var directory = config.getDirectory().resolve("shop").resolve("datasets");
+      var assetsCompanion = FileSystemDataAssetRepository.apply(DatasetProperties.class, directory, om);
+      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
+      var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
+      var revisionsCompanion = DatasetRevisionsFileSystemCompanion.apply(directory, om);
 
       return new FileSystemDatasetsRepository(assetsCompanion, requestsCompanion, membersCompanion, revisionsCompanion);
    }

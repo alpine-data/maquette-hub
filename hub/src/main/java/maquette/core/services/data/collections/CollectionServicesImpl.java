@@ -15,6 +15,7 @@ import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,6 +63,41 @@ public final class CollectionServicesImpl implements CollectionServices {
       return entities
          .getByName(name)
          .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation));
+   }
+
+   @Override
+   public CompletionStage<Done> put(User executor, String collection, BinaryObject data, String file, String message) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().put(executor, data, file, message));
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> read(User executor, String collection, String file) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().read(executor, file));
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> read(User executor, String collection, String tag, String file) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().read(executor, tag, file));
+   }
+
+   @Override
+   public CompletionStage<Done> remove(User executor, String collection, String file) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().remove(executor, file));
+   }
+
+   @Override
+   public CompletionStage<Done> tag(User executor, String collection, String tag, String message) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().tag(executor, tag, message));
    }
 
    @Override

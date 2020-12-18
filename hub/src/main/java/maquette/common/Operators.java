@@ -131,7 +131,7 @@ public final class Operators {
         );
     }
 
-    public static String hash() {
+    public static String randomHash() {
         return Hashing
                 .goodFastHash(8)
                 .newHasher()

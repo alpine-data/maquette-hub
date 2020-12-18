@@ -14,6 +14,7 @@ import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +56,58 @@ public final class CollectionServicesSecured implements CollectionServices {
    @Override
    public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
       return delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation);
+   }
+
+   @Override
+   public CompletionStage<Done> put(User executor, String collection, BinaryObject data, String file, String message) {
+      return companion
+         .withAuthorization(
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
+         .thenCompose(ok -> delegate.put(executor, collection, data, file, message));
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> read(User executor, String collection, String file) {
+      return companion
+         .withAuthorization(
+            () -> assets.isSubscribedConsumer(executor, collection),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.read(executor, collection, file));
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> read(User executor, String collection, String tag, String file) {
+      return companion
+         .withAuthorization(
+            () -> assets.isSubscribedConsumer(executor, collection),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.read(executor, collection, tag, file));
+   }
+
+   @Override
+   public CompletionStage<Done> remove(User executor, String collection, String file) {
+      return companion
+         .withAuthorization(
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
+         .thenCompose(ok -> delegate.remove(executor, collection, file));
+   }
+
+   @Override
+   public CompletionStage<Done> tag(User executor, String collection, String tag, String message) {
+      return companion
+         .withAuthorization(
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
+         .thenCompose(ok -> delegate.tag(executor, collection, tag, message));
    }
 
    @Override

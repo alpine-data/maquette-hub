@@ -6,11 +6,13 @@ import maquette.core.values.ActionMetadata;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class TaggedFileEntries {
+public class CollectionTag {
 
    ActionMetadata created;
 
    String name;
+
+   String message;
 
    FileEntry.Directory content;
 

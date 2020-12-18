@@ -33,6 +33,7 @@ public final class MaquetteServer {
         var adminResource = new AdminResource(config);
         var commandResource = new CommandResource(runtime, services);
         var dataResource = new DataResource(services);
+        var collectionDataResource = new CollectionDataResource(services);
 
         runtime.getApp()
                 .before(handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
@@ -41,7 +42,12 @@ public final class MaquetteServer {
                 .get("/api/commands", commandResource.getCommands())
                 .get("/api/commands/examples", commandResource.getCommandExamples())
 
-                .post("/api/data/datasets/:dataset", dataResource.uploadFile())
+                .post("/api/data/collections/:collection", collectionDataResource.upload())
+                .get("/api/data/collections/:collection/latest/:file", collectionDataResource.download())
+                .get("/api/data/collections/:collection/tags/:tag/:file", collectionDataResource.downloadTag())
+                .delete("/api/data/collections/:collection/latest/:file", collectionDataResource.remove())
+
+                .post("/api/data/datasets/:dataset", dataResource.uploadDatasetFile())
                 .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
                 .get("/api/data/datasets/:dataset/:version", dataResource.downloadDatasetVersion())
                 .get("/api/data/datasets/:dataset", dataResource.downloadLatestDatasetVersion())

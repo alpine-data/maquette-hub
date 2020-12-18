@@ -8,6 +8,7 @@ import maquette.core.services.data.MemberServices;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -28,5 +29,18 @@ public interface CollectionServices extends MemberServices, AccessRequestService
    CompletionStage<Done> update(
       User executor, String name, String updatedName, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+
+   /*
+    * File operations
+    */
+   CompletionStage<Done> put(User executor, String collection, BinaryObject data, String file, String message);
+
+   CompletionStage<BinaryObject> read(User executor, String collection, String file);
+
+   CompletionStage<BinaryObject> read(User executor, String collection, String tag, String file);
+
+   CompletionStage<Done> remove(User executor, String collection, String file);
+
+   CompletionStage<Done> tag(User executor, String collection, String tag, String message);
 
 }

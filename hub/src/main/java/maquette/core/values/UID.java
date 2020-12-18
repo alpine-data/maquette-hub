@@ -34,7 +34,7 @@ public class UID {
    }
 
    public static UID apply() {
-      return apply(Operators.hash());
+      return apply(Operators.randomHash());
    }
 
    public static UID apply(int length) {

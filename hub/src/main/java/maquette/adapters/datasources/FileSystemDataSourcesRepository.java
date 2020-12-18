@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
+import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.data.datasources.model.DataSourceProperties;
 import maquette.core.ports.DataSourcesRepository;
 import maquette.core.values.UID;
@@ -28,10 +29,11 @@ public final class FileSystemDataSourcesRepository implements DataSourcesReposit
 
    private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
 
-   public static FileSystemDataSourcesRepository apply(FileSystemDataSourcesRepositoryConfiguration config, ObjectMapper om) {
-      var assetsCompanion = FileSystemDataAssetRepository.apply(DataSourceProperties.class, config.getDirectory(), om);
-      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(config.getDirectory(), om);
-      var membersCompanion = MembersFileSystemCompanion.apply(config.getDirectory(), om, DataAssetMemberRole.class);
+   public static FileSystemDataSourcesRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
+      var directory = config.getDirectory().resolve("shop").resolve("sources");
+      var assetsCompanion = FileSystemDataAssetRepository.apply(DataSourceProperties.class, directory, om);
+      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
+      var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
 
       return new FileSystemDataSourcesRepository(assetsCompanion, requestsCompanion, membersCompanion);
    }
