@@ -2,47 +2,48 @@ from maquette.__mq import EProjectPrivilege, EDatasetPrivilege, EAuthorizationTy
 import maquette as mq
 import pandas as pd
 
-# Create Project
+### Create Project
 mq.project(name="just-a-sample-project", title="Sample Title", summary="This is a summary").create()
 
-# Show a list of all projects
+### Show a list of all projects
 print(mq.projects(to_csv=True))
 
-# add a dataset to your current project
+### add a dataset to your current project
 #mq.dataset('another-dataset').create()
 
-# add a dataset to a specific project
+### add a dataset to a specific project
 #mq.project(name="just-a-sample-project").dataset('another-dataset').create()
 
-# show all datasets of a specific project
-print(mq.project(name="just-a-sample-project").datasets())
+### show all datasets of a specific project
+#print(mq.project(name="just-a-sample-project").datasets())
 
 # show all datasets of the current project
-print(mq.datasets())
+#print(mq.datasets())
 
-# delete the two datasets from above
-mq.dataset('another-dataset').remove()
-mq.project(name="just-a-sample-project").dataset('another-dataset').delete()
+### upload data to the dataset
+#testdf = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
+#print(mq.dataset('another-dataset').put(testdf, "muahahaha"))
 
+### Get a Dataframe from a Dataset
+#df = mq.dataset('another-dataset').get()
+#print(df)
 
-# upload data to the dataset
-# testdf = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
-# dsv = maquette.dataset('another-dataset').put(testdf, "muahahaha")
-# show a list of all datasets of a project
-#print(maquette.datasets('sample-project',True))
+### delete the two datasets from above
+# mq.dataset('another-dataset').remove()
+# mq.project(name="just-a-sample-project").dataset('another-dataset').delete()
 
-# show a list of all revisions of a dataset
-# print(maquette.project('sample-project').dataset('another-dataset').revisions(True))
+# TODO Collection testen
+### Create a new collection
+# mq.project("just-a-sample-project").collection('another-collection').create()
 
-#initialize a DatasetVersion from a Dataset
-# df = maquette.dataset('another-dataset').version().get()
-# print(df)
-#
+### Put a file into the collection
+# ifile = open('maquette/sample/just-a.csv', 'rb')
+# mq.project("just-a-sample-project").collection('another-collection').put(data=ifile, short_description="just a file")
 
-#Delete the project in the end
+# TODO Data Source testen
+### Create a Data Source
+
+# TODO Streams testen
+
+### Delete the project in the end
 print(mq.project(name="just-a-sample-project").remove())
-
-# get a dataset from a project
-# df = maquette.project("sample-project").dataset('some-dataset').version("latest").get()
-# print(df)
-# remove a dataset from a project
