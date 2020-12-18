@@ -29,6 +29,13 @@ def projects():
 @projects.command("create")
 @click.argument('name')
 def projects_init(name):
+    """
+    Initialize a project
+
+    Args:
+        name : name of the project
+
+    """
     status, response = client.command(cmd='projects create', args={'name': name, "title": name})
     if status == 200:
         print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
@@ -41,6 +48,10 @@ def projects_init(name):
 
 @projects.command("ls")
 def projects_list():
+    """
+    Print the list of projects.
+
+    """
     status, response = client.command(cmd='projects list')
     if status == 200:
         table_df = pd.json_normalize(response)
@@ -53,6 +64,13 @@ def projects_list():
 @projects.command("activate")
 @click.argument('name')
 def activate(name):
+    """
+    Activate project.
+
+    Args:
+        name : name of the project
+
+    """
     status, response = client.command(cmd='projects environment', args={'name': name})
     if status == 200:
         env_variables = response['data']
@@ -75,7 +93,9 @@ def activate(name):
 
 @projects.command("deactivate")
 def deactivate():
-    ### Currently only removes the environment variables from the config, no default env needed or available
+    """
+    Currently only removes the currently activate environment variables from the config, no default env needed or available
+    """
     env.remove_process_env()
     print('Removed Environment from Config')
 
@@ -83,6 +103,13 @@ def deactivate():
 @projects.command("rm")
 @click.argument('name')
 def projects_remove(name):
+    """
+    remove a project
+
+    Args:
+        name : name of the project
+
+    """
     status, response = client.command(cmd='projects remove', args={'name': name})
     if status == 200:
         print("You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
