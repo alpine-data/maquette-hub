@@ -6,14 +6,48 @@
 import _ from 'lodash';
 import React from 'react';
 
-import { formatDistance } from 'date-fns';
-
-import { FlexboxGrid, Icon, Table } from 'rsuite';
+import { Button, FlexboxGrid, Icon, Table } from 'rsuite';
 import { Link } from 'react-router-dom';
-// import PropTypes from 'prop-types';
-// import styled from 'styled-components';
+import { timeAgo } from '../../utils/helpers'
 
-function FileExplorer({ directory, header, treeBaseUrl = '/', blobBaseUrl = '/' }) {
+function FilePreview({ directory, selectedFile, blobBaseUrl }) {
+  console.log(directory);
+  const file = directory.children[selectedFile];
+
+  return <div className="mq--file-explorer"  style={{ marginTop: "20px" }}>
+    <div className="mq--file-explorer--header">
+      <b>{ selectedFile }</b>
+    </div>
+    <FlexboxGrid style={{ margin: "20px 10px"}}>
+      <FlexboxGrid.Item colspan={ 6 }>
+        <b>Type: </b> { file.fileType }
+      </FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={ 6 }>
+        <b>Uploaded by: </b> { file.added.by }
+      </FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={ 6 }>
+        <b>Uploaded: </b> { timeAgo(file.added.at) }
+      </FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={ 6 }>
+        <b>Size: </b> { file.size.humanized }
+      </FlexboxGrid.Item>
+
+      <FlexboxGrid.Item colspan={ 24 }>
+        <hr />
+        <div style={{ textAlign: "center" }}>
+          <p className="mq--p-leading">No Preview available for this file type.</p>
+          <Button 
+            href={ `${blobBaseUrl}/${file.name}` } 
+            target="_blank"
+            appearance="ghost" 
+            color="green">Download</Button>
+        </div>
+      </FlexboxGrid.Item>
+    </FlexboxGrid>
+  </div>;
+}
+
+function FileExplorer({ directory, header, selectedFile, treeBaseUrl = '/', blobBaseUrl = '/' }) {
   var data = _
     .chain(directory.children)
     .map((value, key) => _.assign(value, { name: key }))
@@ -46,7 +80,7 @@ function FileExplorer({ directory, header, treeBaseUrl = '/', blobBaseUrl = '/' 
                   } else {
                     return <>
                       <Icon icon="file-o" style={{ marginRight: "10px" }} />
-                      <Link to={ blobBaseUrl + '/' + row.name }>{ row.name }</Link>
+                      <Link to={ treeBaseUrl + '?file=' + row.name }>{ row.name }</Link>
                     </>
                   }
                 }
@@ -69,15 +103,25 @@ function FileExplorer({ directory, header, treeBaseUrl = '/', blobBaseUrl = '/' 
               {
                 row => {
                   const at = _.get(row, 'added.at');
-                  return at && <span className="mq--sub">
-                    { formatDistance(new Date(at), new Date()) }
-                  </span>
+
+                  if (at) {
+                    return <span className="mq--sub">
+                      { timeAgo(_.get(row, 'added.at')) } ago
+                    </span>;
+                  } else {
+                    return <></>;
+                  }
+                  
                 }
               }
             </Table.Cell>
           </Table.Column>
         </Table>
       </div>
+
+      { 
+        selectedFile && <FilePreview directory={ directory } selectedFile={ selectedFile } blobBaseUrl={ blobBaseUrl } />
+      }
     </>;
   }
 }

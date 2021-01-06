@@ -107,14 +107,16 @@ public final class CollectionDataResource {
             .read(user, collection, tag, file)
             .thenCompose(bin -> {
                var tmp = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+
+               ctx.header("Content-Disposition", "attachment; filename=" + file);
+               ctx.header("Content-Type", "application/octet-stream");
+
                return bin
                   .toFile(tmp)
                   .thenApply(done -> DataResource.DeleteOnCloseInputStream.apply(tmp));
             })
             .toCompletableFuture();
 
-         ctx.header("Content-Disposition", "attachment; filename=" + file);
-         ctx.header("Content-Type", "application/octet-stream");
          ctx.result(result);
       });
    }

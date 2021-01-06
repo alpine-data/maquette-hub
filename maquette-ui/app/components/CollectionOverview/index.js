@@ -16,8 +16,10 @@ import { Link } from 'react-router-dom';
 
 import ErrorMessage from '../ErrorMessage';
 
-function Files({ path, tag, treePrefix, ...props}) {
+function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
   const collection = _.get(props, 'match.params.collection');
+  const query = new URLSearchParams(_.get(props, 'location.search') || '');
+  const selectedFile = query.get('file');
 
   const pathElements = _.chain(path).split('/').filter(s => !_.isEmpty(s)).value();
 
@@ -51,6 +53,8 @@ function Files({ path, tag, treePrefix, ...props}) {
         <FileExplorer 
           directory={ data } 
           treeBaseUrl={ treePrefix }
+          blobBaseUrl={ blobPrefix }
+          selectedFile={ selectedFile }
           header={
             <><Link to={ treePrefix }><b>{ collection }</b></Link> / { _.join(pathElements, ' / ') }</>
           } />
@@ -64,12 +68,13 @@ function CollectionOverview(props) {
   const tag = _.get(props, 'match.params.tag') || 'main';
   const url = _.get(props, 'match.url');
   const treePrefix = `/shop/collections/${collection}/tree/${tag}`
+  const blobPrefix = `/api/data/collections/${collection}/tags/${tag}`
 
   if (url.startsWith(treePrefix)) {
     let path = url.substring(_.size(treePrefix));
-    return <Files path={ path } tag={ tag } treePrefix={ treePrefix } { ...props } />
+    return <Files path={ path } tag={ tag } treePrefix={ treePrefix } blobPrefix={ blobPrefix } { ...props } />
   } else {
-    return <Files path="/" tag={ tag } treePrefix={ treePrefix } { ...props } />
+    return <Files path="/" tag={ tag } treePrefix={ treePrefix } blobPrefix={ blobPrefix } { ...props } />
   }
 }
 
