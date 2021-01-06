@@ -6,6 +6,7 @@ import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.ports.common.DataAssetRepository;
+import maquette.core.ports.common.HasAccessLogs;
 import maquette.core.ports.common.HasDataAccessRequests;
 import maquette.core.ports.common.HasMembers;
 import maquette.core.values.UID;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-public interface DatasetsRepository extends DataAssetRepository<DatasetProperties>, HasDataAccessRequests, HasMembers<DataAssetMemberRole> {
+public interface DatasetsRepository extends DataAssetRepository<DatasetProperties>, HasDataAccessRequests, HasMembers<DataAssetMemberRole>, HasAccessLogs {
 
    CompletionStage<List<Revision>> findAllRevisions(UID dataset);
 

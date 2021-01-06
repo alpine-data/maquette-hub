@@ -4,11 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
-import maquette.adapters.companions.DatasetRevisionsFileSystemCompanion;
-import maquette.adapters.companions.FileSystemDataAssetRepository;
-import maquette.adapters.companions.MembersFileSystemCompanion;
-import maquette.common.Operators;
+import maquette.adapters.companions.*;
 import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
@@ -20,17 +16,15 @@ import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileSystemDatasetsRepository implements DatasetsRepository {
+
 
    private final FileSystemDataAssetRepository<DatasetProperties> assetsCompanion;
 
@@ -40,14 +34,17 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
 
    private final DatasetRevisionsFileSystemCompanion revisionsCompanion;
 
+   private final AccessLogsFileSystemCompanion logsCompanion;
+
    public static FileSystemDatasetsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
       var directory = config.getDirectory().resolve("shop").resolve("datasets");
       var assetsCompanion = FileSystemDataAssetRepository.apply(DatasetProperties.class, directory, om);
       var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
       var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
       var revisionsCompanion = DatasetRevisionsFileSystemCompanion.apply(directory, om);
+      var logsCompanion = AccessLogsFileSystemCompanion.apply(directory, om);
 
-      return new FileSystemDatasetsRepository(assetsCompanion, requestsCompanion, membersCompanion, revisionsCompanion);
+      return new FileSystemDatasetsRepository(assetsCompanion, requestsCompanion, membersCompanion, revisionsCompanion, logsCompanion);
    }
 
    @Override
@@ -139,4 +136,30 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
    public CompletionStage<Done> removeMember(UID parent, Authorization member) {
       return membersCompanion.removeMember(parent, member);
    }
+
+   @Override
+   public CompletionStage<Done> appendAccessLogEntry(DataAccessLogEntryProperties entry) {
+      return logsCompanion.appendAccessLogEntry(entry);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByAsset(UID asset) {
+      return logsCompanion.findAccessLogsByAsset(asset);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByUser(String userId) {
+      return logsCompanion.findAccessLogsByUser(userId);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByProject(UID project) {
+      return logsCompanion.findAccessLogsByProject(project);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAllAccessLogs() {
+      return logsCompanion.findAllAccessLogs();
+   }
+
 }
