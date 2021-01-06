@@ -5,7 +5,7 @@
  */
 
 import _ from 'lodash';
-import React, { useState, version } from 'react';
+import React, { useState } from 'react';
 import { Icon, Timeline } from 'rsuite';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -49,7 +49,7 @@ function VersionsTimeline({ dataset, versions, activeVersion, onSelectVersion })
     }
 
     { 
-      _.size(remainingVersions) > 0 && <Timeline.Item dot={ <Icon icon="bars" size="2x" /> }>
+      _.size(remainingVersions) > 0 && <Timeline.Item key='_separator' dot={ <Icon icon="bars" size="2x" /> }>
         <b>{ _.size(remainingVersions) } more versions</b>
         <p>
           <a href="#" onClick={ () => setCollapsed(!collapsed) }>

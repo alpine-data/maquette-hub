@@ -9,11 +9,7 @@ public class SampleDatasetConsumerApplication {
 
     public static void main(String ...args) {
         var system = ActorSystem.apply();
-        var config = MaquetteConfiguration
-            .apply()
-            .withBaseUrl("http://localhost:9042")
-            .withUser("alice")
-            .withToken(null);
+        var config = MaquetteConfiguration.apply();
         var dataset = "some-dataset";
         var countries = Maquette.apply(config).datasets(dataset).createSource(Country.class);
 

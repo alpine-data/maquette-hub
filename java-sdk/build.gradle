@@ -23,6 +23,7 @@ dependencies {
     compile group: 'com.jayway.jsonpath', name: 'json-path', version: '2.4.0'
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.0'
     compile group: 'com.typesafe.akka', name: 'akka-stream_2.13', version: '2.6.10'
+    compile group: 'com.lightbend.akka', name: 'akka-stream-alpakka-file_2.13', version: '2.0.2'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'

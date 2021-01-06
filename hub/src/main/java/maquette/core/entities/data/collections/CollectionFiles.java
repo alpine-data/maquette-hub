@@ -15,6 +15,7 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;
+import org.apache.commons.io.FilenameUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -37,12 +38,13 @@ public final class CollectionFiles {
             .thenApply(p -> {
                var files = p
                   .getFiles()
-                  .withFile(file, FileEntry.RegularFile.apply(key, data.getSize(), message, ActionMetadata.apply(executor)));
+                  .withFile(file, FileEntry.RegularFile.apply(key, data.getSize(), mapFilenameToFileType(file), message, ActionMetadata.apply(executor)));
 
                return p
                   .withFiles(files)
                   .withUpdated(ActionMetadata.apply(executor));
-            });
+            })
+            .thenCompose(repository::insertOrUpdateAsset);
 
          return Operators.compose(insertCS, updateFilesCS, (insert, updateFile) -> Done.getInstance());
       });
@@ -57,13 +59,17 @@ public final class CollectionFiles {
    }
 
    public CompletionStage<BinaryObject> read(User executor, String tag, String file) {
-      return repository
-         .findTagByName(id, tag)
-         .thenApply(maybeTag -> maybeTag.orElseThrow(() -> TagNotFoundException.withName(tag)))
-         .thenApply(t -> t.getContent().getFile(file))
-         .thenApply(maybeFile -> maybeFile.orElseThrow(() -> FileNotFoundException.withName(file)))
-         .thenCompose(f -> repository.readObject(f.getKey()))
-         .thenApply(maybeObject -> maybeObject.orElseThrow(() -> FileNotFoundException.withName(file)));
+      if (tag.equals("main")) {
+         return read(executor, file);
+      } else {
+         return repository
+            .findTagByName(id, tag)
+            .thenApply(maybeTag -> maybeTag.orElseThrow(() -> TagNotFoundException.withName(tag)))
+            .thenApply(t -> t.getContent().getFile(file))
+            .thenApply(maybeFile -> maybeFile.orElseThrow(() -> FileNotFoundException.withName(file)))
+            .thenCompose(f -> repository.readObject(f.getKey()))
+            .thenApply(maybeObject -> maybeObject.orElseThrow(() -> FileNotFoundException.withName(file)));
+      }
    }
 
    public CompletionStage<Done> remove(User executor, String file) {
@@ -96,23 +102,26 @@ public final class CollectionFiles {
    }
 
    public CompletionStage<Done> tag(User executor, String name, String message) {
-      // TODO validate name
-      var existingTagCS = repository.findTagByName(id, name);
-      var propertiesCS = getProperties();
+      if (name.equals("main")) {
+         return CompletableFuture.failedFuture(TagAlreadyExistsException.withName(name));
+      } else {
+         var existingTagCS = repository.findTagByName(id, name);
+         var propertiesCS = getProperties();
 
-      return Operators
-         .compose(existingTagCS, propertiesCS, (existingTag, properties) -> {
-            if (existingTag.isPresent()) {
-               return CompletableFuture.<Done>failedFuture(TagAlreadyExistsException.withName(name));
-            } else {
-               var tag = CollectionTag.apply(ActionMetadata.apply(executor), name, message, properties.getFiles());
-               var insert = repository.insertOrUpdateTag(id, tag);
-               var updated = repository.insertOrUpdateAsset(properties.withUpdated(ActionMetadata.apply(executor)));
+         return Operators
+            .compose(existingTagCS, propertiesCS, (existingTag, properties) -> {
+               if (existingTag.isPresent()) {
+                  return CompletableFuture.<Done>failedFuture(TagAlreadyExistsException.withName(name));
+               } else {
+                  var tag = CollectionTag.apply(ActionMetadata.apply(executor), name, message, properties.getFiles());
+                  var insert = repository.insertOrUpdateTag(id, tag);
+                  var updated = repository.insertOrUpdateAsset(properties.withUpdated(ActionMetadata.apply(executor)));
 
-               return Operators.compose(insert, updated, (i, u) -> Done.getInstance());
-            }
-         })
-         .thenCompose(d -> d);
+                  return Operators.compose(insert, updated, (i, u) -> Done.getInstance());
+               }
+            })
+            .thenCompose(d -> d);
+      }
    }
 
    public CompletionStage<List<CollectionTag>> getTags() {
@@ -129,6 +138,26 @@ public final class CollectionFiles {
                throw CollectionNotFoundException.withId(id);
             }
          });
+   }
+
+   private FileEntry.FileType mapFilenameToFileType(String filename) {
+      var ext = FilenameUtils.getExtension(filename);
+
+      switch (ext.toLowerCase()) {
+         case "jpg":
+         case "png":
+         case "gif":
+            return FileEntry.FileType.IMAGE;
+         case "txt":
+         case "py":
+         case "json":
+         case "java":
+         case "xml":
+         case "md":
+            return FileEntry.FileType.TEXT;
+         default:
+            return FileEntry.FileType.BINARY;
+      }
    }
 
 }

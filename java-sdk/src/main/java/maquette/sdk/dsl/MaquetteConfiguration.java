@@ -1,9 +1,20 @@
 package maquette.sdk.dsl;
 
+import akka.Done;
+import akka.japi.Function;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import okhttp3.Request;
+import maquette.common.ObjectMapperFactory;
+import maquette.common.Operators;
+import maquette.sdk.commands.Command;
+import maquette.sdk.model.exceptions.MaquetteRequestException;
+import okhttp3.*;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @Value
 @With
@@ -16,8 +27,12 @@ public class MaquetteConfiguration {
 
     String token;
 
+    ObjectMapper om;
+
+    OkHttpClient client;
+
     public static MaquetteConfiguration apply() {
-        return apply("http://localhost:8080/api/v1", "hippo", null);
+        return apply("http://localhost:9042", "alice", null, ObjectMapperFactory.apply().create(true), new OkHttpClient());
     }
 
     public Request.Builder createRequestFor(String url, Object ...args) {
@@ -30,7 +45,31 @@ public class MaquetteConfiguration {
         }
 
         return builder;
+    }
 
+    public CompletionStage<Done> executeCommand(Command command) {
+        return executeCommand(command, s -> CompletableFuture.completedFuture(Done.getInstance()));
+    }
+
+    public <T> T executeCommand(Command command, Function<String, T> mapResponse) {
+        var json = Operators.suppressExceptions(() -> om.writeValueAsString(command));
+
+        var request = createRequestFor("/api/commands")
+           .post(RequestBody.create(json, MediaType.parse("application/json; charset=utf-8")))
+           .build();
+
+        var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+
+        return Operators.suppressExceptions(() -> {
+            ResponseBody body = response.body();
+
+            if (response.isSuccessful() && body != null) {
+                var jsonResponse = body.string();
+                return mapResponse.apply(jsonResponse);
+            } else {
+                throw MaquetteRequestException.apply(request, response);
+            }
+        });
     }
 
 }

@@ -7,16 +7,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'rsuite';
-// import styled from 'styled-components';
 
-function ErrorMessage({ title, message, onDismiss }) {
+function ErrorMessage({ title, message, onDismiss, dismissLabel = 'Dismiss' }) {
   return <div className="mq--error-message">
       { title && <><b>{ title }</b><br /></> }
       <p>
         {message}
       </p>
 
-      { onDismiss && <Button appearance="ghost" onClick={ onDismiss }>Dismiss</Button> }
+      { onDismiss && <Button appearance="ghost" onClick={ onDismiss }>{ dismissLabel }</Button> }
     </div>;
 }
 

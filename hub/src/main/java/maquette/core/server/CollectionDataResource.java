@@ -32,6 +32,7 @@ public final class CollectionDataResource {
          var uploaded = Objects.requireNonNull(ctx.uploadedFile("file"));
          var collection = ctx.pathParam("collection");
          var message = ctx.formParam("message", "");
+         var name = ctx.formParam("name", uploaded.getFilename());
 
          var file = Files.createTempFile("maquette", "upload");
          FileUtils.copyInputStreamToFile(uploaded.getContent(), file.toFile());
@@ -39,7 +40,7 @@ public final class CollectionDataResource {
          var bin = BinaryObjects.fromFile(file);
          var result = services
             .getCollectionServices()
-            .put(user, collection, bin, uploaded.getFilename(), message)
+            .put(user, collection, bin, name, message)
             .thenApply(done -> {
                Operators.suppressExceptions(() -> Files.deleteIfExists(file));
                return "Successfully uploaded data";

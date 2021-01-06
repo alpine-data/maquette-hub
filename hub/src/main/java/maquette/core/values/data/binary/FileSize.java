@@ -1,10 +1,13 @@
 package maquette.core.values.data.binary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-@Value
 @With
+@Value
+@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 @AllArgsConstructor(staticName = "apply")
 public class FileSize {
@@ -17,6 +20,10 @@ public class FileSize {
 
    long size;
    Unit unit;
+
+   public static FileSize empty() {
+      return apply(0, Unit.BYTES);
+   }
 
    @JsonIgnore
    public long getBytes() {
@@ -47,7 +54,11 @@ public class FileSize {
       }
    }
 
-   @JsonIgnore
+   public FileSize add(FileSize other) {
+      return FileSize.apply(this.getBytes() + other.getBytes(), Unit.BYTES);
+   }
+
+   @JsonProperty("humanized")
    public String toSizeAdaptedString() {
       Unit unit = Unit.BYTES;
       double size = getBytes();

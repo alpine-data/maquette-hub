@@ -19,11 +19,7 @@ public class SampleDataSourceConsumer {
 
    public static void main(String... args) {
       var system = ActorSystem.apply();
-      var config = MaquetteConfiguration
-         .apply()
-         .withBaseUrl("http://localhost:9042")
-         .withUser("alice")
-         .withToken(null);
+      var config = MaquetteConfiguration.apply();
 
       Maquette
          .apply(config)

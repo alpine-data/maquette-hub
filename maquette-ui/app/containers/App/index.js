@@ -57,6 +57,8 @@ export function App({ app, onUserChanged }) {
         <Route path="/shop/:tab" exact component={DataShop} />
 
         <Route path="/shop/collections/:collection" exact component={Collection} />
+        <Route path="/shop/collections/:collection/tree/:tag/:remaining" component={Collection}  />
+        <Route path="/shop/collections/:collection/tree/:tag" component={Collection}  />
         <Route path="/shop/collections/:collection/:tab" exact component={Collection} />
         <Route path="/shop/collections/:collection/:tab/:id" exact component={Collection} />
 
