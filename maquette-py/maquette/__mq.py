@@ -74,6 +74,9 @@ class EPersonalInformation(str, Enum):
 # TODO Doku (of course)
 
 class DataAsset:
+    """
+
+    """
     project: str = None
     data_asset_name: str = None
 
@@ -97,6 +100,11 @@ class DataAsset:
         self.data_asset_type = data_asset_type
 
     def create(self):
+        """
+
+        Returns:
+
+        """
         client.command(cmd='{}s create'.format(self.data_asset_type),
                        args={'name': self.data_asset_name, 'title': self.title, 'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
@@ -105,6 +113,14 @@ class DataAsset:
         return self
 
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='{}s update'.format(self.data_asset_type),
                        args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
@@ -113,16 +129,24 @@ class DataAsset:
         return self
 
     def remove(self):
+        """
+
+        """
         client.command(cmd='{}s remove'.format(self.data_asset_type),
-                       args={'name': self.data_asset_name},
+                       args={'{}'.format(self.data_asset_type): self.data_asset_name},
                        headers={'x-project': self.project})
 
     def delete(self):
+        """
+
+        """
         self.remove()
 
 
 class Collection(DataAsset):
+    """
 
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
@@ -133,7 +157,15 @@ class Collection(DataAsset):
                          EDataAssetType.COLLECTION)
 
     def put(self, data, short_description: str):
+        """
 
+        Args:
+            data:
+            short_description:
+
+        Returns:
+
+        """
         resp = client.post('data/collections/' + self.data_asset_name, files={
             'target': os.path.basename(data.name),
             'file': (short_description, data, 'application/octet-stream', {'Content-Type': 'application/octet-stream'})
@@ -142,6 +174,15 @@ class Collection(DataAsset):
         return json.loads(resp.content)["version"]
 
     def get(self, filename, tag: str = None):
+        """
+
+        Args:
+            filename:
+            tag:
+
+        Returns:
+
+        """
         if tag:
             resp = client.get('data/collections/' + self.data_asset_name + '/tags/' + tag + '/' + filename)
         else:
@@ -150,12 +191,14 @@ class Collection(DataAsset):
 
 
 class Source(DataAsset):
+    """
 
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE, access_type: EAccessType = EAccessType.DIRECT,
-                 db_properties: dict = {}, project_name: str = None):
+                 db_properties: dict = None, project_name: str = None):
         self.access_type = access_type
         self.db_properties = db_properties
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
@@ -163,6 +206,11 @@ class Source(DataAsset):
                          EDataAssetType.SOURCE)
 
     def create(self):
+        """
+
+        Returns:
+
+        """
         client.command(cmd='sources create'.format(self.data_asset_type),
                        args={'name': self.data_asset_name, 'title': self.title, 'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
@@ -172,6 +220,14 @@ class Source(DataAsset):
         return self
 
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='sources update'.format(self.data_asset_type),
                        args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
@@ -181,12 +237,19 @@ class Source(DataAsset):
         return self
 
     def get(self) -> pd.DataFrame:
+        """
+
+        Returns:
+
+        """
         resp = client.get('data/sources/' + self.data_asset_name)
         return pandavro.from_avro(BytesIO(resp.content))
 
 
 class Dataset(DataAsset):
+    """
 
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
@@ -197,6 +260,15 @@ class Dataset(DataAsset):
                          EDataAssetType.DATASET)
 
     def put(self, data: pd.DataFrame, short_description: str):
+        """
+
+        Args:
+            data:
+            short_description:
+
+        Returns:
+
+        """
         ds = self.data_asset_name
 
         file: BytesIO = BytesIO()
@@ -211,6 +283,14 @@ class Dataset(DataAsset):
         return json.loads(resp.content)["version"]
 
     def get(self, version: str = None) -> pd.DataFrame:
+        """
+
+        Args:
+            version:
+
+        Returns:
+
+        """
         ds = self.data_asset_name
         if version:
             resp = client.get('data/datasets/' + ds + '/' + version)
@@ -220,21 +300,34 @@ class Dataset(DataAsset):
 
 
 class Stream(DataAsset):
+    """
 
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
-                 schema: dict = {},
-                 retention: dict = {"unit": ERetentionUnit.HOURS, "retention": 6},
+                 schema: dict = None,
+                 retention: dict = None,
                  project_name: str = None):
         self.schema = schema
-        self.retention = retention
+        if retention:
+            self.retention = retention
+        else:
+            self.retention = {"unit": ERetentionUnit.HOURS, "retention": 6}
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
                          project_name,
                          EDataAssetType.DATASET)
 
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='sources update'.format(self.data_asset_type),
                        args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
@@ -244,11 +337,19 @@ class Stream(DataAsset):
         return self
 
     def get(self) -> dict:
+        """
+
+        Returns:
+
+        """
         resp = client.get('data/streams/' + self.data_asset_name)
         return json.loads(resp.content)
 
 
 class Project:
+    """
+
+    """
     __name: str = None
     __title: str = None
     __summary: str = None
@@ -262,24 +363,55 @@ class Project:
             self.__title = name
 
     def create(self) -> 'Project':
+        """
+
+        Returns:
+
+        """
         client.command(cmd='projects create',
                        args={'title': self.__title, 'name': self.__name, 'summary': self.__summary})
         return self
 
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='projects update', args={'project': to_update, 'title': self.__title, 'name': self.__name,
                                                     'summary': self.__summary})
         return self
 
     def remove(self):
+        """
+
+        Returns:
+
+        """
         resp = client.command(cmd='projects remove',
                               args={'name': self.__name})
         return resp[1]
 
     def delete(self):
+        """
+
+        Returns:
+
+        """
         return self.remove()
 
     def datasets(self, to_csv=False):
+        """
+
+        Args:
+            to_csv:
+
+        Returns:
+
+        """
         if to_csv:
             resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv',
                                                                 'x-project': self.__name})
@@ -290,6 +422,19 @@ class Project:
 
     def dataset(self, dataset_name: str = None, dataset_title: str = None, summary: str = None,
                 visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
+        """
+
+        Args:
+            dataset_name:
+            dataset_title:
+            summary:
+            visibility:
+            classification:
+            personal_information:
+
+        Returns:
+
+        """
         args = [arg for arg in
                 [dataset_name, dataset_title, summary, visibility, classification, personal_information] if
                 arg]
@@ -297,6 +442,19 @@ class Project:
 
     def collection(self, collection_name: str = None, collection_title: str = None, summary: str = None,
                    visibility: str = None, classification: str = None, personal_information: str = None) -> Collection:
+        """
+
+        Args:
+            collection_name:
+            collection_title:
+            summary:
+            visibility:
+            classification:
+            personal_information:
+
+        Returns:
+
+        """
         args = [arg for arg in
                 [collection_name, collection_title, summary, visibility, classification, personal_information] if
                 arg]
@@ -320,6 +478,19 @@ def project(name: str, title: str = None, summary: str = None) -> Project:
 
 def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = None,
             visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
+    """
+
+    Args:
+        dataset_name:
+        dataset_title:
+        summary:
+        visibility:
+        classification:
+        personal_information:
+
+    Returns:
+
+    """
     args = [arg for arg in
             [dataset_title, summary, visibility, classification, personal_information] if
             arg]
@@ -328,6 +499,19 @@ def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = 
 
 def collection(collection_name: str = None, collection_title: str = None, summary: str = None,
                visibility: str = None, classification: str = None, personal_information: str = None) -> Collection:
+    """
+
+    Args:
+        collection_name:
+        collection_title:
+        summary:
+        visibility:
+        classification:
+        personal_information:
+
+    Returns:
+
+    """
     args = [arg for arg in
             [collection_title, summary, visibility, classification, personal_information] if
             arg]
