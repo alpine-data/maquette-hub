@@ -16,13 +16,16 @@ public class ServerConfiguration {
 
     String userRolesHeaderName;
 
+    String projectHeaderName;
+
     public static ServerConfiguration apply(Config config) {
         var port = config.getInt("port");
         var host = config.getString("host");
         var userIdHeaderName = config.getString("user-id-header-name");
         var userRolesHeaderName = config.getString("user-roles-header-name");
+        var projectHeaderName = config.getString("project-header-name");
 
-        return apply(port, host, userIdHeaderName, userRolesHeaderName);
+        return apply(port, host, userIdHeaderName, userRolesHeaderName, projectHeaderName);
     }
 
 }

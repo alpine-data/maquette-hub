@@ -25,7 +25,6 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileSystemDatasetsRepository implements DatasetsRepository {
 
-
    private final FileSystemDataAssetRepository<DatasetProperties> assetsCompanion;
 
    private final DataAccessRequestsFileSystemCompanion requestsCompanion;

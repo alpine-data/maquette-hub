@@ -45,9 +45,13 @@ public interface DatasetServices extends MemberServices, AccessRequestServices  
 
    CompletionStage<Revision> createRevision(User executor, String dataset, Schema schema);
 
+   CompletionStage<Records> download(User executor, UID project, String dataset, DatasetVersion version);
+
    CompletionStage<Records> download(User executor, String dataset, DatasetVersion version);
 
    CompletionStage<Records> download(User executor, String dataset);
+
+   CompletionStage<Records> download(User executor, UID project, String dataset);
 
    CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records);
 

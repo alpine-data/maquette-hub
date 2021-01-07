@@ -3,6 +3,7 @@ package maquette.core.entities.data.datasets;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
@@ -36,6 +37,10 @@ public final class DatasetEntity implements DataAssetEntity<DatasetProperties> {
 
    public AccessRequests<DatasetProperties> getAccessRequests() {
       return AccessRequests.apply(id, repository, this::getProperties);
+   }
+
+   public AccessLogsCompanion getAccessLogs() {
+      return AccessLogsCompanion.apply(id, repository);
    }
 
    public Revisions getRevisions() {
