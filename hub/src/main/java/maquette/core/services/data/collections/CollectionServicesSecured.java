@@ -59,6 +59,26 @@ public final class CollectionServicesSecured implements CollectionServices {
    }
 
    @Override
+   public CompletionStage<List<String>> listFiles(User executor, String collection) {
+      return companion
+         .withAuthorization(
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.listFiles(executor, collection));
+   }
+
+   @Override
+   public CompletionStage<List<String>> listFiles(User executor, String collection, String tag) {
+      return companion
+         .withAuthorization(
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.listFiles(executor, collection, tag));
+   }
+
+   @Override
    public CompletionStage<Done> put(User executor, String collection, BinaryObject data, String file, String message) {
       return companion
          .withAuthorization(
@@ -66,6 +86,23 @@ public final class CollectionServicesSecured implements CollectionServices {
             () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
          .thenCompose(ok -> delegate.put(executor, collection, data, file, message));
+   }
+
+   @Override
+   public CompletionStage<Done> putAll(User executor, String collection, BinaryObject data, String basePath, String message) {
+      // TODO
+      return delegate.putAll(executor, collection, data, basePath, message);
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> readAll(User executor, String collection) {
+      // TODO
+      return delegate.readAll(executor, collection);
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> readAll(User executor, String collection, String tag) {
+      return delegate.readAll(executor, collection, tag);
    }
 
    @Override

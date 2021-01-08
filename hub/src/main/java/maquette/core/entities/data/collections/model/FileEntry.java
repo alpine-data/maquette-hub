@@ -48,6 +48,7 @@ public abstract class FileEntry {
       public Optional<RegularFile> getLastModified() {
          return files()
             .stream()
+            .map(NamedRegularFile::getFile)
             .max(Comparator.comparing(f -> f.getAdded().getAt()));
       }
 
@@ -61,29 +62,54 @@ public abstract class FileEntry {
          var result = FileSize.empty();
 
          for (var f : files()) {
-            result = result.add(f.size);
+            result = result.add(f.getFile().size);
          }
 
          return result;
       }
 
       @JsonIgnore
-      public List<RegularFile> files() {
-         var result = Lists.<RegularFile>newArrayList();
+      public List<String> fileNames() {
+         var result = Lists.<String>newArrayList();
+
+         for (var entry : children.entrySet()) {
+            if (entry.getValue() instanceof  Directory) {
+               var children = ((Directory) entry.getValue())
+                  .fileNames()
+                  .stream()
+                  .map(file -> entry.getKey() + "/" + file)
+                  .collect(Collectors.toList());
+
+               result.addAll(children);
+            } else {
+               result.add(entry.getKey());
+            }
+         }
+
+         result.sort(Comparator.naturalOrder());
+
+         return result;
+      }
+
+      @JsonIgnore
+      public List<NamedRegularFile> files() {
+         var result = Lists.<NamedRegularFile>newArrayList();
 
          for (var entry : children.entrySet()) {
             if (entry.getValue() instanceof Directory) {
                var children = ((Directory) entry.getValue())
                   .files()
                   .stream()
-                  .map(file -> file.withKey(entry.getKey() + "/" + file.getKey()))
+                  .map(file -> file.withName(entry.getKey() + "/" + file.getName()))
                   .collect(Collectors.toList());
 
                result.addAll(children);
             } else {
-               result.add((RegularFile) entry.getValue());
+               result.add(NamedRegularFile.apply(entry.getKey(), (RegularFile) entry.getValue()));
             }
          }
+
+         result.sort(Comparator.comparing(NamedRegularFile::getName, Comparator.naturalOrder()));
 
          return result;
       }
@@ -255,6 +281,17 @@ public abstract class FileEntry {
       String message;
 
       ActionMetadata added;
+
+   }
+
+   @With
+   @Value
+   @AllArgsConstructor(staticName = "apply")
+   public static class NamedRegularFile {
+
+      String name;
+
+      RegularFile file;
 
    }
 

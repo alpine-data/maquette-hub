@@ -40,6 +40,8 @@ public class FileEntriesUTest {
          .contains("file-1")
          .contains("file-2")
          .contains("bar-0");
+
+      dirUpdated.files().forEach(System.out::println);
    }
 
 }

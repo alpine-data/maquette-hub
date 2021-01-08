@@ -11,10 +11,15 @@ public class SampleDatasetProducerApplication {
     public static void main(String ...args) throws ExecutionException, InterruptedException {
         final ActorSystem system = ActorSystem.apply("sample");
 
+        var sink = Maquette
+           .apply()
+           .datasets("some-dataset")
+           .createSink(Country.class);
+
         Source
             .range(1,100)
             .mapConcat(i -> Country.getSample())
-            .runWith(Maquette.apply().datasets("some-dataset").createSink(Country.class), system)
+            .runWith(sink, system)
             .thenRun(system::terminate)
             .toCompletableFuture()
             .get();

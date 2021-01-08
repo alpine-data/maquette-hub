@@ -17,6 +17,19 @@ public class SampleDataSourceConsumer {
 
    }
 
+   @Data
+   public static class Store {
+
+      int store;
+
+      String city;
+
+      String state;
+
+      String country;
+
+   }
+
    public static void main(String... args) {
       var system = ActorSystem.apply();
       var config = MaquetteConfiguration.apply();
@@ -24,7 +37,7 @@ public class SampleDataSourceConsumer {
       Maquette
          .apply(config)
          .source("users")
-         .createSource(User.class)
+         .createSource(Store.class)
          .map(c -> {
             System.out.println(c);
             return c;
