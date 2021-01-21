@@ -6,8 +6,6 @@ The system context depicts the high-level context of the Maquette DSML, includin
 
 ![System Context](./resources/maquette--context.png)
 
----
-
 ## System Containers
 
 The container diagram shows the high-level shape of the software architecture and how responsibilities are distributed across itself. Each container shows its major technology choice and the flow of control between the containers.
