@@ -2,7 +2,7 @@
 
 ## System Context
 
-![System Context](./resources/system-context.svg)
+![System Context](./resources/system-context.png)
 
 ---
 
