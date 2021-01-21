@@ -12,5 +12,16 @@ The container diagram shows the high-level shape of the software architecture an
 
 ![System Containers](./resources/maquette--containers.png)
 
+## Maquette Hub
+
+### Technical Layers
+
+![Maquette Hub Layers](./resources/maquette--hub--layers.png)
+
+### Domains
+
+![Maquette Hub Domains](./resources/maquette--hub--domains.png)
+
+
 ---
 Drawings are created with [Excalidraw](https://excalidraw.com/). The SVG files used in the documentation can be loaded into Excalidraw for further editing.
