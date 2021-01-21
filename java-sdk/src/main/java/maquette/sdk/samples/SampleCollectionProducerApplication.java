@@ -11,7 +11,7 @@ public class SampleCollectionProducerApplication {
    public static void main(String... args) {
       var system = ActorSystem.apply();
       var directory = (new File("/Users/michaelwellner/Downloads/sample-collection")).toPath();
-      var collection = Maquette.apply().collections("some-collection");
+      var collection = Maquette.apply().collections("some-dataset");
 
       Directory
          .walk(directory)
