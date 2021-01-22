@@ -48,6 +48,8 @@ function FilePreview({ directory, selectedFile, blobBaseUrl }) {
 }
 
 function FileExplorer({ directory, header, selectedFile, treeBaseUrl = '/', blobBaseUrl = '/' }) {
+  console.log(directory);
+  
   var data = _
     .chain(directory.children)
     .map((value, key) => _.assign(value, { name: key }))
