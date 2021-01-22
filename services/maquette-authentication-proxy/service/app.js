@@ -34,7 +34,7 @@ app.post('/impersonate', express.json(), function (req, res) {
     var user = _.find(users, user => user.username === req.body.username) || { username: 'homer', name: 'Homer Simpson', roles: [] };
     console.log(user);
     req.session.user = user;
-    res.sendStatus(200);
+    res.sendStatus(204);
 });
 
 app.get('/logout', function (req, res) {

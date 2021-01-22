@@ -4,17 +4,24 @@
  *
  */
 
-import { CHANGE_USER, DEFAULT_ACTION } from './constants';
+import { CHANGED_USER, CHANGE_USER, INITIALIZE } from './constants';
 
 export function changeUser(id) {
   return {
     type: CHANGE_USER,
     id
-  }
+  };
 }
 
-export function defaultAction() {
+export function changedUser(user) {
   return {
-    type: DEFAULT_ACTION,
+    type: CHANGED_USER,
+    user
+  };
+}
+
+export function initialize() {
+  return {
+    type: INITIALIZE
   };
 }

@@ -5,11 +5,11 @@ import { makeSelectCurrentUser } from '../App/selectors';
 
 import { failed, fetched, load } from './actions';
 import { LOAD } from './constants';
-import { CHANGE_USER } from '../App/constants';
+import { CHANGED_USER } from '../App/constants';
 
 import { command } from 'utils/request';
 
-export function* onChangeUser() {
+export function* onChangedUser() {
   try {
     const project = yield select(state => _.get(state, 'sandbox.keys.project'));
     const sandbox = yield select(state => _.get(state, 'sandbox.keys.sandbox'));
@@ -32,6 +32,6 @@ export function* onLoad(action) {
 
 // Individual exports for testing
 export default function* sandboxSaga() {
-  yield takeLatest(CHANGE_USER, onChangeUser);
+  yield takeLatest(CHANGED_USER, onChangedUser);
   yield takeLatest(LOAD, onLoad);
 }

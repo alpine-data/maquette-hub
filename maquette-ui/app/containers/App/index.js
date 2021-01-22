@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -7,7 +7,7 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import { makeSelectApp }  from './selectors';
-import { changeUser } from './actions';
+import { changeUser, initialize } from './actions';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -36,9 +36,13 @@ import Stream from 'containers/Stream/Loadable';
 import GlobalStyle from '../../global-styles';
 import './custom-theme.less';
 
-export function App({ app, onUserChanged }) {
+export function App({ app, onInitialize, onUserChanged }) {
   useInjectReducer({ key: 'app', reducer });
   useInjectSaga({ key: 'app', saga });
+
+  useEffect(() => {
+    onInitialize();
+  }, []);
 
   return <Layout username={ app.currentUser.name } onUserChanged={ onUserChanged }>
       <Switch>
@@ -98,6 +102,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
+    onInitialize: () => dispatch(initialize()),
     onUserChanged: id => dispatch(changeUser(id))
   };
 }
