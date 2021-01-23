@@ -81,14 +81,30 @@ public class MaquetteConfiguration {
       var envUrl = System.getenv("MQ_URL");
 
       if (!Objects.isNull(envUrl)) {
-         result = apply(envUrl, project, environment, authentication);
+         result = result.withUrl(envUrl);
       }
 
-      result = apply(url, project, result.getEnvironment().withEnvironmentOverrides(), authentication);
-      result = apply(url, result.getProject().withEnvironmentOverrides(), environment, authentication);
-      result = apply(url, project, environment, result.getAuthentication().withEnvironmentOverrides());
+      result = result.withEnvironment(result.getEnvironment().withEnvironmentOverrides());
+      result = result.withProject(result.getProject().withEnvironmentOverrides());
+      result = result.withAuthentication(result.getAuthentication().withEnvironmentOverrides());
 
       return result;
+   }
+
+   public MaquetteConfiguration withUrl(String url) {
+      return apply(url, project, environment, authentication);
+   }
+
+   public MaquetteConfiguration withProject(ProjectConfiguration project) {
+      return apply(url, project, environment, authentication);
+   }
+
+   public MaquetteConfiguration withEnvironment(EnvironmentConfiguration environment) {
+      return apply(url, project, environment, authentication);
+   }
+
+   public MaquetteConfiguration withAuthentication(AuthenticationConfiguration authentication) {
+      return apply(url, project, environment, authentication);
    }
 
    private static Path getDefaultLocation() {
