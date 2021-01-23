@@ -15,9 +15,9 @@ import FileExplorer from '../FileExplorer';
 import { Link } from 'react-router-dom';
 
 import ErrorMessage from '../ErrorMessage';
+import { Button, FlexboxGrid } from 'rsuite';
 
 function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
-  console.log(path);
   const collection = _.get(props, 'match.params.collection');
   const query = new URLSearchParams(_.get(props, 'location.search') || '');
   const selectedFile = query.get('file');
@@ -38,8 +38,6 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
       (acc, element) => _.get(acc, `children.${element}`) || {},
       root_data || {});
 
-  console.log(pathElementLinks);
-
   return <Container xlg background={ Background } className="mq--main-content">
     <CollectionTimeline 
       activeTag={ tag }
@@ -58,7 +56,14 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
 
     {
       !_.isEmpty(root_data) && <>
-        <h4>Files <span className="mq--sub">({ tag })</span></h4>
+        <FlexboxGrid align='center'>
+          <FlexboxGrid.Item colspan={ 20 }>
+            <h4>Files <span className="mq--sub">({ tag })</span></h4>
+          </FlexboxGrid.Item>
+          <FlexboxGrid.Item colspan={ 4 } style={{ textAlign: 'right' }}>
+            <Button appearance='primary' size='sm' href={ blobPrefix } target='_blank'>Download collection</Button>
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
 
         <FileExplorer 
           directory={ data } 
@@ -85,7 +90,6 @@ function CollectionOverview(props) {
   const blobPrefix = `/api/data/collections/${collection}/tags/${tag}`
 
   if (url.startsWith(treePrefix)) {
-    console.log(url);
     let path = url.substring(_.size(treePrefix));
     return <Files path={ path } tag={ tag } treePrefix={ treePrefix } blobPrefix={ blobPrefix } { ...props } />
   } else {

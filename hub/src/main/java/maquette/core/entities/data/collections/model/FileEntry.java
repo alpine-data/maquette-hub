@@ -136,7 +136,7 @@ public abstract class FileEntry {
             if (exists != null && !(exists instanceof Directory)) {
                return Optional.empty();
             } else if (exists != null) { // is a Directory ...
-               return getFile(remaining);
+               return ((Directory) exists).getFile(remaining);
             } else {
                return Optional.empty();
             }

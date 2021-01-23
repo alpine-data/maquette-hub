@@ -11,7 +11,6 @@ import { Link } from 'react-router-dom';
 import { timeAgo } from '../../utils/helpers'
 
 function FilePreview({ directory, selectedFile, blobBaseUrl }) {
-  console.log(directory);
   const file = directory.children[selectedFile];
 
   return <div className="mq--file-explorer"  style={{ marginTop: "20px" }}>
@@ -47,9 +46,7 @@ function FilePreview({ directory, selectedFile, blobBaseUrl }) {
   </div>;
 }
 
-function FileExplorer({ directory, header, selectedFile, treeBaseUrl = '/', blobBaseUrl = '/' }) {
-  console.log(directory);
-  
+function FileExplorer({ directory, header, selectedFile, treeBaseUrl = '/', blobBaseUrl = '/' }) {  
   var data = _
     .chain(directory.children)
     .map((value, key) => _.assign(value, { name: key }))
