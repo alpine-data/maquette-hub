@@ -21,6 +21,7 @@ Some configuration values can be superseded by environment variables. See the co
 ### Environment settings
 
 `environment.id` - An optional id to identify the environment. Might be overriden by environemnt variable `MQ_ENVIRONMENT_ID`.
+
 `environment.type` - An optional type name of the environment. Might be overriden by environment variable `MQ_ENVIRONMENT_TYPE`.
 
 ### Authentication
@@ -30,19 +31,25 @@ Currently there are three authentication mechanisms: Stupid Authentication, Proj
 #### Stupid Authentication
 
 `authentication.type` - Must be set to `stupid`. This is the default value for `authentication.type`. Might be overriden by environment variable `MQ_AUTH_TYPE`.
+
 `authentication.username` - The name (id) of the user. Might be overridden by environment variable `MQ_AUTH_USERNAME`.
+
 `authentication.roles` - A list of roles assigned to the user. Might be overridden by environment variable `MQ_AUTH_ROLES`.
 
 #### Project Key Authentication
 
 `authentication.type` - Must be set to `project-key`. Might be overriden by environment variable `MQ_AUTH_TYPE`.
+
 `authentication.key` - The name of the project key. Might be overridden by environment variable `MQ_AUTH_KEY`.
+
 `authentication.secret` - The secret of the project key. Might be overridden by environment variable `MQ_AUTH_SECRET`.
 
 #### Data Asset Key Authentication
 
 `authentication.type` - Must be set to `data-asset-key`. Might be overriden by environment variable `MQ_AUTH_TYPE`
+
 `authentication.key` - The name of the access key. Might be overridden by environment variable `MQ_AUTH_KEY`
+
 `authentication.secret` - The secret of the access key. Might be overridden by environment variable `MQ_AUTH_SECRET`.
 
 ## Example file
