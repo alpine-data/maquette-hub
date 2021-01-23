@@ -47,7 +47,7 @@ public final class Dataset {
    private final int batchSize;
 
    public static Dataset apply(String name, MaquetteConfiguration config) {
-      return apply(name, config, ObjectMapperFactory.apply().create(), new OkHttpClient(), 100);
+      return apply(name, config, ObjectMapperFactory.apply().createJson(), new OkHttpClient(), 100);
    }
 
    public <T> Source<T, NotUsed> createSource(Class<T> recordType) {

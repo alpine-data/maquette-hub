@@ -1,4 +1,4 @@
-package maquette.sdk.samples;
+package samples;
 
 import akka.actor.ActorSystem;
 import akka.stream.javadsl.Source;

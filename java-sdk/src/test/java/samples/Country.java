@@ -1,4 +1,4 @@
-package maquette.sdk.samples;
+package samples;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;

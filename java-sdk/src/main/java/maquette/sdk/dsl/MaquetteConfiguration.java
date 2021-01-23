@@ -3,7 +3,6 @@ package maquette.sdk.dsl;
 import akka.Done;
 import akka.japi.Function;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
@@ -32,7 +31,7 @@ public class MaquetteConfiguration {
     OkHttpClient client;
 
     public static MaquetteConfiguration apply() {
-        return apply("http://localhost:9042", "alice", null, ObjectMapperFactory.apply().create(true), new OkHttpClient());
+        return apply("http://localhost:9042", "alice", null, ObjectMapperFactory.apply().createJson(true), new OkHttpClient());
     }
 
     public Request.Builder createRequestFor(String url, Object ...args) {
