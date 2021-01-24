@@ -4,7 +4,6 @@ import akka.actor.ActorSystem;
 import akka.stream.javadsl.Sink;
 import lombok.Data;
 import maquette.sdk.dsl.Maquette;
-import maquette.sdk.dsl.MaquetteConfiguration;
 
 public class SampleDataSourceConsumer {
 
@@ -32,12 +31,11 @@ public class SampleDataSourceConsumer {
 
    public static void main(String... args) {
       var system = ActorSystem.apply();
-      var config = MaquetteConfiguration.apply();
 
       Maquette
-         .apply(config)
+         .create()
          .source("users")
-         .createSource(Store.class)
+         .source(Store.class)
          .map(c -> {
             System.out.println(c);
             return c;

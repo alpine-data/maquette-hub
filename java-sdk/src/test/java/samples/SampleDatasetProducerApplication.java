@@ -12,9 +12,9 @@ public class SampleDatasetProducerApplication {
         final ActorSystem system = ActorSystem.apply("sample");
 
         var sink = Maquette
-           .apply()
+           .create()
            .datasets("some-dataset")
-           .createSink(Country.class);
+           .sink(Country.class, "some message");
 
         Source
             .range(1,100)

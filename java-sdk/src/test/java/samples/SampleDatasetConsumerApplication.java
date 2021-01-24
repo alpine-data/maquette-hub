@@ -3,15 +3,13 @@ package samples;
 import akka.actor.ActorSystem;
 import akka.stream.javadsl.Sink;
 import maquette.sdk.dsl.Maquette;
-import maquette.sdk.dsl.MaquetteConfiguration;
 
 public class SampleDatasetConsumerApplication {
 
     public static void main(String ...args) {
         var system = ActorSystem.apply();
-        var config = MaquetteConfiguration.apply();
         var dataset = "some-dataset";
-        var countries = Maquette.apply(config).datasets(dataset).createSource(Country.class);
+        var countries = Maquette.create().datasets(dataset).source(Country.class);
 
         countries
             .map(c -> {

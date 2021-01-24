@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.ObjectMapperFactory;
 import maquette.sdk.config.authentication.AuthenticationConfiguration;
+import maquette.sdk.config.authentication.DataAssetKeyAuthentication;
+import maquette.sdk.config.authentication.ProjectKeyAuthentication;
 import maquette.sdk.config.authentication.StupidAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -99,12 +103,40 @@ public class MaquetteConfiguration {
       return apply(url, project, environment, authentication);
    }
 
+   public MaquetteConfiguration withProject(String project) {
+      return withProject(ProjectConfiguration.apply(project, ""));
+   }
+
    public MaquetteConfiguration withEnvironment(EnvironmentConfiguration environment) {
       return apply(url, project, environment, authentication);
    }
 
    public MaquetteConfiguration withAuthentication(AuthenticationConfiguration authentication) {
       return apply(url, project, environment, authentication);
+   }
+
+   public MaquetteConfiguration withStupidAuthentication(String user, String ...roles) {
+      return withAuthentication(StupidAuthentication.apply(user, Arrays.asList(roles)));
+   }
+
+   public MaquetteConfiguration withDataAssetKeyAuthentication(String key, String secret) {
+      return withAuthentication(DataAssetKeyAuthentication.apply(key, secret));
+   }
+
+   public MaquetteConfiguration withProjectKeyAuthentication(String key, String secret) {
+      return withAuthentication(ProjectKeyAuthentication.apply(key, secret));
+   }
+
+   public MaquetteConfiguration updateAuthentication(Function<AuthenticationConfiguration, AuthenticationConfiguration> updater) {
+      return withAuthentication(updater.apply(authentication));
+   }
+
+   public MaquetteConfiguration updateEnvironment(Function<EnvironmentConfiguration, EnvironmentConfiguration> updater) {
+      return withEnvironment(updater.apply(environment));
+   }
+
+   public MaquetteConfiguration updateProject(Function<ProjectConfiguration, ProjectConfiguration> updater) {
+      return withProject(updater.apply(project));
    }
 
    private static Path getDefaultLocation() {
