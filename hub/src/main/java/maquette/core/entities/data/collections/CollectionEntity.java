@@ -2,6 +2,7 @@ package maquette.core.entities.data.collections;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.collections.model.CollectionProperties;
@@ -27,6 +28,11 @@ public final class CollectionEntity implements DataAssetEntity<CollectionPropert
    private final UID id;
 
    private final CollectionsRepository repository;
+
+   @Override
+   public AccessLogsCompanion getAccessLogs() {
+      return AccessLogsCompanion.apply(id, repository);
+   }
 
    @Override
    public AccessRequests<CollectionProperties> getAccessRequests() {

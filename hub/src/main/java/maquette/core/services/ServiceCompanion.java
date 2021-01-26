@@ -52,11 +52,11 @@ public class ServiceCompanion {
 
    @SafeVarargs
    public final CompletionStage<Done> withAuthorization(Supplier<CompletionStage<Boolean>>... checks) {
-      return isAuthorized(checks).thenApply(authorized -> {
+      return isAuthorized(checks).thenCompose(authorized -> {
          if (authorized) {
-            return Done.getInstance();
+            return CompletableFuture.completedFuture(Done.getInstance());
          } else {
-            throw NotAuthorizedException.apply("You are not authorized to execute this action.");
+            return CompletableFuture.failedFuture(NotAuthorizedException.apply("You are not authorized to execute this action."));
          }
       });
    }

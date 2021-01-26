@@ -4,6 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.adapters.companions.AccessLogsFileSystemCompanion;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
@@ -17,6 +18,7 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.binary.BinaryObject;
+import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,8 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
 
    private final FileSystemObjectsStore objectsStore;
 
+   private final AccessLogsFileSystemCompanion accessLogsCompanion;
+
    public static FileSystemCollectionsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
       var directory = config.getDirectory().resolve("shop").resolve("collections");
       var assetsCompanion = FileSystemDataAssetRepository.apply(CollectionProperties.class, directory, om);
@@ -42,8 +46,10 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
       var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
       var tagsCompanion = FileSystemCollectionTagsCompanion.apply(directory, om);
       var objectsStore = FileSystemObjectsStore.apply(directory.resolve("_objects"));
+      var accessLogsCompanion = AccessLogsFileSystemCompanion.apply(directory, om);
 
-      return new FileSystemCollectionsRepository(assetsCompanion, requestsCompanion, membersCompanion, tagsCompanion, objectsStore);
+      return new FileSystemCollectionsRepository(
+         assetsCompanion, requestsCompanion, membersCompanion, tagsCompanion, objectsStore, accessLogsCompanion);
    }
 
    @Override
@@ -140,4 +146,30 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
    public CompletionStage<Optional<BinaryObject>> readObject(String key) {
       return objectsStore.readObject(key);
    }
+
+   @Override
+   public CompletionStage<Done> appendAccessLogEntry(DataAccessLogEntryProperties entry) {
+      return accessLogsCompanion.appendAccessLogEntry(entry);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByAsset(UID asset) {
+      return accessLogsCompanion.findAccessLogsByAsset(asset);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByUser(String userId) {
+      return accessLogsCompanion.findAccessLogsByUser(userId);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByProject(UID project) {
+      return accessLogsCompanion.findAccessLogsByProject(project);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAllAccessLogs() {
+      return accessLogsCompanion.findAllAccessLogs();
+   }
+
 }

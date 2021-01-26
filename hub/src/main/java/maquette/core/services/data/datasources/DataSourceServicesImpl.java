@@ -2,6 +2,7 @@ package maquette.core.services.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.datasources.DataSourceEntity;
@@ -93,6 +94,11 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    @Override
    public CompletionStage<Done> revoke(User executor, String asset, Authorization member) {
       return assets.revoke(executor, asset, member);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return assets.getAccessLogs(executor, asset);
    }
 
    @Override

@@ -2,6 +2,7 @@ package maquette.core.entities.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.datasets.AccessRequests;
@@ -42,6 +43,11 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
 
    public CompletionStage<Records> download(User executor) {
       return withProperties(props -> jdbcPort.read(props.getDatabase()));
+   }
+
+   @Override
+   public AccessLogsCompanion getAccessLogs() {
+      return AccessLogsCompanion.apply(id, repository);
    }
 
    public AccessRequests<DataSourceProperties> getAccessRequests() {

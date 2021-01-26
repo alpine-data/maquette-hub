@@ -16,12 +16,14 @@ public class DataAccessLogEntry {
 
    ProjectProperties project;
 
+   DataAccessType accessType;
+
    ActionMetadata accessed;
 
    String message;
 
-   public static DataAccessLogEntry apply(DataAssetProperties<?> asset, ActionMetadata accessed, String message) {
-      return apply(asset, null, accessed, message);
+   public static DataAccessLogEntry apply(DataAssetProperties<?> asset, DataAccessType accessType, ActionMetadata accessed, String message) {
+      return apply(asset, null, accessType, accessed, message);
    }
 
    public Optional<ProjectProperties> getProject() {

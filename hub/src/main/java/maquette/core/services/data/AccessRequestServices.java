@@ -4,13 +4,17 @@ import akka.Done;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public interface AccessRequestServices {
+
+   CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset);
 
    CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String asset, String project, String reason);
 

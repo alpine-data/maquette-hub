@@ -6,6 +6,7 @@ import maquette.core.ports.common.HasAccessLogs;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.logs.DataAccessLogEntryProperties;
+import maquette.core.values.data.logs.DataAccessType;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -18,13 +19,13 @@ public final class AccessLogsCompanion {
 
    private final HasAccessLogs repository;
 
-   public CompletionStage<Done> log(User executor, UID project, String message) {
-      var entry = DataAccessLogEntryProperties.apply(id, project, ActionMetadata.apply(executor), message);
+   public CompletionStage<Done> log(User executor, UID project, DataAccessType accessType, String message) {
+      var entry = DataAccessLogEntryProperties.apply(id, project, accessType, ActionMetadata.apply(executor), message);
       return repository.appendAccessLogEntry(entry);
    }
 
-   public CompletionStage<Done> log(User executor, String message) {
-      var entry = DataAccessLogEntryProperties.apply(id, ActionMetadata.apply(executor), message);
+   public CompletionStage<Done> log(User executor, DataAccessType accessType, String message) {
+      var entry = DataAccessLogEntryProperties.apply(id, accessType, ActionMetadata.apply(executor), message);
       return repository.appendAccessLogEntry(entry);
    }
 

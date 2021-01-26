@@ -1,6 +1,5 @@
 package samples;
 
-import akka.actor.ActorSystem;
 import maquette.sdk.dsl.Maquette;
 
 import java.io.File;
@@ -12,7 +11,7 @@ public class SampleCollectionProducerApplication {
 
       Maquette
          .create()
-         .collections("some-dataset")
+         .collection("some-dataset")
          .writeDirectory(directory, "some message");
    }
 

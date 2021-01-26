@@ -6,6 +6,7 @@ import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
@@ -73,6 +74,11 @@ public final class DatasetServicesSecured implements DatasetServices {
    @Override
    public CompletionStage<Done> revoke(User executor, String dataset, Authorization member) {
       return delegate.revoke(executor, dataset, member);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return delegate.getAccessLogs(executor, asset);
    }
 
    @Override

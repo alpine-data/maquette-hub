@@ -4,6 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.adapters.companions.AccessLogsFileSystemCompanion;
 import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
 import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.adapters.companions.MembersFileSystemCompanion;
@@ -15,6 +16,7 @@ import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,13 +31,16 @@ public final class FileSystemStreamsRepository implements StreamsRepository {
 
    private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
 
+   private final AccessLogsFileSystemCompanion accessLogsCompanion;
+
    public static FileSystemStreamsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
       var directory = config.getDirectory().resolve("shop").resolve("streams");
       var assetsCompanion = FileSystemDataAssetRepository.apply(StreamProperties.class, directory, om);
       var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
       var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
+      var accessLogsCompanion = AccessLogsFileSystemCompanion.apply(directory, om);
 
-      return new FileSystemStreamsRepository(assetsCompanion, requestsCompanion, membersCompanion);
+      return new FileSystemStreamsRepository(assetsCompanion, requestsCompanion, membersCompanion, accessLogsCompanion);
    }
 
    @Override
@@ -103,4 +108,28 @@ public final class FileSystemStreamsRepository implements StreamsRepository {
       return membersCompanion.removeMember(parent, member);
    }
 
+   @Override
+   public CompletionStage<Done> appendAccessLogEntry(DataAccessLogEntryProperties entry) {
+      return accessLogsCompanion.appendAccessLogEntry(entry);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByAsset(UID asset) {
+      return accessLogsCompanion.findAccessLogsByAsset(asset);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByUser(String userId) {
+      return accessLogsCompanion.findAccessLogsByUser(userId);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByProject(UID project) {
+      return accessLogsCompanion.findAccessLogsByProject(project);
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntryProperties>> findAllAccessLogs() {
+      return accessLogsCompanion.findAllAccessLogs();
+   }
 }

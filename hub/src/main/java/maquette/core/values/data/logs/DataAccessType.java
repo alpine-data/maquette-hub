@@ -1,4 +1,4 @@
-package maquette.core.values.data.binary;
+package maquette.core.values.data.logs;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

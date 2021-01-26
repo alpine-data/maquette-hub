@@ -9,7 +9,7 @@ public class SampleDatasetConsumerApplication {
     public static void main(String ...args) {
         var system = ActorSystem.apply();
         var dataset = "some-dataset";
-        var countries = Maquette.create().datasets(dataset).source(Country.class);
+        var countries = Maquette.create().dataset(dataset).source(Country.class);
 
         countries
             .map(c -> {
