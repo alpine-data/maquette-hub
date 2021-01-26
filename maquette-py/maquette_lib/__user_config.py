@@ -19,7 +19,14 @@ class UserConfiguration:
                 self.__mq_yaml_list = yaml.load(file, Loader=yaml.FullLoader)
 
     def url(self) -> str:
-        url = self.__mq_yaml_list.get('url', 'http://localhost:9042/api/')
+        url = self.__mq_yaml_list.get('url', 'http://localhost:9042')
+
+        if not (url.endswith('/api/') or url.endswith('/api')):
+            url = f"{url}/api/"
+
+        if not url.endswith('/'):
+            url = f"{url}/"
+
         return os.environ.get('MQ_BASE_URL', url)
 
     def user(self) -> str:

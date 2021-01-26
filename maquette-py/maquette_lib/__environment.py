@@ -1,6 +1,5 @@
 import json
 
-
 class MqEnvironment:
     _config = None
     _config_path = None
