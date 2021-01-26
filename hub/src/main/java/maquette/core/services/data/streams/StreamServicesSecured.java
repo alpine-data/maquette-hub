@@ -15,6 +15,7 @@ import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +67,11 @@ public final class StreamServicesSecured implements StreamServices {
          .withAuthorization(
             () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER))
          .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, retention, schema, visibility, classification, personalInformation));
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return delegate.getAccessLogs(executor, asset);
    }
 
    @Override

@@ -16,6 +16,7 @@ import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +65,11 @@ public final class StreamServicesImpl implements StreamServices {
       return entities
          .getByName(name)
          .thenCompose(as -> as.update(executor, name, title, summary, retention, schema, visibility, classification, personalInformation));
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return assets.getAccessLogs(executor, asset);
    }
 
    @Override

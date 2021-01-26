@@ -13,6 +13,7 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +52,14 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
          .withAuthorization(
             () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
          .thenCompose(ok -> delegate.revoke(executor, asset, member));
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return companion
+         .withAuthorization(
+            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+         .thenCompose(ok -> delegate.getAccessLogs(executor, asset));
    }
 
    @Override

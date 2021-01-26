@@ -27,11 +27,11 @@ public final class Maquette {
       return create(config);
    }
 
-   public Collection collections(String name) {
+   public Collection collection(String name) {
       return Collection.apply(name, MaquetteClient.apply(client, om, config));
    }
 
-   public Dataset datasets(String name) {
+   public Dataset dataset(String name) {
       return Dataset.apply(name, MaquetteClient.apply(client, om, config));
    }
 

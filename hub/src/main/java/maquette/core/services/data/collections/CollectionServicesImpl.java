@@ -16,6 +16,7 @@ import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.data.binary.BinaryObject;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,6 +134,11 @@ public final class CollectionServicesImpl implements CollectionServices {
       return entities
          .getByName(collection)
          .thenCompose(col -> col.getFiles().tag(executor, tag, message));
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return assets.getAccessLogs(executor, asset);
    }
 
    @Override

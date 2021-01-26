@@ -4,6 +4,7 @@ import akka.Done;
 import maquette.core.entities.data.collections.model.CollectionProperties;
 import maquette.core.entities.data.collections.model.CollectionTag;
 import maquette.core.ports.common.DataAssetRepository;
+import maquette.core.ports.common.HasAccessLogs;
 import maquette.core.ports.common.HasDataAccessRequests;
 import maquette.core.ports.common.HasMembers;
 import maquette.core.values.UID;
@@ -13,7 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-public interface CollectionsRepository extends DataAssetRepository<CollectionProperties>, HasDataAccessRequests, HasMembers<DataAssetMemberRole>, ObjectStore {
+public interface CollectionsRepository extends
+   DataAssetRepository<CollectionProperties>, HasDataAccessRequests, HasMembers<DataAssetMemberRole>, ObjectStore,
+   HasAccessLogs {
 
    CompletionStage<List<CollectionTag>> findAllTags(UID collection);
 

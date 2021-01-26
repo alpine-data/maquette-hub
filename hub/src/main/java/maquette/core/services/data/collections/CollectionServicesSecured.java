@@ -15,6 +15,7 @@ import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.data.binary.BinaryObject;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -145,6 +146,11 @@ public final class CollectionServicesSecured implements CollectionServices {
             () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
          .thenCompose(ok -> delegate.tag(executor, collection, tag, message));
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return delegate.getAccessLogs(executor, asset);
    }
 
    @Override

@@ -7,6 +7,7 @@ import maquette.common.Operators;
 import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -14,14 +15,18 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
+import maquette.core.values.data.logs.DataAccessLogEntry;
+import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E extends DataAssetEntity<P>, EN extends DataAssetEntities<P, E>> implements DataAssetServices<P, E> {
@@ -50,6 +55,54 @@ public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E ext
       return assets
          .getByName(asset)
          .thenCompose(a -> a.getMembers().removeMember(executor, member));
+   }
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return assets
+         .getByName(asset)
+         .thenCompose(assetEntity -> {
+            var logsCS = assetEntity
+               .getAccessLogs()
+               .getLogs();
+
+            var projectIdsCS = logsCS.thenApply(logs -> logs
+               .stream()
+               .map(DataAccessLogEntryProperties::getProject)
+               .filter(Optional::isPresent)
+               .map(Optional::get)
+               .collect(Collectors.toSet()));
+
+            var projectEntitiesCS = projectIdsCS.thenCompose(projectIds -> Operators
+               .allOf(projectIds
+                  .stream()
+                  .map(projects::findProjectById))
+               .thenApply(maybeProjects -> maybeProjects
+                  .stream()
+                  .filter(Optional::isPresent)
+                  .map(Optional::get)
+                  .collect(Collectors.toList())));
+
+            var projectPropertiesCS = projectEntitiesCS
+               .thenCompose(entities -> Operators.allOf(entities
+                  .stream()
+                  .map(ProjectEntity::getProperties)));
+
+            var assetPropertiesCS = assetEntity.getProperties();
+
+            return Operators.compose(projectPropertiesCS, assetPropertiesCS, logsCS, (projectProperties, assetProperties, logs) -> logs
+               .stream()
+               .map(log -> {
+                  var project = projectProperties
+                     .stream()
+                     .filter(p -> p.getId().equals(log.getAsset()))
+                     .findFirst()
+                     .orElse(null);
+
+                  return DataAccessLogEntry.apply(assetProperties, project, log.getAccessType(), log.getAccessed(), log.getMessage());
+               })
+               .collect(Collectors.toList()));
+         });
    }
 
    @Override

@@ -7,6 +7,8 @@ import maquette.core.entities.data.datasets.DatasetEntity;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.values.data.logs.DataAccessLogEntry;
+import maquette.core.values.data.logs.DataAccessType;
 import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
@@ -38,6 +40,11 @@ public final class DatasetServicesImpl implements DatasetServices {
    private final DataAssetServices<DatasetProperties, DatasetEntity> assets;
 
    private final DatasetCompanion companion;
+
+   @Override
+   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+      return assets.getAccessLogs(executor, asset);
+   }
 
    @Override
    public CompletionStage<DatasetProperties> create(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
@@ -143,7 +150,7 @@ public final class DatasetServicesImpl implements DatasetServices {
       return datasets
          .getByName(dataset)
          .thenCompose(ds -> {
-            var logged = ds.getAccessLogs().log(executor, project, String.format("downloaded version `%s`", version));
+            var logged = ds.getAccessLogs().log(executor, project, DataAccessType.CONSUME, String.format("downloaded version `%s`", version));
             return logged.thenCompose(l -> ds.getRevisions().download(executor, version));
          });
    }
@@ -153,7 +160,7 @@ public final class DatasetServicesImpl implements DatasetServices {
       return datasets
          .getByName(dataset)
          .thenCompose(ds -> {
-            var logged = ds.getAccessLogs().log(executor, String.format("downloaded version `%s`", version));
+            var logged = ds.getAccessLogs().log(executor, DataAccessType.CONSUME, String.format("downloaded version `%s`", version));
             return logged.thenCompose(l -> ds.getRevisions().download(executor, version));
          });
    }
@@ -163,7 +170,7 @@ public final class DatasetServicesImpl implements DatasetServices {
       return datasets
          .getByName(dataset)
          .thenCompose(ds -> {
-            var logged = ds.getAccessLogs().log(executor, "downloaded latest version");
+            var logged = ds.getAccessLogs().log(executor, DataAccessType.CONSUME, "downloaded latest version");
             return logged.thenCompose(l -> ds
                .getRevisions()
                .getVersions()
@@ -177,7 +184,7 @@ public final class DatasetServicesImpl implements DatasetServices {
       return datasets
          .getByName(dataset)
          .thenCompose(ds -> {
-            var logged = ds.getAccessLogs().log(executor, project, "downloaded latest version");
+            var logged = ds.getAccessLogs().log(executor, project, DataAccessType.CONSUME, "downloaded latest version");
             return logged.thenCompose(l -> ds
                .getRevisions()
                .getVersions()
@@ -192,7 +199,7 @@ public final class DatasetServicesImpl implements DatasetServices {
          .getByName(dataset)
          .thenCompose(ds -> {
             var uploaded = ds.getRevisions().upload(executor, revision, records);
-            return uploaded.thenCompose(done -> ds.getAccessLogs().log(executor, "uploaded new records"));
+            return uploaded.thenCompose(done -> ds.getAccessLogs().log(executor, DataAccessType.PRODUCE, "uploaded new records"));
          });
    }
 }

@@ -6,6 +6,7 @@ import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.server.CommandResult;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 
 import java.util.List;
 
@@ -15,7 +16,11 @@ public class DatasetView implements CommandResult {
 
    Dataset dataset;
 
+   List<DataAccessLogEntry> logs;
+
    boolean canAccessData;
+
+   boolean canWriteData;
 
    boolean isOwner;
 

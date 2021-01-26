@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
@@ -13,6 +14,7 @@ import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.user.User;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -24,23 +26,29 @@ public class DataSourceViewCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      return services
+      var sourceCS = services
          .getDataSourceServices()
-         .get(user, source)
-         .thenApply(source -> {
-            var isOwner = source.isMember(user, DataAssetMemberRole.OWNER);
-            var isConsumer = source.isMember(user, DataAssetMemberRole.CONSUMER);
-            var isMember = source.isMember(user, DataAssetMemberRole.MEMBER);
+         .get(user, source);
 
-            var isSubscriber = source
-               .getAccessRequests()
-               .stream()
-               .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+      var logsCS = services
+         .getDatasetServices()
+         .getAccessLogs(user, source)
+         .exceptionally(ex -> List.of());
 
-            var canAccessData = isOwner || isConsumer || isMember || isSubscriber;
+      return Operators.compose(sourceCS, logsCS, (source, logs) -> {
+         var isOwner = source.isMember(user, DataAssetMemberRole.OWNER);
+         var isConsumer = source.isMember(user, DataAssetMemberRole.CONSUMER);
+         var isMember = source.isMember(user, DataAssetMemberRole.MEMBER);
 
-            return DataSourceView.apply(source, canAccessData, isOwner, isMember);
-         });
+         var isSubscriber = source
+            .getAccessRequests()
+            .stream()
+            .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+
+         var canAccessData = isOwner || isConsumer || isMember || isSubscriber;
+
+         return DataSourceView.apply(source, logs, canAccessData, isOwner, isMember);
+      });
    }
 
    @Override

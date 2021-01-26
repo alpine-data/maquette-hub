@@ -23,7 +23,6 @@ public class ActionMetadata {
         return apply(by, Instant.now());
     }
 
-
     public static ActionMetadata apply(User user, Instant at) {
         return apply(user.getDisplayName(), at);
     }

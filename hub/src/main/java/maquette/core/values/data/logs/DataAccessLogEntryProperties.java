@@ -15,12 +15,14 @@ public class DataAccessLogEntryProperties {
 
    UID project;
 
+   DataAccessType accessType;
+
    ActionMetadata accessed;
 
    String message;
 
-   public static DataAccessLogEntryProperties apply(UID asset, ActionMetadata accessed, String message) {
-      return apply(asset, null, accessed, message);
+   public static DataAccessLogEntryProperties apply(UID asset, DataAccessType accessType, ActionMetadata accessed, String message) {
+      return apply(asset, null, accessType, accessed, message);
    }
 
    public Optional<UID> getProject() {
