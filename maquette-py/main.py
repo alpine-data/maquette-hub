@@ -28,7 +28,9 @@ def projects():
 
 @projects.command("create")
 @click.argument('name')
-def projects_init(name):
+@click.argument('title')
+@click.argument('summary')
+def projects_init(name, title, summary):
     """
     Initialize a project
 
@@ -40,7 +42,7 @@ def projects_init(name):
     if status == 200:
         print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
                '\n'                                                 
-              'To activate th project type: python main.py activate ' + name)
+              'To activate the project type: python main.py activate ' + name)
     else:
         raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
                            'status code: ' + str(status) + ', content:\n' + response)

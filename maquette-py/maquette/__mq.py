@@ -9,7 +9,8 @@ import pandavro
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import UserConfiguration
 
-client = Client.from_config(UserConfiguration('/home'))
+config = UserConfiguration()
+client = Client.from_config(config)
 
 
 class ERetentionUnit(str, Enum):
@@ -74,14 +75,20 @@ class EPersonalInformation(str, Enum):
 # TODO Doku (of course)
 
 class DataAsset:
+    """
+    Base class for all Data Assets
+    """
     project: str = None
+    project_name: str = None
+    #TODO: IMPORTANT - project id needs to be either initialized here, read from the ENV variable, config file or not in the header!!!
     data_asset_name: str = None
+    header = None
 
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
-                 project_name: str = None, data_asset_type: EDataAssetType = None):
+                 project_name: str = None, project_id: str = None, data_asset_type: EDataAssetType = None):
 
         self.data_asset_name = data_asset_name
         if title:
@@ -93,193 +100,366 @@ class DataAsset:
         self.visibility = visibility
         self.classification = classification
         self.personal_information = personal_information
-        self.project = project_name
+        self.project_name = project_name
+        if project_id:
+            self.project = project_id
+            self.header = {'x-project': self.project}
+        else:
+            if config.project():
+                self.project = config.project()
+                self.header = {'x-project': self.project}
         self.data_asset_type = data_asset_type
 
     def create(self):
+        """
+        BASE FUNCTION FOR INHERITANCE: Creates the Data Asset via API in the Maquette Hub
+        Returns: the instantiated Data Asset
+
+        """
         client.command(cmd='{}s create'.format(self.data_asset_type),
                        args={'name': self.data_asset_name, 'title': self.title, 'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
                              'personalInformation': self.personal_information},
-                       headers={'x-project': self.project})
+                       headers=self.header)
         return self
 
     def update(self, to_update: str):
+        """
+        BASE FUNCTION FOR INHERITANCE: Updates the Data Asset with the "top_update" name, with the calling object's arguments
+        Args:
+            to_update: the name of the Data Asset to update
+
+        Returns: the updated Data Asset
+
+        """
         client.command(cmd='{}s update'.format(self.data_asset_type),
                        args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
-                             'personalInformation': self.personal_information})
+                             'personalInformation': self.personal_information},
+                       headers=self.header)
         return self
 
     def remove(self):
+        """
+        Removes the Data Asset from the Maquette Hub
+        """
         client.command(cmd='{}s remove'.format(self.data_asset_type),
-                       args={'name': self.data_asset_name},
-                       headers={'x-project': self.project})
+                       args={'{}'.format(self.data_asset_type): self.data_asset_name},
+                       headers=self.header)
 
     def delete(self):
+        """
+        Removes the Data Asset from the Maquette Hub
+        """
         self.remove()
 
 
 class Collection(DataAsset):
-
+    """
+    A Data Collection contains binary objects like files and images in a directory based structure
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
-                 project_name: str = None):
+                 project_name: str = None, project_id: str = None):
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
-                         project_name,
+                         project_name, project_id,
                          EDataAssetType.COLLECTION)
 
-    def put(self, data, short_description: str):
+    def put(self, data, short_description: str = None):
+        """
+        Send files to a collection
+        Args:
+            data: the actual data as binary object
+            short_description: optinal string to describe the object
+
+        Returns: the version identification as string
+
+        """
+        if self.header:
+            headers = {'Accept': 'application/octet-stream', **self.header}
+        else:
+            headers = {'Accept': 'application/octet-stream'}
 
         resp = client.post('data/collections/' + self.data_asset_name, files={
             'target': os.path.basename(data.name),
             'file': (short_description, data, 'application/octet-stream', {'Content-Type': 'application/octet-stream'})
-        }, headers={'Accept': 'application/octet-stream', 'x-project': self.project})
+        }, headers=headers)
 
         return json.loads(resp.content)["version"]
 
     def get(self, filename, tag: str = None):
+        """
+        Function to download binary Data from a collection
+
+        Args:
+            filename: path to the binary object in the Collection
+            tag: optional version tag, if not provided, the latest version will be downloaded
+
+        Returns: the binary object
+
+        """
         if tag:
-            resp = client.get('data/collections/' + self.data_asset_name + '/tags/' + tag + '/' + filename)
+            resp = client.get('data/collections/' + self.data_asset_name + '/tags/' + tag + '/' + filename, headers=self.header)
         else:
-            resp = client.get('data/collections/' + self.data_asset_name + '/latest/' + filename)
+            resp = client.get('data/collections/' + self.data_asset_name + '/latest/' + filename, headers=self.header)
         return BytesIO(resp.content)
 
 
 class Source(DataAsset):
-
+    """
+    A Data Asset for accessing structural Database sources
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE, access_type: EAccessType = EAccessType.DIRECT,
-                 db_properties: dict = {}, project_name: str = None):
+                 db_properties: dict = None, project_name: str = None, project_id: str = None):
         self.access_type = access_type
         self.db_properties = db_properties
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
-                         project_name,
+                         project_name, project_id,
                          EDataAssetType.SOURCE)
 
     def create(self):
+        """
+        Create the Data Source via API on the Maquette Hub. Properties for the Database to access have to be provieded
+        Returns: the initiated Data Source object
+
+        """
         client.command(cmd='sources create'.format(self.data_asset_type),
                        args={'name': self.data_asset_name, 'title': self.title, 'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
                              'personalInformation': self.personal_information, 'properties': self.db_properties,
                              'accessType': self.access_type},
-                       headers={'x-project': self.project})
+                       headers=self.header)
         return self
 
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='sources update'.format(self.data_asset_type),
                        args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
                              'accessType': self.access_type, 'properties': self.db_properties,
-                             'personalInformation': self.personal_information})
+                             'personalInformation': self.personal_information},
+                       headers=self.header)
         return self
 
+    #TODO: def update_db...
+    # for convenience
+
     def get(self) -> pd.DataFrame:
+        """
+
+        Returns:
+
+        """
         resp = client.get('data/sources/' + self.data_asset_name)
         return pandavro.from_avro(BytesIO(resp.content))
 
 
 class Dataset(DataAsset):
+    """
 
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
-                 project_name: str = None):
+                 project_name: str = None, project_id: str = None):
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
-                         project_name,
+                         project_name, project_id,
                          EDataAssetType.DATASET)
 
     def put(self, data: pd.DataFrame, short_description: str):
+        """
+
+        Args:
+            data:
+            short_description:
+
+        Returns:
+
+        """
         ds = self.data_asset_name
 
         file: BytesIO = BytesIO()
         pandavro.to_avro(file, data)
         file.seek(0)
 
+        if self.header:
+            headers = {'Accept': 'application/csv', **self.header}
+        else:
+            headers = {'Accept': 'application/csv'}
+
         resp = client.post('data/datasets/' + ds, files={
             'message': short_description,
             'file': (short_description, file, 'avro/binary', {'Content-Type': 'avro/binary'})
-        }, headers={'Accept': 'application/csv', 'x-project': self.project})
+        }, headers=headers)
 
         return json.loads(resp.content)["version"]
 
     def get(self, version: str = None) -> pd.DataFrame:
+        """
+
+        Args:
+            version:
+
+        Returns:
+
+        """
         ds = self.data_asset_name
         if version:
-            resp = client.get('data/datasets/' + ds + '/' + version)
+            resp = client.get('data/datasets/' + ds + '/' + version, headers=self.header)
         else:
-            resp = client.get('data/datasets/' + ds)
+            resp = client.get('data/datasets/' + ds, headers=self.header)
         return pandavro.from_avro(BytesIO(resp.content))
 
 
 class Stream(DataAsset):
+    """
 
+    """
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
-                 schema: dict = {},
-                 retention: dict = {"unit": ERetentionUnit.HOURS, "retention": 6},
-                 project_name: str = None):
+                 schema: dict = None,
+                 retention: dict = None,
+                 project_name: str = None,
+                 project_id: str = None):
         self.schema = schema
-        self.retention = retention
+        if retention:
+            self.retention = retention
+        else:
+            self.retention = {"unit": ERetentionUnit.HOURS, "retention": 6}
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
-                         project_name,
+                         project_name, project_id,
                          EDataAssetType.DATASET)
 
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='sources update'.format(self.data_asset_type),
                        args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
                              'schema': self.schema, 'retention': self.retention,
-                             'personalInformation': self.personal_information})
+                             'personalInformation': self.personal_information},
+                       headers=self.header)
         return self
 
     def get(self) -> dict:
-        resp = client.get('data/streams/' + self.data_asset_name)
+        """
+
+        Returns:
+
+        """
+        resp = client.get('data/streams/' + self.data_asset_name, headers=self.header)
         return json.loads(resp.content)
 
 
 class Project:
+    """
+
+    """
     __name: str = None
     __title: str = None
     __summary: str = None
+    __id: str = None
 
-    def __init__(self, name: str, title: str = None, summary: str = None):
+    __header = None
+
+    def __init__(self, name: str = None, title: str = None, summary: str = None, id: str = None):
         self.__name = name
         self.__summary = summary
         if title:
             self.__title = title
         else:
             self.__title = name
+        if id:
+            self.__id = id
+            self.__header = {'x-project': self.__id}
+        else:
+            if config.project():
+                self.__id = config.project()
+                self.__header = {'x-project': self.__id}
 
     def create(self) -> 'Project':
+        """
+
+        Returns:
+
+        """
         client.command(cmd='projects create',
                        args={'title': self.__title, 'name': self.__name, 'summary': self.__summary})
         return self
 
+    def activate(self) -> 'Project':
+        """
+        Activates the current project in putting the id of it to the environment variable
+        :return:
+        """
+
+
+        return self
+
     def update(self, to_update: str):
+        """
+
+        Args:
+            to_update:
+
+        Returns:
+
+        """
         client.command(cmd='projects update', args={'project': to_update, 'title': self.__title, 'name': self.__name,
                                                     'summary': self.__summary})
         return self
 
     def remove(self):
+        """
+
+        Returns:
+
+        """
         resp = client.command(cmd='projects remove',
                               args={'name': self.__name})
         return resp[1]
 
     def delete(self):
+        """
+
+        Returns:
+
+        """
         return self.remove()
 
     def datasets(self, to_csv=False):
+        """
+
+        Args:
+            to_csv:
+
+        Returns:
+
+        """
         if to_csv:
             resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv',
                                                                 'x-project': self.__name})
@@ -290,6 +470,19 @@ class Project:
 
     def dataset(self, dataset_name: str = None, dataset_title: str = None, summary: str = None,
                 visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
+        """
+
+        Args:
+            dataset_name:
+            dataset_title:
+            summary:
+            visibility:
+            classification:
+            personal_information:
+
+        Returns:
+
+        """
         args = [arg for arg in
                 [dataset_name, dataset_title, summary, visibility, classification, personal_information] if
                 arg]
@@ -297,6 +490,19 @@ class Project:
 
     def collection(self, collection_name: str = None, collection_title: str = None, summary: str = None,
                    visibility: str = None, classification: str = None, personal_information: str = None) -> Collection:
+        """
+
+        Args:
+            collection_name:
+            collection_title:
+            summary:
+            visibility:
+            classification:
+            personal_information:
+
+        Returns:
+
+        """
         args = [arg for arg in
                 [collection_name, collection_title, summary, visibility, classification, personal_information] if
                 arg]
@@ -320,6 +526,19 @@ def project(name: str, title: str = None, summary: str = None) -> Project:
 
 def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = None,
             visibility: str = None, classification: str = None, personal_information: str = None) -> Dataset:
+    """
+
+    Args:
+        dataset_name:
+        dataset_title:
+        summary:
+        visibility:
+        classification:
+        personal_information:
+
+    Returns:
+
+    """
     args = [arg for arg in
             [dataset_title, summary, visibility, classification, personal_information] if
             arg]
@@ -328,6 +547,19 @@ def dataset(dataset_name: str = None, dataset_title: str = None, summary: str = 
 
 def collection(collection_name: str = None, collection_title: str = None, summary: str = None,
                visibility: str = None, classification: str = None, personal_information: str = None) -> Collection:
+    """
+
+    Args:
+        collection_name:
+        collection_title:
+        summary:
+        visibility:
+        classification:
+        personal_information:
+
+    Returns:
+
+    """
     args = [arg for arg in
             [collection_title, summary, visibility, classification, personal_information] if
             arg]
@@ -362,7 +594,7 @@ def source(source_name: str = None, source_title: str = None, summary: str = Non
 
 def stream(stream_name: str = None, stream_title: str = None, summary: str = None,
            visibility: str = None, classification: str = None, personal_information: str = None, retention: dict = None,
-           schema: dict = None) -> Source:
+           schema: dict = None) -> Stream:
     """
     Create a Stream object.
 
