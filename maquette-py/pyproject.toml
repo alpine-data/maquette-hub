@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "maquette"
-version = "0.0.6"
+version = "0.0.7"
 description = "A command line interface for Maquette Data Science and Machine Learning Platform."
-authors = ["Michael Wellner <michaelwellner@kpmg.com>","Johannes Forster <johannesforster@kpmg.com"]
+authors = ["Johannes Forster <johannesforster@kpmg.com>", "Michael Wellner <michaelwellner@kpmg.com>"]
 license = "Apache-2.0"
 readme = "Readme.md"
 
@@ -17,6 +17,7 @@ requests = "^2.24.0"
 pandas = "^1.1.0"
 pandavro = "^1.5.2"
 seaborn = "^0.11.0"
+pyyaml = "^5.4.1"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.0"
