@@ -1,19 +1,26 @@
 package maquette.core.entities.data.collections.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.*;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.data.binary.FileSize;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@JsonTypeInfo(
+   use = JsonTypeInfo.Id.NAME,
+   property = "type")
+@JsonSubTypes({
+   @JsonSubTypes.Type(value = FileEntry.Directory.class, name = "directory"),
+   @JsonSubTypes.Type(value = FileEntry.RegularFile.class, name = "file")
+})
 public abstract class FileEntry {
 
    @Value
@@ -30,17 +37,85 @@ public abstract class FileEntry {
          return apply(Map.of());
       }
 
+      @JsonCreator
       public static Directory apply(
          @JsonProperty(CHILDREN) Map<String, FileEntry> children) {
 
          return new Directory(Map.copyOf(children));
       }
 
+      @JsonProperty("lastModified")
+      public Optional<RegularFile> getLastModified() {
+         return files()
+            .stream()
+            .map(NamedRegularFile::getFile)
+            .max(Comparator.comparing(f -> f.getAdded().getAt()));
+      }
+
+      @JsonProperty("files")
+      public int getFilesCount() {
+         return files().size();
+      }
+
+      @JsonProperty("size")
+      public FileSize getSize() {
+         var result = FileSize.empty();
+
+         for (var f : files()) {
+            result = result.add(f.getFile().size);
+         }
+
+         return result;
+      }
+
+      @JsonIgnore
+      public List<String> fileNames() {
+         var result = Lists.<String>newArrayList();
+
+         for (var entry : children.entrySet()) {
+            if (entry.getValue() instanceof  Directory) {
+               var children = ((Directory) entry.getValue())
+                  .fileNames()
+                  .stream()
+                  .map(file -> entry.getKey() + "/" + file)
+                  .collect(Collectors.toList());
+
+               result.addAll(children);
+            } else {
+               result.add(entry.getKey());
+            }
+         }
+
+         result.sort(Comparator.naturalOrder());
+
+         return result;
+      }
+
+      @JsonIgnore
+      public List<NamedRegularFile> files() {
+         var result = Lists.<NamedRegularFile>newArrayList();
+
+         for (var entry : children.entrySet()) {
+            if (entry.getValue() instanceof Directory) {
+               var children = ((Directory) entry.getValue())
+                  .files()
+                  .stream()
+                  .map(file -> file.withName(entry.getKey() + "/" + file.getName()))
+                  .collect(Collectors.toList());
+
+               result.addAll(children);
+            } else {
+               result.add(NamedRegularFile.apply(entry.getKey(), (RegularFile) entry.getValue()));
+            }
+         }
+
+         result.sort(Comparator.comparing(NamedRegularFile::getName, Comparator.naturalOrder()));
+
+         return result;
+      }
+
       public Optional<RegularFile> getFile(String name) {
-         var path = Arrays
-            .stream(name.split("/"))
-            .filter(s -> !s.trim().isEmpty())
-            .collect(Collectors.toList());
+         var path = getPathFromName(name);
 
          if (path.isEmpty()) {
             throw new IllegalArgumentException("Invalid file name");
@@ -61,7 +136,7 @@ public abstract class FileEntry {
             if (exists != null && !(exists instanceof Directory)) {
                return Optional.empty();
             } else if (exists != null) { // is a Directory ...
-               return getFile(remaining);
+               return ((Directory) exists).getFile(remaining);
             } else {
                return Optional.empty();
             }
@@ -72,10 +147,7 @@ public abstract class FileEntry {
          Map<String, FileEntry> childrenNext = Maps.newHashMap();
          childrenNext.putAll(children);
 
-         var path = Arrays
-            .stream(name.split("/"))
-            .filter(s -> !s.trim().isEmpty())
-            .collect(Collectors.toList());
+         var path = getPathFromName(name);
 
          if (path.isEmpty()) {
             throw new IllegalArgumentException("Invalid file name");
@@ -109,10 +181,7 @@ public abstract class FileEntry {
          Map<String, FileEntry> childrenNext = Maps.newHashMap();
          childrenNext.putAll(children);
 
-         var path = Arrays
-            .stream(name.split("/"))
-            .filter(s -> !s.trim().isEmpty())
-            .collect(Collectors.toList());
+         var path = getPathFromName(name);
 
          if (path.isEmpty()) {
             throw new IllegalArgumentException("Invalid file name");
@@ -165,7 +234,7 @@ public abstract class FileEntry {
 
             sb.append(elementName);
 
-            if (i < c.size() - 1) {
+            if (i < c.size() - 1 || (element instanceof Directory && ((Directory) element).children.size() > 0)) {
                sb.append("\n");
             }
 
@@ -181,22 +250,65 @@ public abstract class FileEntry {
          return sb.toString();
       }
 
+      private List<String> getPathFromName(String name) {
+         return Arrays
+            .stream(name.split("/"))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .filter(s -> !s.replace('.', ' ').trim().isEmpty())
+            .collect(Collectors.toList());
+      }
+
    }
 
    @Value
+   @With
    @EqualsAndHashCode(callSuper = false)
    @AllArgsConstructor(staticName = "apply")
-   @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
    public static class RegularFile extends FileEntry {
+
+      @SuppressWarnings("unused")
+      private RegularFile() {
+         this("", FileSize.empty(), FileType.BINARY, "", ActionMetadata.apply(""));
+      }
 
       String key;
 
       FileSize size;
 
+      FileType fileType;
+
       String message;
 
       ActionMetadata added;
 
+   }
+
+   @With
+   @Value
+   @AllArgsConstructor(staticName = "apply")
+   public static class NamedRegularFile {
+
+      String name;
+
+      RegularFile file;
+
+   }
+
+   public enum FileType {
+
+      TEXT("text"), IMAGE("image"), BINARY("binary");
+
+      private final String value;
+
+      FileType(String value) {
+         this.value = value;
+      }
+
+      @JsonValue
+      public String getValue() {
+         return value;
+      }
    }
 
 }

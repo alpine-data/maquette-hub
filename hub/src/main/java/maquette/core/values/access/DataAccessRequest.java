@@ -39,7 +39,7 @@ public class DataAccessRequest {
    ActionMetadata created;
 
    @JsonProperty(ASSET)
-   DataAssetProperties asset;
+   DataAssetProperties<?> asset;
 
    @JsonProperty(PROJECT)
    ProjectProperties project;
@@ -57,7 +57,7 @@ public class DataAccessRequest {
    public static DataAccessRequest apply(
       @JsonProperty(ID) UID id,
       @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(ASSET) DataAssetProperties asset,
+      @JsonProperty(ASSET) DataAssetProperties<?> asset,
       @JsonProperty(PROJECT) ProjectProperties project,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 

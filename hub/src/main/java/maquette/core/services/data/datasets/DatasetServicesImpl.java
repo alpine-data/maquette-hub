@@ -139,27 +139,60 @@ public final class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
+   public CompletionStage<Records> download(User executor, UID project, String dataset, DatasetVersion version) {
+      return datasets
+         .getByName(dataset)
+         .thenCompose(ds -> {
+            var logged = ds.getAccessLogs().log(executor, project, String.format("downloaded version `%s`", version));
+            return logged.thenCompose(l -> ds.getRevisions().download(executor, version));
+         });
+   }
+
+   @Override
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return datasets
          .getByName(dataset)
-         .thenCompose(ds -> ds.getRevisions().download(executor, version));
+         .thenCompose(ds -> {
+            var logged = ds.getAccessLogs().log(executor, String.format("downloaded version `%s`", version));
+            return logged.thenCompose(l -> ds.getRevisions().download(executor, version));
+         });
    }
 
    @Override
    public CompletionStage<Records> download(User executor, String dataset) {
       return datasets
          .getByName(dataset)
-         .thenCompose(ds -> ds
-            .getRevisions()
-            .getVersions()
-            .thenApply(versions -> versions.stream().map(CommittedRevision::getVersion).findFirst().orElse(DatasetVersion.apply("1.0.0")))
-            .thenCompose(version -> ds.getRevisions().download(executor, version)));
+         .thenCompose(ds -> {
+            var logged = ds.getAccessLogs().log(executor, "downloaded latest version");
+            return logged.thenCompose(l -> ds
+               .getRevisions()
+               .getVersions()
+               .thenApply(versions -> versions.stream().map(CommittedRevision::getVersion).findFirst().orElse(DatasetVersion.apply("1.0.0")))
+               .thenCompose(version -> ds.getRevisions().download(executor, version)));
+         });
+   }
+
+   @Override
+   public CompletionStage<Records> download(User executor, UID project, String dataset) {
+      return datasets
+         .getByName(dataset)
+         .thenCompose(ds -> {
+            var logged = ds.getAccessLogs().log(executor, project, "downloaded latest version");
+            return logged.thenCompose(l -> ds
+               .getRevisions()
+               .getVersions()
+               .thenApply(versions -> versions.stream().map(CommittedRevision::getVersion).findFirst().orElse(DatasetVersion.apply("1.0.0")))
+               .thenCompose(version -> ds.getRevisions().download(executor, version)));
+         });
    }
 
    @Override
    public CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records) {
       return datasets
          .getByName(dataset)
-         .thenCompose(ds -> ds.getRevisions().upload(executor, revision, records));
+         .thenCompose(ds -> {
+            var uploaded = ds.getRevisions().upload(executor, revision, records);
+            return uploaded.thenCompose(done -> ds.getAccessLogs().log(executor, "uploaded new records"));
+         });
    }
 }

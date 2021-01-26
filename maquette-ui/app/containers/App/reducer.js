@@ -3,31 +3,17 @@
  * App reducer
  *
  */
-import produce, { isDraft } from 'immer';
-import { CHANGE_USER, DEFAULT_ACTION } from './constants';
-
-const users = {
-  alice: {
-    id: 'alice',
-    name: 'Alice',
-    roles: [ 'foo', 'bob' ]
-  },
-  bob: {
-    id: 'bob',
-    name: 'Bob',
-    roles: [ 'foo', 'bob' ]
-  },
-  clair: {
-    id: 'clair',
-    name: 'Clair',
-    roles: [ 'foo', 'bar' ]
-  }
-}
+import produce from 'immer';
+import { CHANGE_USER, CHANGED_USER } from './constants';
 
 export const initialState = {
   loading: false,
   error: false,
-  currentUser: users.alice
+  currentUser: {
+    id: '',
+    name: '',
+    roles: []
+  }
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -35,9 +21,11 @@ const appReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
       case CHANGE_USER:
-        draft.currentUser = users[action.id]
+        //draft.currentUser = users[action.id]
         break;
-      case DEFAULT_ACTION:
+      case CHANGED_USER:
+        draft.currentUser = action.user;
+        draft.currentUser.id = action.user.username;
         break;
     }
   });

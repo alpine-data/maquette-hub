@@ -52,13 +52,12 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
     * @param <T>         The type of the pass through.
     * @return The pass through or Optional.empty()
     */
-   public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String asset, String project, T passThrough) {
+   public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String asset, UID project, T passThrough) {
       var requestsCS = assets
          .getByName(asset)
          .thenCompose(ds -> ds.getAccessRequests().getDataAccessRequests());
 
-      var prCS = projects
-         .getProjectByName(project);
+      var prCS = projects.getProjectById(project);
 
       var isMemberCS = prCS
          .thenCompose(p -> p.isMember(user));
@@ -157,7 +156,7 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
          }));
    }
 
-   public CompletionStage<Boolean> isSubscribedConsumer(User user, String asset, String project) {
+   public CompletionStage<Boolean> isSubscribedConsumer(User user, String asset, UID project) {
       return filterSubscribedConsumer(user, asset, project, Done.getInstance()).thenApply(Optional::isPresent);
    }
 

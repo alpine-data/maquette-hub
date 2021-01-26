@@ -30,7 +30,7 @@ public class CreateCollectionTagCommand implements Command {
       return services
          .getCollectionServices()
          .tag(user, collection, tag, message)
-         .thenApply(pid -> MessageResult.apply("Successfully removed collection `%s` and all related resources.", collection));
+         .thenApply(pid -> MessageResult.apply("Successfully created tag `%s` on collection.", tag, collection));
    }
 
    @Override

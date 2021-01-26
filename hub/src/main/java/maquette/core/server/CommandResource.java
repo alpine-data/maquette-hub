@@ -111,8 +111,29 @@ public final class CommandResource {
                   .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}"))
                   .withBody(FormDataBody
                      .apply()
-                     .withField(TextField.apply("target", "/sample.avro"))
+                     .withField(TextField.apply("name", "/sample.avro"))
                      .withField(FileField.apply("file", "./sample.avro")))))
+            .withItem(Item.apply(
+               "/api/data/collections/:collection",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.POST)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}"))
+                  .withBody(FormDataBody
+                     .apply()
+                     .withField(TextField.apply("basePath", "/"))
+                     .withField(FileField.apply("file", "./some-collection.zip")))))
+            .withItem(Item.apply(
+               "/api/data/collections/:collection/latest",
+               Request
+                  .apply()
+                  .withMethod(HttpMethod.GET)
+                  .withHeader("x-user-id", "alice")
+                  .withHeader("x-user-roles", "a-team,b-team")
+                  .withHeader("x-project", "af10ccfc40")
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/collections/{{COLLECTION}}/latest"))))
             .withItem(Item.apply(
                "/api/data/collections/:collection/latest/:file",
                Request
@@ -148,7 +169,7 @@ public final class CommandResource {
                   .withHeader("x-user-id", "alice")
                   .withHeader("x-user-roles", "a-team,b-team")
                   .withHeader("x-project", "af10ccfc40")
-                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/sources/{{DATASET}}"))))
+                  .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/data/sources/{{SOURCE}}"))))
             .withItem(Item.apply(
                "/api/data/datasets/:dataset",
                Request

@@ -66,10 +66,45 @@ public final class CollectionServicesImpl implements CollectionServices {
    }
 
    @Override
+   public CompletionStage<List<String>> listFiles(User executor, String collection) {
+      return entities
+         .getByName(collection)
+         .thenCompose(as -> as.getFiles().list());
+   }
+
+   @Override
+   public CompletionStage<List<String>> listFiles(User executor, String collection, String tag) {
+      return entities
+         .getByName(collection)
+         .thenCompose(as -> as.getFiles().list(tag));
+   }
+
+   @Override
    public CompletionStage<Done> put(User executor, String collection, BinaryObject data, String file, String message) {
       return entities
          .getByName(collection)
          .thenCompose(col -> col.getFiles().put(executor, data, file, message));
+   }
+
+   @Override
+   public CompletionStage<Done> putAll(User executor, String collection, BinaryObject data, String basePath, String message) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().putAll(executor, data, basePath, message));
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> readAll(User executor, String collection) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().readAll(executor));
+   }
+
+   @Override
+   public CompletionStage<BinaryObject> readAll(User executor, String collection, String tag) {
+      return entities
+         .getByName(collection)
+         .thenCompose(col -> col.getFiles().readAll(executor, tag));
    }
 
    @Override

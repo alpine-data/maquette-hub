@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +24,8 @@ final class ByteArrayBinaryObject implements BinaryObject {
    @Override
    public CompletableFuture<Done> toFile(Path file) {
       Operators.suppressExceptions(() -> {
+         Files.deleteIfExists(file);
+
          try (var os = Files.newOutputStream(file)) {
             os.write(bytes);
          }
@@ -29,6 +33,11 @@ final class ByteArrayBinaryObject implements BinaryObject {
 
 
       return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public InputStream toInputStream() {
+      return new ByteArrayInputStream(bytes);
    }
 
 }

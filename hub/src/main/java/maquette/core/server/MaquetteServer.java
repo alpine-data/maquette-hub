@@ -43,9 +43,11 @@ public final class MaquetteServer {
                 .get("/api/commands/examples", commandResource.getCommandExamples())
 
                 .post("/api/data/collections/:collection", collectionDataResource.upload())
-                .get("/api/data/collections/:collection/latest/:file", collectionDataResource.download())
-                .get("/api/data/collections/:collection/tags/:tag/:file", collectionDataResource.downloadTag())
-                .delete("/api/data/collections/:collection/latest/:file", collectionDataResource.remove())
+                .get("/api/data/collections/:collection/latest", collectionDataResource.download())
+                .get("/api/data/collections/:collection/tags/:tag", collectionDataResource.download())
+                .get("/api/data/collections/:collection/latest/*", collectionDataResource.downloadFile())
+                .get("/api/data/collections/:collection/tags/:tag/*", collectionDataResource.downloadFile())
+                .delete("/api/data/collections/:collection/latest/*", collectionDataResource.remove())
 
                 .post("/api/data/datasets/:dataset", dataResource.uploadDatasetFile())
                 .post("/api/data/datasets/:dataset/:revision", dataResource.upload())

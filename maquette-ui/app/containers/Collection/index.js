@@ -62,7 +62,7 @@ function Display(props) {
 
   return <div>
     <Helmet>
-      <title>Stock Prices &middot; Maquette</title>
+      <title>{ _.get(props, 'collection.data.collection.title') } &middot; Maquette</title>
     </Helmet>
 
     <Affix top={ 56 }>
@@ -137,7 +137,6 @@ function Display(props) {
 }
 
 export function Collection(props) {
-  console.log(props);
   useInjectReducer({ key: 'collection', reducer });
   useInjectSaga({ key: 'collection', saga });
 

@@ -20,6 +20,9 @@ public final class FileSystemObjectsStore implements ObjectStore {
 
    @Override
    public CompletionStage<Done> saveObject(String key, BinaryObject binary) {
+      var file = directory.resolve(key).toAbsolutePath();
+      Operators.suppressExceptions(() -> Files.createDirectories(file.getParent()));
+
       binary.toFile(directory.resolve(key));
       return CompletableFuture.completedFuture(Done.getInstance());
    }

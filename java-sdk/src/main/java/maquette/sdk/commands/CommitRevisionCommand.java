@@ -10,7 +10,7 @@ import lombok.Value;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CommitRevisionCommand {
+public class CommitRevisionCommand implements Command {
 
    String dataset;
 

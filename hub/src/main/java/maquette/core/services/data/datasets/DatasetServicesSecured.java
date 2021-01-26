@@ -126,6 +126,17 @@ public final class DatasetServicesSecured implements DatasetServices {
    }
 
    @Override
+   public CompletionStage<Records> download(User executor, UID project, String dataset, DatasetVersion version) {
+      return companion
+         .withAuthorization(
+            () -> assets.isSubscribedConsumer(executor, dataset, project),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.download(executor, project, dataset, version));
+   }
+
+   @Override
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return companion
          .withAuthorization(
@@ -145,6 +156,17 @@ public final class DatasetServicesSecured implements DatasetServices {
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
          .thenCompose(ok -> delegate.download(executor, dataset));
+   }
+
+   @Override
+   public CompletionStage<Records> download(User executor, UID project, String dataset) {
+      return companion
+         .withAuthorization(
+            () -> assets.isSubscribedConsumer(executor, dataset, project),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
+         .thenCompose(ok -> delegate.download(executor, project, dataset));
    }
 
    @Override

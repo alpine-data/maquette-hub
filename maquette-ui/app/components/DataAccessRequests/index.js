@@ -31,7 +31,7 @@ function PublicConsumer(props) {
     return <Container md background={ Background } className="mq--main-content">
       <h4>Subscribe for data access</h4>
       <p className="mq--p-leading">
-        This asset contains <b>public</b> data. Subscribe a project to the asset to use access the data. Currently you are not member of any project which has access to the data.
+        This asset contains <b>public</b> data. Subscribe a project to the asset to use the data. Currently you are not member of any project which has access to the data.
       </p>
       <ButtonToolbar style={{ marginTop: '30px' }}>
         <Button 
@@ -44,7 +44,7 @@ function PublicConsumer(props) {
     return <Container lg background={ Background } className="mq--main-content">
       <h4>Subscribe for data access</h4>
       <p className="mq--p-leading">
-        This asset contains <b>public</b> data. Subscribe a project to the asset to use access the data.
+        This asset contains <b>public</b> data. Subscribe a project to the asset to use the data.
       </p>
       <ButtonToolbar style={{ marginTop: '30px' }}>
         <Button 
@@ -111,7 +111,7 @@ function Owner(props) {
     return <Container md background={ Background } className="mq--main-content">
       <h4>Manage access requests</h4>
       <p className="mq--p-leading">
-        This data asset is classified as <b>{ asset.classification }</b>. Users who want to use access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
+        This data asset is classified as <b>{ asset.classification }</b>. Users who want to access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
       </p>
 
       <p className="mq--p-leading">
@@ -130,7 +130,7 @@ function Owner(props) {
       <h4>Manage access requests</h4>
 
       <p className="mq--p-leading">
-        This data asset is classified as <b>{ asset.classification }</b>. Users who want to use access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
+        This data asset is classified as <b>{ asset.classification }</b>. Users who want to access the data need to send access requests to you. You can review and decide whether the users can access the data for their purpose. Anyhow, you may also directly grant projects to access this dataset.
       </p>
 
       <p className="mq--p-leading">

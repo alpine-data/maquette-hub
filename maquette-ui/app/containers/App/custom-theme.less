@@ -447,6 +447,41 @@ input.mq--editable-paragraph--input {
     }
 }
 
+//== TimelineSelect
+
+.mq--timeline-select .mq--p-leading,
+.mq--timeline-select .mq--timeline-select--item .mq--p-leading {
+    margin-bottom: 10px;
+}
+
+.mq--timeline-select {
+    margin-left: 20px;
+      
+    .rs-timeline-item-custom-dot .rs-icon {
+        position: absolute;
+        background: #fff;
+        top: 0;
+        left: -2px;
+        border: 2px solid #ddd;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 18px;
+        padding-top: 9px;
+        color: #999;
+        margin-left: -13px;
+    }
+    
+    .rs-timeline-item-content {
+        margin-left: 24px;
+    }
+
+    .mq--timeline-select--item .rs-timeline-item-content:hover {
+        color: @B900;
+        cursor: pointer;
+    }
+}
+
 //= Data Explorer
 
 @validColor: rgb(0, 192, 144);
@@ -524,5 +559,29 @@ input.mq--editable-paragraph--input {
 
     div.number {
         text-align: right;
+    }
+}
+
+//== File Explorer
+
+.mq--file-explorer {
+    border: 1px solid #ccc;
+    overflow: hidden;
+
+    font-size: 16px;
+
+    .mq--file-explorer--header {
+        padding: 10px;
+        background-color: @B050;
+        line-height: 40px;
+    }
+
+    a {
+        color: @B900;
+    }
+
+    a:hover {
+        color: @primary-color;
+        text-decoration: underline;
     }
 }

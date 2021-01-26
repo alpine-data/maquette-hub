@@ -14,6 +14,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Operators {
 
@@ -40,6 +42,10 @@ public final class Operators {
         return CompletableFuture
                 .allOf(f1, f2, f3)
                 .thenApply(v -> Operators.suppressExceptions(() -> combineWith.apply(f1.join(), f2.join(), f3.join())));
+    }
+
+    public static <T> CompletionStage<List<T>> allOf(Stream<CompletionStage<T>> futures) {
+        return allOf(futures.collect(Collectors.toList()));
     }
 
     public static <T> CompletionStage<List<T>> allOf(List<CompletionStage<T>> futures) {

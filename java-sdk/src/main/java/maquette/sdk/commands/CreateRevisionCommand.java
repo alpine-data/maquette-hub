@@ -10,7 +10,7 @@ import org.apache.avro.Schema;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CreateRevisionCommand {
+public class CreateRevisionCommand implements Command {
 
    String dataset;
 

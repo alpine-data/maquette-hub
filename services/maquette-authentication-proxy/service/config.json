@@ -1,0 +1,38 @@
+{
+    "proxy-url": "http://localhost:3000",
+    "port": "3030",
+
+    "user-id-header": "x-user-id",
+    "user-roles-header": "x-user-roles",
+    "user-details-header": "x-user-details",
+
+    "allowed-authorization-headers": [
+        "x-user-id",
+        "x-access-token"
+    ],
+
+    "users": [
+        {
+            "username": "alice",
+            "name": "Alice Kaye",
+            "roles": [
+                "a-team",
+                "b-team"
+            ]
+        },
+        {
+            "username": "bob",
+            "name": "Bob Crawford",
+            "roles": [
+                "a-team"
+            ]
+        },
+        {
+            "username": "clair",
+            "name": "Clair Kristoffersen",
+            "roles": [
+                "b-teama"
+            ]
+        }
+    ]
+}

@@ -1,16 +1,22 @@
 package maquette.core.server;
 
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.data.binary.BinaryObjects;
 import maquette.core.values.user.User;
 import org.apache.commons.io.FileUtils;
 
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor()
 public final class CollectionDataResource {
@@ -32,19 +38,35 @@ public final class CollectionDataResource {
          var uploaded = Objects.requireNonNull(ctx.uploadedFile("file"));
          var collection = ctx.pathParam("collection");
          var message = ctx.formParam("message", "");
+         var name = ctx.formParam("name", uploaded.getFilename());
+         var basePath = ctx.formParam("basePath");
 
          var file = Files.createTempFile("maquette", "upload");
          FileUtils.copyInputStreamToFile(uploaded.getContent(), file.toFile());
 
          var bin = BinaryObjects.fromFile(file);
-         var result = services
-            .getCollectionServices()
-            .put(user, collection, bin, uploaded.getFilename(), message)
-            .thenApply(done -> {
-               Operators.suppressExceptions(() -> Files.deleteIfExists(file));
-               return "Successfully uploaded data";
-            })
-            .toCompletableFuture();
+
+         CompletableFuture<String> result;
+
+         if (Objects.isNull(basePath)) {
+            result = services
+               .getCollectionServices()
+               .put(user, collection, bin, name, message)
+               .thenApply(done -> {
+                  Operators.suppressExceptions(() -> Files.deleteIfExists(file));
+                  return "Successfully uploaded data";
+               })
+               .toCompletableFuture();
+         } else {
+            result = services
+               .getCollectionServices()
+               .putAll(user, collection, bin, basePath, message)
+               .thenApply(done -> {
+                  Operators.suppressExceptions(() -> Files.deleteIfExists(file));
+                  return "Successfully uploaded files";
+               })
+               .toCompletableFuture();
+         }
 
          ctx.result(result);
       });
@@ -54,36 +76,49 @@ public final class CollectionDataResource {
       var docs = OpenApiBuilder
          .document()
          .operation(op -> {
-            op.summary("Download a file from a collection");
+            op.summary("Downloads the whole collection as a zip file");
             op.addTagsItem("Collections");
          })
          .pathParam("collection", String.class, p -> p.description("The name of the collection"))
-         .pathParam("file", String.class, p -> p.description("The name of the file"))
          .json("200", String.class);
 
       return OpenApiBuilder.documented(docs, ctx -> {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var collection = ctx.pathParam("collection");
-         var file = ctx.pathParam("file");
 
-         var result = services
-            .getCollectionServices()
-            .read(user, collection, file)
+         CompletionStage<BinaryObject> download;
+
+         if (ctx.pathParamMap().containsKey("tag")) {
+            var tag = ctx.pathParam("tag");
+
+            download = services
+               .getCollectionServices()
+               .readAll(user, collection, tag);
+         } else {
+            download = services
+               .getCollectionServices()
+               .readAll(user, collection);
+         }
+
+         var result = download
             .thenCompose(bin -> {
                var tmp = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+
+               ctx.header("Content-Disposition", "attachment; filename=" + collection + ".zip");
+               ctx.header("Content-Type", "application/octet-stream");
+
                return bin
                   .toFile(tmp)
+                  .thenCompose(d -> bin.discard())
                   .thenApply(done -> DataResource.DeleteOnCloseInputStream.apply(tmp));
             })
             .toCompletableFuture();
 
-         ctx.header("Content-Disposition", "attachment; filename=" + file);
-         ctx.header("Content-Type", "application/octet-stream");
          ctx.result(result);
       });
    }
 
-   public Handler downloadTag() {
+   public Handler downloadFile() {
       var docs = OpenApiBuilder
          .document()
          .operation(op -> {
@@ -91,29 +126,43 @@ public final class CollectionDataResource {
             op.addTagsItem("Collections");
          })
          .pathParam("collection", String.class, p -> p.description("The name of the collection"))
-         .pathParam("tag", String.class, p -> p.description("The name of the tag to download from"))
          .pathParam("file", String.class, p -> p.description("The name of the file"))
          .json("200", String.class);
 
       return OpenApiBuilder.documented(docs, ctx -> {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var collection = ctx.pathParam("collection");
-         var tag = ctx.pathParam("tag");
-         var file = ctx.pathParam("file");
+         var file = getRemainingPath(ctx);
 
-         var result = services
-            .getCollectionServices()
-            .read(user, collection, tag, file)
+         CompletionStage<BinaryObject> download;
+
+         if (ctx.pathParamMap().containsKey("tag")) {
+            var tag = ctx.pathParam("tag");
+
+            download = services
+               .getCollectionServices()
+               .read(user, collection, tag, file);
+         } else {
+            download = services
+               .getCollectionServices()
+               .read(user, collection, file);
+         }
+
+         var result = download
             .thenCompose(bin -> {
                var tmp = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+               var filename = Arrays.stream(file.split("/")).reduce((f, s) -> s).orElse(collection);
+
+               ctx.header("Content-Disposition", "attachment; filename=" + filename);
+               ctx.header("Content-Type", "application/octet-stream");
+
                return bin
                   .toFile(tmp)
+                  .thenCompose(d -> bin.discard())
                   .thenApply(done -> DataResource.DeleteOnCloseInputStream.apply(tmp));
             })
             .toCompletableFuture();
 
-         ctx.header("Content-Disposition", "attachment; filename=" + file);
-         ctx.header("Content-Type", "application/octet-stream");
          ctx.result(result);
       });
    }
@@ -132,7 +181,7 @@ public final class CollectionDataResource {
       return OpenApiBuilder.documented(docs, ctx -> {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var collection = ctx.pathParam("collection");
-         var file = ctx.pathParam("file");
+         var file = getRemainingPath(ctx);
 
          var result = services
             .getCollectionServices()
@@ -142,6 +191,22 @@ public final class CollectionDataResource {
 
          ctx.result(result);
       });
+   }
+
+   private String getRemainingPath(Context ctx) {
+      var matchedPathElements = Arrays
+         .stream(ctx.endpointHandlerPath().split("/"))
+         .filter(e -> !e.equals("*"))
+         .filter(e -> e.length() > 0)
+         .collect(Collectors.toList());
+
+      var allPathElements = Arrays
+         .stream(ctx.path().split("/"))
+         .filter(e -> e.length() > 0)
+         .collect(Collectors.toList());
+
+      return String.join("/", allPathElements
+         .subList(matchedPathElements.size(), allPathElements.size()));
    }
 
 }
