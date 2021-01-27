@@ -168,27 +168,32 @@ class Collection(DataAsset):
                          project_name, project_id,
                          EDataAssetType.COLLECTION)
 
-    def put(self, data, short_description: str = None):
+    def put(self, data, short_description: str = None)-> 'Collection':
         """
-        Send files to a collection
+        Send single files to a collection. ZIP File upload is not intended from the Python SDK
         Args:
             data: the actual data as binary object
-            short_description: optinal string to describe the object
+            short_description: optinal string to describe the object, if not provided an automatic commit message will
+                                be created
 
         Returns: the version identification as string
 
         """
+        if short_description is None:
+            short_description = os.path.basename(data.name) + " uploaded to collection " + self.data_asset_name
+
         if self.header:
             headers = {'Accept': 'application/octet-stream', **self.header}
         else:
             headers = {'Accept': 'application/octet-stream'}
 
         resp = client.post('data/collections/' + self.data_asset_name, files={
-            'target': os.path.basename(data.name),
-            'file': (short_description, data, 'application/octet-stream', {'Content-Type': 'application/octet-stream'})
+            'name': os.path.basename(data.name),
+            'message': short_description,
+            'file': (short_description, data, 'avro/binary', {'Content-Type': 'avro/binary'})
         }, headers=headers)
 
-        return json.loads(resp.content)["version"]
+        return self
 
     def get(self, filename, tag: str = None):
         """
@@ -272,16 +277,20 @@ class Dataset(DataAsset):
     """
 
     """
+    version: str = None
+
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
-                 project_name: str = None, project_id: str = None):
+                 project_name: str = None, project_id: str = None, version: str = None):
+        if version:
+            self.version = version
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
                          project_name, project_id,
                          EDataAssetType.DATASET)
 
-    def put(self, data: pd.DataFrame, short_description: str):
+    def put(self, data: pd.DataFrame, short_description: str) -> 'Dataset':
         """
 
         Args:
@@ -307,7 +316,8 @@ class Dataset(DataAsset):
             'file': (short_description, file, 'avro/binary', {'Content-Type': 'avro/binary'})
         }, headers=headers)
 
-        return json.loads(resp.content)["version"]
+        self.version = json.loads(resp.content)["version"]
+        return self
 
     def get(self, version: str = None) -> pd.DataFrame:
         """
@@ -441,7 +451,6 @@ class Project:
         """
         resp = client.command(cmd='projects remove',
                               args={'name': self.__name})
-        return resp[1]
 
     def delete(self):
         """
@@ -449,7 +458,7 @@ class Project:
         Returns:
 
         """
-        return self.remove()
+        self.remove()
 
     def datasets(self, to_csv=False):
         """
