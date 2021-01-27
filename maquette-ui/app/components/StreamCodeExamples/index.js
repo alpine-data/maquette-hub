@@ -22,7 +22,7 @@ function Title({ children }) {
   return <p><b style={{ display: "block", marginTop: "20px" }}>{ children }</b></p>
 }
 
-function StreamCodeExamples() {
+function StreamCodeExamples({ stream = 'stock-price' }) {
   return <>
     <h4>Consume and Produce Data</h4>
     <Tabs content={ [
@@ -35,18 +35,18 @@ function StreamCodeExamples() {
               {
                 `import maquette.sdk.dsl.Maquette;\n\n` +
                 `var data = List.of(/* ... */);\n\n` + 
-                `Maquette\n   .streams("stock-prices")\n   .push(data);\n\n` + 
+                `Maquette\n   .streams("${stream}")\n   .push(data);\n\n` + 
                 `// or with Reactive Streams\n` +
-                `Maquette.streams("stock-prices").createSink();`
+                `Maquette.streams("${stream}").createSink();`
               }
             </SyntaxHighlighter>
             <Title>Java Consumer</Title>
             <SyntaxHighlighter showLineNumbers language="java" style={docco}>
               {
                 `import maquette.sdk.dsl.Maquette;\n\n` +
-                `var nextRecord = Maquette\n   .streams("stock-prices")\n   .get(SomeClass.class);\n\n` + 
+                `var nextRecord = Maquette\n   .streams("${stream}")\n   .get(SomeClass.class);\n\n` + 
                 `// or with Reactive Streams\n` +
-                `Maquette.streams("stock-prices").createSource(SomeClass.class);`
+                `Maquette.streams("${stream}").createSource(SomeClass.class);`
               }
             </SyntaxHighlighter>
             <p style={{ fontSize: "14px" }}>

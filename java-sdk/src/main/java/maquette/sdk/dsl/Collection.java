@@ -163,6 +163,7 @@ public final class Collection {
    public CompletionStage<Done> writeDirectory(Path directory, String message, Path basePath) {
       Operators
          .suppressExceptions(() -> Files.walk(directory))
+         .filter(Files::isRegularFile)
          .forEach(path -> upload(CollectionFiles.fromPath(path, basePath), message));
 
       return CompletableFuture.completedFuture(Done.getInstance());
@@ -300,7 +301,7 @@ public final class Collection {
             "file", "file",
             RequestBody.create(file.getFile().toArray(), MediaType.parse("application/octet-stream")))
          .addFormDataPart("message", file.getMessage().orElse(message))
-         .addFormDataPart("name", name)
+         .addFormDataPart("name", file.getName())
          .build();
 
       var request = client

@@ -19,7 +19,6 @@ function CollectionTimeline({ activeTag, collection, onSelect }) {
       key: 'main',
       content: <>
         <b>main</b>
-        <p className="mq--p-leading">Hallo Freunde</p>
         <p><b>{ collection.files.lastModified.added.by }</b> updated collection { timeAgo(collection.files.lastModified.added.at) }.</p>
       </>
     })
