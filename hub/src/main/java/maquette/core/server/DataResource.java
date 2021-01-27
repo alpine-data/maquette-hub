@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor()
 public final class DataResource {
@@ -149,9 +150,19 @@ public final class DataResource {
          var dataset = ctx.pathParam("dataset");
          var version = ctx.pathParam("version");
 
-         var result = services
-            .getDatasetServices()
-            .download(user, dataset, DatasetVersion.apply(version))
+         CompletionStage<Records> recordsCS;
+
+         if (ctx.headerMap().containsKey("x-project")) {
+            recordsCS = services
+               .getDatasetServices()
+               .download(user, UID.apply(ctx.headerMap().get("x-project")), dataset, DatasetVersion.apply(version));
+         } else {
+            recordsCS = services
+               .getDatasetServices()
+               .download(user, dataset, DatasetVersion.apply(version));
+         }
+
+         var result = recordsCS
             .thenApply(records -> {
                var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                records.toFile(file);
@@ -180,9 +191,21 @@ public final class DataResource {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var dataset = ctx.pathParam("dataset");
 
-         var result = services
-            .getDatasetServices()
-            .download(user, dataset)
+         CompletionStage<Records> recordsCS;
+
+         System.out.println(ctx.headerMap());
+
+         if (ctx.headerMap().containsKey("x-project")) {
+            recordsCS = services
+               .getDatasetServices()
+               .download(user, UID.apply(ctx.headerMap().get("x-project")), dataset);
+         } else {
+            recordsCS = services
+               .getDatasetServices()
+               .download(user, dataset);
+         }
+
+         var result = recordsCS
             .thenApply(records -> {
                var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                records.toFile(file);

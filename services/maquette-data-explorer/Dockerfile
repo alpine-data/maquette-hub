@@ -8,7 +8,6 @@ WORKDIR /opt/maquette/services/data-explorer
 
 RUN ls -al && \
     chmod +x run_server.sh && \
-    mv maquette-0.0.4-py3-none-any.whl ../../maquette-py/dist/ && \
     pip install poetry && \
     poetry install
 

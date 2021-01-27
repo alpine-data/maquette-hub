@@ -19,6 +19,7 @@ import saga from './saga';
 import { load, update, selectVersion, dismissError } from './actions';
 
 import Container from 'components/Container';
+import DataAccessLogs from '../../components/DataAccessLogs';
 import DataAccessRequests from '../../components/DataAccessRequests';
 import DataBadges from 'components/DataBadges';
 import DatasetOverview from '../../components/DatasetOverview';
@@ -92,11 +93,15 @@ function Display(props) {
         <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
           <Nav.Item eventKey="overview" componentClass={ Link } to={ `/shop/datasets/${dataset}` }>Overview</Nav.Item>
 
-          {
+          {/*
               canAccessData && <Nav.Item eventKey="data" componentClass={ Link } to={ `/shop/datasets/${dataset}/data` }>Data</Nav.Item>
-          }
+          */}
 
           <Nav.Item eventKey="access-requests" componentClass={ Link } to={ `/shop/datasets/${dataset}/access-requests` }>Access requests</Nav.Item>
+
+          {
+              isOwner && <Nav.Item eventKey="access-logs" componentClass={ Link } to={ `/shop/datasets/${dataset}/access-logs` }>Access logs</Nav.Item>
+          }
 
           { 
             isOwner && <Nav.Item eventKey="settings" componentClass={ Link } to={ `/shop/datasets/${dataset}/settings` }>Settings</Nav.Item>
@@ -128,6 +133,15 @@ function Display(props) {
           onRequest={ request => props.dispatch(update("datasets access-requests update", request)) }
           onWithdraw={ request => props.dispatch(update("datasets access-requests withdraw", request)) } />
       </> 
+    }
+
+    {
+      tab == 'access-logs' && <>
+        <DataAccessLogs
+          { ...props }
+          logs={ props.dataset.data.logs }
+          asset={ props.dataset.data.dataset } />
+      </>
     }
 
     { 

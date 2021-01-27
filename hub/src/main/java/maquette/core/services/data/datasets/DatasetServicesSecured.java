@@ -135,6 +135,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Records> download(User executor, UID project, String dataset, DatasetVersion version) {
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset, project),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
@@ -146,6 +147,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
@@ -157,6 +159,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Records> download(User executor, String dataset) {
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
@@ -168,6 +171,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Records> download(User executor, UID project, String dataset) {
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset, project),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
@@ -179,6 +183,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    public CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records) {
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.PRODUCER))

@@ -1,9 +1,10 @@
 version: "3.8"
 services:
   data-explorer:
-    image: mq-data-explorer:latest
+    image: mq-services--data-explorer:0.0.1
     ports:
       - "9085:9085"
     environment:
       MQ_BASE_URL: http://host.docker.internal:9042/api/
-      MQ_USERNAME: 'alice'
+      MQ_USERNAME: 'mq_service_key'
+      MQ_AUTH_USERNAME: 'mq_service_key'

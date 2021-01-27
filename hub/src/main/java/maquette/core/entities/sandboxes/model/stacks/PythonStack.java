@@ -72,9 +72,11 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
    @Override
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
       var postgresContainerCfg = ContainerConfig
-         .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:latest")
+         .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:0.0.1")
          .withEnvironmentVariable("MQ_USERNAME", sandbox.getCreated().getBy())
+         .withEnvironmentVariable("MQ_AUTH_USERNAME", sandbox.getCreated().getBy())
          .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.randomHash())
+         .withEnvironmentVariable("MQ_PROJECT", project.getId().toString())
          .withPort(8888)
          .withPort(9085)
          .build();

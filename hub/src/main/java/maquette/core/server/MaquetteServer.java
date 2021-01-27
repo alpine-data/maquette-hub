@@ -13,88 +13,100 @@ import maquette.core.services.ApplicationServices;
 import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
+import maquette.core.values.user.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public final class MaquetteServer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MaquetteServer.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MaquetteServer.class);
 
-    private final Javalin app;
+   private final Javalin app;
 
-    public static MaquetteServer apply(
-            ApplicationConfiguration config,
-            RuntimeConfiguration runtime,
-            ApplicationServices services) {
+   private final ApplicationConfiguration config;
 
-        JavalinJackson.configure(runtime.getObjectMapper());
+   public static MaquetteServer apply(
+      ApplicationConfiguration config,
+      RuntimeConfiguration runtime,
+      ApplicationServices services) {
 
-        var adminResource = new AdminResource(config);
-        var commandResource = new CommandResource(runtime, services);
-        var dataResource = new DataResource(services);
-        var collectionDataResource = new CollectionDataResource(services);
+      JavalinJackson.configure(runtime.getObjectMapper());
 
-        runtime.getApp()
-                .before(handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
+      var adminResource = new AdminResource(config);
+      var commandResource = new CommandResource(runtime, services);
+      var dataResource = new DataResource(services);
+      var collectionDataResource = new CollectionDataResource(services);
 
-                .post("/api/commands", commandResource.getCommand())
-                .get("/api/commands", commandResource.getCommands())
-                .get("/api/commands/examples", commandResource.getCommandExamples())
+      var server = MaquetteServer.apply(runtime.getApp(), config);
 
-                .post("/api/data/collections/:collection", collectionDataResource.upload())
-                .get("/api/data/collections/:collection/latest", collectionDataResource.download())
-                .get("/api/data/collections/:collection/tags/:tag", collectionDataResource.download())
-                .get("/api/data/collections/:collection/latest/*", collectionDataResource.downloadFile())
-                .get("/api/data/collections/:collection/tags/:tag/*", collectionDataResource.downloadFile())
-                .delete("/api/data/collections/:collection/latest/*", collectionDataResource.remove())
+      runtime.getApp()
+         .before(server.handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
 
-                .post("/api/data/datasets/:dataset", dataResource.uploadDatasetFile())
-                .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
-                .get("/api/data/datasets/:dataset/:version", dataResource.downloadDatasetVersion())
-                .get("/api/data/datasets/:dataset", dataResource.downloadLatestDatasetVersion())
-                .get("/api/data/sources/:source", dataResource.downloadDatasource())
+         .post("/api/commands", commandResource.getCommand())
+         .get("/api/commands", commandResource.getCommands())
+         .get("/api/commands/examples", commandResource.getCommandExamples())
 
-                .get("/api/about", adminResource.getAbout())
-                .get("/api/about/user", adminResource.getUserInfo())
+         .post("/api/data/collections/:collection", collectionDataResource.upload())
+         .get("/api/data/collections/:collection/latest", collectionDataResource.download())
+         .get("/api/data/collections/:collection/tags/:tag", collectionDataResource.download())
+         .get("/api/data/collections/:collection/latest/*", collectionDataResource.downloadFile())
+         .get("/api/data/collections/:collection/tags/:tag/*", collectionDataResource.downloadFile())
+         .delete("/api/data/collections/:collection/latest/*", collectionDataResource.remove())
 
-                .exception(Exception.class, (e, ctx) -> {
-                    var maybeDomainException = Operators.hasCause(e, DomainException.class);
+         .post("/api/data/datasets/:dataset", dataResource.uploadDatasetFile())
+         .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
+         .get("/api/data/datasets/:dataset/:version", dataResource.downloadDatasetVersion())
+         .get("/api/data/datasets/:dataset", dataResource.downloadLatestDatasetVersion())
+         .get("/api/data/sources/:source", dataResource.downloadDatasource())
 
-                    if (maybeDomainException.isPresent()) {
-                        var error = maybeDomainException.get();
-                        ctx.status(error.getStatus());
-                        ctx.json(MessageResult.apply(error.getMessage()));
-                    } else {
-                        LOG.warn("Unhandled exception upon API call", e);
-                        ctx.status(500);
-                        ctx.json(MessageResult.apply("Internal Server Error"));
-                    }
-                });
+         .get("/api/about", adminResource.getAbout())
+         .get("/api/about/user", adminResource.getUserInfo())
 
-        return apply(runtime.getApp());
-    }
+         .exception(Exception.class, (e, ctx) -> {
+            var maybeDomainException = Operators.hasCause(e, DomainException.class);
 
-    private static Handler handleAuthentication(String userIdHeaderName, String userRolesHeaderName) {
-        return ctx -> {
-            var headers = ctx.headerMap();
-
-            if (headers.containsKey(userIdHeaderName)) {
-                var user = AuthenticatedUser.apply(headers.get(userIdHeaderName));
-
-                if (headers.containsKey(userRolesHeaderName)) {
-                    user = user.withRoles(headers.get(userRolesHeaderName).split(","));
-                }
-
-                ctx.attribute("user", user);
+            if (maybeDomainException.isPresent()) {
+               var error = maybeDomainException.get();
+               ctx.status(error.getStatus());
+               ctx.json(MessageResult.apply(error.getMessage()));
             } else {
-                ctx.attribute("user", AnonymousUser.apply());
+               LOG.warn("Unhandled exception upon API call", e);
+               ctx.status(500);
+               ctx.json(MessageResult.apply("Internal Server Error"));
             }
-        };
-    }
+         });
 
-    public void stop() {
-        app.stop();
-    }
+      return server;
+   }
+
+   private Handler handleAuthentication(String userIdHeaderName, String userRolesHeaderName) {
+      return ctx -> {
+         var headers = ctx.headerMap();
+
+         if (headers.containsKey(userIdHeaderName)) {
+            var userId = headers.get(userIdHeaderName);
+
+            if (userId.equals(config.getServices().getKey())) { // TODO: User proper header keys for service user.
+               var user = SystemUser.apply();
+               ctx.attribute("user", user);
+            } else {
+               var user = AuthenticatedUser.apply(userId);
+
+               if (headers.containsKey(userRolesHeaderName)) {
+                  user = user.withRoles(headers.get(userRolesHeaderName).split(","));
+               }
+
+               ctx.attribute("user", user);
+            }
+         } else {
+            ctx.attribute("user", AnonymousUser.apply());
+         }
+      };
+   }
+
+   public void stop() {
+      app.stop();
+   }
 
 }

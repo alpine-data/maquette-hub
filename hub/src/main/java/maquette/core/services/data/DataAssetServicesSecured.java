@@ -78,6 +78,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
 
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> companion.isVisible(asset),
             () -> isMemberCS,
             () -> isSubscribedCS)
@@ -122,6 +123,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
             .stream()
             .map(entity -> companion.filterAuthorized(
                entity,
+               executor::isSystemUserCS,
                () -> companion.isVisible(entity.getName()),
                () -> companion.isMember(executor, entity.getName()),
                () -> companion.isSubscribedConsumer(executor, entity.getName()))))
@@ -136,7 +138,9 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    @Override
    public CompletionStage<Done> remove(User executor, String asset) {
       return companion
-         .withAuthorization(() -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+         .withAuthorization(
+            executor::isSystemUserCS,
+            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
          .thenCompose(ok -> delegate.remove(executor, asset));
    }
 
@@ -144,6 +148,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String asset, UID request) {
       return companion
          .withAuthorization(
+            executor::isSystemUserCS,
             () -> companion.isMember(executor, asset),
             () -> companion.isRequester(executor, asset, request))
          .thenCompose(ok -> delegate.getDataAccessRequest(executor, asset, request));

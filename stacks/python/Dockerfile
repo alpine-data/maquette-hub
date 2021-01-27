@@ -1,8 +1,9 @@
-FROM mq-data-explorer:latest
+FROM mq-services--data-explorer:0.0.1
 
 ENV MQ_JUPYTER_TOKEN=abc
 ENV MQ_BASE_URL=http://host.docker.internal:9042/api/
 ENV MQ_USERNAME=alice
+ENV MQ_AUTH_USERNAME=alice
 EXPOSE 8888
 
 RUN mkdir /opt/notebook
