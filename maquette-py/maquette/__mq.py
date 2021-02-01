@@ -188,11 +188,10 @@ class Collection(DataAsset):
             headers = {'Accept': 'application/octet-stream'}
 
         resp = client.post('data/collections/' + self.data_asset_name, files={
+            'file': (os.path.basename(data.name), data, 'avro/binary', {'Content-Type': 'avro/binary'})
+        }, headers=headers, json={
             'name': os.path.basename(data.name),
-            'message': short_description,
-            'file': (short_description, data, 'avro/binary', {'Content-Type': 'avro/binary'})
-        }, headers=headers)
-
+            'message': short_description})
         return self
 
     def get(self, filename, tag: str = None):
@@ -312,9 +311,9 @@ class Dataset(DataAsset):
             headers = {'Accept': 'application/csv'}
 
         resp = client.post('data/datasets/' + ds, files={
-            'message': short_description,
             'file': (short_description, file, 'avro/binary', {'Content-Type': 'avro/binary'})
-        }, headers=headers)
+        }, headers=headers, json={
+            'message': short_description})
 
         self.version = json.loads(resp.content)["version"]
         return self
@@ -495,7 +494,14 @@ class Project:
         args = [arg for arg in
                 [dataset_name, dataset_title, summary, visibility, classification, personal_information] if
                 arg]
-        return Dataset(project_name=self.__name, *args, )
+        return Dataset(project_name=self.__name, *args)
+
+    def source (self, source_name: str = None, source_title: str = None, summary: str = None, visibility: str = None, classification: str = None, personal_information:str = None,
+                access_type: str = None, db_properties = None) -> 'Source':
+        args = [arg for arg in
+                [source_name, source_title, summary, visibility, classification, personal_information, access_type] if arg]
+        return Source(project_name=self.__name, db_properties=db_properties, *args)
+
 
     def collection(self, collection_name: str = None, collection_title: str = None, summary: str = None,
                    visibility: str = None, classification: str = None, personal_information: str = None) -> Collection:
