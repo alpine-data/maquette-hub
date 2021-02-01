@@ -4,23 +4,23 @@
 
 The system context depicts the high-level context of the Maquette DSML, including its major users and required out-of-scope systems for the platform.
 
-![System Context](./resources/maquette--context.png)
+![System Context](../resources/maquette--context.png)
 
 ## System Containers
 
 The container diagram shows the high-level shape of the software architecture and how responsibilities are distributed across itself. Each container shows its major technology choice and the flow of control between the containers.
 
-![System Containers](./resources/maquette--containers.png)
+![System Containers](../resources/maquette--containers.png)
 
 ## Maquette Hub
 
 ### Technical Layers
 
-![Maquette Hub Layers](./resources/maquette--hub--layers.png)
+![Maquette Hub Layers](../resources/maquette--hub--layers.png)
 
 ### Domains
 
-![Maquette Hub Domains](./resources/maquette--hub--domains.png)
+![Maquette Hub Domains](../resources/maquette--hub--domains.png)
 
 
 ---

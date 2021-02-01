@@ -13,3 +13,11 @@ export function timeAgo(jsonDateTimeString) {
         return '';
     }
 }
+
+export function formatTime(jsonDateTimeString) {
+    try {
+        return new Date(jsonDateTimeString).toLocaleString();
+    } catch (e) {
+        return '';
+    }
+}

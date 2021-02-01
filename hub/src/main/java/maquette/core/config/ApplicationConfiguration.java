@@ -15,6 +15,8 @@ public class ApplicationConfiguration {
 
     ServerConfiguration server;
 
+    ServicesConfiguration services;
+
     public static ApplicationConfiguration apply() {
         return apply(ConfigFactory.load());
     }
@@ -23,8 +25,9 @@ public class ApplicationConfiguration {
         String version = config.getString("maquette.version");
         String environment = config.getString("maquette.environment");
         ServerConfiguration server = ServerConfiguration.apply(config.getConfig("maquette.server"));
+        ServicesConfiguration services = ServicesConfiguration.apply(config.getConfig("maquette.services"));
 
-        return apply(version, environment, server);
+        return apply(version, environment, server, services);
     }
 
 }

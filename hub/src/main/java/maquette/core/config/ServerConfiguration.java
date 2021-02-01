@@ -23,7 +23,7 @@ public class ServerConfiguration {
         var host = config.getString("host");
         var userIdHeaderName = config.getString("user-id-header-name");
         var userRolesHeaderName = config.getString("user-roles-header-name");
-        var projectHeaderName = config.getString("project-header-name");
+        var projectHeaderName = config.getString("project-key-header-name");
 
         return apply(port, host, userIdHeaderName, userRolesHeaderName, projectHeaderName);
     }

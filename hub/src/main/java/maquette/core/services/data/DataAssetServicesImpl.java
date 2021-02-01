@@ -95,7 +95,7 @@ public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E ext
                .map(log -> {
                   var project = projectProperties
                      .stream()
-                     .filter(p -> p.getId().equals(log.getAsset()))
+                     .filter(p -> p.getId().equals(log.getProject().orElse(null)))
                      .findFirst()
                      .orElse(null);
 

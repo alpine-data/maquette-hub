@@ -46,20 +46,24 @@ public final class MaquetteDataExplorer implements DataExplorer {
             .post(RequestBody.create(json, MediaType.parse("application/json")))
             .build();
 
-         var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+         try {
+            var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
 
-         if (!response.isSuccessful()) {
+            if (!response.isSuccessful()) {
+               var body = response.body();
+               var content = body != null ? Operators.suppressExceptions(body::string) : "";
+               content = StringUtils.leftPad(content, 3);
+               LOG.warn("Received non-successful response from analysis service:\n" + content);
 
-            var body = response.body();
-            var content = body != null ? Operators.suppressExceptions(body::string) : "";
-            content = StringUtils.leftPad(content, 3);
-            LOG.warn("Received non-successful response from analysis service:\n" + content);
-
+               return Operators.suppressExceptions(() -> om.readValue("{}", JsonNode.class));
+            } else {
+               var body = response.body();
+               var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
+               return Operators.suppressExceptions(() -> om.readValue(content, JsonNode.class));
+            }
+         } catch (Exception e) {
+            LOG.warn("Exception occurred while calling Maquette Data Explorer.");
             return Operators.suppressExceptions(() -> om.readValue("{}", JsonNode.class));
-         } else {
-            var body = response.body();
-            var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
-            return Operators.suppressExceptions(() -> om.readValue(content, JsonNode.class));
          }
       });
    }

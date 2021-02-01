@@ -7,12 +7,12 @@ import java.io.File;
 public class SampleCollectionProducerApplication {
 
    public static void main(String... args) {
-      var directory = (new File("/Users/michaelwellner/Downloads/sample-collection")).toPath();
+      var directory = (new File("/Users/michaelwellner/Downloads/mnist_png")).toPath();
 
       Maquette
          .create()
-         .collection("some-dataset")
-         .writeDirectory(directory, "some message");
+         .collection("mnist-image-classsification")
+         .writeDirectory(directory, "Extracted from the internet and transformed to PNG.");
    }
 
 }
