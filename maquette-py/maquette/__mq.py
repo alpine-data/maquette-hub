@@ -250,8 +250,8 @@ class Source(DataAsset):
         Returns:
 
         """
-        client.command(cmd='sources update'.format(self.data_asset_type),
-                       args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
+        client.command(cmd='sources update',
+                       args={'source': to_update, 'name': self.data_asset_name, 'title': self.title,
                              'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
                              'accessType': self.access_type, 'properties': self.db_properties,
