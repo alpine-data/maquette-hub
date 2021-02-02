@@ -7,7 +7,6 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
@@ -18,124 +17,19 @@ import reducer from './reducer';
 import saga from './saga';
 import { load, update, dismissError } from './actions';
 
-import Container from 'components/Container';
-import EditableParagraph from 'components/EditableParagraph';
-import Error from '../../components/Error';
-import Sandboxes from '../../components/Sandboxes';
-
-import { Button, ButtonToolbar, Nav, Icon, FlexboxGrid, Affix, Whisper, Tooltip } from 'rsuite';
-import { Link } from 'react-router-dom';
-
-import ProjectBackground from '../../resources/projects-background.png';
+import ProjectOverview from '../../components/ProjectOverview';
 import ProjectSettings from '../../components/ProjectSettings';
-import ErrorMessage from '../../components/ErrorMessage';
-import DataAssetBrowser from '../../components/DataAssetBrowser';
 import ProjectDataAssets from '../../components/ProjectDataAssets';
-
-function Display(props) {
-  const tab = _.get(props, 'match.params.tab') || 'assets';
-  const name = _.get(props, 'project.data.project.name');
-  const title = _.get(props, 'project.data.project.title');
-  const summary = _.get(props, 'project.data.project.summary');
-  const isAdmin = _.get(props, 'project.data.isAdmin');
-  const isMember = _.get(props, 'project.data.isMember');
-  const error = _.get(props, 'project.error');
-
-  const onUpdate = (values) => {
-    const current = _.pick(_.get(props, 'project.data.project'), 'name', 'title', 'summary');
-
-    const updated = _.assign(current, values, { project: name });
-
-    props.dispatch(update('projects update', updated));
-  }
-
-  const onGrant = (value) => {
-    const request = _.assign(value, { project: name });
-    props.dispatch(update('projects grant', request));
-  }
-
-  const onRevoke = (value) => {
-    const request = _.assign(value, { project: name });
-    props.dispatch(update('projects revoke', request));
-  }
-
-  return (
-    <div>
-      <Helmet>
-        <title>{ title } &middot; Maquette</title>
-      </Helmet>
-
-      <Affix top={56}>
-        <div className="mq--page-title">
-          <Container fluid>
-            <FlexboxGrid align="middle">
-              <FlexboxGrid.Item colspan={ 20 }>
-                <h1><Link to={ `/${name}` }>{ title }</Link></h1>
-                <EditableParagraph 
-                  value={ summary } 
-                  onChange={ summary => onUpdate({ summary }) }
-                  disabled={ !isAdmin }
-                  className="mq--p-leading" />
-              </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
-                <ButtonToolbar>
-                  <Whisper
-                    trigger="hover"
-                    placement="bottom"
-                    speaker={ <Tooltip>3 members</Tooltip> }>
-                      
-                      <Button size="sm" active><Icon icon="user-o" />&nbsp;&nbsp;3</Button>
-                  </Whisper>
-                  <Button size="sm" active><Icon icon="bookmark-o" />&nbsp;&nbsp;42</Button>
-                </ButtonToolbar>
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          </Container>
-          
-          <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-            <Nav.Item eventKey="assets" componentClass={ Link } to={ `/${name}` }>Data Assets</Nav.Item>
-            <Nav.Item eventKey="experiments" componentClass={ Link } to={ `/${name}/experiments` }>Experiments</Nav.Item>
-            <Nav.Item eventKey="models" componentClass={ Link } to={ `/${name}/models` }>Models</Nav.Item>
-            <Nav.Item eventKey="sandboxes" componentClass={ Link } to={ `/${name}/sandboxes` }>Sandboxes</Nav.Item>
-            <Nav.Item eventKey="templates" componentClass={ Link } to={ `/${name}/templates` }>Templates</Nav.Item>
-            <Nav.Item eventKey="settings" componentClass={ Link } to={ `/${name}/settings` }>Settings</Nav.Item>
-          </Nav>
-        </div>
-      </Affix>
-
-      {
-        error && <ErrorMessage title="An error occurred saving the changes" message={ error } onDismiss={ () => props.dispatch(dismissError()) } />
-      }
-
-      {
-        tab == 'assets' && <ProjectDataAssets { ...props } />
-      }
-
-      { 
-        tab == 'settings' && <>
-          <ProjectSettings 
-            { ...props} 
-            onUpdate={ onUpdate }
-            onGrant={ onGrant }
-            onRevoke={ onRevoke } /> 
-        </>
-      }
-
-      { tab == 'sandboxes' && <Sandboxes { ...props} /> }
-    </div>
-  );
-}
+import Sandboxes from '../../components/Sandboxes';
+import ViewContainer from '../../components/ViewContainer';
 
 export function Project(props) {
   useInjectReducer({ key: 'project', reducer });
   useInjectSaga({ key: 'project', saga });
 
   const [initialized, setInitialized] = useState(false);
-  const error = _.get(props, 'project.error');
   const data = _.get(props, 'project.data');
-  const loading = _.get(props, 'project.loading');
   const project = _.get(props, 'match.params.project');
-  const isMember = _.get(props, 'project.data.isMember');
 
   useEffect(() => {
     if (!initialized) {
@@ -144,15 +38,98 @@ export function Project(props) {
     }
   });
 
-  if (!initialized || loading) {
-    return <div className="mq--loading" /> 
-  } else if (!data && error) {
-    return <Error background={ ProjectBackground } message={ error } />;
-  } else if (!isMember) {
-    return <Error background={ ProjectBackground } message="You are not authorized to view this project." />;
-  } else {
-    return <Display { ...props } />; 
+  const onUpdate = (values) => {
+    const current = _.pick(_.get(data, 'project'), 'name', 'title', 'summary');
+    const updated = _.assign(current, values, { project });
+    props.dispatch(update('projects update', updated));
   }
+
+  const onGrant = (value) => {
+    const request = _.assign(value, { project });
+    props.dispatch(update('projects grant', request));
+  }
+
+  const onRevoke = (value) => {
+    const request = _.assign(value, { project });
+    props.dispatch(update('projects revoke', request));
+  }
+
+  return <ViewContainer 
+    background='projects'
+    loading={ _.get(props, 'project.loading') }
+
+    likes={ 23 }
+    liked={ true }
+    onChangeLike={ console.log }
+
+    error={ _.get(props, 'project.error') }
+    onCloseError={ () => props.dispatch(dismissError()) }
+
+    canChangeSummary={ data.isAdmin }
+    summary={ _.get(data, 'project.summary') }
+    onChangeSummary={ summary => onUpdate({ summary }) }
+
+    titles={ [ { link: `/${project}`, label: _.get(data, 'project.title') || project }] }
+  
+    activeTab='overview'
+    tabs={ [
+      {
+        label: 'Overview',
+        key: 'overview',
+        link: `/${project}`,
+        visible: true,
+        component: () => <ProjectOverview view={ data } />
+      },
+      {
+        label: 'Data Assets',
+        link: `/${project}/data`,
+        key: 'data',
+        visible: true,
+        component: () => <ProjectDataAssets { ...props } />
+      },
+      {
+        label: 'Data Repositories',
+        link: `/${project}/repositories`,
+        key: 'repositories',
+        visible: true,
+        component: () => <>Data Repositories</>
+      },
+      {
+        label: 'Sandboxes',
+        link: `/${project}/sandboxes`,
+        key: 'sandboxes',
+        visible: true,
+        component: () => <Sandboxes { ...props} />
+      },
+      {
+        label: 'Jobs',
+        link: `/${project}/jobs`,
+        key: 'jobs',
+        visible: true,
+        component: () => <>Jobs</>
+      },
+      {
+        label: 'Experiments',
+        link: `/${project}/experiments`,
+        key: 'experiments',
+        visible: true,
+        component: () => <>Experiments</>
+      },
+      {
+        label: 'Settings',
+        link: `/${project}/settings`,
+        key: 'settings',
+        visible: data.isAdmin,
+        component: () => {
+          return <ProjectSettings 
+            { ...props} 
+            onUpdate={ onUpdate }
+            onGrant={ onGrant }
+            onRevoke={ onRevoke } /> 
+        }
+      }
+    ] }
+    { ...props } />
 }
 
 Project.propTypes = {

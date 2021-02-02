@@ -22,6 +22,7 @@ function EditableParagraph({ className, disabled, placeholder, label, value, onC
 
   const input_onBlur = () => {
     onChange(inputValue);
+    setInputValue(value);
     setEditing(false);
   }
 

@@ -12,7 +12,7 @@ export const initialState = {
   data: false,
 
   error: false,
-  loading: false,
+  loading: true,
   updating: false
 };
 
