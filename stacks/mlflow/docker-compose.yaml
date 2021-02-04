@@ -44,7 +44,8 @@ services:
       MINIO_ACCESS_KEY: "access"
       MINIO_SECRET_KEY: "secret1234"
       MINIO_REGION_NAME: "mzg"
-    command: "server /data"
+    entrypoint: sh
+    command: -c "mkdir -p /data/mlflow && /usr/bin/minio server /data"
 
   mlflow:
     restart: always
@@ -62,7 +63,7 @@ services:
       AWS_ACCESS_KEY_ID: "access"
       AWS_SECRET_ACCESS_KEY: "secret1234"
       AWS_DEFAULT_REGION: "mzg"
-    command: mlflow server --backend-store-uri postgresql://postgres:password@postgres:5432/postgres --default-artifact-root s3://mlflow/ --host 0.0.0.0
+    command: mlflow server --backend-store-uri postgresql://postgres:password@postgres:5432/postgres --default-artifact-root s3://mlflow/ --host 0.0.0.0 --static-prefix /_mlflow
 
 networks:
     frontend:

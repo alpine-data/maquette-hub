@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuration> {
+public final class MLflowStack implements Stack<MLflowStack.Configuration> {
 
    public static final String STACK_NAME = "postgresql";
 
@@ -90,40 +90,56 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
 
    @Override
    public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
+      var minioContainerName =String.format("mq__%s__postgres", project.getId());
+      var postgresContainerName = String.format("mq__%s__postgres", project.getId());
+      var mlflowContainerName = String.format("mq__%s__mlflow", project.getId());
+
+      var minioContainerCfg = ContainerConfig
+         .builder(minioContainerName, "mq-stacks--mlflow-minio:0.0.1")
+         .withEnvironmentVariable("MINIO_ACCESS_KEY", properties.getMinioAccessKey())
+         .withEnvironmentVariable("MINIO_SECRET_KEY", properties.getMinioSecretKey())
+         .withEnvironmentVariable("MINIO_REGION_NAME", "mzg")
+         .withPort(9000)
+         .build();
+
       var postgresContainerCfg = ContainerConfig
-         .builder(String.format("mq__%s_%s__psql", project.getId(), sandbox.getId()), "postgres:12.4")
-         .withEnvironmentVariable("POSTGRES_USER", Operators.randomHash())
-         .withEnvironmentVariable("POSTGRES_PASSWORD", Operators.randomHash())
+         .builder(postgresContainerName, "postgres:12.4")
+         .withEnvironmentVariable("POSTGRES_USER", properties.getPostgresUsername())
+         .withEnvironmentVariable("POSTGRES_PASSWORD", properties.getPostgresPassword())
          .withEnvironmentVariable("PGDATA", "/data")
          .withPort(5432)
          .build();
 
-      var pgAdminConfig = ContainerConfig
-         .builder(String.format("mq__%s_%s__pgadmin", project.getId(), sandbox.getId()), "dpage/pgadmin4:latest")
-         .withEnvironmentVariable("PGADMIN_DEFAULT_EMAIL", properties.getPgAdminMail())
-         .withEnvironmentVariable("PGADMIN_DEFAULT_PASSWORD", properties.getPgAdminPassword().length() > 0 ? properties.getPgAdminPassword() : Operators.randomHash())
-         .withPort(80)
-         .withPort(443)
-         .withCommand("server /data")
+      var mlflowContainerCfg = ContainerConfig
+         .builder(mlflowContainerName, "mq-stacks--mlflow-server:0.0.1")
+         .withEnvironmentVariable("MLFLOW_S3_ENDPOINT_URL", String.format("http://%s:9000", minioContainerName))
+         .withEnvironmentVariable("AWS_ACCESS_KEY_ID", properties.getMinioAccessKey())
+         .withEnvironmentVariable("AWS_SECRET_ACCESS_KEY", properties.getMinioSecretKey())
+         .withEnvironmentVariable("AWS_DEFAULT_REGION", "mzg")
+         .withPort(5000)
+         .withCommand(String.format(
+            "mlflow server --backend-store-uri postgresql://%s:%s@%s:5432/postgres --default-artifact-root s3://mlflow/ --host 0.0.0.0 --static-prefix /_mlflow/%s",
+            postgresContainerName, properties.getPostgresUsername(), properties.getPostgresPassword(), project.getId()))
          .build();
 
-      System.out.println();
-
       return DeploymentConfig
-         .builder(String.format("mq__%s_%s", project.getId(), sandbox.getId()))
+         .builder(String.format("mq__%s", project.getId()))
+         .withContainerConfig(minioContainerCfg)
          .withContainerConfig(postgresContainerCfg)
-         .withContainerConfig(pgAdminConfig)
+         .withContainerConfig(mlflowContainerCfg)
          .build();
    }
 
    @Override
    public CompletionStage<DeployedStackParameters> getParameters(DeploymentProperties deployment, Configuration configuration) {
       var launch_pgAdmin = DeployedStackParameters
-         .apply(deployment.getProperties().get(1).getMappedPortUrls().get(80).toString().replace("localhost", "hub.maquette.ai.internal"), "Launch pgAdmin")
+         .apply(deployment.getProperties().get(1).getMappedPortUrls().get(80).toString().replace("localhost", "hub.maquette.ai.internal"), "Launch pgAdmin");
+         /*
          .withParameter("Database Username", configuration.dbUsername)
          .withParameter("Database Password", configuration.dbPassword)
          .withParameter("pgAdmin Login", configuration.pgAdminMail)
          .withParameter("pgAdmin Password", configuration.pgAdminPassword);
+          */
 
       return CompletableFuture.completedFuture(launch_pgAdmin);
    }
@@ -133,19 +149,20 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
    public static class Configuration implements StackConfiguration {
 
-      String dbUsername;
+      String minioAccessKey;
 
-      String dbPassword;
+      String minioSecretKey;
 
-      String pgAdminMail;
+      String postgresPassword;
 
-      String pgAdminPassword;
+      String postgresUsername;
 
       @Override
       @JsonIgnore
       public String getStackName() {
          return STACK_NAME;
       }
+
    }
 
 }

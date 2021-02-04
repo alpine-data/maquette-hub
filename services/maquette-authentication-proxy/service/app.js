@@ -12,6 +12,7 @@ const submit = multer();
 const config = require('./config.json');
 const users = config.users;
 const proxyUrl = process.env.PROXY_URL || config['proxy-url'];
+const routes = config['routes'] || {};
 
 var app = express();
 
@@ -30,9 +31,7 @@ app.post('/login', submit.none(), function (req, res) {
 });
 
 app.post('/impersonate', express.json(), function (req, res) {
-    console.log(req.body);
     var user = _.find(users, user => user.username === req.body.username) || { username: 'homer', name: 'Homer Simpson', roles: [] };
-    console.log(user);
     req.session.user = user;
     res.sendStatus(204);
 });
@@ -63,7 +62,13 @@ app.use(function(req, res) {
     }
 
     if (forward) {
-        proxy(req, { url: `${proxyUrl}${req.originalUrl}` }, res);
+        route = _.find(routes, (_, key) => req.originalUrl.indexOf(key) == 0);
+        
+        if (route) {
+            proxy(req,  { url: `${route}${req.originalUrl}` }, res);
+        } else {
+            proxy(req, { url: `${proxyUrl}${req.originalUrl}` }, res);
+        }
     } else {
         req.next();
     }

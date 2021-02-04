@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.entities.companions.MembersCompanion;
+import maquette.core.entities.projects.model.MlflowConfiguration;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.ports.ProjectsRepository;
@@ -52,6 +53,13 @@ public final class ProjectEntity {
 
             return repository.insertOrUpdateProject(updated);
          });
+   }
+
+   public CompletionStage<Done> setMlflowConfiguration(MlflowConfiguration config) {
+      return getProperties().thenCompose(properties -> {
+         var updated = properties.withMlflowConfiguration(config);
+         return repository.insertOrUpdateProject(updated);
+      });
    }
 
    public CompletionStage<ProjectProperties> getProperties() {

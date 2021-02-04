@@ -34,5 +34,9 @@
                 "b-teama"
             ]
         }
-    ]
+    ],
+
+    "routes": {
+        "/_mlflow": "http://localhost:5000"
+    }
 }
