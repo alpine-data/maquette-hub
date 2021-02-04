@@ -3,6 +3,8 @@ import pandas as pd
 import os
 import maquette as mq
 
+from git import Repo
+
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import UserConfiguration
 from maquette_lib.__environment import MqEnvironment
@@ -116,24 +118,28 @@ def projects_remove(name):
     print("You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
 @main.group()
-def code_repositorys():
+def code():
     """
     Commands for managing code repositorys
     """
     pass
 
-@code_repositorys.command("ls")
+@code.command("ls")
 def code_repositorys_list():
     """
     TODO: as soon as backend supplys list of code repository templates
     """
     print("nothing to see here. Please move on")
 
-@code_repositorys.command("cl")
-def code_repositorys_clone(template):
+@code.command("cl")
+@click.argument('template')
+@click.argument('target')
+def code_repositorys_clone(template, target):
+    Repo.clone_from("https://github.com/AiBlues/mlflow--sample-project.git", target)
     #TODO: clone from git
     #TODO: delete .git
-    #TODO: read from .yaml
+    #TODO: read from .yaml and ask questions
+    #TODO: search and replace... or use a template engine
     print("nothing to see here Please move on")
 
 
