@@ -1,5 +1,14 @@
 # MLflow Stack
 
+## Build containers for Maquette
+
+Maquette requires the Docker images to be present in local image repository.
+
+```bash
+$ docker build -t mq-stacks--mlflow-minio:0.0.1 -f ./minio/Dockerfile ./minio
+$ docker build -t mq-stacks--mlflow-server:0.0.1 -f ./mlflow/Dockerfile ./mlflow
+```
+
 ## Docker Compose Setup
 
 The stack can be tested with Docker Compose. 

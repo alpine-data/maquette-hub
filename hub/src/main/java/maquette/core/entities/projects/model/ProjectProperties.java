@@ -1,5 +1,6 @@
 package maquette.core.entities.projects.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;

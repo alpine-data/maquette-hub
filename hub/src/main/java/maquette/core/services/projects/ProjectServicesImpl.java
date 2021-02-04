@@ -10,6 +10,8 @@ import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.datasources.model.DataSourceProperties;
+import maquette.core.entities.infrastructure.Container;
+import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
@@ -32,6 +34,7 @@ import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -79,26 +82,50 @@ public final class ProjectServicesImpl implements ProjectServices {
    @Override
    public CompletionStage<Map<String, String>> environment(User user, String name) {
       return projects
-         .findProjectByName(name)
-         .thenCompose(maybeProject -> {
-            if (maybeProject.isEmpty()) {
-               throw new RuntimeException(String.format("No project found with name `%s`", name));
-            }
+         .getProjectByName(name)
+         .thenCompose(project -> {
+            var propertiesCS = project.getProperties();
+            var deploymentOptCS = propertiesCS
+               .thenApply(properties -> {
+                  if (properties.getMlflowConfiguration().isPresent()) {
+                     return infrastructure
+                        .getDeployment(properties.getMlflowConfiguration().get().getDeploymentName());
+                  } else {
+                     return Optional.<Deployment>empty();
+                  }
+               });
 
-            var project = maybeProject.get();
-            var result = Maps.<String, String>newHashMap();
+            return Operators.compose(propertiesCS, deploymentOptCS, (properties, deployment) -> {
+               var pid = project.getId();
+               Map<String, String> result = Maps.newHashMap();
+               result.put("MQ_PROJECT", project.getId().getValue());
 
-            result.put("MQ_PROJECT_ID", project.getId().getValue());
+               if (deployment.isPresent() && properties.getMlflowConfiguration().isPresent()) {
+                  var dep = deployment.get();
+                  var config = properties.getMlflowConfiguration().get();
 
-            return infrastructure
-               .getDeployment(String.format("mq__%s", project.getId()))
-               .flatMap(d -> d.getContainer(String.format("mq__%s__minio", project.getId())))
-               .map(c -> c.getMappedPortUrls().thenApply(urls -> {
-                  result.put("MINIO_URL", urls.get(9000).toString());
-                  return result;
-               }))
-               .orElseGet(() -> CompletableFuture.completedFuture(result))
-               .thenApply(m -> m);
+                  var mlflowPortsCS = dep
+                     .getContainer(config.getMlflowContainerName(pid))
+                     .map(Container::getMappedPortUrls)
+                     .orElse(CompletableFuture.completedFuture(Maps.newHashMap()));
+
+                  var minioPortsCS = dep
+                     .getContainer(config.getMinioContainerName(pid))
+                     .map(Container::getMappedPortUrls)
+                     .orElse(CompletableFuture.completedFuture(Maps.newHashMap()));
+
+                  return Operators.compose(mlflowPortsCS, minioPortsCS, (mlflowPorts, minioPorts) -> {
+                     result.put("MLFLOW_TRACKING_URI", mlflowPorts.get(5000).toString());
+                     result.put("AWS_ACCESS_KEY_ID", config.getMinioAccessKey());
+                     result.put("AWS_SECRET_ACCESS_KEY", config.getMinioSecretKey());
+                     result.put("AWS_DEFAULT_REGION", "mzg");
+                     result.put("MLFLOW_S3_ENDPOINT_URL", minioPorts.get(9000).toString());
+                     return result;
+                  });
+               } else {
+                  return CompletableFuture.completedFuture(result);
+               }
+            }).thenCompose(r -> r);
          });
    }
 
@@ -208,12 +235,8 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    private static DeploymentConfig createMlflowDeploymentConfig(UID project, MlflowConfiguration properties) {
-      var minioContainerName =String.format("mq__%s__postgres", project);
-      var postgresContainerName = String.format("mq__%s__postgres", project);
-      var mlflowContainerName = String.format("mq__%s__mlflow", project);
-
       var minioContainerCfg = ContainerConfig
-         .builder(minioContainerName, "mq-stacks--mlflow-minio:0.0.1")
+         .builder(properties.getMinioContainerName(project), "mq-stacks--mlflow-minio:0.0.1")
          .withEnvironmentVariable("MINIO_ACCESS_KEY", properties.getMinioAccessKey())
          .withEnvironmentVariable("MINIO_SECRET_KEY", properties.getMinioSecretKey())
          .withEnvironmentVariable("MINIO_REGION_NAME", "mzg")
@@ -221,7 +244,7 @@ public final class ProjectServicesImpl implements ProjectServices {
          .build();
 
       var postgresContainerCfg = ContainerConfig
-         .builder(postgresContainerName, "postgres:12.4")
+         .builder(properties.getPostgreContainerName(project), "postgres:12.4")
          .withEnvironmentVariable("POSTGRES_USER", properties.getPostgresUsername())
          .withEnvironmentVariable("POSTGRES_PASSWORD", properties.getPostgresPassword())
          .withEnvironmentVariable("PGDATA", "/data")
@@ -229,15 +252,17 @@ public final class ProjectServicesImpl implements ProjectServices {
          .build();
 
       var mlflowContainerCfg = ContainerConfig
-         .builder(mlflowContainerName, "mq-stacks--mlflow-server:0.0.1")
-         .withEnvironmentVariable("MLFLOW_S3_ENDPOINT_URL", String.format("http://%s:9000", minioContainerName))
+         .builder(properties.getMlflowContainerName(project), "mq-stacks--mlflow-server:0.0.1")
+         .withEnvironmentVariable(
+            "MLFLOW_S3_ENDPOINT_URL",
+            String.format("http://%s:9000", properties.getMinioContainerName(project)))
          .withEnvironmentVariable("AWS_ACCESS_KEY_ID", properties.getMinioAccessKey())
          .withEnvironmentVariable("AWS_SECRET_ACCESS_KEY", properties.getMinioSecretKey())
          .withEnvironmentVariable("AWS_DEFAULT_REGION", "mzg")
          .withPort(5000)
          .withCommand(String.format(
             "mlflow server --backend-store-uri postgresql://%s:%s@%s:5432/postgres --default-artifact-root s3://mlflow/ --host 0.0.0.0 --static-prefix /_mlflow/%s",
-            postgresContainerName, properties.getPostgresUsername(), properties.getPostgresPassword(), project))
+            properties.getPostgresUsername(), properties.getPostgresPassword(), properties.getPostgreContainerName(project), project))
          .build();
 
       return DeploymentConfig

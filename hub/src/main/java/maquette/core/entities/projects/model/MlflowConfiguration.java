@@ -38,4 +38,16 @@ public class MlflowConfiguration {
       return apply(deploymentId, minioAccessKey, minioSecretKey, postgresPassword, postgresUsername);
    }
 
+   public String getMinioContainerName(UID project) {
+      return String.format("mq__%s__minio", project);
+   }
+
+   public String getMlflowContainerName(UID project) {
+      return String.format("mq__%s__mlflow", project);
+   }
+
+   public String getPostgreContainerName(UID project) {
+      return String.format("mq__%s__postgres", project);
+   }
+
 }

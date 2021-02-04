@@ -15,15 +15,18 @@ import lombok.AllArgsConstructor;
 import maquette.common.DockerOperations;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.Container;
+import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.ContainerStatus;
+import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.ports.InfrastructureProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.net.URL;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -53,7 +56,25 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
    }
 
    @Override
+   public CompletionStage<Deployment> runDeployment(DeploymentConfig config) {
+      var ops = DockerOperations.apply(client, LOG);
+      var networkId = ops.createNetwork(config.getName());
+
+      return Operators
+         .allOf(config
+            .getContainers()
+            .stream()
+            .map(cfg -> runContainer(cfg, networkId))
+            .collect(Collectors.toList()))
+         .thenApply(containers -> Deployment.apply(config, containers, Instant.now()));
+   }
+
+   @Override
    public CompletionStage<Container> runContainer(ContainerConfig config) {
+      return runContainer(config, null);
+   }
+
+   private CompletionStage<Container> runContainer(ContainerConfig config, String networkId) {
       var ops = DockerOperations.apply(client, LOG);
 
       CompletionStage<Done> pulled = CompletableFuture.completedFuture(Done.getInstance());
@@ -64,7 +85,11 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
 
       return pulled
          .thenApply(done -> ops.createContainer(config))
-         .thenApply(containerId -> ops.startContainer(config, containerId));
+         .thenApply(containerId -> ops.startContainer(config, containerId))
+         .thenApply(container -> {
+            ops.connectToNetwork(container.containerId, networkId);
+            return container;
+         });
    }
 
    @AllArgsConstructor(staticName = "apply")
