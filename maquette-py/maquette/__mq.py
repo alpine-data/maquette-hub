@@ -71,7 +71,6 @@ class EPersonalInformation(str, Enum):
     SENSITIVE_PERSONAL_INFORMATION = "spi"
 
 
-# TODO Print and Get Methoden
 # TODO Doku (of course)
 
 class DataAsset:
@@ -105,8 +104,8 @@ class DataAsset:
             self.project = project_id
             self.header = {'x-project': self.project}
         else:
-            if config.project():
-                self.project = config.project()
+            if config.get_project():
+                self.project = config.get_project()
                 self.header = {'x-project': self.project}
         self.data_asset_type = data_asset_type
 
@@ -210,6 +209,14 @@ class Collection(DataAsset):
         else:
             resp = client.get('data/collections/' + self.data_asset_name + '/latest/' + filename, headers=self.header)
         return BytesIO(resp.content)
+
+    def tag(self, tag: str, short_description: str = None):
+        client.command(cmd='collections tag',
+                       args={'collection': self.data_asset_name,
+                             'tag': tag,
+                             'message': short_description},
+                       headers=self.header)
+        return self
 
 
 class Source(DataAsset):
@@ -388,27 +395,27 @@ class Project:
     """
 
     """
-    __name: str = None
-    __title: str = None
-    __summary: str = None
-    __id: str = None
+    name: str = None
+    title: str = None
+    summary: str = None
+    id: str = None
 
     __header = None
 
     def __init__(self, name: str = None, title: str = None, summary: str = None, id: str = None):
-        self.__name = name
-        self.__summary = summary
+        self.name = name
+        self.summary = summary
         if title:
-            self.__title = title
+            self.title = title
         else:
-            self.__title = name
+            self.title = name
         if id:
-            self.__id = id
-            self.__header = {'x-project': self.__id}
+            self.id = id
+            self.__header = {'x-project': self.id}
         else:
-            if config.project():
-                self.__id = config.project()
-                self.__header = {'x-project': self.__id}
+            if config.get_project():
+                self.id = config.get_project()
+                self.__header = {'x-project': self.id}
 
     def create(self) -> 'Project':
         """
@@ -417,15 +424,24 @@ class Project:
 
         """
         client.command(cmd='projects create',
-                       args={'title': self.__title, 'name': self.__name, 'summary': self.__summary})
+                       args={'title': self.title, 'name': self.name, 'summary': self.summary})
         return self
 
     def activate(self) -> 'Project':
         """
-        Activates the current project in putting the id of it to the environment variable
+        Activates the current project in getting the project id, and setting it to the configuration
+        Environment variable needs to be set separately
         :return:
         """
-
+        if self.__header:
+            headers = {'Content-Type': 'application/json', **self.__header}
+        else:
+            headers = {'Content-Type': 'application/json'}
+        status, resp = client.command(cmd='projects get',
+                              args={'name': self.name},
+                              headers=headers)
+        data = resp["data"]
+        self.__init__(name=data["name"], title=data["title"], summary=data["summary"], id=data["id"])
 
         return self
 
@@ -438,8 +454,8 @@ class Project:
         Returns:
 
         """
-        client.command(cmd='projects update', args={'project': to_update, 'title': self.__title, 'name': self.__name,
-                                                    'summary': self.__summary})
+        client.command(cmd='projects update', args={'project': to_update, 'title': self.title, 'name': self.name,
+                                                    'summary': self.summary})
         return self
 
     def remove(self):
@@ -449,7 +465,7 @@ class Project:
 
         """
         resp = client.command(cmd='projects remove',
-                              args={'name': self.__name})
+                              args={'name': self.name})
 
     def delete(self):
         """
@@ -470,10 +486,10 @@ class Project:
         """
         if to_csv:
             resp = client.command(cmd='datasets list', headers={'Accept': 'application/csv',
-                                                                'x-project': self.__name})
+                                                                'x-project': self.name})
         else:
             resp = client.command(cmd='datasets list',
-                                  headers={'x-project': self.__name})
+                                  headers={'x-project': self.name})
         return resp[1]
 
     def dataset(self, dataset_name: str = None, dataset_title: str = None, summary: str = None,
@@ -494,13 +510,13 @@ class Project:
         args = [arg for arg in
                 [dataset_name, dataset_title, summary, visibility, classification, personal_information] if
                 arg]
-        return Dataset(project_name=self.__name, *args)
+        return Dataset(project_name=self.name, *args)
 
     def source (self, source_name: str = None, source_title: str = None, summary: str = None, visibility: str = None, classification: str = None, personal_information:str = None,
                 access_type: str = None, db_properties = None) -> 'Source':
         args = [arg for arg in
                 [source_name, source_title, summary, visibility, classification, personal_information, access_type] if arg]
-        return Source(project_name=self.__name, db_properties=db_properties, *args)
+        return Source(project_name=self.name, db_properties=db_properties, *args)
 
 
     def collection(self, collection_name: str = None, collection_title: str = None, summary: str = None,
@@ -521,9 +537,10 @@ class Project:
         args = [arg for arg in
                 [collection_name, collection_title, summary, visibility, classification, personal_information] if
                 arg]
-        return Collection(project_name=self.__name, *args, )
+        return Collection(project_name=self.name, *args, )
 
 
+#TODO: Read project_id via config!
 def project(name: str, title: str = None, summary: str = None) -> Project:
     """
     A project factory.

@@ -29,7 +29,7 @@ class Client:
         Returns: initiated Client object
 
         """
-        return Client(config.url(), config.user(), config.roles())
+        return Client(config.get_url(), config.get_user(), config.get_roles())
 
     def command(self, cmd: str, args: dict = None, headers: dict = None) -> Tuple[int, dict]:
         """
@@ -56,7 +56,7 @@ class Client:
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
         else:
-            if ("Accept", "application/csv") or ("Accept", "text/plain") in headers.items():
+            if (("Accept", "application/csv") in headers.items()) or (("Accept", "text/plain") in headers.items()):
                 result = response.content
             else:
                 result = response.json()
