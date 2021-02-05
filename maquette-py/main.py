@@ -2,6 +2,9 @@ import click
 import pandas as pd
 import os
 import maquette as mq
+import shutil
+import yaml
+import chevron
 
 from git import Repo
 
@@ -16,14 +19,14 @@ env = MqEnvironment.from_config('resources/env_conf.json')
 
 
 @click.group()
-def main():
+def mq():
     """
     Maquette CLI main routine.
     """
     pass
 
 
-@main.group()
+@mq.group()
 def projects():
     """
     Commands for managing projects
@@ -117,7 +120,7 @@ def projects_remove(name):
     mq.project(name).delete()
     print("You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
-@main.group()
+@mq.group()
 def code():
     """
     Commands for managing code repositorys
@@ -135,12 +138,26 @@ def code_repositorys_list():
 @click.argument('template')
 @click.argument('target')
 def code_repositorys_clone(template, target):
+    #TODO: "" not allowed.. check or leave it
     Repo.clone_from("https://github.com/AiBlues/mlflow--sample-project.git", target)
-    #TODO: clone from git
-    #TODO: delete .git
-    #TODO: read from .yaml and ask questions
-    #TODO: search and replace... or use a template engine
-    print("nothing to see here Please move on")
+    print("Repository cloned from git")
+    shutil.rmtree(os.path.join(target,".git"))
+    if os.path.exists(os.path.join(target, "code_repository.yaml")):
+        with open(os.path.join(target, "code_repository.yaml")) as file:
+            code_repo_yaml = yaml.load(file, Loader=yaml.FullLoader)
+        print("code_repository.yaml loaded")
+        if "templated-files" in code_repo_yaml:
+            print("found files attribute")
+            file_list = code_repo_yaml["templated-files"]
+            for file in file_list:
+                with open(os.path.join(target, file["path"])) as temp_file:
+                    value_dict = {}
+                    for value_item in file["values"]:
+                        value = click.prompt(value_item["question"], default=value_item["default"])
+                        value_dict[value_item["label"]] = value
+                    output = chevron.render(temp_file, value_dict)
+                with open(os.path.join(target, file["path"]), "w") as out_file:
+                    out_file.write(output)
 
 
 if __name__ == '__main__':
