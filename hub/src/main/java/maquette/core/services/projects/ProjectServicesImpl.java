@@ -117,7 +117,7 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    @Override
-   public CompletionStage<Map<String, String>> environment(User user, String name) {
+   public CompletionStage<Map<String, String>> environment(User user, String name, EnvironmentType type) {
       return projects
          .getProjectByName(name)
          .thenCompose(project -> {
@@ -153,13 +153,29 @@ public final class ProjectServicesImpl implements ProjectServices {
 
                   return Operators.compose(mlflowPortsCS, minioPortsCS, (mlflowPorts, minioPorts) -> {
                      if (mlflowPorts.containsKey(5000)) {
-                        result.put("MLFLOW_TRACKING_URI", mlflowPorts.get(5000).toString());
+                        switch (type) {
+                           case EXTERNAL:
+                              result.put("MLFLOW_TRACKING_URI", mlflowPorts.get(5000).toString());
+                              break;
+                           case SANDBOX:
+                              var url = mlflowPorts.get(5000).toString().replace("localhost", "host.docker.internal");
+                              result.put("MLFLOW_TRACKING_URI", url);
+                              break;
+                        }
                      } else {
                         LOG.warn("No MLflow tracking URL found for project {}", pid);
                      }
 
                      if (minioPorts.containsKey(9000)) {
-                        result.put("MLFLOW_S3_ENDPOINT_URL", minioPorts.get(9000).toString());
+                        switch (type) {
+                           case EXTERNAL:
+                              result.put("MLFLOW_S3_ENDPOINT_URL", minioPorts.get(9000).toString());
+                              break;
+                           case SANDBOX:
+                              var url = minioPorts.get(9000).toString().replace("localhost", "host.docker.internal");
+                              result.put("MLFLOW_S3_ENDPOINT_URL", url);
+                              break;
+                        }
                      } else {
                         LOG.warn("No minio endpoint found for project {}", pid);
                      }
