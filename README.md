@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-![Maquette Hub]
+![Maquette Hub Roadmap](./docs/resources/roadmap.png)
 
 ## Glossar
 
