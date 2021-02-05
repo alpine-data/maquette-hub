@@ -16,9 +16,9 @@ var IFrame = styled.iframe`
   margin-top: 15px;
 `;
 
-function ProjectExperiments() {
+function ProjectExperiments({ project }) {
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(() => {  
       document.getElementById(FRAME_ID).style.height = frames[FRAME_ID].document.body.scrollHeight + "px";
     }, 1500);
 
@@ -28,8 +28,8 @@ function ProjectExperiments() {
   return <IFrame 
     name={ FRAME_ID }
     id={ FRAME_ID }
-    src="http://localhost:3030/_mlflow/#/" 
-    onLoad={ (self) => {
+    src={ `${project.mlflowBaseUrl}/#/` }
+    onLoad={ () => {
       const css = _.last(frames[FRAME_ID].document.styleSheets);
       css.insertRule('.App-header { display: none }', css.cssRules.length);
       css.insertRule('html, body { overflow: hidden }', css.cssRules.length);

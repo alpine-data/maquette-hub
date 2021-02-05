@@ -85,11 +85,11 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
 
       return pulled
          .thenApply(done -> ops.createContainer(config))
-         .thenApply(containerId -> ops.startContainer(config, containerId))
-         .thenApply(container -> {
-            ops.connectToNetwork(container.containerId, networkId);
-            return container;
-         });
+         .thenApply(containerId -> {
+            ops.connectToNetwork(containerId, networkId);
+            return containerId;
+         })
+         .thenApply(containerId -> ops.startContainer(config, containerId));
    }
 
    @AllArgsConstructor(staticName = "apply")

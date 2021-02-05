@@ -8,6 +8,7 @@ import maquette.common.Operators;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.ports.InfrastructureProvider;
 import maquette.core.ports.InfrastructureRepository;
+import maquette.core.ports.MlflowProxyPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class InfrastructureManager {
+public final class InfrastructureManager implements MlflowProxyPort {
 
    private static final Logger LOG = LoggerFactory.getLogger(InfrastructureManager.class);
 
@@ -27,12 +28,16 @@ public final class InfrastructureManager {
 
    private final InfrastructureRepository repository;
 
+   private final MlflowProxyPort mlflowProxy;
+
    private final HashMap<String, Deployment> deployments;
 
-   public static InfrastructureManager apply(InfrastructureProvider infrastructureProvider, InfrastructureRepository repository) {
+   public static InfrastructureManager apply(
+      InfrastructureProvider infrastructureProvider, InfrastructureRepository repository, MlflowProxyPort mlflowProxy) {
       HashMap<String, Deployment> deployments = Maps.newHashMap();
 
-      InfrastructureManager mgr = new InfrastructureManager(infrastructureProvider, repository, deployments);
+      InfrastructureManager mgr = new InfrastructureManager(infrastructureProvider, repository, mlflowProxy, deployments);
+
       mgr
          .initialize()
          .thenApply(done -> {
@@ -126,6 +131,16 @@ public final class InfrastructureManager {
                return Done.getInstance();
             });
       }
+   }
+
+   @Override
+   public CompletionStage<Done> registerRoute(String id, String route, String target) {
+      return mlflowProxy.registerRoute(id, route, target);
+   }
+
+   @Override
+   public CompletionStage<Done> removeRoute(String id) {
+      return mlflowProxy.removeRoute(id);
    }
 
 }

@@ -47,7 +47,7 @@ public class CoreApp {
        CollectionsRepository collectionsRepository, DatasetsRepository datasetsRepository, RecordsStore recordsStore,
        DataSourcesRepository dataSourceRepository, StreamsRepository streamsRepository,
        SandboxesRepository sandboxesRepository, UsersRepository usersRepository,
-       DataExplorer dataExplorer, JdbcPort jdbcPort, ObjectMapper om) {
+       DataExplorer dataExplorer, MlflowProxyPort mlflowProxyPort, JdbcPort jdbcPort, ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -60,7 +60,7 @@ public class CoreApp {
                 })
                 .start(configuration.getServer().getHost(), configuration.getServer().getPort());
 
-        var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository);
+        var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository, mlflowProxyPort);
         var processManager = ProcessManager.apply();
         var projects = ProjectEntities.apply(projectsRepository);
 

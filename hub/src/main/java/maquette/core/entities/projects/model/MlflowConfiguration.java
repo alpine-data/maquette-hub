@@ -42,6 +42,8 @@ public class MlflowConfiguration {
       return String.format("mq__%s__minio", project);
    }
 
+   public String getMlflowBasePath(UID project) { return String.format("/_mlflow/%s", project); }
+
    public String getMlflowContainerName(UID project) {
       return String.format("mq__%s__mlflow", project);
    }

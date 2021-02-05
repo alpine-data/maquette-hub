@@ -37,6 +37,6 @@
     ],
 
     "routes": {
-        "/_mlflow": "http://localhost:5000"
+        "/_mlflow": "http://localhost:3040"
     }
 }
