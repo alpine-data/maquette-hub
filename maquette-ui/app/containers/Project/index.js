@@ -17,6 +17,7 @@ import reducer from './reducer';
 import saga from './saga';
 import { load, update, dismissError } from './actions';
 
+import ProjectExperiments from '../../components/ProjectExperiments';
 import ProjectOverview from '../../components/ProjectOverview';
 import ProjectSettings from '../../components/ProjectSettings';
 import ProjectDataAssets from '../../components/ProjectDataAssets';
@@ -113,7 +114,8 @@ export function Project(props) {
         link: `/${project}/experiments`,
         key: 'experiments',
         visible: true,
-        component: () => <>Experiments</>
+        background: false,
+        component: () => <ProjectExperiments { ...data } />
       },
       {
         label: 'Settings',

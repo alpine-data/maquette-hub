@@ -1,5 +1,6 @@
 package maquette;
 
+import maquette.adapters.infrastructure.MaquetteMlflowProxyService;
 import maquette.adapters.jdbc.JdbcJdbiImpl;
 import maquette.adapters.MaquetteDataExplorer;
 import maquette.adapters.collections.CollectionsRepositories;
@@ -36,12 +37,13 @@ public class Application {
       var usersRepository = UsersRepositories.create(om);
 
       var dataExplorer = MaquetteDataExplorer.apply(om);
+      var mlflowProxyPort = MaquetteMlflowProxyService.apply(om);
       var jdbcPort = JdbcJdbiImpl.apply();
 
       CoreApp.apply(
          config, infrastructureProvider, infrastructureRepository, projectsRepository,
          collectionsRepository, datasetsRepository, datasetsStore, dataSourcesRepository, streamsRepository,
-         sandboxesRepository, usersRepository, dataExplorer, jdbcPort, om);
+         sandboxesRepository, usersRepository, dataExplorer, mlflowProxyPort, jdbcPort, om);
    }
 
 }

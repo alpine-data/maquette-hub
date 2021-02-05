@@ -2,10 +2,7 @@ package maquette.common;
 
 import akka.Done;
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.api.model.PullResponseItem;
+import com.github.dockerjava.api.model.*;
 import lombok.AllArgsConstructor;
 import maquette.adapters.infrastructure.DockerInfrastructureProvider;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
@@ -23,6 +20,28 @@ public final class DockerOperations {
    DockerClient client;
 
    Logger log;
+
+   public void connectToNetwork(String containerId, String networkId) {
+      var network = client
+         .inspectNetworkCmd()
+         .withNetworkId(networkId)
+         .exec();
+
+      var connectionExists = client
+         .inspectContainerCmd(containerId)
+         .exec()
+         .getNetworkSettings()
+         .getNetworks()
+         .containsKey(network.getName());
+
+      if (!connectionExists) {
+         client
+            .connectToNetworkCmd()
+            .withContainerId(containerId)
+            .withNetworkId(networkId)
+            .exec();
+      }
+   }
 
    public String createContainer(ContainerConfig config) {
       return client
@@ -61,7 +80,8 @@ public final class DockerOperations {
                .withName(config.getName())
                .withEnv(environment)
                .withExposedPorts(exposedPorts.stream().map(Pair::getRight).collect(Collectors.toList()))
-               .withHostConfig(new HostConfig().withPortBindings(portBindings));
+               .withHostConfig(new HostConfig().withPortBindings(portBindings))
+               .withHostName(config.getName());
 
             config.getCommand().ifPresent(cmd -> createCmd.withCmd(cmd.split(" ")));
 
@@ -76,6 +96,28 @@ public final class DockerOperations {
 
             return response.getId();
          });
+   }
+
+   public String createNetwork(String name) {
+      var exists = client
+         .listNetworksCmd()
+         .exec()
+         .stream()
+         .filter(n -> n.getName().equals(name))
+         .findFirst();
+
+      if (exists.isEmpty()) {
+         var created = client
+            .createNetworkCmd()
+            .withName(name)
+            .exec();
+
+         log.info("`docker network create {}` - Completed with id `{}`", name, created.getId());
+
+         return created.getId();
+      } else {
+         return exists.get().getId();
+      }
    }
 
    public CompletionStage<Done> pullImage(String image) {

@@ -20,6 +20,7 @@ import LoaderMessages from './loading_messages.json';
 import ProjectBackground from '../../resources/projects-background.png';
 
 const backgrounds = {
+  data: ProjectBackground,
   projects: ProjectBackground
 };
 
@@ -43,6 +44,12 @@ function ViewContainer({
   const childrenFactory = activeTab && activeTab.component || defaultContentFactory;
 
   const pageTitle = (_.isEmpty(titles) && 'Maquette') || `${ _.last(titles).label } - Maquette`
+
+  let actualBackground = background;
+  if (activeTab && activeTab.background === false) {
+    actualBackground = false;
+  }
+
 
   return <>
     <Helmet>
@@ -133,33 +140,29 @@ function ViewContainer({
       </div>
     </Affix>
 
-    { 
-        background && backgrounds[background] && <>
-          <div className='mq--main-content mq--page-background' style={{ backgroundImage: `url(${backgrounds[background]})` }}>
-            {
-              error && <>
-                <Container fluid>
-                  <Message 
-                    closable 
-                    showIcon
-                    type="error" 
-                    onClose={ onCloseError }
-                    title={ _.sample(ErrorTitles) }
-                    description={ <p className="mq--p-leading" style={{ marginBottom: 0 }}>{ error }</p> } />
-                </Container>
-              </>
-            }
-
-            {
-              loading && <>
-                <Loader vertical size="lg" center content={ _.sample(LoaderMessages) } />
-              </> || <>
-                { childrenFactory() }
-              </>
-            }
-          </div>
+    <div className='mq--main-content mq--page-background' style={ (actualBackground && backgrounds[actualBackground] && { backgroundImage: `url(${backgrounds[actualBackground]})` }) || {} }>
+      {
+        error && <>
+          <Container fluid>
+            <Message 
+              closable 
+              showIcon
+              type="error" 
+              onClose={ onCloseError }
+              title={ _.sample(ErrorTitles) }
+              description={ <p className="mq--p-leading" style={{ marginBottom: 0 }}>{ error }</p> } />
+          </Container>
         </>
       }
+
+      {
+        loading && <>
+          <Loader vertical size="lg" center content={ _.sample(LoaderMessages) } />
+        </> || <>
+          { childrenFactory() }
+        </>
+      }
+    </div>
   </>;
 }
 
@@ -169,10 +172,11 @@ ViewContainer.propTypes = {
     link: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
     component: PropTypes.func.isRequired,
-    visible: PropTypes.bool
+    visible: PropTypes.bool,
+    background: PropTypes.oneOfType([PropTypes.bool, PropTypes.oneOf(_.keys(backgrounds))])
   })),
 
-  background: PropTypes.oneOf(['projects', 'data']),
+  background: PropTypes.oneOf(_.keys(backgrounds)),
   loading: PropTypes.bool,
 
   likes: PropTypes.number,

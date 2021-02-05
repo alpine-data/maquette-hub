@@ -37,6 +37,7 @@ You may configure additional settings in `service/config.json`. The following co
 * **user-details-header** - The name of the HTTP header which is used to add the user details (the whole user JSON object) to the forwarded request.
 * **allowed-authorization-headers** - List of header names which are accepted as a valid authentication. If one of these headers is already included in the request, the request will not be enriched with information from the current session, nor will the request be redirected to the login page if no session is active.
 * **users** - An array of known users.
+* **routes** - A map/ dictionary to route requests with a matching URI request to another target host than the default `proxy-url`.
 
 ## API Endpoints
 

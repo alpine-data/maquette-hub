@@ -28,6 +28,8 @@ public class Project {
 
     String summary;
 
+    String mlflowBaseUrl;
+
     ActionMetadata created;
 
     ActionMetadata modified;

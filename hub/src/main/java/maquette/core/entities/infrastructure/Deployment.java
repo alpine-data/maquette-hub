@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.With;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.infrastructure.model.DeploymentMemento;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
+@With
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Deployment {

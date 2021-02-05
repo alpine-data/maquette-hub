@@ -17,7 +17,11 @@ public interface ProjectServices {
 
     CompletionStage<Done> create(User user, String name, String title, String summary);
 
-    CompletionStage<Map<String, String>> environment(User user, String name);
+    CompletionStage<Map<String, String>> environment(User user, String name, EnvironmentType environmentType);
+
+    default CompletionStage<Map<String, String>> environment(User user, String name) {
+        return environment(user, name, EnvironmentType.EXTERNAL);
+    }
 
     CompletionStage<List<ProjectProperties>> list(User user);
 

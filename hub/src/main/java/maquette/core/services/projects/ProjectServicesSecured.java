@@ -35,10 +35,10 @@ public class ProjectServicesSecured implements ProjectServices {
    }
 
    @Override
-   public CompletionStage<Map<String, String>> environment(User user, String project) {
+   public CompletionStage<Map<String, String>> environment(User user, String project, EnvironmentType type) {
       return companion
          .isAuthorized(() -> companion.isMember(user, project))
-         .thenCompose(ok -> delegate.environment(user, project));
+         .thenCompose(ok -> delegate.environment(user, project, type));
    }
 
    @Override

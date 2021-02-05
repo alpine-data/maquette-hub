@@ -110,7 +110,7 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
       System.out.println();
 
       return DeploymentConfig
-         .builder(String.format("mq__%s", project.getId()))
+         .builder(String.format("mq__%s_%s", project.getId(), sandbox.getId()))
          .withContainerConfig(postgresContainerCfg)
          .withContainerConfig(pgAdminConfig)
          .build();
