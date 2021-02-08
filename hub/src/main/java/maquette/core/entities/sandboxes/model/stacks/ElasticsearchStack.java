@@ -16,6 +16,7 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -75,7 +76,7 @@ public final class ElasticsearchStack implements Stack<ElasticsearchStack.Config
    }
 
    @Override
-   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
+   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties, Map<String, String> projectEnvironment) {
       return DeploymentConfigs.sample(project.getId().getValue(), sandbox.getId().getValue());
    }
 

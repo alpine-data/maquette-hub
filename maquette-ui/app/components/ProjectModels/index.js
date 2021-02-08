@@ -1,6 +1,6 @@
 /**
  *
- * ProjectExperiments
+ * ProjectModels
  *
  */
 
@@ -15,7 +15,8 @@ var IFrame = styled.iframe`
   margin-top: 15px;
 `;
 
-function ProjectExperiments({ project }) {
+
+function ProjectModels({ project }) {
   useEffect(() => {
     const interval = setInterval(() => {  
       document.getElementById(FRAME_ID).style.height = frames[FRAME_ID].document.body.scrollHeight + "px";
@@ -27,7 +28,7 @@ function ProjectExperiments({ project }) {
   return <IFrame 
     name={ FRAME_ID }
     id={ FRAME_ID }
-    src={ `${project.mlflowBaseUrl}/#/` }
+    src={ `${project.mlflowBaseUrl}/#/models` }
     onLoad={ () => {
       const css = _.last(frames[FRAME_ID].document.styleSheets);
       css.insertRule('.App-header { display: none }', css.cssRules.length);
@@ -35,6 +36,6 @@ function ProjectExperiments({ project }) {
     } } />;
 }
 
-ProjectExperiments.propTypes = {};
+ProjectModels.propTypes = {};
 
-export default ProjectExperiments;
+export default ProjectModels;

@@ -14,9 +14,9 @@ public final class SandboxServicesFactory {
    }
 
    public static SandboxServices apply(ProcessManager processes, InfrastructureManager infrastructure, ProjectEntities projects, SandboxEntities sandboxes, DatasetEntities datasets) {
-      var companion = SandboxCompanion.apply(processes, infrastructure);
-      var projectCompanion = ProjectCompanion.apply(projects, datasets);
-      var impl = SandboxServicesImpl.apply(processes, infrastructure, projects, sandboxes, companion);
+      var sandboxCompanion = SandboxCompanion.apply(processes, infrastructure);
+      var projectCompanion = ProjectCompanion.apply(projects, datasets, infrastructure);
+      var impl = SandboxServicesImpl.apply(processes, infrastructure, projects, sandboxes, projectCompanion, sandboxCompanion);
       return SandboxServicesSecured.apply(impl, projectCompanion);
    }
 

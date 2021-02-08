@@ -15,31 +15,31 @@ function ProjectOverview({ view }) {
     {
       icon: 'table',
       label: 'Data Assets',
-      count: 2,
+      count: 1,
       link: `/${view.project.name}`
     },
     {
       icon: 'code-fork',
       label: 'Data Repositories',
-      count: 2,
+      count: 0,
       link: `/${view.project.name}/repositories`
     },
     {
       icon: 'terminal',
       label: 'Sandboxes',
-      count: 2,
+      count: 1,
       link: `/${view.project.name}/sandboxes`
     }, 
     {
       icon: 'creative',
       label: 'Running Jobs',
-      count: 2,
+      count: 0,
       link: `/${view.project.name}/jobs/running`
     },
     {
       icon: 'check',
       label: 'Executed Jobs',
-      count: 2,
+      count: 0,
       link: `/${view.project.name}/jobs/success`
     }
   ]

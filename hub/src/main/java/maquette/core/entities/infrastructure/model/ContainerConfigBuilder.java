@@ -44,6 +44,11 @@ public final class ContainerConfigBuilder {
       return this;
    }
 
+   public ContainerConfigBuilder withEnvironmentVariables(Map<String, String> environment) {
+      this.environment.putAll(environment);
+      return this;
+   }
+
    public ContainerConfigBuilder withMemory(String memory) {
       this.memory = memory;
       return this;

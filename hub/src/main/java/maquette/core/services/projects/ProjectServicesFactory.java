@@ -26,7 +26,7 @@ public final class ProjectServicesFactory {
       InfrastructureManager infrastructure,
       SandboxEntities sandboxes) {
 
-      var comp = ProjectCompanion.apply(projects, datasets);
+      var comp = ProjectCompanion.apply(projects, datasets, infrastructure);
       var datasetCompanion = DatasetCompanion.apply(DataAssetCompanion.apply(datasets, projects));
       var datasourceCompanion = DataSourceCompanion.apply(DataAssetCompanion.apply(dataSources, projects));
       var sandboxCompanion = SandboxCompanion.apply(processes, infrastructure);

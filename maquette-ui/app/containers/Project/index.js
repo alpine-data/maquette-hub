@@ -18,6 +18,7 @@ import saga from './saga';
 import { load, update, dismissError } from './actions';
 
 import ProjectExperiments from '../../components/ProjectExperiments';
+import ProjectModels from '../../components/ProjectModels';
 import ProjectOverview from '../../components/ProjectOverview';
 import ProjectSettings from '../../components/ProjectSettings';
 import ProjectDataAssets from '../../components/ProjectDataAssets';
@@ -116,6 +117,14 @@ export function Project(props) {
         visible: true,
         background: false,
         component: () => <ProjectExperiments { ...data } />
+      },
+      {
+        label: 'Models',
+        link: `/${project}/models`,
+        key: 'models',
+        visible: true,
+        background: false,
+        component: () => <ProjectModels { ...data } />
       },
       {
         label: 'Settings',

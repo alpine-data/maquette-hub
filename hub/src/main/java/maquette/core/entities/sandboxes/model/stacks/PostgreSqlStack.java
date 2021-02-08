@@ -17,6 +17,7 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -89,7 +90,7 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
    }
 
    @Override
-   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
+   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties, Map<String, String> projectEnvironment) {
       var postgresContainerCfg = ContainerConfig
          .builder(String.format("mq__%s_%s__psql", project.getId(), sandbox.getId()), "postgres:12.4")
          .withEnvironmentVariable("POSTGRES_USER", Operators.randomHash())

@@ -12,6 +12,9 @@ import maquette.core.entities.sandboxes.exceptions.SandboxNotFoundException;
 import maquette.core.entities.sandboxes.model.Sandbox;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.entities.sandboxes.model.stacks.*;
+import maquette.core.services.projects.EnvironmentType;
+import maquette.core.services.projects.ProjectCompanion;
+import maquette.core.services.projects.ProjectServices;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -31,7 +34,9 @@ public final class SandboxServicesImpl implements SandboxServices {
 
    private final SandboxEntities sandboxes;
 
-   private final SandboxCompanion companion;
+   private final ProjectCompanion projectCompanion;
+
+   private final SandboxCompanion sandboxCompanion;
 
    @Override
    public CompletionStage<Sandbox> createSandbox(User user, String projectName, String name, List<StackConfiguration> stacks) {
@@ -54,12 +59,13 @@ public final class SandboxServicesImpl implements SandboxServices {
                   .map(config -> {
                      var stack = Stacks.apply().getStackByConfiguration(config);
                      var projectPropertiesCS = project.getProperties();
+                     var projectEnvironmentCS = projectCompanion.environment(projectName, EnvironmentType.SANDBOX);
                      var sandboxPropertiesCS = sandbox.getProperties();
 
                      return Operators.compose(
-                        projectPropertiesCS, sandboxPropertiesCS,
-                        (projectProperties, sandboxProperties) -> {
-                           var deployment = stack.getDeploymentConfig(projectProperties, sandboxProperties, config);
+                        projectPropertiesCS, sandboxPropertiesCS, projectEnvironmentCS,
+                        (projectProperties, sandboxProperties, projectEnvironment) -> {
+                           var deployment = stack.getDeploymentConfig(projectProperties, sandboxProperties, config, projectEnvironment);
                            var processDescription = String.format(
                               "initializing stack `%s` for sandbox `%s/%s`",
                               config.getStackName(), projectProperties.getName(), sandboxProperties.getName());
@@ -82,13 +88,13 @@ public final class SandboxServicesImpl implements SandboxServices {
                return Operators
                   .allOf(deployments)
                   .thenCompose(d -> sandbox.getProperties())
-                  .thenCompose(companion::enrichSandboxProperties);
+                  .thenCompose(sandboxCompanion::enrichSandboxProperties);
             }));
    }
 
    @Override
    public CompletionStage<Sandbox> getSandbox(User user, String project, String sandbox) {
-      return withSandboxByName(project, sandbox, (p, s) -> s.getProperties().thenCompose(companion::enrichSandboxProperties));
+      return withSandboxByName(project, sandbox, (p, s) -> s.getProperties().thenCompose(sandboxCompanion::enrichSandboxProperties));
    }
 
    @Override
