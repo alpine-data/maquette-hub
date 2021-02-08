@@ -1,7 +1,7 @@
 import click
 import pandas as pd
 import os
-import maquette as mq
+import maquette
 import shutil
 import yaml
 import chevron
@@ -46,7 +46,7 @@ def projects_init(name, title, summary):
         name : name of the project
 
     """
-    mq.project(name,title,summary).create()
+    maquette.project(name,title,summary).create()
     print('Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
                '\n'                                                 
               'To activate the project type: python main.py activate ' + name)
@@ -58,7 +58,7 @@ def projects_list():
     Print the list of projects.
 
     """
-    table_df = pd.json_normalize(mq.projects(to_csv=False))
+    table_df = pd.json_normalize(maquette.projects(to_csv=False))
     print(table_df)
 
 
@@ -72,7 +72,7 @@ def activate(name):
         name : name of the project
 
     """
-    project = mq.project(name).activate()
+    project = maquette.project(name).activate()
     config.activate_project(project_name=project.name, project_id=project.id)
 
     status, response = client.command(cmd='projects environment', args={'name': name})
@@ -117,7 +117,7 @@ def projects_remove(name):
         name : name of the project
 
     """
-    mq.project(name).delete()
+    maquette.project(name).delete()
     print("You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
 @mq.group()
