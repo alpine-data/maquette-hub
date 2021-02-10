@@ -9,13 +9,10 @@ import chevron
 from git import Repo
 
 from maquette_lib.__client import Client
-from maquette_lib.__user_config import UserConfiguration
-from maquette_lib.__environment import MqEnvironment
+from maquette_lib.__user_config import EnvironmentConfiguration
 
-config = UserConfiguration()
+config = EnvironmentConfiguration()
 client = Client.from_config(config)
-#TODO: currently redundant as this is now convered in the yaml with UserConfiguration
-env = MqEnvironment.from_config('resources/env_conf.json')
 
 
 @click.group()
@@ -47,9 +44,9 @@ def projects_init(name, title, summary):
 
     """
     maquette.project(name,title,summary).create()
-    print('Heureka! You created a project called ' + name + ' (‘-’)人(ﾟ_ﾟ)\n'
-               '\n'                                                 
-              'To activate the project type: python main.py activate ' + name)
+    print('# Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
+        '# \n'                                                 
+        '# To activate the project type: python main.py activate ' + name)
 
 
 @projects.command("ls")
@@ -58,6 +55,7 @@ def projects_list():
     Print the list of projects.
 
     """
+    pd.set_option('display.max_colwidth', None)
     table_df = pd.json_normalize(maquette.projects(to_csv=False))
     print(table_df)
 
@@ -79,20 +77,21 @@ def activate(name):
     if status == 200:
         env_variables = response['data']
         for (env_key, env_value) in env_variables.items():
-            env.add_process_env(env_key, env_value)
+            config.add_process_env(env_key, env_value)
         if os.name == 'posix':
-            print('You are on a Unix based  system  c[○┬●]כ \n'
-                  'Please copy and run the command: eval $(python unix_env.py)')
+            print('# You are on a Unix based  system  c[○┬●]כ \n'
+                  '# Please copy and run the command: \n'
+                  'eval $(unix_env)')
         else:
-            for (env_key, env_value) in env._config.items():
+            for (env_key, env_value) in config.mq_yaml_list['environment'].items():
                 os.system("SETX {0} {1}".format(env_key, env_value))
-            print('Congrats you are on a Windows machine \n'
-                  'I activated your project \t\t~~\n'
-                  'Now relax and enjoy a hot cup of coffee \t C|__|')
+            print('# Congrats you are on a Windows machine \n'
+                  '# I activated your project \t\t~~\n'
+                  '# Now relax and enjoy a hot cup of coffee \t C|__|')
 
     else:
-        raise RuntimeError('Ups! Something went wrong (ⓧ_ⓧ)\n'
-                           'status code: ' + str(status) + ', content:\n' + response)
+        raise RuntimeError('# Ups! Something went wrong (ⓧ_ⓧ)\n'
+                           '# status code: ' + str(status) + ', content:\n' + response)
 
 
 @projects.command("deactivate")
@@ -100,10 +99,7 @@ def deactivate():
     """
     Currently only removes the currently activate environment variables from the config, no default env needed or available
     """
-    env.remove_process_env()
-    config.deactivate_project()
-    del os.environ['MQ_PROJECT_NAME']
-    del os.environ['MQ_PROJECT_ID']
+    config.remove_process_envs()
     print('Removed Environment from Config')
 
 
@@ -118,7 +114,7 @@ def projects_remove(name):
 
     """
     maquette.project(name).delete()
-    print("You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
+    print("# You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
 @mq.group()
 def code():
@@ -138,9 +134,8 @@ def code_repositorys_list():
 @click.argument('template')
 @click.argument('target')
 def code_repositorys_clone(template, target):
-    #TODO: "" not allowed.. check or leave it
     Repo.clone_from("https://github.com/AiBlues/mlflow--sample-project.git", target)
-    print("Repository cloned from git")
+    print("# Repository cloned from git")
     shutil.rmtree(os.path.join(target,".git"))
     if os.path.exists(os.path.join(target, "code_repository.yaml")):
         with open(os.path.join(target, "code_repository.yaml")) as file:
@@ -161,4 +156,4 @@ def code_repositorys_clone(template, target):
 
 
 if __name__ == '__main__':
-    main()
+    mq()

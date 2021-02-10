@@ -2,7 +2,7 @@ import requests
 
 from typing import List, Tuple
 
-from .__user_config import UserConfiguration
+from .__user_config import EnvironmentConfiguration
 
 
 class Client:
@@ -20,7 +20,7 @@ class Client:
         }
 
     @staticmethod
-    def from_config(config: UserConfiguration) -> 'Client':
+    def from_config(config: EnvironmentConfiguration) -> 'Client':
         """
             initialize Client object from UserConfiguration
         Args:

@@ -1,7 +1,8 @@
 import pipes
 
-from maquette_lib.__environment import MqEnvironment
+from maquette_lib.__user_config import EnvironmentConfiguration
 
-env = MqEnvironment.from_config('resources/env_conf.json')
-for (key, value) in env._config.items():
-    print('export ' + key + '=' + pipes.quote(value)+'\n')
+def unix_env():
+    env = EnvironmentConfiguration()
+    for (key, value) in env.mq_yaml_list['environment'].items():
+        print('export ' + key + '=' + pipes.quote(value)+'\n')

@@ -7,9 +7,9 @@ import pandas as pd
 import pandavro
 
 from maquette_lib.__client import Client
-from maquette_lib.__user_config import UserConfiguration
+from maquette_lib.__user_config import EnvironmentConfiguration
 
-config = UserConfiguration()
+config = EnvironmentConfiguration()
 client = Client.from_config(config)
 
 
