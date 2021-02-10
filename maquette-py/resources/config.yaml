@@ -4,10 +4,6 @@ project:
   name: something
   id: c75d338c
 
-environment:
-  key: 0
-  type: local
-
 authentication:
   type: stupid
   username: alice
