@@ -17,7 +17,7 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.sandboxes.SandboxEntities;
-import maquette.core.entities.users.Users;
+import maquette.core.entities.users.UserEntities;
 import maquette.core.ports.*;
 import maquette.core.server.MaquetteServer;
 import maquette.core.server.OpenApiResource;
@@ -70,7 +70,7 @@ public class CoreApp {
         var streams = StreamEntities.apply(streamsRepository);
 
         var sandboxes = SandboxEntities.apply(sandboxesRepository);
-        var users = Users.apply(usersRepository);
+        var users = UserEntities.apply(usersRepository, om);
 
         var runtime = RuntimeConfiguration.apply(
            app, system, om, collections, datasets, dataSources, streams, infrastructureManager,

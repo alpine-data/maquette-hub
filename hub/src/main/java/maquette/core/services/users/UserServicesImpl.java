@@ -13,9 +13,12 @@ import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.users.UserEntity;
 import maquette.core.entities.users.model.UserNotification;
+import maquette.core.entities.users.model.UserProfile;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.data.DataAssetProperties;
+import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.commons.compress.utils.Lists;
 
@@ -53,11 +56,25 @@ public final class UserServicesImpl implements UserServices {
     */
 
    @Override
+   public CompletionStage<UserProfile> getProfile(User executor, String userId) {
+      return companion
+         .withUser(userId)
+         .thenCompose(UserEntity::getProfile);
+   }
+
+   @Override
+   public CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails) {
+      return companion
+         .withUser(executor)
+         .thenCompose(entity -> entity.updateUserDetails(base64encodedDetails));
+   }
+
+   @Override
    public CompletionStage<List<UserNotification>> getNotifications(User executor) {
       return companion.withUserOrDefault(
          executor,
          Lists.newArrayList(),
-         maquette.core.entities.users.User::getNotifications);
+         UserEntity::getNotifications);
    }
 
    @Override
@@ -143,6 +160,16 @@ public final class UserServicesImpl implements UserServices {
             .sorted(Comparator.comparing(DataAssetProperties::getName))
             .collect(Collectors.toList());
       });
+   }
+
+   @Override
+   public CompletionStage<List<ProjectProperties>> getUserProjects(User executor, String userId) {
+      return getProjects(AuthenticatedUser.apply(userId));
+   }
+
+   @Override
+   public CompletionStage<List<DataAssetProperties<?>>> getUserDataAssets(User executor, String userId) {
+      return getDataAssets(AuthenticatedUser.apply(userId));
    }
 
 }

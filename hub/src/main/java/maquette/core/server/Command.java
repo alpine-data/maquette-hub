@@ -139,7 +139,8 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = SandboxViewCommand.class, name = "views sandbox"),
       @JsonSubTypes.Type(value = DataShopViewCommand.class, name = "views shop"),
       @JsonSubTypes.Type(value = DataSourceViewCommand.class, name = "views source"),
-      @JsonSubTypes.Type(value = StreamViewCommand.class, name = "views stream")
+      @JsonSubTypes.Type(value = StreamViewCommand.class, name = "views stream"),
+      @JsonSubTypes.Type(value = UserProfileViewCommand.class, name = "views user")
    })
 public interface Command {
 

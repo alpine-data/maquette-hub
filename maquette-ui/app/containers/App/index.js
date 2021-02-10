@@ -32,6 +32,7 @@ import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
 import Search from 'containers/Search/Loadable';
 import Stream from 'containers/Stream/Loadable';
+import UserProfile from 'containers/UserProfile/Loadable';
 
 import GlobalStyle from '../../global-styles';
 import './custom-theme.less';
@@ -77,6 +78,8 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop/streams/:stream" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab/:id" exact component={Stream} />
+
+        <Route path="/users/:id" exact component={UserProfile} />
 
         <Route path="/:project" exact component={Project} />
         <Route path="/:project/sandboxes/:sandbox" exact component={Sandbox} />

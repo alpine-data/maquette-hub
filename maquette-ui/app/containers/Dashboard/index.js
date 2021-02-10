@@ -43,7 +43,7 @@ const DataShopTeaser = styled.div`
   margin-top: 30px;
 `;
 
-function ProjectSummary({ project }) {
+export function ProjectSummary({ project }) {
   return <Summary to={ `/${project.name}` }>
       <Summary.Header icon="project" category="Project">{ project.title }</Summary.Header>
       <Summary.Body>

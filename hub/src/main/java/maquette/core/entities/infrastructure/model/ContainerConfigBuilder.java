@@ -17,16 +17,22 @@ public final class ContainerConfigBuilder {
 
    private String command;
 
+   private String hostName;
+
    private final Map<String, String> environment;
 
    private final List<PortSpec> ports;
+
+   private final List<String> networks;
 
    private String memory;
 
    private Double cores;
 
    public static ContainerConfigBuilder apply(String name, String image) {
-      return new ContainerConfigBuilder(name, image, null, Maps.newHashMap(), Lists.newArrayList(), null, null);
+      return new ContainerConfigBuilder(
+         name, image, null, null, Maps.newHashMap(),
+         Lists.newArrayList(), Lists.newArrayList(), null, null);
    }
 
    public ContainerConfigBuilder withCommand(String command) {
@@ -49,8 +55,18 @@ public final class ContainerConfigBuilder {
       return this;
    }
 
+   public ContainerConfigBuilder withHostName(String hostname) {
+      this.hostName = hostname;
+      return this;
+   }
+
    public ContainerConfigBuilder withMemory(String memory) {
       this.memory = memory;
+      return this;
+   }
+
+   public ContainerConfigBuilder withNetwork(String name) {
+      this.networks.add(name);
       return this;
    }
 
@@ -65,7 +81,7 @@ public final class ContainerConfigBuilder {
    }
 
    public ContainerConfig build() {
-      return ContainerConfig.apply(name, image, command, environment, ports, memory, cores);
+      return ContainerConfig.apply(name, image, command, hostName, environment, ports, networks, memory, cores);
    }
 
 }

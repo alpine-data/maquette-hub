@@ -17,7 +17,7 @@ const NavTag = styled(Tag)`
   right: 15px;
 `;
 
-function Asset({ asset }) {
+export function Asset({ asset }) {
   const type = _.get(asset, 'type');
   const name = _.get(asset, 'name');
   const title = _.get(asset, 'title');

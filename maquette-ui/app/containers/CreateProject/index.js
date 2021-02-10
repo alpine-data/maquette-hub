@@ -26,11 +26,13 @@ import CreateProjectForm from 'components/CreateProjectForm'
 import { Message } from 'rsuite';
 
 import Background from '../../resources/projects-background.png';
+import ViewContainer from '../../components/ViewContainer';
 
 export function CreateProject({ createProject, user, dispatch }) {
   useInjectReducer({ key: 'createProject', reducer });
   useInjectSaga({ key: 'createProject', saga });
 
+  /*
   return (
     <div>
       <Helmet>
@@ -49,13 +51,35 @@ export function CreateProject({ createProject, user, dispatch }) {
           A project contains all kinds of resources you need to your Data Science and Machine Learning Project.
         </p>
 
-        { createProject.error && <Message type="error" title="Couldn't create project" description={ createProject.error } /> }
+        
 
         <hr />
         <CreateProjectForm user={ user } onSubmit={ data => dispatch(createProjectAction(data)) } />
       </Container>
     </div>
   );
+  */
+ return <ViewContainer
+    background="projects"
+    titles={ [ { label: 'Create a new project' } ] }
+    loading={ _.get(createProject, 'loading') }>
+
+      <Container md>
+        <p className="mq--p-leading">
+          A project contains all kinds of resources you need to your Data Science and Machine Learning Project.
+        </p>
+
+        <hr />
+
+        { 
+          createProject.error && <>
+            <Message type="error" title="Couldn't create project" description={ createProject.error } style={{ marginBottom: '20px' }} /> 
+          </>
+        }
+
+        <CreateProjectForm user={ user } onSubmit={ data => dispatch(createProjectAction(data)) } />
+      </Container>
+  </ViewContainer>
 }
 
 CreateProject.propTypes = {

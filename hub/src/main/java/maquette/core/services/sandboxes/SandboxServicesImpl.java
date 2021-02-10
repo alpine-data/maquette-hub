@@ -54,13 +54,14 @@ public final class SandboxServicesImpl implements SandboxServices {
                   }
                }))
             .thenCompose(sandbox -> {
+               var projectPropertiesCS = project.getProperties();
+               var projectEnvironmentCS = projectCompanion.environment(projectName, EnvironmentType.SANDBOX);
+               var sandboxPropertiesCS = sandbox.getProperties();
+
                var deployments = stacks
                   .stream()
                   .map(config -> {
                      var stack = Stacks.apply().getStackByConfiguration(config);
-                     var projectPropertiesCS = project.getProperties();
-                     var projectEnvironmentCS = projectCompanion.environment(projectName, EnvironmentType.SANDBOX);
-                     var sandboxPropertiesCS = sandbox.getProperties();
 
                      return Operators.compose(
                         projectPropertiesCS, sandboxPropertiesCS, projectEnvironmentCS,

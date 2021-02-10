@@ -4,36 +4,18 @@
  *
  */
 
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-
-const FRAME_ID = 'mlflow_frame';
-
-var IFrame = styled.iframe`
-  width: 100%;
-  border: 0;
-  margin-top: 15px;
-`;
+import React from 'react';
+import IFrameDisplay from '../IFrameDisplay';
 
 
 function ProjectModels({ project }) {
-  useEffect(() => {
-    const interval = setInterval(() => {  
-      document.getElementById(FRAME_ID).style.height = frames[FRAME_ID].document.body.scrollHeight + "px";
-    }, 1500);
-
-    return () => clearInterval(interval);
-  });
-
-  return <IFrame 
-    name={ FRAME_ID }
-    id={ FRAME_ID }
+  return <IFrameDisplay 
     src={ `${project.mlflowBaseUrl}/#/models` }
-    onLoad={ () => {
-      const css = _.last(frames[FRAME_ID].document.styleSheets);
+    frameId='mlflow_frame'
+    onLoad={ css => {
       css.insertRule('.App-header { display: none }', css.cssRules.length);
       css.insertRule('html, body { overflow: hidden }', css.cssRules.length);
-    } } />;
+    }} />;
 }
 
 ProjectModels.propTypes = {};

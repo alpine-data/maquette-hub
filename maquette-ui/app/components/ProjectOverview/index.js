@@ -11,11 +11,13 @@ import MarkdownBox from '../MarkdownBox';
 import Metrics from '../Metrics';
 
 function ProjectOverview({ view }) {
+  console.log(view);
+
   const metrics = [
     {
       icon: 'table',
       label: 'Data Assets',
-      count: 1,
+      count: _.size(view.project.assets),
       link: `/${view.project.name}`
     },
     {
@@ -27,7 +29,7 @@ function ProjectOverview({ view }) {
     {
       icon: 'terminal',
       label: 'Sandboxes',
-      count: 1,
+      count: _.size(view.project.sandboxes),
       link: `/${view.project.name}/sandboxes`
     }, 
     {

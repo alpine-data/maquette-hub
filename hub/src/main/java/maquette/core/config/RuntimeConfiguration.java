@@ -13,7 +13,7 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.sandboxes.SandboxEntities;
-import maquette.core.entities.users.Users;
+import maquette.core.entities.users.UserEntities;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
@@ -41,6 +41,6 @@ public final class RuntimeConfiguration {
 
     private final SandboxEntities sandboxes;
 
-    private final Users users;
+    private final UserEntities users;
 
 }

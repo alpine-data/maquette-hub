@@ -25,6 +25,71 @@ import ProjectDataAssets from '../../components/ProjectDataAssets';
 import Sandboxes from '../../components/Sandboxes';
 import ViewContainer from '../../components/ViewContainer';
 
+export const getProjectTabs = (
+  project, isAdmin = false, isMember = false, components = {}) => {
+
+  return [
+    {
+      label: 'Overview',
+      key: 'overview',
+      link: `/${project}`,
+      visible: true,
+      component: components.overview || (() => <></>)
+    },
+    {
+      label: 'Data Assets',
+      link: `/${project}/data`,
+      key: 'data',
+      visible: true,
+      component: components.data || (() => <></>)
+    },
+    {
+      label: 'Data Repositories',
+      link: `/${project}/repositories`,
+      key: 'repositories',
+      visible: true,
+      component: components.repositories || (() => <></>)
+    },
+    {
+      label: 'Sandboxes',
+      link: `/${project}/sandboxes`,
+      key: 'sandboxes',
+      visible: true,
+      component: components.sandboxes || (() => <></>)
+    },
+    {
+      label: 'Jobs',
+      link: `/${project}/jobs`,
+      key: 'jobs',
+      visible: true,
+      component: components.jobs || (() => <></>)
+    },
+    {
+      label: 'Experiments',
+      link: `/${project}/experiments`,
+      key: 'experiments',
+      visible: true,
+      background: false,
+      component: components.experiments || (() => <></>)
+    },
+    {
+      label: 'Models',
+      link: `/${project}/models`,
+      key: 'models',
+      visible: true,
+      background: false,
+      component: components.models || (() => <></>)
+    },
+    {
+      label: 'Settings',
+      link: `/${project}/settings`,
+      key: 'settings',
+      visible: isAdmin,
+      component: components.settings || (() => <></>)
+    }
+  ];
+}
+
 export function Project(props) {
   useInjectReducer({ key: 'project', reducer });
   useInjectSaga({ key: 'project', saga });
@@ -56,6 +121,15 @@ export function Project(props) {
     props.dispatch(update('projects revoke', request));
   }
 
+  const components = {
+    overview: () => <ProjectOverview view={ data } />,
+    data: () => <ProjectDataAssets { ...props } />,
+    sandboxes: () => <Sandboxes { ...props } />,
+    experiments: () => <ProjectExperiments { ...data } />,
+    models: () => <ProjectModels { ...data } />,
+    settings: () => <ProjectSettings { ...props} onUpdate={ onUpdate } onGrant={ onGrant } onRevoke={ onRevoke } /> 
+  };
+
   return <ViewContainer 
     background='projects'
     loading={ _.get(props, 'project.loading') }
@@ -73,73 +147,7 @@ export function Project(props) {
 
     titles={ [ { link: `/${project}`, label: _.get(data, 'project.title') || project }] }
   
-    activeTab='overview'
-    tabs={ [
-      {
-        label: 'Overview',
-        key: 'overview',
-        link: `/${project}`,
-        visible: true,
-        component: () => <ProjectOverview view={ data } />
-      },
-      {
-        label: 'Data Assets',
-        link: `/${project}/data`,
-        key: 'data',
-        visible: true,
-        component: () => <ProjectDataAssets { ...props } />
-      },
-      {
-        label: 'Data Repositories',
-        link: `/${project}/repositories`,
-        key: 'repositories',
-        visible: true,
-        component: () => <>Data Repositories</>
-      },
-      {
-        label: 'Sandboxes',
-        link: `/${project}/sandboxes`,
-        key: 'sandboxes',
-        visible: true,
-        component: () => <Sandboxes { ...props} />
-      },
-      {
-        label: 'Jobs',
-        link: `/${project}/jobs`,
-        key: 'jobs',
-        visible: true,
-        component: () => <>Jobs</>
-      },
-      {
-        label: 'Experiments',
-        link: `/${project}/experiments`,
-        key: 'experiments',
-        visible: true,
-        background: false,
-        component: () => <ProjectExperiments { ...data } />
-      },
-      {
-        label: 'Models',
-        link: `/${project}/models`,
-        key: 'models',
-        visible: true,
-        background: false,
-        component: () => <ProjectModels { ...data } />
-      },
-      {
-        label: 'Settings',
-        link: `/${project}/settings`,
-        key: 'settings',
-        visible: data.isAdmin,
-        component: () => {
-          return <ProjectSettings 
-            { ...props} 
-            onUpdate={ onUpdate }
-            onGrant={ onGrant }
-            onRevoke={ onRevoke } /> 
-        }
-      }
-    ] }
+    tabs={ getProjectTabs(project, data.isAdmin, data.isMember, components) }
     { ...props } />
 }
 

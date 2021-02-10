@@ -10,6 +10,7 @@ import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
+import maquette.core.services.users.UserServices;
 import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
@@ -41,7 +42,10 @@ public final class MaquetteServer {
       var server = MaquetteServer.apply(runtime.getApp(), config);
 
       runtime.getApp()
-         .before(server.handleAuthentication(config.getServer().getUserIdHeaderName(), config.getServer().getUserRolesHeaderName()))
+         .before(server.handleAuthentication(
+            config.getServer().getUserIdHeaderName(),
+            config.getServer().getUserRolesHeaderName(),
+            services.getUserServices()))
 
          .post("/api/commands", commandResource.getCommand())
          .get("/api/commands", commandResource.getCommands())
@@ -80,7 +84,9 @@ public final class MaquetteServer {
       return server;
    }
 
-   private Handler handleAuthentication(String userIdHeaderName, String userRolesHeaderName) {
+   private Handler handleAuthentication(String userIdHeaderName, String userRolesHeaderName, UserServices userServices) {
+      String userDetailsHeaderName = "x-user-details";
+
       return ctx -> {
          var headers = ctx.headerMap();
 
@@ -95,6 +101,10 @@ public final class MaquetteServer {
 
                if (headers.containsKey(userRolesHeaderName)) {
                   user = user.withRoles(headers.get(userRolesHeaderName).split(","));
+               }
+
+               if (headers.containsKey(userDetailsHeaderName)) {
+                  userServices.updateUserDetails(user, headers.get(userDetailsHeaderName));
                }
 
                ctx.attribute("user", user);

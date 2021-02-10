@@ -29,7 +29,7 @@ public class MlflowConfiguration {
    }
 
    public static MlflowConfiguration apply(UID project) {
-      var deploymentId = String.format("mq__%s__mlflow", project);
+      var deploymentId = String.format("mq--%s--mlflow", project);
       var minioAccessKey = Operators.randomHash();
       var minioSecretKey = Operators.randomHash();
       var postgresPassword = Operators.randomHash();
@@ -39,17 +39,23 @@ public class MlflowConfiguration {
    }
 
    public String getMinioContainerName(UID project) {
-      return String.format("mq__%s__minio", project);
+      return String.format("mq--%s--minio", project);
    }
 
-   public String getMlflowBasePath(UID project) { return String.format("/_mlflow/%s", project); }
+   public String getMlflowBasePath(UID project) {
+      return String.format("/_mlflow/%s", project);
+   }
 
    public String getMlflowContainerName(UID project) {
-      return String.format("mq__%s__mlflow", project);
+      return String.format("mq--%s--mlflow", project);
    }
 
    public String getPostgreContainerName(UID project) {
-      return String.format("mq__%s__postgres", project);
+      return String.format("mq--%s--postgres", project);
+   }
+
+   public String getSandboxNetworkName(UID project) {
+      return String.format("mq--%s--sandboxes", project);
    }
 
 }
