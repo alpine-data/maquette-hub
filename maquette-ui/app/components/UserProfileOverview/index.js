@@ -19,7 +19,7 @@ const Lines = styled.div`
   margin-bottom: 20px;
 `;
 
-function Avatar({ src }) {
+export function Avatar({ src }) {
   return <div 
     style={ { maxWidth: '150px', maxHeight: '150px', width: '100%', height: '100%' } } 
     className="rs-avatar rs-avatar-lg rs-avatar-circle">
@@ -29,7 +29,7 @@ function Avatar({ src }) {
   </div>;
 }
 
-function Line({ value, defaultValue }) {
+export function Line({ value, defaultValue }) {
   return (value && <p style={{ margin: '0px' }}>{ value }</p>) || (defaultValue && <p className="mq--sub" style={{ margin: '0px' }}>{ defaultValue }</p> ) || <></>
 }
 
@@ -52,7 +52,7 @@ function UserProfileOverview({ view }) {
           { 
             view.isOwnProfile && <>
               <Lines>
-                <Button componentClass={ Link } to="/users/settings" appearance="primary">Edit profile</Button>
+                <Button componentClass={ Link } to="/user/settings" appearance="primary">Edit profile</Button>
               </Lines> 
             </>
           }

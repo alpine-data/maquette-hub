@@ -3,9 +3,11 @@ package maquette.core.entities.users;
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.users.exceptions.UserNotFoundException;
 import maquette.core.entities.users.model.UserDetails;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
+import maquette.core.entities.users.model.UserSettings;
 import maquette.core.ports.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,8 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class UserEntity {
+
+   private static final String SECRET_MASK = "__secret__";
 
    private static final Logger LOG = LoggerFactory.getLogger(UserEntity.class);
 
@@ -54,10 +58,67 @@ public final class UserEntity {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
+   public CompletionStage<Done> updateUserProfile(UserProfile profile) {
+      return repository.insertOrUpdateProfile(profile.withId(id));
+   }
+
+   public CompletionStage<Done> updateUserSettings(UserSettings settings) {
+      return repository
+         .findSettingsById(id)
+         .thenApply(maybeSettings -> {
+            if (maybeSettings.isEmpty()) {
+               return UserSettings.apply();
+            } else {
+               return maybeSettings.get();
+            }
+         })
+         .thenApply(current -> {
+            var updatedSettings = settings;
+
+            if (settings.getGit().getPassword().equals(SECRET_MASK)) {
+               updatedSettings = updatedSettings
+                  .withGit(updatedSettings.getGit().withPassword(current.getGit().getPassword()));
+            }
+
+            if (settings.getGit().getPrivateKey().equals(SECRET_MASK)) {
+               updatedSettings = updatedSettings
+                  .withGit(updatedSettings.getGit().withPrivateKey(current.getGit().getPrivateKey()));
+            }
+
+            if (settings.getGit().getPublicKey().equals(SECRET_MASK)) {
+               updatedSettings = updatedSettings
+                  .withGit(updatedSettings.getGit().withPublicKey(current.getGit().getPublicKey()));
+            }
+
+            return updatedSettings;
+         })
+         .thenCompose(updatedSettings -> repository.insertOrUpdateSettings(id, updatedSettings));
+   }
+
    public CompletionStage<UserProfile> getProfile() {
       return repository
          .findProfileById(id)
          .thenApply(profile -> profile.orElse(UserProfile.apply(id)));
+   }
+
+   public CompletionStage<UserSettings> getSettings() {
+      return getSettings(true);
+   }
+
+   public CompletionStage<UserSettings> getSettings(boolean masked) {
+      return repository
+         .findSettingsById(id)
+         .thenApply(settings -> settings.orElse(UserSettings.apply()))
+         .thenApply(settings -> {
+            if (masked) {
+               return settings.withGit(settings.getGit()
+                  .withPassword(SECRET_MASK)
+                  .withPrivateKey(SECRET_MASK)
+                  .withPublicKey(SECRET_MASK));
+            } else {
+               return settings;
+            }
+         });
    }
 
    public CompletionStage<List<UserNotification>> getNotifications() {

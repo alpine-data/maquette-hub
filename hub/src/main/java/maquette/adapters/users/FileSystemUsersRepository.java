@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
+import maquette.core.entities.users.model.UserSettings;
 import maquette.core.ports.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,10 @@ public final class FileSystemUsersRepository implements UsersRepository {
       return getUserDirectory(userId).resolve("profile.json");
    }
 
+   private Path getUserSettingsFile(String userId) {
+      return getUserDirectory(userId).resolve("settings.json");
+   }
+
    private Path getNotificationDirectory(String userId) {
       return getUserDirectory(userId).resolve("notifications");
    }
@@ -67,6 +72,19 @@ public final class FileSystemUsersRepository implements UsersRepository {
    }
 
    @Override
+   public CompletionStage<Done> insertOrUpdateSettings(String userId, UserSettings settings) {
+      var file = getUserSettingsFile(userId);
+
+      Operators.suppressExceptions(() -> {
+         try (OutputStream os = Files.newOutputStream(file)) {
+            om.writeValue(os, settings);
+         }
+      });
+
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
    public CompletionStage<Optional<UserNotification>> findNotificationById(String userId, String notificationId) {
       var file = getNotificationFile(userId, notificationId);
 
@@ -89,6 +107,22 @@ public final class FileSystemUsersRepository implements UsersRepository {
                return CompletableFuture.completedFuture(Optional.of(result));
             },
             CompletableFuture.completedFuture(Optional.empty()), LOG);
+      } else {
+         return CompletableFuture.completedFuture(Optional.empty());
+      }
+   }
+
+   @Override
+   public CompletionStage<Optional<UserSettings>> findSettingsById(String userId) {
+      var file = getUserSettingsFile(userId);
+
+      if (Files.exists(file)) {
+         return Operators.ignoreExceptionsWithDefault(
+            () -> {
+               var result = om.readValue(file.toFile(), UserSettings.class);
+               return CompletableFuture.completedFuture(Optional.of(result));
+            },
+            CompletableFuture.completedFuture(Optional.empty()));
       } else {
          return CompletableFuture.completedFuture(Optional.empty());
       }

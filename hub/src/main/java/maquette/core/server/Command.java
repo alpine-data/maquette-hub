@@ -25,6 +25,7 @@ import maquette.core.server.commands.sandboxes.CreateSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetStacksCommand;
 import maquette.core.server.commands.sandboxes.ListSandboxesCommand;
+import maquette.core.server.commands.user.UpdateUserCommand;
 import maquette.core.server.commands.views.*;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
@@ -129,6 +130,9 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = GetStacksCommand.class, name = "sandboxes stacks"),
       @JsonSubTypes.Type(value = ListSandboxesCommand.class, name = "sandboxes list"),
 
+      // User
+      @JsonSubTypes.Type(value = UpdateUserCommand.class, name = "users update"),
+
       // Views
       @JsonSubTypes.Type(value = CollectionViewCommand.class, name = "views collection"),
       @JsonSubTypes.Type(value = CreateDataAccessRequestViewCommand.class, name = "views create-data-access-request"),
@@ -140,7 +144,8 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = DataShopViewCommand.class, name = "views shop"),
       @JsonSubTypes.Type(value = DataSourceViewCommand.class, name = "views source"),
       @JsonSubTypes.Type(value = StreamViewCommand.class, name = "views stream"),
-      @JsonSubTypes.Type(value = UserProfileViewCommand.class, name = "views user")
+      @JsonSubTypes.Type(value = UserProfileViewCommand.class, name = "views user"),
+      @JsonSubTypes.Type(value = UserSettingsViewCommand.class, name = "views user settings")
    })
 public interface Command {
 

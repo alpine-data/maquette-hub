@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
+import maquette.core.entities.users.model.UserSettings;
 import maquette.core.ports.UsersRepository;
 import org.apache.commons.compress.utils.Lists;
 
@@ -23,8 +24,10 @@ public final class InMemoryUsersRepository implements UsersRepository {
 
    private final Map<String, UserProfile> profiles;
 
+   private final Map<String, UserSettings> settings;
+
    public static InMemoryUsersRepository apply() {
-      return apply(Lists.newArrayList(), Maps.newHashMap());
+      return apply(Lists.newArrayList(), Maps.newHashMap(), Maps.newHashMap());
    }
 
    @Override
@@ -46,6 +49,12 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
+   public CompletionStage<Done> insertOrUpdateSettings(String userId, UserSettings settings) {
+      this.settings.put(userId, settings);
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
    public CompletionStage<Optional<UserNotification>> findNotificationById(String userId, String notificationId) {
       var result = notifications
          .stream()
@@ -60,6 +69,15 @@ public final class InMemoryUsersRepository implements UsersRepository {
    public CompletionStage<Optional<UserProfile>> findProfileById(String userId) {
       if (profiles.containsKey(userId)) {
          return CompletableFuture.completedFuture(Optional.of(profiles.get(userId)));
+      } else {
+         return CompletableFuture.completedFuture(Optional.empty());
+      }
+   }
+
+   @Override
+   public CompletionStage<Optional<UserSettings>> findSettingsById(String userId) {
+      if (settings.containsKey(userId)) {
+         return CompletableFuture.completedFuture(Optional.of(settings.get(userId)));
       } else {
          return CompletableFuture.completedFuture(Optional.empty());
       }

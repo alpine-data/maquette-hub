@@ -4,6 +4,7 @@ import akka.Done;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
+import maquette.core.entities.users.model.UserSettings;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 
@@ -17,7 +18,11 @@ public interface UserServices {
     */
    CompletionStage<UserProfile> getProfile(User executor, String userId);
 
+   CompletionStage<UserSettings> getSettings(User executor, String userId);
+
    CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
+
+   CompletionStage<Done> updateUser(User executor, String userId, UserProfile profile, UserSettings settings);
 
    /*
     * Notifications

@@ -33,6 +33,7 @@ import Sandbox from 'containers/Sandbox/Loadable';
 import Search from 'containers/Search/Loadable';
 import Stream from 'containers/Stream/Loadable';
 import UserProfile from 'containers/UserProfile/Loadable';
+import UserSettings from 'containers/UserSettings/Loadable';
 
 import GlobalStyle from '../../global-styles';
 import './custom-theme.less';
@@ -45,7 +46,7 @@ export function App({ app, onInitialize, onUserChanged }) {
     onInitialize();
   }, []);
 
-  return <Layout username={ app.currentUser.name } onUserChanged={ onUserChanged }>
+  return <Layout username={ app.currentUser.name } userId={ app.currentUser.id } onUserChanged={ onUserChanged }>
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route path="/search" component={Search} />
@@ -79,6 +80,8 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop/streams/:stream/:tab" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab/:id" exact component={Stream} />
 
+        <Route path="/user/settings" exact component={UserSettings} />
+        <Route path="/user/settings/:tab" exact component={UserSettings} />
         <Route path="/users/:id" exact component={UserProfile} />
 
         <Route path="/:project" exact component={Project} />

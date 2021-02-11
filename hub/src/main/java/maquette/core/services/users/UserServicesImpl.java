@@ -16,6 +16,7 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.users.UserEntity;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
+import maquette.core.entities.users.model.UserSettings;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.AuthenticatedUser;
@@ -63,10 +64,25 @@ public final class UserServicesImpl implements UserServices {
    }
 
    @Override
+   public CompletionStage<UserSettings> getSettings(User executor, String userId) {
+      return companion
+         .withUser(userId)
+         .thenCompose(entity -> entity.getSettings(true));
+   }
+
+   @Override
    public CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails) {
       return companion
          .withUser(executor)
          .thenCompose(entity -> entity.updateUserDetails(base64encodedDetails));
+   }
+
+   @Override
+   public CompletionStage<Done> updateUser(User executor, String userId, UserProfile profile, UserSettings settings) {
+      return companion
+         .withUser(userId)
+         .thenCompose(entity -> entity.updateUserProfile(profile).thenApply(d -> entity))
+         .thenCompose(entity -> entity.updateUserSettings(settings));
    }
 
    @Override

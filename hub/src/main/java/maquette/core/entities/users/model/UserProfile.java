@@ -9,7 +9,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class UserProfile {
 
    String id;
@@ -26,8 +25,13 @@ public class UserProfile {
 
    String location;
 
+   @SuppressWarnings("unused")
+   private UserProfile() {
+      this("", "", "", "", "", "", "");
+   }
+
    public static UserProfile apply(String id) {
-      return apply(id, null, null, null, null, null, null);
+      return apply(id, "", "", "", "", "", "");
    }
 
    @JsonProperty("avatar")
