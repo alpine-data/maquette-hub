@@ -4,6 +4,7 @@ import akka.Done;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.values.data.DataZone;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
@@ -27,7 +28,7 @@ public interface DatasetServices extends MemberServices, AccessRequestServices  
     */
    CompletionStage<DatasetProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone);
 
    CompletionStage<Done> remove(User executor, String dataset);
 

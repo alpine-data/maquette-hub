@@ -7,6 +7,7 @@ import maquette.core.services.data.AccessRequestServices;
 import maquette.core.services.data.MemberServices;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.DataZone;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;
@@ -18,7 +19,7 @@ public interface CollectionServices extends MemberServices, AccessRequestService
 
    CompletionStage<CollectionProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone);
 
    CompletionStage<Collection> get(User executor, String asset);
 

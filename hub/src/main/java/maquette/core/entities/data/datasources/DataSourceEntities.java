@@ -14,10 +14,7 @@ import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import maquette.core.values.user.User;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -41,7 +38,8 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
    public CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
       DataSourceDatabaseProperties properties, DataSourceAccessType type,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone) {
 
       return repository
          .findAssetByName(name)
@@ -64,6 +62,7 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
                            UID.apply(), title, name, summary,
                            properties, type,
                            visibility, classification, personalInformation,
+                           zone, DataAssetState.APPROVED,
                            schema, fetched, records, created, created);
 
                         return repository

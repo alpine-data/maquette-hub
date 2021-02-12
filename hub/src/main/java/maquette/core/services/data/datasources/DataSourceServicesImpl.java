@@ -2,6 +2,7 @@ package maquette.core.services.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.values.data.*;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.DataSourceEntities;
@@ -12,10 +13,6 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,11 +32,12 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    @Override
    public CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
-      DataSourceDatabaseProperties properties, DataSourceAccessType type, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataSourceDatabaseProperties properties, DataSourceAccessType type,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return entities.create(
          executor, title, name, summary,
-         properties, type, visibility, classification, personalInformation);
+         properties, type, visibility, classification, personalInformation, zone);
    }
 
    @Override

@@ -36,6 +36,14 @@ public class Stream implements DataAsset<Stream> {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
+   DataAssetState state;
+
+   int likes;
+
+   boolean liked;
+
    ActionMetadata created;
 
    ActionMetadata updated;

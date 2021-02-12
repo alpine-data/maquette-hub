@@ -47,6 +47,7 @@ public final class DataSourceCompanion extends ServiceCompanion {
       return Operators.compose(propertiesCS, membersCS, accessRequestsCS, (p, members, accessRequests) -> DataSource.apply(
          p.getId(), p.getTitle(), p.getName(), p.getSummary(), p.getDatabase(), p.getAccessType(),
          p.getVisibility(), p.getClassification(), p.getPersonalInformation(),
+         p.getZone(), p.getState(), 0, false,
          p.getSchema(), p.getFetched(), p.getRecords(),
          p.getCreated(), p.getUpdated(), members, accessRequests));
    }

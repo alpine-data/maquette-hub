@@ -1,6 +1,5 @@
 package maquette.core.entities.data.datasets.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
@@ -33,6 +32,14 @@ public class Dataset implements DataAsset<Dataset> {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
+   DataAssetState state;
+
+   int likes;
+
+   boolean liked;
+
    ActionMetadata created;
 
    ActionMetadata updated;
@@ -44,11 +51,5 @@ public class Dataset implements DataAsset<Dataset> {
    List<DataAccessToken> accessTokens;
 
    List<CommittedRevision> versions;
-
-   @JsonIgnore
-   public DatasetProperties getProperties() {
-      return DatasetProperties.apply(
-         id, title, name, summary, visibility, classification, personalInformation, created, updated);
-   }
 
 }

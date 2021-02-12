@@ -10,10 +10,7 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
@@ -33,10 +30,10 @@ public final class CollectionServicesSecured implements CollectionServices {
    private final DataAssetCompanion<CollectionProperties, CollectionEntities> assets;
 
    @Override
-   public CompletionStage<CollectionProperties> create(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<CollectionProperties> create(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, title, name, summary, visibility, classification, personalInformation));
+         .thenCompose(ok -> delegate.create(executor, title, name, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override
