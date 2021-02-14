@@ -54,7 +54,6 @@ function ViewContainer({
     actualBackground = false;
   }
 
-
   return <>
     <Helmet>
       <title>{ pageTitle }</title>
@@ -92,7 +91,7 @@ function ViewContainer({
             </FlexboxGrid.Item>
             <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
               { 
-                likes && <>
+                !_.isUndefined(likes) && <>
                   <ButtonToolbar>
                     {
                       liked && <>
@@ -125,7 +124,7 @@ function ViewContainer({
                         </>
                     }
                   </ButtonToolbar>
-                </>
+                </> || <></>
               }
             </FlexboxGrid.Item>
           </FlexboxGrid>

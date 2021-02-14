@@ -62,11 +62,11 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop" exact component={DataShop} />
         <Route path="/shop/:tab" exact component={DataShop} />
 
-        <Route path="/shop/collections/:collection" exact component={Collection} />
-        <Route path="/shop/collections/:collection/tree/:tag/*" component={Collection}  />
-        <Route path="/shop/collections/:collection/tree/:tag" component={Collection}  />
-        <Route path="/shop/collections/:collection/:tab" exact component={Collection} />
-        <Route path="/shop/collections/:collection/:tab/:id" exact component={Collection} />
+        <Route path="/shop/collections/:asset" exact component={Collection} />
+        <Route path="/shop/collections/:asset/:tab/tree/:tag/*" component={Collection}  />
+        <Route path="/shop/collections/:asset/:tab/tree/:tag" component={Collection}  />
+        <Route path="/shop/collections/:asset/:tab" exact component={Collection} />
+        <Route path="/shop/collections/:asset/:tab/:id" exact component={Collection} />
 
         <Route path="/shop/datasets/:dataset" exact component={Dataset} />
         <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
@@ -86,6 +86,13 @@ export function App({ app, onInitialize, onUserChanged }) {
 
         <Route path="/:project" exact component={Project} />
         <Route path="/:project/sandboxes/:sandbox" exact component={Sandbox} />
+
+        <Route path="/:project/data/collections/:asset" exact component={Collection} />
+        <Route path="/:project/data/collections/:asset/data/tree/:tag/*" component={Collection}  />
+        <Route path="/:project/data/collections/:asset/data/tree/:tag" component={Collection}  />
+        <Route path="/:project/data/collections/:asset/:tab" exact component={Collection} />
+        <Route path="/:project/data/collections/:asset/:tab/:id" exact component={Collection} />
+
         <Route path="/:project/:tab" exact component={Project} />
         <Route path="/:project/:tab/:id" exact component={Project} />
         <Route component={NotFoundPage} />

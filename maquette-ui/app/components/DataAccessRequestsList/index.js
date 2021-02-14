@@ -43,7 +43,7 @@ function DataAccessRequestsList({ requests }) {
     <FlexboxGrid.Item colspan={ 20 } style={{ paddingLeft: "20px" }}>
       <Summary.Summaries style={{ margin: 0 }}>
         {
-          _.map(groups[tab], r => <DataAccessRequestSummary key={ r.id } dataset="some-dataset" request={ r } />)
+          _.map(groups[tab], r => <DataAccessRequestSummary key={ r.id } request={ r } />)
         }
 
         {

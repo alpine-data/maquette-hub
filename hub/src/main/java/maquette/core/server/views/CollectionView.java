@@ -3,8 +3,9 @@ package maquette.core.server.views;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.entities.data.collections.model.Collection;
-import maquette.core.entities.data.streams.model.Stream;
+import maquette.core.entities.users.model.UserProfile;
 import maquette.core.server.CommandResult;
+import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 
 import java.util.List;
@@ -17,12 +18,10 @@ public class CollectionView implements CommandResult {
 
    List<DataAccessLogEntry> logs;
 
-   boolean canAccessData;
+   DataAssetPermissions permissions;
 
-   boolean canWrite;
+   List<UserProfile> owners;
 
-   boolean isOwner;
-
-   boolean isMember;
+   List<UserProfile> stewards;
 
 }

@@ -10,7 +10,6 @@ import React from 'react';
 
 import CollectionTimeline from '../CollectionTimeline';
 import Container from '../Container';
-import Background from '../../resources/datashop-background.png';
 import FileExplorer from '../FileExplorer';
 import { Link } from 'react-router-dom';
 
@@ -18,7 +17,7 @@ import ErrorMessage from '../ErrorMessage';
 import { Button, FlexboxGrid } from 'rsuite';
 
 function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
-  const collection = _.get(props, 'match.params.collection');
+  const collection = _.get(props, 'match.params.asset');
   const query = new URLSearchParams(_.get(props, 'location.search') || '');
   const selectedFile = query.get('file');
 
@@ -31,18 +30,18 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
     },
     [{ to: treePrefix, label: collection }])
 
-  const tag_data = _.get(props, 'collection.data.collection.tags')
-  const root_data = _.isEqual(tag, 'main') && _.get(props, 'collection.data.collection.files') || _.get(_.find(tag_data, t => _.isEqual(t.name, tag)), 'content');
+  const tag_data = _.get(props, 'collection.view.collection.tags')
+  const root_data = _.isEqual(tag, 'main') && _.get(props, 'collection.view.collection.files') || _.get(_.find(tag_data, t => _.isEqual(t.name, tag)), 'content');
   const data = _.reduce(
       pathElements, 
       (acc, element) => _.get(acc, `children.${element}`) || {},
       root_data || {});
 
-  return <Container xlg background={ Background } className="mq--main-content">
+  return <Container xlg className="mq--main-content">
     <CollectionTimeline 
       activeTag={ tag }
-      collection={ _.get(props, 'collection.data.collection') }
-      onSelect={ tag => props.history.push(`/shop/collections/some-collection/tree/${tag}`) } />
+      collection={ _.get(props, 'collection.view.collection') }
+      onSelect={ tag => props.history.push(`/shop/collections/${collection}/tree/${tag}`) } />
     
     <hr />
 
@@ -51,12 +50,12 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
         title={ `Tag not found` } 
         message={ `The tag with name '${tag}' does not exist` }
         dismissLabel="Show main tag"
-        onDismiss={ () => props.history.push(`/shop/collections/some-collection/tree/main`) } />
+        onDismiss={ () => props.history.push(`/shop/collections/${collection}/tree/main`) } />
     }
 
     {
       !_.isEmpty(root_data) && <>
-        <FlexboxGrid align='center'>
+        <FlexboxGrid align='middle'>
           <FlexboxGrid.Item colspan={ 20 }>
             <h4>Files <span className="mq--sub">({ tag })</span></h4>
           </FlexboxGrid.Item>
@@ -98,10 +97,10 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
 }
 
 function CollectionOverview(props) {
-  const collection = _.get(props, 'match.params.collection');
+  const collection = _.get(props, 'match.params.asset');
   const tag = _.get(props, 'match.params.tag') || 'main';
   const url = _.get(props, 'match.url');
-  const treePrefix = `/shop/collections/${collection}/tree/${tag}`
+  const treePrefix = `/shop/collections/${collection}/data/tree/${tag}`
   const blobPrefix = `/api/data/collections/${collection}/tags/${tag}`
 
   if (url.startsWith(treePrefix)) {

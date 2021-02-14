@@ -5,14 +5,12 @@
  */
 import _ from 'lodash';
 import React from 'react';
-// import PropTypes from 'prop-types';
-// import styled from 'styled-components';
+import { pluralizeWord } from '../../utils/helpers';
 
 import Summary from '../Summary';
 
-function DataAccessRequestSummary({ dataset, request }) {
-
-  return <Summary to={ `/shop/datasets/${dataset}/access-requests/${request.id}` }>
+function DataAccessRequestSummary({ request }) {
+  return <Summary to={ `/shop/${pluralizeWord(request.asset.type)}/${request.asset.name}/access-requests/${request.id}` }>
     <Summary.Header>{ request.project.title } <span className="mq--sub">#{ request.id }</span></Summary.Header>
     <Summary.Body>
       { _.last(request.events).reason }

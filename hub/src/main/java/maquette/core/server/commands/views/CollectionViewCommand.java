@@ -6,13 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.users.model.UserProfile;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.views.CollectionView;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.access.DataAccessRequestStatus;
+import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -23,34 +25,39 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CollectionViewCommand implements Command {
 
-   String collection;
+   String name;
+
+   private CompletionStage<List<UserProfile>> getUserProfiles(
+      User user, ApplicationServices services, DataAsset<?> asset, DataAssetMemberRole role) {
+
+      return Operators.allOf(asset.getMembers(role)
+         .stream()
+         .map(GrantedAuthorization::getAuthorization)
+         .filter(auth -> auth instanceof UserAuthorization)
+         .map(auth -> (UserAuthorization) auth)
+         .map(m -> services.getUserServices().getProfile(user, m.getName())));
+   }
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       var collectionCS = services
          .getCollectionServices()
-         .get(user, collection);
+         .get(user, name);
 
       var logsCS = services
          .getCollectionServices()
-         .getAccessLogs(user, collection)
+         .getAccessLogs(user, name)
          .exceptionally(ex -> List.of());
 
-      return Operators.compose(collectionCS, logsCS, (collection, logs) -> {
-         var isOwner = collection.isMember(user, DataAssetMemberRole.OWNER);
-         var isConsumer = collection.isMember(user, DataAssetMemberRole.CONSUMER);
-         var isProducer = collection.isMember(user, DataAssetMemberRole.PRODUCER);
-         var isMember = collection.isMember(user, DataAssetMemberRole.MEMBER);
+      var ownersCS = collectionCS.thenCompose(collection ->
+         getUserProfiles(user, services, collection, DataAssetMemberRole.OWNER));
 
-         var isSubscriber = collection
-            .getAccessRequests()
-            .stream()
-            .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+      var stewardsCS = collectionCS.thenCompose(collection ->
+         getUserProfiles(user, services, collection, DataAssetMemberRole.STEWARD));
 
-         var canAccessData = isOwner || isConsumer || isMember || isSubscriber;
-         var canProduceData = isOwner || isProducer;
-
-         return CollectionView.apply(collection, logs, canAccessData, canProduceData, isOwner, isMember);
+      return Operators.compose(collectionCS, logsCS, ownersCS, stewardsCS, (collection, logs, owners, stewards) -> {
+         var permissions = collection.getDataAssetPermissions(user);
+         return CollectionView.apply(collection, logs, permissions, owners, stewards);
       });
    }
 

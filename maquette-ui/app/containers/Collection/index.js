@@ -14,8 +14,6 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectCollection from './selectors';
-import reducer from './reducer';
-import saga from './saga';
 import { load, update, dismissError } from './actions';
 
 import { Affix, FlexboxGrid, Nav } from 'rsuite';
@@ -31,6 +29,7 @@ import CollectionOverview from 'components/CollectionOverview';
 import CollectionSettings from 'components/CollectionSettings';
 
 import Background from '../../resources/datashop-background.png';
+import DataAsset, { createSaga, createReducer } from '../../components/DataAsset';
 
 function Display(props) {
   const collection = _.get(props, 'match.params.collection');
@@ -136,30 +135,31 @@ function Display(props) {
   </div>;
 }
 
+const container = 'collection';
+const saga = createSaga(container);
+const reducer = createReducer(container);
+
 export function Collection(props) {
-  useInjectReducer({ key: 'collection', reducer });
-  useInjectSaga({ key: 'collection', saga });
-
-  const collection = _.get(props, 'match.params.collection');
-  const data = _.get(props, 'collection.data');
-  const error = _.get(props, 'collection.error');
-  const loading = _.get(props, 'collection.loading');
-  const [initialized, setInitialized] = useState(false);
-
-  useEffect(() => {
-    if (!initialized) {
-      props.dispatch(load(collection))
-      setInitialized(true);
+  const collection = _.get(props, 'collection.view.collection');
+  const canConsume = _.get(props, 'collection.view.permissions.canConsume');
+  
+  return <DataAsset 
+    container="collection"
+    additionalTabs={
+      [
+        {
+          order: 15,
+          label: 'Files',
+          key: 'data',
+          link: '/data',
+          visible: canConsume,
+          component: () => <CollectionOverview { ...props } />
+        }
+      ]
     }
-  });
-
-  if (!initialized || loading) {
-    return <div className="mq--loading" />
-  } else if (!data && error) {
-    return <Error background={ Background } message={ error } />
-  } else {
-    return <Display { ...props } />
-  }
+    reducer={ reducer }
+    saga={ saga } 
+    { ...props } />
 }
 
 Collection.propTypes = {

@@ -7,7 +7,6 @@
 import _ from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import produce from 'immer';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
@@ -23,7 +22,6 @@ import saga from './saga';
 import { Button, ButtonToolbar, Form } from 'rsuite';
 import DataAssetPropertiesForm, { initialState as initialDataAssetProperties, validate as validateDataAssetProperties } from '../DataAssetPropertiesForm';
 import DataAssetTeamForm, { initialState as initialStateDataAssetTeam, validate as validateDataAssetTeam, transformProfilesToUsers } from '../DataAssetTeamForm';
-import Loader from '../Loader';
 
 export const createActions = actions;
 export const createConstants = constants;

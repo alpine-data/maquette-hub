@@ -57,8 +57,11 @@ public final class CollectionServicesSecured implements CollectionServices {
    }
 
    @Override
-   public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
-      return delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation);
+   public CompletionStage<Done> update(
+      User executor, String name, String updatedName, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+
+      return delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone);
    }
 
    @Override

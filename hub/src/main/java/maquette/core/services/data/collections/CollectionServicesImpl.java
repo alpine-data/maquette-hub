@@ -57,11 +57,11 @@ public final class CollectionServicesImpl implements CollectionServices {
    @Override
    public CompletionStage<Done> update(
       User executor, String name, String updatedName, String title, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return entities
          .getByName(name)
-         .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation));
+         .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override
