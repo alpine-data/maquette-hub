@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DataAssetMemberRole {
 
-   PRODUCER("producer"), CONSUMER("consumer"), MEMBER("member"), OWNER("owner"), SME("sme");
+   PRODUCER("producer"), CONSUMER("consumer"), MEMBER("member"), OWNER("owner"), STEWARD("sme");
 
    private final String value;
 

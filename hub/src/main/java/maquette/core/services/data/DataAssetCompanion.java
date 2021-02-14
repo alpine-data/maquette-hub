@@ -16,6 +16,8 @@ import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +25,8 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extends DataAssetEntities<P, ?>> extends ServiceCompanion {
+
+   private static final Logger LOG = LoggerFactory.getLogger(ServiceCompanion.class);
 
    private final E assets;
 

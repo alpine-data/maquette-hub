@@ -2,6 +2,7 @@ package maquette.core.services.users;
 
 import akka.Done;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.users.model.UserDetails;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
 import maquette.core.entities.users.model.UserSettings;
@@ -18,7 +19,11 @@ public interface UserServices {
     */
    CompletionStage<UserProfile> getProfile(User executor, String userId);
 
+   CompletionStage<UserProfile> getProfile(User executor);
+
    CompletionStage<UserSettings> getSettings(User executor, String userId);
+
+   CompletionStage<List<UserProfile>> getUsers(User executor);
 
    CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
 

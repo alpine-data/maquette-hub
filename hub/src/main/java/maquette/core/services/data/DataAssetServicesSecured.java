@@ -58,7 +58,8 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER),
+            () -> companion.isMember(executor, asset, DataAssetMemberRole.STEWARD))
          .thenCompose(ok -> delegate.getAccessLogs(executor, asset));
    }
 

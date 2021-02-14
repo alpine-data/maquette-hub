@@ -7,7 +7,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
@@ -24,41 +23,12 @@ import Container from 'components/Container'
 import CreateProjectForm from 'components/CreateProjectForm'
 
 import { Message } from 'rsuite';
-
-import Background from '../../resources/projects-background.png';
 import ViewContainer from '../../components/ViewContainer';
 
 export function CreateProject({ createProject, user, dispatch }) {
   useInjectReducer({ key: 'createProject', reducer });
   useInjectSaga({ key: 'createProject', saga });
 
-  /*
-  return (
-    <div>
-      <Helmet>
-        <title>CreateProject</title>
-        <meta name="description" content="Description of CreateProject" />
-      </Helmet>
-
-      <div className="mq--page-title">
-        <Container fluid>
-          <h1>Create a new project</h1>
-        </Container>
-      </div>
-
-      <Container md className="mq--main-content" background={ Background }>
-        <p className="mq--p-leading">
-          A project contains all kinds of resources you need to your Data Science and Machine Learning Project.
-        </p>
-
-        
-
-        <hr />
-        <CreateProjectForm user={ user } onSubmit={ data => dispatch(createProjectAction(data)) } />
-      </Container>
-    </div>
-  );
-  */
  return <ViewContainer
     background="projects"
     titles={ [ { label: 'Create a new project' } ] }

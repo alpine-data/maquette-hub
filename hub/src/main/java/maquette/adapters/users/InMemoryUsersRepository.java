@@ -10,6 +10,7 @@ import maquette.core.entities.users.model.UserSettings;
 import maquette.core.ports.UsersRepository;
 import org.apache.commons.compress.utils.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +53,11 @@ public final class InMemoryUsersRepository implements UsersRepository {
    public CompletionStage<Done> insertOrUpdateSettings(String userId, UserSettings settings) {
       this.settings.put(userId, settings);
       return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<List<UserProfile>> getUsers() {
+      return CompletableFuture.completedFuture(new ArrayList<>(profiles.values()));
    }
 
    @Override

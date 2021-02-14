@@ -17,6 +17,8 @@ public interface UsersRepository {
 
    CompletionStage<Done> insertOrUpdateSettings(String userId, UserSettings settings);
 
+   CompletionStage<List<UserProfile>> getUsers();
+
    CompletionStage<Optional<UserNotification>> findNotificationById(String userId, String notificationId);
 
    CompletionStage<Optional<UserProfile>> findProfileById(String userId);

@@ -22,7 +22,6 @@ export function* createProjectSuccessSaga(action) {
   yield put(push(`/${action.name}`));
 }
 
-// Individual exports for testing
 export default function* createProjectSaga() {
   yield takeLatest(CREATE_PROJECT, createProject);
   yield takeLatest(CREATE_PROJECT_SUCCESS, createProjectSuccessSaga)

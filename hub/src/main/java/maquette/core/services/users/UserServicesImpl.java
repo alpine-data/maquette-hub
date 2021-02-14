@@ -13,6 +13,7 @@ import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.users.UserEntities;
 import maquette.core.entities.users.UserEntity;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
@@ -42,6 +43,8 @@ public final class UserServicesImpl implements UserServices {
 
    private final ProjectEntities projects;
 
+   private final UserEntities users;
+
    private final UserCompanion companion;
 
    private final DataAssetCompanion<CollectionProperties, CollectionEntities> collectionCompanion;
@@ -64,10 +67,22 @@ public final class UserServicesImpl implements UserServices {
    }
 
    @Override
+   public CompletionStage<UserProfile> getProfile(User executor) {
+      return companion
+         .withUser(executor)
+         .thenCompose(UserEntity::getProfile);
+   }
+
+   @Override
    public CompletionStage<UserSettings> getSettings(User executor, String userId) {
       return companion
          .withUser(userId)
          .thenCompose(entity -> entity.getSettings(true));
+   }
+
+   @Override
+   public CompletionStage<List<UserProfile>> getUsers(User executor) {
+      return users.getUsers();
    }
 
    @Override

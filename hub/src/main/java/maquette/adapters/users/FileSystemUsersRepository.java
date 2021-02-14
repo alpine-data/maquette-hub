@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -82,6 +83,20 @@ public final class FileSystemUsersRepository implements UsersRepository {
       });
 
       return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<List<UserProfile>> getUsers() {
+      var result = Operators.suppressExceptions(() -> Files.walk(config.getDirectory()))
+         .filter(p -> p.getFileName().endsWith("profile.json"))
+         .map(file -> Operators.ignoreExceptionsWithDefault(
+            () -> om.readValue(file.toFile(), UserProfile.class),
+            null
+         ))
+         .filter(Objects::nonNull)
+         .collect(Collectors.toList());
+
+      return CompletableFuture.completedFuture(result);
    }
 
    @Override

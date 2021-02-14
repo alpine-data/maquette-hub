@@ -5,7 +5,13 @@
  */
 
 import { 
-  CREATE, CREATE_FAILURE, CREATE_SUCCESS } from './constants';
+  FETCH, FETCHED, ERROR, CREATE, CREATE_FAILURE, CREATE_SUCCESS } from './constants';
+
+export function fetch() {
+  return {
+    type: FETCH
+  };
+};
 
 export function create(data) {
   return {

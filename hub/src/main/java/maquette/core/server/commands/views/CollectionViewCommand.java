@@ -12,8 +12,10 @@ import maquette.core.server.views.CollectionView;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -31,7 +33,8 @@ public class CollectionViewCommand implements Command {
 
       var logsCS = services
          .getCollectionServices()
-         .getAccessLogs(user, collection);
+         .getAccessLogs(user, collection)
+         .exceptionally(ex -> List.of());
 
       return Operators.compose(collectionCS, logsCS, (collection, logs) -> {
          var isOwner = collection.isMember(user, DataAssetMemberRole.OWNER);

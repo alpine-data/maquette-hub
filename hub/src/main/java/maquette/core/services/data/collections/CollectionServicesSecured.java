@@ -30,10 +30,15 @@ public final class CollectionServicesSecured implements CollectionServices {
    private final DataAssetCompanion<CollectionProperties, CollectionEntities> assets;
 
    @Override
-   public CompletionStage<CollectionProperties> create(User executor, String title, String name, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+   public CompletionStage<CollectionProperties> create(
+      User executor, String title, String name, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone, Authorization owner, Authorization steward) {
+
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, title, name, summary, visibility, classification, personalInformation, zone));
+         .thenCompose(ok -> delegate.create(
+            executor, title, name, summary, visibility, classification, personalInformation, zone, owner, steward));
    }
 
    @Override

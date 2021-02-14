@@ -3,6 +3,8 @@ package maquette.core.services;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.services.configuration.ConfigurationServices;
+import maquette.core.services.configuration.ConfigurationServicesFactory;
 import maquette.core.services.data.collections.CollectionServices;
 import maquette.core.services.data.collections.CollectionServicesFactory;
 import maquette.core.services.data.datasets.DatasetServices;
@@ -21,6 +23,8 @@ import maquette.core.services.users.UserServicesFactory;
 @Getter
 @AllArgsConstructor(staticName = "apply")
 public final class ApplicationServices {
+
+    ConfigurationServices configurationServices;
 
     ProcessServices processServices;
 
@@ -54,10 +58,11 @@ public final class ApplicationServices {
         var datasetServices = DatasetServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getProcessManager());
         var dataSourceServices = DataSourceServicesFactory.apply(runtime.getDataSources(), runtime.getProjects());
         var streamServices = StreamServicesFactory.apply(runtime.getStreams(), runtime.getProjects());
+        var configurationServices = ConfigurationServicesFactory.apply(runtime.getUsers());
 
         return apply(
-           processServices, projectServices, collectionServices, datasetServices, dataSourceServices, streamServices,
-           sandboxServices, userServices);
+           configurationServices, processServices, projectServices, collectionServices, datasetServices,
+           dataSourceServices, streamServices, sandboxServices, userServices);
     }
 
 }

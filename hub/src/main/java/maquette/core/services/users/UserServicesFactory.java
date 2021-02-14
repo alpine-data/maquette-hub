@@ -21,7 +21,7 @@ public final class UserServicesFactory {
       var dataSourceCompanion = DataAssetCompanion.apply(dataSources, projects);
       var streamCompanion = DataAssetCompanion.apply(streams, projects);
       return UserServicesImpl.apply(
-         collections, datasets, dataSources, streams, projects, comp,
+         collections, datasets, dataSources, streams, projects, users, comp,
          collectionCompanion, datasetCompanion, dataSourceCompanion, streamCompanion);
    }
 

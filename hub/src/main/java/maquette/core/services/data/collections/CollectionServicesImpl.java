@@ -33,9 +33,10 @@ public final class CollectionServicesImpl implements CollectionServices {
    @Override
    public CompletionStage<CollectionProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone, Authorization owner, Authorization steward) {
 
-      return entities.create(executor, title, name, summary, visibility, classification, personalInformation, zone);
+      return entities.create(executor, title, name, summary, visibility, classification, personalInformation, zone, owner, steward);
    }
 
    @Override

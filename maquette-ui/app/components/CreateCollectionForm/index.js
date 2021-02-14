@@ -4,81 +4,43 @@
  *
  */
 
-import React, { useState } from 'react';
+import _ from 'lodash';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-import produce from 'immer';
-import kebabcase from 'lodash.kebabcase';
-import { Button, ButtonToolbar, ControlLabel, FlexboxGrid, Form, FormControl, FormGroup, HelpBlock, InputNumber, InputPicker } from 'rsuite';
-import { DataClassificationFormGroup, PersonalInformtionFormGroup, VisibilityFormGroup } from '../CreateDatasetForm';
+import { useFormState } from '../../utils/hooks';
+
+import { Button, ButtonToolbar, FlexboxGrid, Form, FormGroup } from 'rsuite';
+import DataAssetPropertiesForm from '../DataAssetPropertiesForm';
+import DataAssetTeamForm from '../DataAssetTeamForm';
 
 function CreateCollectionForm(props) {
-  const [state, setState] = useState({
+  const [state, , onChange, onChangeValues] = useFormState({
     title: '',
     name: '',
     summary: '',
     visibility: 'public',
     classification: 'public',
-    personalInformation: 'none'
+    personalInformation: 'none',
+    zone: 'raw'
   });
-
-  const onChange = (field) => (value) => {
-    setState(produce(state, draft => {
-      draft[field] = value;
-
-      if (field == 'personalInformation') {
-        if (value == 'pi' && (state.classification == 'public' || state.classification == 'internal')) {
-          draft.classification = 'confidential';
-        } else if (value == 'spi' && state.classification != 'restricted') {
-          draft.classification = 'restricted';
-        }
-      }
-
-      if (field == 'title') {
-        const id = kebabcase(value.toLowerCase());
-        draft.title = value;
-        draft.name = id;
-      }
-    }));
-  }
 
   const createdDisabled = _.size(state.title) < 3 || _.size(state.name) < 3;
 
   return <Form fluid>
+    <h5>Data Asset Properties</h5>
+    <DataAssetPropertiesForm assetName='Collection' state={ state } onChange={ onChangeValues }  />
+
+    <h5>Data Asset Roles</h5>
+    <DataAssetTeamForm state={ state } onChange={ onChange } />
+
     <FlexboxGrid justify="space-between">
-      <FlexboxGrid.Item colspan={ 11 }>
-        <FormGroup>
-          <ControlLabel>Collection Title</ControlLabel>
-          <FormControl name="title" onChange={ onChange('title') } value={ state.title } />
-          <HelpBlock>Select a speaking, memorable title for the collection.</HelpBlock>
-        </FormGroup>
-      </FlexboxGrid.Item>
 
-      <FlexboxGrid.Item colspan={ 11 }>
-        <FormGroup>
-          <ControlLabel>Collection Name</ControlLabel>
-          <FormControl name="name" value={ state.name } onChange={ onChange('name') } />
-          <HelpBlock>The name should only contain small letters (a-z), numbers (0-9) and dashes (-).</HelpBlock>
-        </FormGroup>
+      <FlexboxGrid.Item>
+        <hr />
       </FlexboxGrid.Item>
 
       <FlexboxGrid.Item colspan={ 24 }>
-        <FormGroup>
-          <ControlLabel>Collection Summary</ControlLabel>
-          <FormControl name="summary" onChange={ onChange('summary') } value={ state.summary } />
-          <HelpBlock>Describe in a few words which data is contained in your collection.</HelpBlock>
-        </FormGroup>
-      </FlexboxGrid.Item>
-
-      <FlexboxGrid.Item colspan={ 24 }>
-        <hr />   
-        <VisibilityFormGroup value={ state.visibility } onChange={ onChange('visibility') } />
-        <hr />
-        <DataClassificationFormGroup value={ state.classification } onChange={ onChange('classification') } personalInformation={ state.personalInformation } />
-        <hr />
-        <PersonalInformtionFormGroup value={ state.personalInformation } onChange={ onChange('personalInformation') } />
-        <hr />
-
         <FormGroup>
           <ButtonToolbar>
             <Button 
@@ -86,8 +48,10 @@ function CreateCollectionForm(props) {
               type="submit" 
               disabled={ createdDisabled }
               loading={ _.get(props, 'createCollection.creating') }
-              onClick={ () => props.onCreateCollection(state) }
-            >Create collection</Button>
+              onClick={ () => props.onCreateCollection(state) }>
+                
+                Create collection
+            </Button>
           </ButtonToolbar>
         </FormGroup>
       </FlexboxGrid.Item>
