@@ -31,7 +31,8 @@ export const createSaga = saga;
 
 
 function DataAsset({ 
-  container, additionalProperties, additionalTabs, additionalSettingTabs, reducer, saga, ...props }) {
+  container, additionalProperties, additionalTabs, additionalSettingTabs, 
+  codeExamples, reducer, saga, ...props }) {
 
   useInjectReducer({ key: container, reducer });
   useInjectSaga({ key: container, saga });
@@ -122,7 +123,12 @@ function DataAsset({
         key: 'overview',
         link: basePath,
         visible: true,
-        component: () => <DataAssetOverview view={ view } container={ container } />
+        component: () => view && <>
+            <DataAssetOverview 
+              view={ view } 
+              container={ container }
+              codeExamples={ codeExamples } />
+          </> || <></>
       },
       {
         order: 10,
@@ -130,14 +136,16 @@ function DataAsset({
         key: 'access-requests',
         link: `${basePath}/access-requests`,
         visible: true,
-        component: () => <DataAccessRequests 
-          { ...props }
-          asset={ _.get(view, container) }
-          view={ view }
-          onGrant={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests grant`, request)) }
-          onReject={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests reject`, request)) }
-          onRequest={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests update`, request)) }
-          onWithdraw={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests withdraw`, request)) } />
+        component: () => view && <>
+            <DataAccessRequests 
+              { ...props }
+              asset={ _.get(view, container) }
+              view={ view }
+              onGrant={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests grant`, request)) }
+              onReject={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests reject`, request)) }
+              onRequest={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests update`, request)) }
+              onWithdraw={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests withdraw`, request)) } />
+          </>
       },
       {
         order: 20,
@@ -145,10 +153,12 @@ function DataAsset({
         key: 'logs',
         link: `${basePath}/logs`,
         visible: _.get(view, 'permissions.canReviewLogs'),
-        component: () => <DataAccessLogs
-          { ...props }
-          logs={ _.get(view, 'logs') }
-          asset={ _.get(view, container) } />
+        component: () => view && <>
+            <DataAccessLogs
+              { ...props }
+              logs={ _.get(view, 'logs') }
+              asset={ _.get(view, container) } />
+          </> || <></>
       },
       {
         order: 30,
@@ -156,15 +166,17 @@ function DataAsset({
         key: 'settings',
         link: `${basePath}/settings`,
         visible: _.get(view, 'permissions.canChangeSettings'),
-        component: () => <DataAssetSettings
-          { ...props }
-          view={ view }
-          container={ container }
-          basePath={ `${getBasePath()}/settings` }
-          onGrant={ onGrant }
-          onRevoke={ onRevoke }
-          onUpdateSettings={ onUpdate }
-          additionalTabs={ additionalSettingTabs } />
+        component: () => view && <>
+            <DataAssetSettings
+              { ...props }
+              view={ view }
+              container={ container }
+              basePath={ `${getBasePath()}/settings` }
+              onGrant={ onGrant }
+              onRevoke={ onRevoke }
+              onUpdateSettings={ onUpdate }
+              additionalTabs={ additionalSettingTabs } />
+          </> || <></>
       }
     ]
 
@@ -201,7 +213,8 @@ DataAsset.propTypes = {};
 
 DataAsset.defaultProps = {
   additionalTabs: [],
-  additionalSettingTabs: []
+  additionalSettingTabs: [],
+  codeExamples: []
 }
 
 export default DataAsset;

@@ -73,7 +73,7 @@ function StatisticGroup({ group }) {
 }
 
 function Statistics({ stats }) {
-  return <FlexboxGrid.Item colspan={11}>
+  return <FlexboxGrid.Item colspan={13}>
     <div className="mq--explorer--field--correctness">
       <div className="valid" style={{ width: stats.valid[1] + "%" }} />
       <div className="mismatched" style={{ width: stats.mismatched[1] + "%" }} />
@@ -115,7 +115,7 @@ function Field({ field }) {
   return <div className="mq--explorer--field">
     <p className="mq--explorer--field--name"><Icon icon={ icons[field.type] } size="2x" />&nbsp;{ field.name }<span className="mq--sub">, { field.type }</span></p>
     <FlexboxGrid align="top" justify="space-between">
-      <FlexboxGrid.Item colspan={12}>
+      <FlexboxGrid.Item colspan={10}>
         {
           image && <>
             <img src={ "data:image/png;base64," + image } className="mq--explorer--field--image"  />
@@ -129,10 +129,24 @@ function Field({ field }) {
   </div>
 }
 
+function FieldContainer({ children }) {
+  return <FlexboxGrid.Item 
+    colspan={ 12 }
+    style={{
+      backgroundColor: '#ffffffaa',
+      padding: '20px',
+      borderTop: '2px solid #ccc'
+    }}>
+    { children }
+  </FlexboxGrid.Item>;
+}
+
 function DataExplorer({ stats }) {
-  return <>
-      { _.map(stats, f => <Field field={ f } key={ f.name } />) }
-    </>;
+  return <FlexboxGrid justify="space-between">
+    { 
+      _.map(stats, f => <FieldContainer><Field field={ f } key={ f.name } /></FieldContainer>) 
+    }
+  </FlexboxGrid>;
 }
 
 DataExplorer.propTypes = {};

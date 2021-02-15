@@ -22,40 +22,34 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class DatasetViewCommand implements Command {
+public class DatasetViewCommand implements Command, DataAssetViewCommandMixin {
 
-   String dataset;
+   String name;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      if (Objects.isNull(dataset) || dataset.length() == 0) {
+      if (Objects.isNull(name) || name.length() == 0) {
          return CompletableFuture.failedFuture(new RuntimeException("`dataset` must be supplied"));
       }
 
       var datasetCS = services
          .getDatasetServices()
-         .get(user, dataset);
+         .get(user, name);
 
       var logsCS = services
-         .getDatasetServices()
-         .getAccessLogs(user, dataset)
+         .getCollectionServices()
+         .getAccessLogs(user, name)
          .exceptionally(ex -> List.of());
 
-      return Operators.compose(datasetCS, logsCS, (dataset, logs) -> {
-         var isOwner = dataset.isMember(user, DataAssetMemberRole.OWNER);
-         var isConsumer = dataset.isMember(user, DataAssetMemberRole.CONSUMER);
-         var isProducer = dataset.isMember(user, DataAssetMemberRole.PRODUCER);
-         var isMember = dataset.isMember(user, DataAssetMemberRole.MEMBER);
+      var ownersCS = datasetCS.thenCompose(dataset ->
+         getUserProfiles(user, services, dataset, DataAssetMemberRole.OWNER));
 
-         var isSubscriber = dataset
-            .getAccessRequests()
-            .stream()
-            .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+      var stewardsCS = datasetCS.thenCompose(dataset ->
+         getUserProfiles(user, services, dataset, DataAssetMemberRole.STEWARD));
 
-         var canAccessData = isOwner || isConsumer || isMember || isSubscriber;
-         var canWriteData = isOwner || isProducer;
-
-         return DatasetView.apply(dataset, logs, canAccessData, canWriteData, isOwner, isMember);
+      return Operators.compose(datasetCS, logsCS, ownersCS, stewardsCS, (dataset, logs, owners, stewards) -> {
+         var permissions = dataset.getDataAssetPermissions(user);
+         return DatasetView.apply(dataset, logs, permissions, owners, stewards);
       });
    }
 

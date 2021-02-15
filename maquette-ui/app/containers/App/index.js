@@ -68,9 +68,9 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop/collections/:asset/:tab" exact component={Collection} />
         <Route path="/shop/collections/:asset/:tab/:id" exact component={Collection} />
 
-        <Route path="/shop/datasets/:dataset" exact component={Dataset} />
-        <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
-        <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+        <Route path="/shop/datasets/:asset" exact component={Dataset} />
+        <Route path="/shop/datasets/:asset/:tab" exact component={Dataset} />
+        <Route path="/shop/datasets/:asset/:tab/:id" exact component={Dataset} />
         
         <Route path="/shop/sources/:source" exact component={DataSource} />
         <Route path="/shop/sources/:source/:tab" exact component={DataSource} />

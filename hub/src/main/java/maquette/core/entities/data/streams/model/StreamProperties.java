@@ -8,6 +8,7 @@ import maquette.core.values.UID;
 import maquette.core.values.data.*;
 import org.apache.avro.Schema;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @With
@@ -43,6 +44,22 @@ public class StreamProperties implements DataAssetProperties<StreamProperties> {
 
    public Optional<Schema> getSchema() {
       return Optional.ofNullable(schema);
+   }
+
+   public DataZone getZone() {
+      if (Objects.isNull(zone)) {
+         return DataZone.RAW;
+      } else {
+         return zone;
+      }
+   }
+
+   public DataAssetState getState() {
+      if (Objects.isNull(state)) {
+         return DataAssetState.APPROVED;
+      } else {
+         return state;
+      }
    }
 
 }

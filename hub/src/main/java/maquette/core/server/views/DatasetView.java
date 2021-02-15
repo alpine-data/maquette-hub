@@ -5,7 +5,9 @@ import lombok.Value;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.projects.model.Project;
+import maquette.core.entities.users.model.UserProfile;
 import maquette.core.server.CommandResult;
+import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 
 import java.util.List;
@@ -18,12 +20,10 @@ public class DatasetView implements CommandResult {
 
    List<DataAccessLogEntry> logs;
 
-   boolean canAccessData;
+   DataAssetPermissions permissions;
 
-   boolean canWriteData;
+   List<UserProfile> owners;
 
-   boolean isOwner;
-
-   boolean isMember;
+   List<UserProfile> stewards;
 
 }

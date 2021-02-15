@@ -92,7 +92,7 @@ function ReviewBadge({ state }) {
   </FlexboxGrid.Item>
 }
 
-function DataAssetProperties({ resource, ...props }) {
+function DataAssetProperties({ resource }) {
   const visibility = resource.visibility || 'unknown';
   const classification = resource.classification || 'unknown';
   const pi = resource.personalInformation || 'unknown';

@@ -25,6 +25,7 @@ import { makeSelectCurrentUser } from '../App/selectors';
 import Container from 'components/Container';
 import StartSearch from 'components/StartSearch';
 import Summary from 'components/Summary';
+import ProjectSummary from 'components/ProjectSummary';
 
 import Background from '../../resources/platform-background.png'
 import Lifecycle from '../../resources/lifecycle.png'
@@ -42,18 +43,6 @@ const DataShopTeaser = styled.div`
 
   margin-top: 30px;
 `;
-
-export function ProjectSummary({ project }) {
-  return <Summary to={ `/${project.name}` }>
-      <Summary.Header icon="project" category="Project">{ project.title }</Summary.Header>
-      <Summary.Body>
-        { project.summary }
-      </Summary.Body>
-      <Summary.Footer>
-        { new Date(project.modified.at).toLocaleString() } by { project.modified.by }
-      </Summary.Footer>
-    </Summary>;
-}
 
 function Display({ dashboard, user, dispatch, ...props }) {
   var projects = dashboard.data.projects;

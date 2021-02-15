@@ -23,20 +23,9 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CollectionViewCommand implements Command {
+public class CollectionViewCommand implements Command, DataAssetViewCommandMixin {
 
    String name;
-
-   private CompletionStage<List<UserProfile>> getUserProfiles(
-      User user, ApplicationServices services, DataAsset<?> asset, DataAssetMemberRole role) {
-
-      return Operators.allOf(asset.getMembers(role)
-         .stream()
-         .map(GrantedAuthorization::getAuthorization)
-         .filter(auth -> auth instanceof UserAuthorization)
-         .map(auth -> (UserAuthorization) auth)
-         .map(m -> services.getUserServices().getProfile(user, m.getName())));
-   }
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
