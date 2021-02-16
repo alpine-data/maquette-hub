@@ -36,11 +36,14 @@ public final class DatasetServicesSecured implements DatasetServices {
    @Override
    public CompletionStage<DatasetProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone, Authorization owner, Authorization steward) {
 
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, title, name, summary, visibility, classification, personalInformation, zone));
+         .thenCompose(ok -> delegate.create(
+            executor, title, name, summary,
+            visibility, classification, personalInformation, zone, owner, steward));
    }
 
    @Override
@@ -59,11 +62,11 @@ public final class DatasetServicesSecured implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
       return companion
          .withAuthorization(
             () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER))
-         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation));
+         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override
@@ -116,6 +119,7 @@ public final class DatasetServicesSecured implements DatasetServices {
       return companion
          .withAuthorization(
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.PRODUCER))
          .thenCompose(ok -> delegate.commitRevision(executor, dataset, revision, message));
@@ -126,6 +130,7 @@ public final class DatasetServicesSecured implements DatasetServices {
       return companion
          .withAuthorization(
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.PRODUCER))
          .thenCompose(ok -> delegate.createRevision(executor, dataset, schema));
@@ -138,6 +143,7 @@ public final class DatasetServicesSecured implements DatasetServices {
             executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset, project),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
          .thenCompose(ok -> delegate.download(executor, project, dataset, version));
@@ -150,6 +156,7 @@ public final class DatasetServicesSecured implements DatasetServices {
             executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
          .thenCompose(ok -> delegate.download(executor, dataset, version));
@@ -162,6 +169,7 @@ public final class DatasetServicesSecured implements DatasetServices {
             executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
          .thenCompose(ok -> delegate.download(executor, dataset));
@@ -174,6 +182,7 @@ public final class DatasetServicesSecured implements DatasetServices {
             executor::isSystemUserCS,
             () -> assets.isSubscribedConsumer(executor, dataset, project),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.CONSUMER))
          .thenCompose(ok -> delegate.download(executor, project, dataset));
@@ -185,6 +194,7 @@ public final class DatasetServicesSecured implements DatasetServices {
          .withAuthorization(
             executor::isSystemUserCS,
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, dataset, DataAssetMemberRole.STEWARD),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.MEMBER),
             () -> assets.isMember(executor, dataset, DataAssetMemberRole.PRODUCER))
          .thenCompose(ok -> delegate.upload(executor, dataset, revision, records));

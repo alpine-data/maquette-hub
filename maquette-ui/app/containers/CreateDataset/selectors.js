@@ -1,11 +1,10 @@
 import { createSelector } from 'reselect';
-import { initialState } from './reducer';
 
 /**
  * Direct selector to the createDataset state domain
  */
 
-const selectCreateDatasetDomain = state => state.createDataset || initialState;
+const selectCreateDatasetDomain = state => state.createDataset || {};
 
 /**
  * Other specific selectors

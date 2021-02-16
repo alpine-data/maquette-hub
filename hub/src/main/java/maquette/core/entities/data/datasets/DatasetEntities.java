@@ -12,6 +12,7 @@ import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.*;
 import maquette.core.values.user.User;
 import org.apache.commons.lang.NotImplementedException;
@@ -33,7 +34,7 @@ public final class DatasetEntities implements DataAssetEntities<DatasetPropertie
    public CompletionStage<DatasetProperties> create(
       User executor, String title, String name, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
-      DataZone zone, DataAssetState state) {
+      DataZone zone, Authorization owner, Authorization steward) {
 
       return repository
          .findAssetByName(name)
@@ -44,12 +45,13 @@ public final class DatasetEntities implements DataAssetEntities<DatasetPropertie
                var created = ActionMetadata.apply(executor);
                var dataset = DatasetProperties.apply(
                   UID.apply(), title, name, summary,
-                  visibility, classification, personalInformation, zone, state, created, created);
+                  visibility, classification, personalInformation, zone, DataAssetState.APPROVED, created, created);
 
                return repository
                   .insertOrUpdateAsset(dataset)
                   .thenCompose(d -> getById(dataset.getId()))
-                  .thenCompose(entity -> entity.getMembers().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
+                  .thenCompose(entity -> entity.getMembers().addMember(executor, owner, DataAssetMemberRole.OWNER).thenApply(d -> entity))
+                  .thenCompose(entity -> entity.getMembers().addMember(executor, steward, DataAssetMemberRole.STEWARD))
                   .thenApply(d -> dataset);
             }
          });

@@ -37,7 +37,7 @@ public class DatasetViewCommand implements Command, DataAssetViewCommandMixin {
          .get(user, name);
 
       var logsCS = services
-         .getCollectionServices()
+         .getDatasetServices()
          .getAccessLogs(user, name)
          .exceptionally(ex -> List.of());
 

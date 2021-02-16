@@ -8,6 +8,7 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.DataZone;
@@ -34,11 +35,17 @@ public class CreateDatasetCommand implements Command {
 
    DataZone zone;
 
+   String owner;
+
+   String steward;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDatasetServices()
-         .create(user, title, name, summary, visibility, classification, personalInformation, zone)
+         .create(
+            user, title, name, summary, visibility, classification, personalInformation, zone,
+            UserAuthorization.apply(owner), UserAuthorization.apply(steward))
          .thenApply(pid -> MessageResult.apply("Successfully created dataset `%s`", name));
    }
 
@@ -46,7 +53,7 @@ public class CreateDatasetCommand implements Command {
    public Command example() {
       return apply(
          "Some Dataset", "some-dataset", Operators.lorem(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob");
    }
 
 }

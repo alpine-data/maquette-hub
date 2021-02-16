@@ -20,7 +20,7 @@ import CreateDataAccessRequest from '../CreateDataAccessRequest/Loadable';
 import CreateCollection from 'containers/CreateCollection/Loadable';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
-import CreateDataSource from 'containers/CreateDataSource/Loadable';
+import CreateSource from 'containers/CreateSource/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import CreateStream from 'containers/CreateStream/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
@@ -55,7 +55,7 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/new/collection" component={CreateCollection} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
-        <Route path="/new/datasource" component={CreateDataSource} />
+        <Route path="/new/datasource" component={CreateSource} />
         <Route path="/new/sandbox" component={CreateSandbox} />
         <Route path="/new/stream" component={CreateStream} />
 

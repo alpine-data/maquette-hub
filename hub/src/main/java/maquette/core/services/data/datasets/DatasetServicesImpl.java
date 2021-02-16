@@ -46,10 +46,10 @@ public final class DatasetServicesImpl implements DatasetServices {
    @Override
    public CompletionStage<DatasetProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone, Authorization owner, Authorization steward) {
 
-      return datasets
-         .create(executor, title, name, summary, visibility, classification, personalInformation, zone, DataAssetState.APPROVED);
+      return datasets.create(
+         executor, title, name, summary, visibility, classification, personalInformation, zone, owner, steward);
    }
 
    @Override
@@ -68,10 +68,10 @@ public final class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<Done> update(User executor, String dataset, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<Done> update(User executor, String dataset, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
       return datasets
          .getByName(dataset)
-         .thenCompose(ds -> ds.update(executor, updatedName, title, summary, visibility, classification, personalInformation));
+         .thenCompose(ds -> ds.update(executor, updatedName, title, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override
