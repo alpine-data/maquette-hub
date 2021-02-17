@@ -5,6 +5,7 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.WildcardAuthorization;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The internal service user is a special user which is used by Maquette services to authenticate requests.
@@ -26,6 +27,16 @@ public final class SystemUser implements User {
    @Override
    public Authorization toAuthorization() {
       return WildcardAuthorization.apply();
+   }
+
+   @Override
+   public Optional<ProjectContext> getProjectContext() {
+      return Optional.empty();
+   }
+
+   @Override
+   public Optional<EnvironmentContext> getEnvironmentContext() {
+      return Optional.empty();
    }
 
    @Override

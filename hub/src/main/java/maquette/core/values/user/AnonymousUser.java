@@ -8,6 +8,7 @@ import maquette.core.values.authorization.WildcardAuthorization;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,6 +32,16 @@ public class AnonymousUser implements User {
     @Override
     public Authorization toAuthorization() {
         return WildcardAuthorization.apply();
+    }
+
+    @Override
+    public Optional<ProjectContext> getProjectContext() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<EnvironmentContext> getEnvironmentContext() {
+        return Optional.empty();
     }
 
 }
