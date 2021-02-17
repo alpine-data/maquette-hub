@@ -12,8 +12,6 @@ import Summary from '../Summary';
 // import styled from 'styled-components';
 
 function DataAssetProjects({ asset }) {
-  console.log(asset);
-
   const projects = _.map(_.get(asset, 'accessRequests'), request => <ProjectSummary key={ request.id } project={ request.project } />)
 
   if (_.isEmpty(projects)) {

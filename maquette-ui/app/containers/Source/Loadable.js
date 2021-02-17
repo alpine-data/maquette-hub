@@ -1,6 +1,6 @@
 /**
  *
- * Asynchronously loads the component for CreateDataSource
+ * Asynchronously loads the component for Source
  *
  */
 

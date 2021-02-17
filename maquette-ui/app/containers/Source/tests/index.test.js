@@ -1,6 +1,6 @@
 /**
  *
- * Tests for CreateDataSourceForm
+ * Tests for Source
  *
  * @see https://github.com/react-boilerplate/react-boilerplate/tree/master/docs/testing
  *
@@ -10,12 +10,13 @@ import React from 'react';
 import { render } from 'react-testing-library';
 // import 'jest-dom/extend-expect'; // add some helpful assertions
 
-import CreateDataSourceForm from '../index';
+import { Source } from '../index';
 
-describe('<CreateDataSourceForm />', () => {
+describe('<Source />', () => {
   it('Expect to not log errors in console', () => {
     const spy = jest.spyOn(global.console, 'error');
-    render(<CreateDataSourceForm />);
+    const dispatch = jest.fn();
+    render(<Source dispatch={dispatch} />);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -31,7 +32,7 @@ describe('<CreateDataSourceForm />', () => {
   it.skip('Should render and match the snapshot', () => {
     const {
       container: { firstChild },
-    } = render(<CreateDataSourceForm />);
+    } = render(<Source />);
     expect(firstChild).toMatchSnapshot();
   });
 });

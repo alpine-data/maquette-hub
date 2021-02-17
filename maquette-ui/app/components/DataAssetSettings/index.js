@@ -46,7 +46,7 @@ function GeneralSettings({ view, container, onUpdateSettings }) {
   const isUpdateDisabled = !validateDataAssetProperties(state) || _.isEqual(state, initialState);
 
   return <>
-    <h4>{ _.capitalize(container) } Properties</h4>
+    <h4>{ _.capitalize(container) } Asset Properties</h4>
     <Form fluid>
       <DataAssetPropertiesForm 
         state={ state } 
@@ -69,8 +69,45 @@ function GeneralSettings({ view, container, onUpdateSettings }) {
   </>
 }
 
+function AdditionalSettings({ 
+  view, container, settingsComponentClass, settingsComponentAdditionalProps, 
+  settingsComponentInitialState, settingsComponentValidate,
+  onUpdateSettings, ...props }) {
+
+  const initialState = _.assign({}, settingsComponentInitialState, _.pick(_.get(view, container), _.keys(settingsComponentInitialState)));
+  const [state, , onChange, onChangeValues] = useFormState(_.assign({}, initialState));
+  const isUpdateDisabled = !settingsComponentValidate(state) || _.isEqual(state, initialState);
+
+  const Component = settingsComponentClass;
+
+  return <>
+    <h4>{ _.capitalize(container) } Properties</h4>
+
+    <Form fluid>
+      <Component 
+        state={ state }
+        onChange={ onChange }
+        onChangeValues={ onChangeValues }
+        { ...props }
+        { ...settingsComponentAdditionalProps } />
+
+      <ButtonToolbar>
+        <Button 
+          appearance="primary" 
+          disabled={ isUpdateDisabled } 
+          onClick={ () => onUpdateSettings(state, 'update properties', false) }>
+
+          Update { container }
+        </Button>
+      </ButtonToolbar>
+    </Form>
+  </>
+}
+
 function DataAssetSettings({ 
-  additionalTabs, basePath, container, view, onGrant, onRevoke, onUpdateSettings, ...props }) {
+  additionalTabs, basePath, container, view,
+  settingsComponentClass, settingsComponentAdditionalProps, settingsComponentInitialState, settingsComponentValidate,
+  onGrant, onRevoke, onUpdateSettings, ...props }) {
 
   if (!_.get(view, 'permissions.canChangeSettings')) {
     return <Error 
@@ -90,6 +127,22 @@ function DataAssetSettings({
       },
       {
         order: 10,
+        key: container,
+        label: _.startCase(container),
+        link: `${basePath}/${container}`,
+        visible: !_.isUndefined(settingsComponentClass),
+        component: () => <AdditionalSettings 
+          view={ view } 
+          container={ container } 
+          onUpdateSettings={ onUpdateSettings }
+          settingsComponentClass={ settingsComponentClass }
+          settingsComponentInitialState={ settingsComponentInitialState }
+          settingsComponentAdditionalProps={ settingsComponentAdditionalProps }
+          settingsComponentValidate={ settingsComponentValidate }
+          { ...props } />
+      },
+      {
+        order: 20,
         key: 'members',
         label: 'Members',
         link: `${basePath}/members`,
@@ -108,7 +161,7 @@ function DataAssetSettings({
           onRevoke={ onRevoke } />
       },
       {
-        order: 20,
+        order: 30,
         key: 'danger',
         label: 'Danger Zone',
         link: `${basePath}/danger`,

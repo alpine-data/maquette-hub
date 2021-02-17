@@ -3,11 +3,13 @@ import { takeLatest, call, put, select } from 'redux-saga/effects';
 
 import { makeSelectCurrentUser } from '../../containers/App/selectors';
 import { CHANGED_USER } from '../../containers/App/constants';
+import { push } from 'connected-react-router';
 
 import { command } from 'utils/request';
 
 import actions from './actions';
 import constants from './constants';
+import { pluralizeWord } from '../../utils/helpers';
 
 export default function createSaga(container) {
     const { fetchSuccess, fetchFailure, updateSuccess, updateFailed } = actions(container);
@@ -37,9 +39,18 @@ export default function createSaga(container) {
             const user = yield select(makeSelectCurrentUser());
             const response = yield call(command, action.command, action.request, user);
             yield put(updateSuccess(response));
-            
+
+            const oldName = _.get(action, `request.${container}`);
+            const newName = _.get(action, `request.name`) || oldName;
             const fetchAction = yield select(state => _.get(state, `${container}.fetchAction`))
+
+            if (oldName !== newName) {
+                _.set(fetchAction, 'request.name', newName);
+                yield put(push(`/shop/${pluralizeWord(container)}/${newName}`))
+            }
+
             yield put(fetchAction);
+            window.scrollTo(0, 0);
         } catch (err) {
             yield put(updateFailed(err));
         }

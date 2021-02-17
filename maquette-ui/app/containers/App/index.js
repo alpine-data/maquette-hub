@@ -26,11 +26,11 @@ import CreateStream from 'containers/CreateStream/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
 import Dataset from 'containers/Dataset/Loadable';
 import DataShop from 'containers/DataShop/Loadable';
-import DataSource from 'containers/DataSource/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
 import Search from 'containers/Search/Loadable';
+import Source from 'containers/Source/Loadable';
 import Stream from 'containers/Stream/Loadable';
 import UserProfile from 'containers/UserProfile/Loadable';
 import UserSettings from 'containers/UserSettings/Loadable';
@@ -72,9 +72,9 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop/datasets/:asset/:tab" exact component={Dataset} />
         <Route path="/shop/datasets/:asset/:tab/:id" exact component={Dataset} />
         
-        <Route path="/shop/sources/:source" exact component={DataSource} />
-        <Route path="/shop/sources/:source/:tab" exact component={DataSource} />
-        <Route path="/shop/sources/:source/:tab/:id" exact component={DataSource} />
+        <Route path="/shop/sources/:asset" exact component={Source} />
+        <Route path="/shop/sources/:asset/:tab" exact component={Source} />
+        <Route path="/shop/sources/:asset/:tab/:id" exact component={Source} />
 
         <Route path="/shop/streams/:stream" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab" exact component={Stream} />

@@ -1,5 +1,6 @@
 package maquette.core.server.commands.data.datasources;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateDataSourceCommand implements Command {
 
    String title;
@@ -39,13 +41,13 @@ public class CreateDataSourceCommand implements Command {
 
    PersonalInformation personalInformation;
 
-   DataZone dataZone;
+   DataZone zone;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataSourceServices()
-         .create(user, title, name, summary, properties, accessType, visibility, classification, personalInformation, dataZone)
+         .create(user, title, name, summary, properties, accessType, visibility, classification, personalInformation, zone)
          .thenApply(pid -> MessageResult.apply("Successfully created data source `%s`", name));
    }
 

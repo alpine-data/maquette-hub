@@ -10,7 +10,6 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.views.DataSourceView;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.user.User;
 
@@ -20,34 +19,30 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class DataSourceViewCommand implements Command {
+public class DataSourceViewCommand implements Command, DataAssetViewCommandMixin {
 
-   String source;
+   String name;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       var sourceCS = services
          .getDataSourceServices()
-         .get(user, source);
+         .get(user, name);
 
       var logsCS = services
          .getDatasetServices()
-         .getAccessLogs(user, source)
+         .getAccessLogs(user, name)
          .exceptionally(ex -> List.of());
 
-      return Operators.compose(sourceCS, logsCS, (source, logs) -> {
-         var isOwner = source.isMember(user, DataAssetMemberRole.OWNER);
-         var isConsumer = source.isMember(user, DataAssetMemberRole.CONSUMER);
-         var isMember = source.isMember(user, DataAssetMemberRole.MEMBER);
+      var ownersCS = sourceCS.thenCompose(source ->
+         getUserProfiles(user, services, source, DataAssetMemberRole.OWNER));
 
-         var isSubscriber = source
-            .getAccessRequests()
-            .stream()
-            .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+      var stewardsCS = sourceCS.thenCompose(source ->
+         getUserProfiles(user, services, source, DataAssetMemberRole.STEWARD));
 
-         var canAccessData = isOwner || isConsumer || isMember || isSubscriber;
-
-         return DataSourceView.apply(source, logs, canAccessData, isOwner, isMember);
+      return Operators.compose(sourceCS, logsCS, ownersCS, stewardsCS, (source, logs, owners, stewards) -> {
+         var permissions = source.getDataAssetPermissions(user);
+         return DataSourceView.apply(source, logs, permissions, owners, stewards);
       });
    }
 

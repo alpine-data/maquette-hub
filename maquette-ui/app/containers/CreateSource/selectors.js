@@ -1,11 +1,10 @@
 import { createSelector } from 'reselect';
-import { initialState } from './reducer';
 
 /**
  * Direct selector to the createSource state domain
  */
 
-const selectCreateSourceDomain = state => state.createSource || initialState;
+const selectCreateSourceDomain = state => state.createSource || {};
 
 /**
  * Other specific selectors

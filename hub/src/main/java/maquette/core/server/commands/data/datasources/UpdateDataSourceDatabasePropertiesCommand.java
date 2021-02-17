@@ -27,6 +27,8 @@ public class UpdateDataSourceDatabasePropertiesCommand implements Command {
 
    DataSourceAccessType accessType;
 
+   String schedule;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       if (properties == null) {
@@ -41,7 +43,7 @@ public class UpdateDataSourceDatabasePropertiesCommand implements Command {
 
    @Override
    public Command example() {
-      return apply("some-data-source", DataSourceDatabaseProperties.apply(DataSourceDriver.POSTGRESQL, "//host/database", "SELECT * FROM TABLE", "egon", "secret123"), DataSourceAccessType.DIRECT);
+      return apply("some-data-source", DataSourceDatabaseProperties.apply(DataSourceDriver.POSTGRESQL, "//host/database", "SELECT * FROM TABLE", "egon", "secret123"), DataSourceAccessType.DIRECT, "daily");
    }
 
 }

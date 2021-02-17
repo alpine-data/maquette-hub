@@ -1,11 +1,13 @@
+import _ from 'lodash';
+
 export default function(container) {
     return {
-        FETCH: `app/${container}/FETCH`,
-        FETCH_SUCCESS: `app/${container}/FETCH_SUCCESS`,
-        FETCH_FAILURE: `app/${container}/FETCH_FAILURE`,
+        FETCH: `app/${_.upperFirst(container)}/FETCH`,
+        FETCH_SUCCESS: `app/${_.upperFirst(container)}/FETCH_SUCCESS`,
+        FETCH_FAILURE: `app/${_.upperFirst(container)}/FETCH_FAILURE`,
 
-        CREATE: `app/${container}/CREATE`,
-        CREATE_SUCCESS: `app/${container}/CREATE_SUCCESS`,
-        CREATE_FAILURE: `app/${container}/CREATE_FAILURE`,
+        CREATE: `app/${_.upperFirst(container)}/CREATE`,
+        CREATE_SUCCESS: `app/${_.upperFirst(container)}/CREATE_SUCCESS`,
+        CREATE_FAILURE: `app/${_.upperFirst(container)}/CREATE_FAILURE`,
     }
 }

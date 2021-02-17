@@ -10,18 +10,28 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
+import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectCreateSource from './selectors';
 
-import CreateDataAsset, { createSaga, createReducer } from '../../components/CreateDataAsset';
-import SourcePropertiesForm, { initialState } from '../../components/SourcePropertiesForm';
+import CreateDataAsset, { createSaga as createDataAssetSaga, createReducer as createDataAssetReducer } from '../../components/CreateDataAsset';
+import SourcePropertiesForm, { validate, initialState, createSaga as createSourceSaga, createReducer as createSourceReducer, createSelector as createSourceSelector } from '../../components/SourcePropertiesForm';
 
 const container = 'createSource';
 const assetType = 'source';
-const saga = createSaga(container, '/shop/sources');
-const reducer = createReducer(container, assetType);
+const propertiesContainer = 'createSourceProperties';
 
+const dataAssetSaga = createDataAssetSaga(container, '/shop/sources');
+const dataAssetReducer = createDataAssetReducer(container, assetType);
+
+const propertiesSaga = createSourceSaga(propertiesContainer);
+const propertiesReducer = createSourceReducer(propertiesContainer);
+const makeSelectSource = createSourceSelector(propertiesContainer);
 
 export function CreateSource(props) {
+  useInjectReducer({ key: propertiesContainer, reducer: propertiesReducer });
+  useInjectSaga({ key: propertiesContainer, saga: propertiesSaga });
+
   return <CreateDataAsset
     assetType="source"
     container="createSource" 
@@ -29,11 +39,18 @@ export function CreateSource(props) {
     createCommand="sources create"
     fetchCommand="views data-asset create"
     fetchRequest={ {} }
-    reducer={ reducer }
-    saga={ saga }
+    reducer={ dataAssetReducer }
+    saga={ dataAssetSaga }
 
     componentClass={ SourcePropertiesForm }
+    componentAdditionalProps={{
+      container: propertiesContainer,
+      reducer: propertiesReducer,
+      saga: propertiesSaga
+    }}
+
     initialState={ initialState }
+    validate={ validate }
     { ...props } />
 }
 
@@ -43,6 +60,7 @@ CreateSource.propTypes = {
 
 const mapStateToProps = createStructuredSelector({
   createSource: makeSelectCreateSource(),
+  [propertiesContainer]: makeSelectSource()
 });
 
 function mapDispatchToProps(dispatch) {

@@ -28,7 +28,9 @@ export const createConstants = constants;
 export const createReducer = reducer;
 export const createSaga = saga;
 
-function CreateDataAsset({ assetType, componentClass, container, description, createCommand, fetchCommand, fetchRequest, initialState, validate, reducer, saga, ...props }) {
+function CreateDataAsset({ 
+  assetType, componentClass, componentAdditionalProps, container, description, createCommand, fetchCommand, fetchRequest, initialState, validate, reducer, saga, ...props }) {
+
   useInjectReducer({ key: container, reducer });
   useInjectSaga({ key: container, saga });
 
@@ -38,6 +40,7 @@ function CreateDataAsset({ assetType, componentClass, container, description, cr
   const [state, , onChange, onChangeValues] = useFormState(_.assign({}, initialDataAssetProperties, initialState));
   const data = _.get(props, `${container}.data`);
   const Component = componentClass;
+  const componentAdditionalPropsMerged = _.assign({}, props, componentAdditionalProps);
 
   useEffect(() => {
     if (!initialized) {
@@ -82,7 +85,11 @@ function CreateDataAsset({ assetType, componentClass, container, description, cr
                   {
                     componentClass && <>
                       <hr />
-                      <Component onChange={ onChange } onChangeValues={ onChangeValues } state={ state } />
+                      <Component 
+                        { ...componentAdditionalPropsMerged } 
+                        onChange={ onChange } 
+                        onChangeValues={ onChangeValues } 
+                        state={ state } />
                     </>
                   }
 
@@ -109,6 +116,7 @@ function CreateDataAsset({ assetType, componentClass, container, description, cr
 CreateDataAsset.propTypes = {
   assetType: PropTypes.string.isRequired,
   componentClass: PropTypes.elementType,
+  componentAdditionalProps: PropTypes.object,
   container: PropTypes.string.isRequired,
   description: PropTypes.node.isRequired,
   fetchCommand: PropTypes.string.isRequired,
@@ -121,6 +129,7 @@ CreateDataAsset.propTypes = {
 CreateDataAsset.defaultProps = {
   fetchRequest: {},
   initialState: {},
+  componentAdditionalProps: {},
   validate: (state) => true
 }
 

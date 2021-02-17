@@ -18,7 +18,12 @@ import Members from '../Members';
 import Error from '../Error';
 import Container from '../Container';
 
+/*
 import { DataSourceSettings as DataSourceSettingsForm } from '../CreateDataSourceForm';
+*/
+function DataSourceSettingsForm() {
+  return <></>;
+}
 
 function ConnectionSettings(props) {
   const initialState = {

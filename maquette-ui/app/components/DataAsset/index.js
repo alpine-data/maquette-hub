@@ -31,7 +31,8 @@ export const createSaga = saga;
 
 
 function DataAsset({ 
-  container, additionalProperties, additionalTabs, additionalSettingTabs, 
+  container, additionalTabs, additionalSettingTabs, 
+  settingsComponentClass, settingsComponentAdditionalProps,
   codeExamples, reducer, saga, ...props }) {
 
   useInjectReducer({ key: container, reducer });
@@ -89,14 +90,17 @@ function DataAsset({
     }
   }
 
-  function onUpdate(updatedProperties) {
+  function onUpdate(updatedProperties, optionalCommand, merge = true) {
     const currentDefaultProperties = _.pick(
       _.get(view, container), 
       'name', 'title', 'summary', 'visibility', 'classification', 'personalInformation', 'zone');
 
-    const currentProperties = _.assign({ [container]: assetName }, currentDefaultProperties, additionalProperties);
-    const mergedProperties = _.assign({}, currentProperties, updatedProperties);
-    props.dispatch(update(`${pluralizeWord(container)} update`, mergedProperties));
+    const mergedProperties = _.assign(currentDefaultProperties, updatedProperties);
+    const request = _.assign({ [container]: assetName }, merge && mergedProperties || updatedProperties);
+
+    const command = optionalCommand || 'update';
+
+    props.dispatch(update(`${pluralizeWord(container)} ${command}`, request));
   }
 
   function onLike(liked) {
@@ -175,7 +179,9 @@ function DataAsset({
               onGrant={ onGrant }
               onRevoke={ onRevoke }
               onUpdateSettings={ onUpdate }
-              additionalTabs={ additionalSettingTabs } />
+              additionalTabs={ additionalSettingTabs }
+              settingsComponentClass={ settingsComponentClass }
+              settingsComponentAdditionalProps={ settingsComponentAdditionalProps } />
           </> || <></>
       }
     ]

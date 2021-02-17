@@ -26,7 +26,7 @@ public class DataSource implements DataAsset<DataSource> {
 
    String summary;
 
-   DataSourceDatabaseProperties database;
+   DataSourceDatabaseProperties properties;
 
    DataSourceAccessType accessType;
 
