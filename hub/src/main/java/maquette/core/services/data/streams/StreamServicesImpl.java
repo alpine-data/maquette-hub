@@ -57,14 +57,22 @@ public final class StreamServicesImpl implements StreamServices {
       return assets.remove(executor, asset);
    }
 
+
+   @Override
+   public CompletionStage<Done> updateProperties(User executor, String name, Retention retention, Schema schema) {
+      return entities
+         .getByName(name)
+         .thenCompose(as -> as.updateProperties(executor, name, retention, schema));
+   }
+
    @Override
    public CompletionStage<Done> update(
-      User executor, String name, String updatedName, String title, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      User executor, String name, String updatedName, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return entities
          .getByName(name)
-         .thenCompose(as -> as.update(executor, name, title, summary, retention, schema, visibility, classification, personalInformation));
+         .thenCompose(as -> as.update(executor, updatedName, title, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override

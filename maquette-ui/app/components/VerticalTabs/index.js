@@ -17,7 +17,7 @@ function VerticalTabs({ tabs, ...props }) {
     <FlexboxGrid.Item colspan={ 4 }>
       <Nav vertical activeKey={ active } appearance="subtle">
         {
-          _.map(tabs, tab => <React.Fragment key={ tab.key }>
+          _.map(_.filter(tabs, 'visible'), tab => <React.Fragment key={ tab.key }>
             <Nav.Item active={ tab.key == active } eventKey={ tab.key } key={ tab.key } componentClass={ Link } to={ tab.link }>{ tab.label }</Nav.Item>
           </React.Fragment>)
         }

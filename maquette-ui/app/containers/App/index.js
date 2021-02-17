@@ -76,9 +76,9 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop/sources/:asset/:tab" exact component={Source} />
         <Route path="/shop/sources/:asset/:tab/:id" exact component={Source} />
 
-        <Route path="/shop/streams/:stream" exact component={Stream} />
-        <Route path="/shop/streams/:stream/:tab" exact component={Stream} />
-        <Route path="/shop/streams/:stream/:tab/:id" exact component={Stream} />
+        <Route path="/shop/streams/:asset" exact component={Stream} />
+        <Route path="/shop/streams/:asset/:tab" exact component={Stream} />
+        <Route path="/shop/streams/:asset/:tab/:id" exact component={Stream} />
 
         <Route path="/user/settings" exact component={UserSettings} />
         <Route path="/user/settings/:tab" exact component={UserSettings} />

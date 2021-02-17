@@ -60,13 +60,23 @@ public final class StreamServicesSecured implements StreamServices {
 
    @Override
    public CompletionStage<Done> update(
-      User executor, String name, String updatedName, String title, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      User executor, String name, String updatedName, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER))
-         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, retention, schema, visibility, classification, personalInformation));
+            () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, name, DataAssetMemberRole.STEWARD))
+         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> updateProperties(User executor, String name, Retention retention, Schema schema) {
+      return companion
+         .withAuthorization(
+            () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER),
+            () -> assets.isMember(executor, name, DataAssetMemberRole.STEWARD))
+         .thenCompose(ok -> delegate.updateProperties(executor, name, retention, schema));
    }
 
    @Override

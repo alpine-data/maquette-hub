@@ -31,7 +31,9 @@ public interface StreamServices extends MemberServices, AccessRequestServices {
    CompletionStage<Done> remove(User executor, String asset);
 
    CompletionStage<Done> update(
-      User executor, String name, String updatedName, String title, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+      User executor, String name, String updatedName, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone);
+
+   CompletionStage<Done> updateProperties(User executor, String name, Retention retention, Schema schema);
 
 }

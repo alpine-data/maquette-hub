@@ -103,6 +103,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = ListStreamsCommand.class, name = "streams list"),
       @JsonSubTypes.Type(value = RemoveStreamCommand.class, name = "streams remove"),
       @JsonSubTypes.Type(value = UpdateStreamPropertiesCommand.class, name = "streams update"),
+      @JsonSubTypes.Type(value = UpdateStreamStreamPropertiesCommand.class, name = "streams update properties"),
 
       @JsonSubTypes.Type(value = GrantStreamMemberCommand.class, name = "streams grant"),
       @JsonSubTypes.Type(value = RevokeStreamMemberCommand.class, name = "streams revoke"),

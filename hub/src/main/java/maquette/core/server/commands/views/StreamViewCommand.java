@@ -4,46 +4,47 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.views.DatasetView;
 import maquette.core.server.views.StreamView;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.access.DataAccessRequestStatus;
+
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.user.User;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class StreamViewCommand implements Command {
+public class StreamViewCommand implements Command, DataAssetViewCommandMixin {
 
-   String stream;
+   String name;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      return services
+      var streamCS = services
          .getStreamServices()
-         .get(user, stream)
-         .thenApply(stream -> {
-            var isOwner = stream.isMember(user, DataAssetMemberRole.OWNER);
-            var isConsumer = stream.isMember(user, DataAssetMemberRole.CONSUMER);
-            var isMember = stream.isMember(user, DataAssetMemberRole.MEMBER);
+         .get(user, name);
 
-            var isSubscriber = stream
-               .getAccessRequests()
-               .stream()
-               .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+      var logsCS = services
+         .getDatasetServices()
+         .getAccessLogs(user, name)
+         .exceptionally(ex -> List.of());
 
-            var canAccessData = isOwner || isConsumer || isMember || isSubscriber;
+      var ownersCS = streamCS.thenCompose(stream ->
+         getUserProfiles(user, services, stream, DataAssetMemberRole.OWNER));
 
-            return StreamView.apply(stream, canAccessData, isOwner, isMember);
-         });
+      var stewardsCS = streamCS.thenCompose(stream ->
+         getUserProfiles(user, services, stream, DataAssetMemberRole.STEWARD));
+
+      return Operators.compose(streamCS, logsCS, ownersCS, stewardsCS, (stream, logs, owners, stewards) -> {
+         var permissions = stream.getDataAssetPermissions(user);
+         return StreamView.apply(stream, logs, permissions, owners, stewards);
+      });
    }
 
    @Override

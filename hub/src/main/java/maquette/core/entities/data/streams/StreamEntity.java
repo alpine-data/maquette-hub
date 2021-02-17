@@ -12,10 +12,7 @@ import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.ports.StreamsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 
@@ -56,8 +53,8 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
    }
 
    public CompletionStage<Done> update(
-      User executor, String name, String title, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      User executor, String name, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       // TODO mw: value validation ...
 
@@ -66,11 +63,24 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
             .withName(name)
             .withTitle(title)
             .withSummary(summary)
-            .withRetention(retention)
-            .withSchema(schema)
             .withVisibility(visibility)
             .withClassification(classification)
             .withPersonalInformation(personalInformation)
+            .withUpdated(ActionMetadata.apply(executor))
+            .withZone(zone);
+
+         return repository.insertOrUpdateAsset(updated);
+      });
+   }
+
+   public CompletionStage<Done> updateProperties(
+      User executor, String name, Retention retention, Schema schema) {
+
+      return withProperties(properties -> {
+         var updated = properties
+            .withName(name)
+            .withRetention(retention)
+            .withSchema(schema)
             .withUpdated(ActionMetadata.apply(executor));
 
          return repository.insertOrUpdateAsset(updated);
