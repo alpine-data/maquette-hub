@@ -6,6 +6,10 @@ export function pluralize(count, label) {
     return plural(label, count, true);
 }
 
+export function pluralizeWord(word) {
+    return plural(word);
+}
+
 export function timeAgo(jsonDateTimeString) {
     try {
         return formatDistance(new Date(jsonDateTimeString), new Date());

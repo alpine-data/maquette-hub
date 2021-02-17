@@ -5,23 +5,26 @@
  */
 import _ from 'lodash';
 import React from 'react';
-import PropTypes, { bool } from 'prop-types';
+import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
-import { Affix, Button, ButtonToolbar, FlexboxGrid, Icon, Loader, Placeholder, Message, Nav, Whisper, Tooltip } from 'rsuite';
+import { Affix, Button, ButtonToolbar, FlexboxGrid, Icon, Message, Nav, Whisper, Tooltip } from 'rsuite';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 import Container from 'components/Container';
 import EditableParagraph from 'components/EditableParagraph';
+import Loader from 'components/Loader';
 
 import ErrorTitles from './error_titles.json';
-import LoaderMessages from './loading_messages.json';
 import ProjectBackground from '../../resources/projects-background.png';
+import SandboxBackground from '../../resources/sandboxes-background.png';
+import projectSaga from '../../containers/UserProfile/saga';
 
 const backgrounds = {
   data: ProjectBackground,
-  projects: ProjectBackground
+  projects: ProjectBackground,
+  sandboxes: SandboxBackground
 };
 
 function NoContent() {
@@ -32,24 +35,24 @@ function NoContent() {
 }
 
 function ViewContainer({ 
-  background, canChangeSummary, loading,
+  background, changeSummaryLabel, canChangeSummary, loading,
   likes, liked, likeText, likedText, 
   titles, summary, error, tabs, 
   onChangeLike, onChangeSummary, onCloseError, ...props }) {
 
   const visibleTabs = _.filter(tabs, tab => tab.visible);
-  const activeTabKey = _.get(props, 'match.params.tab') || _.get(_.first(visibleTabs), 'key') || 'none';
+  const activeTabKey = _.get(props, 'match.params.tab') || _.get(props, 'activeTab') || _.get(_.first(visibleTabs), 'key') || 'none';
   const activeTab = _.find(visibleTabs, tab => tab.key === activeTabKey)
-  const defaultContentFactory = _.isEmpty(tabs) && (() => props.children) || NoContent
+  const defaultContentFactory = (_.isEmpty(tabs) && !_.isEmpty(props.children) && (() => props.children)) || (props.content && (() => props.content())) || NoContent
   const childrenFactory = activeTab && activeTab.component || defaultContentFactory;
 
   const pageTitle = (_.isEmpty(titles) && 'Maquette') || `${ _.last(titles).label } - Maquette`
 
   let actualBackground = background;
+
   if (activeTab && activeTab.background === false) {
     actualBackground = false;
   }
-
 
   return <>
     <Helmet>
@@ -81,13 +84,14 @@ function ViewContainer({
                     value={ summary } 
                     onChange={ onChangeSummary }
                     disabled={ !canChangeSummary }
+                    label={ changeSummaryLabel }
                     className="mq--p-leading" /> 
                 </>
               }
             </FlexboxGrid.Item>
             <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
               { 
-                likes && <>
+                !_.isUndefined(likes) && <>
                   <ButtonToolbar>
                     {
                       liked && <>
@@ -120,7 +124,7 @@ function ViewContainer({
                         </>
                     }
                   </ButtonToolbar>
-                </>
+                </> || <></>
               }
             </FlexboxGrid.Item>
           </FlexboxGrid>
@@ -156,9 +160,9 @@ function ViewContainer({
       }
 
       {
-        loading && <>
-          <Loader vertical size="lg" center content={ _.sample(LoaderMessages) } />
-        </> || <>
+        (loading && <>
+          <Loader />
+        </>) || <>
           { childrenFactory() }
         </>
       }
@@ -175,6 +179,7 @@ ViewContainer.propTypes = {
     visible: PropTypes.bool,
     background: PropTypes.oneOfType([PropTypes.bool, PropTypes.oneOf(_.keys(backgrounds))])
   })),
+  content: PropTypes.func,
 
   background: PropTypes.oneOf(_.keys(backgrounds)),
   loading: PropTypes.bool,
@@ -186,11 +191,12 @@ ViewContainer.propTypes = {
   onLike: PropTypes.func,
 
   titles: PropTypes.arrayOf(PropTypes.shape({
-    link: PropTypes.string.isRequired,
+    link: PropTypes.string,
     label: PropTypes.string.isRequired
   })),
 
-  canChangeSummary: bool,
+  canChangeSummary: PropTypes.bool,
+  changeSummaryLabel: PropTypes.string,
   error: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
   summary: PropTypes.string,
   onChangeSummary: PropTypes.func,

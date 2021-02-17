@@ -26,6 +26,10 @@ import Background from '../../resources/sandboxes-background.png';
 import { Affix, Button, FlexboxGrid, Icon, Nav } from 'rsuite';
 import { Link } from 'react-router-dom';
 
+import ViewContainer from '../../components/ViewContainer';
+
+import { getProjectTabs } from '../Project';
+
 export function Overview(props) {
   const sandbox = _.get(props, 'sandbox.data.sandbox');
   const stacks = _.get(props, 'sandbox.data.stacks');
@@ -40,35 +44,14 @@ export function Overview(props) {
 export function Display(props) {
   const project = _.get(props, 'sandbox.data.project');
   const sandbox = _.get(props, 'sandbox.data.sandbox');
-  const tab = _.get(props, 'match.params.id') || 'overview';
 
-  return <div>
+  return <>
     <Helmet>
       <title>{ sandbox.name } &middot; { project.title } &middot; Maquette</title>
     </Helmet>
 
-    <Affix top={ 56 }>
-      <div className="mq--page-title">
-        <Container fluid>
-          <FlexboxGrid align="middle">
-            <FlexboxGrid.Item colspan={ 20 }>
-              <h1><Link to={ `/${project.name}` }>{ project.title }</Link> / <Link to={ `/${project.name}/sandboxes` }>Sandboxes</Link> / <Link to={ `/${project.name}/sandboxes/${sandbox.name}` }>{ sandbox.name }</Link></h1>
-            </FlexboxGrid.Item>
-
-            <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
-              <Button size="sm" active><Icon icon="heart" /> 42</Button>
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
-        </Container>
-
-        <Nav appearance="subtle" activeKey={ tab } className="mq--nav-tabs">
-          <Nav.Item eventKey="overview" componentClass={ Link } to={ `/${project.name}/resources/sandboxes/${sandbox.name}` }>Overview</Nav.Item>
-        </Nav>
-      </div>
-    </Affix>
-
-    { tab == 'overview' && <Overview { ...props } /> }
-  </div>
+    <Overview { ...props } />
+  </>
 }
 
 export function Sandbox(props) {
@@ -79,8 +62,6 @@ export function Sandbox(props) {
   const sandbox = _.get(props, 'match.params.sandbox');
 
   const data = _.get(props, 'sandbox.data');
-  const error = _.get(props, 'sandbox.error');
-  const loading = _.get(props, 'sandbox.loading');
   const [initialized, setInitialized] = useState(initialized, setInitialized);
 
   useEffect(() => {
@@ -89,14 +70,35 @@ export function Sandbox(props) {
       setInitialized(true);
     }
   })
-  
-  if (!initialized || loading) {
-    return <div className="mq--loading" />
-  } else if (!data && error) {
-    return <Error background={ Background } message={ error } />
-  } else {
-    return <Display { ...props } />
+
+  const components = {
+    'sandboxes': () => <>
+      { 
+        data && <Display { ...props } />
+      }
+    </>
   }
+
+  return <ViewContainer 
+    background='projects'
+    loading={ _.get(props, 'sandbox.loading') || !initialized }
+    error={ _.get(props, 'sandbox.error') }
+
+    likes={ 23 }
+    liked={ true }
+    onChangeLike={ console.log }
+
+    error={ _.get(props, 'sandbox.error') }
+    onCloseError={ () => props.dispatch(dismissError()) }
+
+    titles={ [ 
+      { link: `/${project}`, label: _.get(data, 'project.title') || project },
+      { link: `/${project}/sandboxes`, label: 'Sandboxes' },
+      { label: sandbox }
+    ] }
+    
+    activeTab="sandboxes"
+    tabs= { getProjectTabs(project, data.isAdmin, data.isMember, components) } />;
 }
 
 Sandbox.propTypes = {

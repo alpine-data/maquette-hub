@@ -11,10 +11,7 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
@@ -36,9 +33,10 @@ public final class CollectionServicesImpl implements CollectionServices {
    @Override
    public CompletionStage<CollectionProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone, Authorization owner, Authorization steward) {
 
-      return entities.create(executor, title, name, summary, visibility, classification, personalInformation);
+      return entities.create(executor, title, name, summary, visibility, classification, personalInformation, zone, owner, steward);
    }
 
    @Override
@@ -59,11 +57,11 @@ public final class CollectionServicesImpl implements CollectionServices {
    @Override
    public CompletionStage<Done> update(
       User executor, String name, String updatedName, String title, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return entities
          .getByName(name)
-         .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation));
+         .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override

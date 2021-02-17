@@ -81,7 +81,7 @@ public final class DockerOperations {
                .withEnv(environment)
                .withExposedPorts(exposedPorts.stream().map(Pair::getRight).collect(Collectors.toList()))
                .withHostConfig(new HostConfig().withPortBindings(portBindings))
-               .withHostName(config.getName());
+               .withHostName(config.getHostName());
 
             config.getCommand().ifPresent(cmd -> createCmd.withCmd(cmd.split(" ")));
 
@@ -93,6 +93,12 @@ public final class DockerOperations {
                .forEach(log::warn);
 
             log.info("`docker create {}` - Completed with id `{}`", config.getImage(), response.getId());
+
+            config
+               .getNetworks()
+               .stream()
+               .map(this::createNetwork)
+               .forEach(networkId -> connectToNetwork(response.getId(), networkId));
 
             return response.getId();
          });

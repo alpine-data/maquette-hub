@@ -1,6 +1,7 @@
 package maquette.core.services.data.datasources;
 
 import akka.Done;
+import maquette.core.values.data.DataZone;
 import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.model.*;
 import maquette.core.services.data.AccessRequestServices;
@@ -18,7 +19,7 @@ public interface DataSourceServices extends MemberServices, AccessRequestService
    CompletionStage<DataSourceProperties> create(
       User executor, String title, String name, String summary,
       DataSourceDatabaseProperties properties, DataSourceAccessType type,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation);
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone);
 
    CompletionStage<Records> download(User executor, String dataSource);
 

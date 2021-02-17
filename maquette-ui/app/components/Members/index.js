@@ -6,7 +6,7 @@
 import _ from 'lodash';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { AutoComplete, Button, Icon, SelectPicker, Table } from 'rsuite';
+import { Button, Icon, Input, SelectPicker, Table } from 'rsuite';
 
 function Members({ roles, members, users, groups, title, readOnly, onGrant, onRevoke }) {
   const [authType, setAuthType] = useState('user');
@@ -105,8 +105,7 @@ function Members({ roles, members, users, groups, title, readOnly, onGrant, onRe
               <Table.Cell>
                 {
                   row => {
-                    return <AutoComplete 
-                      data={ row.authorization.type == 'user' && users || groups }
+                    return <Input
                       value={ row.authorization.name }
                       onChange={ name => setAuthId(name) } />
                   }

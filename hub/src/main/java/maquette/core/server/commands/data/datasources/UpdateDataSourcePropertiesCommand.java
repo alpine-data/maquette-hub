@@ -13,6 +13,7 @@ import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.DataZone;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
@@ -37,6 +38,8 @@ public class UpdateDataSourcePropertiesCommand implements Command {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
@@ -49,7 +52,7 @@ public class UpdateDataSourcePropertiesCommand implements Command {
    public Command example() {
       return apply(
          "some-data-source", "some-data-source", "Some Data Source", Operators.lorem(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
    }
 
 }

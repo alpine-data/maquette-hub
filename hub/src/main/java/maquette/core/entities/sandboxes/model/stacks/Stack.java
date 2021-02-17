@@ -7,6 +7,7 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 public interface Stack<T extends StackConfiguration> {
@@ -25,7 +26,7 @@ public interface Stack<T extends StackConfiguration> {
 
    Form getConfigurationForm();
 
-   DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, T properties);
+   DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, T properties, Map<String, String> projectEnvironment);
 
    CompletionStage<DeployedStackParameters> getParameters(DeploymentProperties deployment, T configuration);
 

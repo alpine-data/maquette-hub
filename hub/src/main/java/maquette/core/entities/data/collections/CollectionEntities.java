@@ -11,10 +11,8 @@ import maquette.core.ports.CollectionsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.*;
 import maquette.core.values.user.User;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -30,7 +28,8 @@ public final class CollectionEntities implements DataAssetEntities<CollectionPro
 
    public CompletionStage<CollectionProperties> create(
       User executor, String title, String name, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone, Authorization owner, Authorization steward) {
 
       return repository
          .findAssetByName(name)
@@ -41,12 +40,13 @@ public final class CollectionEntities implements DataAssetEntities<CollectionPro
                var created = ActionMetadata.apply(executor);
                var collection = CollectionProperties.apply(
                   UID.apply(), title, name, summary, FileEntry.Directory.apply(),
-                  visibility, classification, personalInformation, created, created);
+                  visibility, classification, personalInformation, zone, DataAssetState.APPROVED, created, created);
 
                return repository
                   .insertOrUpdateAsset(collection)
                   .thenCompose(d -> getById(collection.getId()))
-                  .thenCompose(c -> c.getMembers().addMember(executor, executor.toAuthorization(), DataAssetMemberRole.OWNER))
+                  .thenCompose(c -> c.getMembers().addMember(executor, owner, DataAssetMemberRole.OWNER).thenApply(i -> c))
+                  .thenCompose(c -> c.getMembers().addMember(executor, steward, DataAssetMemberRole.STEWARD))
                   .thenApply(d -> collection);
             }
          });

@@ -137,6 +137,10 @@ module.exports = options => ({
           },
         },
       },
+      {
+        test: /\.(txt|java|py)$/,
+        use: 'html-loader',
+      }
     ],
   },
   plugins: options.plugins.concat([

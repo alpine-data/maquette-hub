@@ -11,6 +11,7 @@ import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.DataZone;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
@@ -34,11 +35,13 @@ public final class UpdateDatasetPropertiesCommand implements Command {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDatasetServices()
-         .update(user, dataset, name, title, summary, visibility, classification, personalInformation)
+         .update(user, dataset, name, title, summary, visibility, classification, personalInformation, zone)
          .thenApply(done -> MessageResult.apply("Successfully updated dataset."));
    }
 
@@ -46,7 +49,7 @@ public final class UpdateDatasetPropertiesCommand implements Command {
    public Command example() {
       return apply(
          "some-dataset", "some-dataset", "title", Operators.lorem(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
    }
 
 }

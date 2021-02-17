@@ -118,79 +118,7 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    @Override
    public CompletionStage<Map<String, String>> environment(User user, String name, EnvironmentType type) {
-      return projects
-         .getProjectByName(name)
-         .thenCompose(project -> {
-            var propertiesCS = project.getProperties();
-            var deploymentOptCS = propertiesCS
-               .thenApply(properties -> {
-                  if (properties.getMlflowConfiguration().isPresent()) {
-                     return infrastructure
-                        .getDeployment(properties.getMlflowConfiguration().get().getDeploymentName());
-                  } else {
-                     return Optional.<Deployment>empty();
-                  }
-               });
-
-            return Operators.compose(propertiesCS, deploymentOptCS, (properties, deployment) -> {
-               var pid = project.getId();
-               Map<String, String> result = Maps.newHashMap();
-               result.put("MQ_PROJECT", project.getId().getValue());
-
-               if (deployment.isPresent() && properties.getMlflowConfiguration().isPresent()) {
-                  var dep = deployment.get();
-                  var config = properties.getMlflowConfiguration().get();
-
-                  var mlflowPortsCS = dep
-                     .getContainer(config.getMlflowContainerName(pid))
-                     .map(Container::getMappedPortUrls)
-                     .orElse(CompletableFuture.completedFuture(Maps.newHashMap()));
-
-                  var minioPortsCS = dep
-                     .getContainer(config.getMinioContainerName(pid))
-                     .map(Container::getMappedPortUrls)
-                     .orElse(CompletableFuture.completedFuture(Maps.newHashMap()));
-
-                  return Operators.compose(mlflowPortsCS, minioPortsCS, (mlflowPorts, minioPorts) -> {
-                     if (mlflowPorts.containsKey(5000)) {
-                        switch (type) {
-                           case EXTERNAL:
-                              result.put("MLFLOW_TRACKING_URI", mlflowPorts.get(5000).toString());
-                              break;
-                           case SANDBOX:
-                              var url = mlflowPorts.get(5000).toString().replace("localhost", "host.docker.internal");
-                              result.put("MLFLOW_TRACKING_URI", url);
-                              break;
-                        }
-                     } else {
-                        LOG.warn("No MLflow tracking URL found for project {}", pid);
-                     }
-
-                     if (minioPorts.containsKey(9000)) {
-                        switch (type) {
-                           case EXTERNAL:
-                              result.put("MLFLOW_S3_ENDPOINT_URL", minioPorts.get(9000).toString());
-                              break;
-                           case SANDBOX:
-                              var url = minioPorts.get(9000).toString().replace("localhost", "host.docker.internal");
-                              result.put("MLFLOW_S3_ENDPOINT_URL", url);
-                              break;
-                        }
-                     } else {
-                        LOG.warn("No minio endpoint found for project {}", pid);
-                     }
-
-                     result.put("AWS_ACCESS_KEY_ID", config.getMinioAccessKey());
-                     result.put("AWS_SECRET_ACCESS_KEY", config.getMinioSecretKey());
-                     result.put("AWS_DEFAULT_REGION", "mzg");
-
-                     return result;
-                  });
-               } else {
-                  return CompletableFuture.completedFuture(result);
-               }
-            }).thenCompose(r -> r);
-         });
+      return companion.environment(name, type);
    }
 
    @Override
@@ -311,6 +239,8 @@ public final class ProjectServicesImpl implements ProjectServices {
          .withEnvironmentVariable("MINIO_ACCESS_KEY", properties.getMinioAccessKey())
          .withEnvironmentVariable("MINIO_SECRET_KEY", properties.getMinioSecretKey())
          .withEnvironmentVariable("MINIO_REGION_NAME", "mzg")
+         .withHostName("minio")
+         .withNetwork(properties.getSandboxNetworkName(project))
          .withPort(9000)
          .build();
 
@@ -319,21 +249,22 @@ public final class ProjectServicesImpl implements ProjectServices {
          .withEnvironmentVariable("POSTGRES_USER", properties.getPostgresUsername())
          .withEnvironmentVariable("POSTGRES_PASSWORD", properties.getPostgresPassword())
          .withEnvironmentVariable("PGDATA", "/data")
+         .withHostName("postgres")
          .withPort(5432)
          .build();
 
       var mlflowContainerCfg = ContainerConfig
          .builder(properties.getMlflowContainerName(project), "mq-stacks--mlflow-server:0.0.1")
-         .withEnvironmentVariable(
-            "MLFLOW_S3_ENDPOINT_URL",
-            String.format("http://%s:9000", properties.getMinioContainerName(project)))
+         .withEnvironmentVariable("MLFLOW_S3_ENDPOINT_URL", "http://minio:9000")
          .withEnvironmentVariable("AWS_ACCESS_KEY_ID", properties.getMinioAccessKey())
          .withEnvironmentVariable("AWS_SECRET_ACCESS_KEY", properties.getMinioSecretKey())
          .withEnvironmentVariable("AWS_DEFAULT_REGION", "mzg")
          .withEnvironmentVariable("POSTGRES_USERNAME", properties.getPostgresUsername())
          .withEnvironmentVariable("POSTGRES_PASSWORD", properties.getPostgresPassword())
-         .withEnvironmentVariable("POSTGRES_HOST", properties.getPostgreContainerName(project))
+         .withEnvironmentVariable("POSTGRES_HOST", "postgres")
          .withEnvironmentVariable("MLFLOW_PREFIX", properties.getMlflowBasePath(project))
+         .withHostName("mlflow")
+         .withNetwork(properties.getSandboxNetworkName(project))
          .withPort(5000)
          .build();
 

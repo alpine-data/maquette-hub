@@ -11,10 +11,7 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
@@ -36,11 +33,11 @@ public final class StreamServicesSecured implements StreamServices {
    @Override
    public CompletionStage<StreamProperties> create(
       User executor, String title, String name, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, title, name, summary, retention, schema, visibility, classification, personalInformation));
+         .thenCompose(ok -> delegate.create(executor, title, name, summary, retention, schema, visibility, classification, personalInformation, zone));
    }
 
    @Override

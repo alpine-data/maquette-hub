@@ -16,6 +16,7 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -70,19 +71,21 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
    }
 
    @Override
-   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties) {
+   public DeploymentConfig getDeploymentConfig(ProjectProperties project, SandboxProperties sandbox, Configuration properties, Map<String, String> projectEnvironment) {
       var postgresContainerCfg = ContainerConfig
-         .builder(String.format("mq__%s_%s__jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:0.0.1")
+         .builder(String.format("mq--%s-%s--jupyter", project.getId(), sandbox.getId()), "mq-stacks--python:0.0.1")
          .withEnvironmentVariable("MQ_USERNAME", sandbox.getCreated().getBy())
          .withEnvironmentVariable("MQ_AUTH_USERNAME", sandbox.getCreated().getBy())
          .withEnvironmentVariable("MQ_JUPYTER_TOKEN", Operators.randomHash())
          .withEnvironmentVariable("MQ_PROJECT", project.getId().toString())
+         .withEnvironmentVariables(projectEnvironment)
+         .withNetwork(project.getMlflowConfiguration().map(c -> c.getSandboxNetworkName(project.getId())).orElse("sandboxes"))
          .withPort(8888)
          .withPort(9085)
          .build();
 
       return DeploymentConfig
-         .builder(String.format("mq__%s_%s", project.getId(), sandbox.getId()))
+         .builder(String.format("mq--%s--%s", project.getId(), sandbox.getId()))
          .withContainerConfig(postgresContainerCfg)
          .build();
    }

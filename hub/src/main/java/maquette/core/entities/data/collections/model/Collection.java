@@ -34,6 +34,14 @@ public class Collection implements DataAsset<Collection> {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
+   DataAssetState state;
+
+   int likes;
+
+   boolean liked;
+
    ActionMetadata created;
 
    ActionMetadata updated;

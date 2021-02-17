@@ -17,63 +17,47 @@ import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 SyntaxHighlighter.registerLanguage('json', json);
 
-import Background from '../../resources/datashop-background.png';
+import { FlexboxGrid } from 'rsuite';
 
 function Browse(props) {
-  const dataset = _.get(props, 'dataset.data.dataset');
-  const versions = _.get(props, 'dataset.data.dataset.versions') || [];
+  const dataset = _.get(props, 'dataset.view.dataset');
+  const versions = _.get(props, 'dataset.view.dataset.versions') || [];
   const version = _.get(props, 'dataset.version') || _.first(versions).version;
 
   const schema = _.get(_.find(versions, v => v.version == version), 'schema') || {};
   const statistics = _.get(_.find(versions, v => v.version == version), 'statistics.columns') || [];
 
 
-  return <Container md background={ Background } className="mq--main-content">
-    <h4>Versions</h4>
+  return <Container fluid className="mq--main-content">
+    <FlexboxGrid justify="space-between">
+      <FlexboxGrid.Item colspan={ 8 }>
+        <h4>Versions</h4>
 
-    <VersionsTimeline 
-      dataset={ dataset } 
-      versions={ versions } 
-      activeVersion={ version } 
-      onSelectVersion={ version => props.onSelectVersion(version) } /> 
+        <VersionsTimeline 
+          dataset={ dataset } 
+          versions={ versions } 
+          activeVersion={ version } 
+          onSelectVersion={ version => props.onSelectVersion(version) } /> 
 
-    <hr />
+        <hr />
 
-    <h4>Schema <span className="mq--sub">v{ version }</span></h4>
-
-    <SyntaxHighlighter showLineNumbers language="json" style={docco}>
-      { 
-        JSON.stringify(schema, null, 2)
-      }
-    </SyntaxHighlighter>
-
-    <hr />
-
-    <DataExplorer stats={ statistics } />
-
-    <hr />
-
-    <h4>Related data assets <span className="mq--sub">(alpha)</span></h4>
-    {
-      _.includes(['db-bb'], dataset.name) && <>
-        <img 
-          width="100%"
-          src="https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBiMmJbRGF0YXNldDxiciAvPkJpc25vZGUgUmlzayBTY29yZSAtIENvbXBhbmllc11cbiAgICBjbGllbnRzW0RhdGEgU291cmNlPGJyIC8-U3dpc3MgQWdlbmN5IENsaWVudHNdXG4gICAgbmV3c1tTdHJlYW08YnIgLz5Eb3cgSm9uZXMgTmV3c11cbiAgICBldmVudHNbU3RyZWFtPGJyIC8-Q29tbWVyY2lhbCBDbGllbnQgTmV3c11cbiAgICBzdWdnZXN0ZWRbXCJTdHJlYW08YnIgLz5OZXh0IEJlc3QgQWN0aW9ucyAoQ29tbWVyY2lhbClcIl1cblxuICAgIGNsaWVudHMgLS0-IGV2ZW50c1xuICAgIGIyYiAtLT4gZXZlbnRzXG4gICAgbmV3cyAtLT4gZXZlbnRzXG4gICAgZXZlbnRzIC0tPiBzdWdnZXN0ZWRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJuZXV0cmFsIn0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9" 
-          alt="Stream dependencies" />
-        <p className="mq--sub">Last Analysis: 26.01.2020 10:31</p>
-      </> || <>
-        <p>No dependencies to other assets found.</p>
-      </>
-    }
-
-    <hr />
-
-    <DatasetCodeExamples dataset={ dataset.name } version={ version } />
+        <h4>Schema <span className="mq--sub">v{ version }</span></h4>
+        <SyntaxHighlighter showLineNumbers language="json" style={docco}>
+          { 
+            JSON.stringify(schema, null, 2)
+          }
+        </SyntaxHighlighter>
+      </FlexboxGrid.Item>
+      <FlexboxGrid.Item colspan={ 15 }>
+        <h4>Fields <span className="mq--sub">v{ version }</span></h4>
+        <DataExplorer stats={ statistics } />
+      </FlexboxGrid.Item>
+    </FlexboxGrid>
   </Container>;
 }
 
 function GetStarted(props) {
-  return <Container md background={ Background } className="mq--main-content">
+  return <Container md className="mq--main-content">
     <h4>Get started with Maquette Datasets</h4>
 
     <p className="mq--p-leading">
@@ -82,14 +66,14 @@ function GetStarted(props) {
 
     <DatasetCodeExamples 
       canConsume={ false }
-      dataset={ _.get(props, 'dataset.data.dataset.name') } 
+      dataset={ _.get(props, 'dataset.view.dataset.name') } 
       version={ '1.0' } />
   </Container>
 }
 
 function DatasetOverview(props) {
   console.log(props);
-  if (_.isEmpty(_.get(props, 'dataset.data.dataset.versions'))) {
+  if (_.isEmpty(_.get(props, 'dataset.view.dataset.versions'))) {
     return <GetStarted { ...props } />;
   } else {
     return <Browse { ...props } />

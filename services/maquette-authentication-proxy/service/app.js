@@ -55,7 +55,7 @@ app.use(function(req, res) {
     if (req.session.user) {
         req.headers[config['user-id-header']] = req.session.user.username;
         req.headers[config['user-roles-header']] = req.session.user.roles;
-        req.headers[config['user-details-header']] = JSON.stringify(req.session.user);
+        req.headers[config['user-details-header']] = Buffer.from(JSON.stringify(req.session.user)).toString('base64');
         forward = true;
     } else if (!_.isEmpty(_.intersection(_.keys(req.headers), config['allowed-authorization-headers']))) {
         forward = true;

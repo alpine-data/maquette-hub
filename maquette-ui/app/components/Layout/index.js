@@ -44,14 +44,18 @@ function Layout(props) {
                             <Nav.Item icon={ <Icon icon="bell" /> }>0</Nav.Item>
                             <Dropdown icon={<Icon icon="plus" />} placement="bottomEnd">
                                 <Dropdown.Item componentClass={ Link } to="/new/project">New project</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to="/new/sandbox">New sandbox</Dropdown.Item>
+                                <Dropdown.Item divider />
                                 <Dropdown.Item componentClass={ Link } to="/new/dataset">New dataset</Dropdown.Item>
                                 <Dropdown.Item componentClass={ Link } to="/new/stream">New stream</Dropdown.Item>
                                 <Dropdown.Item componentClass={ Link } to="/new/datasource">New data source</Dropdown.Item>
                                 <Dropdown.Item componentClass={ Link } to="/new/collection">New collection</Dropdown.Item>
-                                <Dropdown.Item componentClass={ Link } to="/new/repositoy">New data repository</Dropdown.Item>
-                                <Dropdown.Item componentClass={ Link } to="/new/sandbox">New sandbox</Dropdown.Item>
                             </Dropdown>
                             <Dropdown icon={<Icon icon="user" />} title={ props.username } placement="bottomEnd">
+                                <Dropdown.Item componentClass={ Link } to={ `/users/${props.userId}` }>My Profile</Dropdown.Item>
+                                <Dropdown.Item componentClass={ Link } to={ `/user/settings` }>Settings</Dropdown.Item>
+                                <Dropdown.Item divider />
+                                <Dropdown.Item onClick={ () => props.onUserChanged("michael") }>Impersonate Michael</Dropdown.Item>
                                 <Dropdown.Item onClick={ () => props.onUserChanged("alice") }>Impersonate Alice</Dropdown.Item>
                                 <Dropdown.Item onClick={ () => props.onUserChanged("bob") }>Impersonate Bob</Dropdown.Item>
                                 <Dropdown.Item onClick={ () => props.onUserChanged("clair") }>Impersonate Clair</Dropdown.Item>
@@ -109,6 +113,7 @@ function Layout(props) {
 
 Layout.propTypes = {
     username: PropTypes.string,
+    userId: PropTypes.string,
     onUserChange: PropTypes.func
 };
 

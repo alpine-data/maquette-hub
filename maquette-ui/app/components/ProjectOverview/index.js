@@ -11,35 +11,37 @@ import MarkdownBox from '../MarkdownBox';
 import Metrics from '../Metrics';
 
 function ProjectOverview({ view }) {
+  console.log(view);
+
   const metrics = [
     {
       icon: 'table',
       label: 'Data Assets',
-      count: 2,
+      count: _.size(view.project.assets),
       link: `/${view.project.name}`
     },
     {
       icon: 'code-fork',
       label: 'Data Repositories',
-      count: 2,
+      count: 0,
       link: `/${view.project.name}/repositories`
     },
     {
       icon: 'terminal',
       label: 'Sandboxes',
-      count: 2,
+      count: _.size(view.project.sandboxes),
       link: `/${view.project.name}/sandboxes`
     }, 
     {
       icon: 'creative',
       label: 'Running Jobs',
-      count: 2,
+      count: 0,
       link: `/${view.project.name}/jobs/running`
     },
     {
       icon: 'check',
       label: 'Executed Jobs',
-      count: 2,
+      count: 0,
       link: `/${view.project.name}/jobs/success`
     }
   ]

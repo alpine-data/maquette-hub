@@ -38,6 +38,10 @@ public interface DataAssetProperties<T> {
 
    DataClassification getClassification();
 
+   DataAssetState getState();
+
+   DataZone getZone();
+
    PersonalInformation getPersonalInformation();
 
    T withUpdated(ActionMetadata updated);

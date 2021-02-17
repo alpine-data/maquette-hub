@@ -51,7 +51,8 @@ public final class CollectionCompanion extends ServiceCompanion {
       return Operators.compose(propertiesCS, membersCS, accessRequestsCS, tagsCS, (p, members, accessRequests, tags) ->
          Collection.apply(
             p.getId(), p.getTitle(), p.getName(), p.getSummary(), p.getFiles(), tags,
-            p.getVisibility(), p.getClassification(), p.getPersonalInformation(), p.getCreated(), p.getUpdated(),
+            p.getVisibility(), p.getClassification(), p.getPersonalInformation(),
+            p.getZone(), p.getState(), 0, false, p.getCreated(), p.getUpdated(),
             members, accessRequests));
    }
 

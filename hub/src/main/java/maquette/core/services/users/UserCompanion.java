@@ -1,7 +1,8 @@
 package maquette.core.services.users;
 
 import lombok.AllArgsConstructor;
-import maquette.core.entities.users.Users;
+import maquette.core.entities.users.UserEntities;
+import maquette.core.entities.users.UserEntity;
 import maquette.core.services.ServiceCompanion;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
@@ -13,9 +14,9 @@ import java.util.function.Function;
 @AllArgsConstructor(staticName = "apply")
 public final class UserCompanion extends ServiceCompanion  {
 
-   private final Users users;
+   private final UserEntities users;
 
-   public CompletionStage<maquette.core.entities.users.User> withUser(User user) {
+   public CompletionStage<UserEntity> withUser(User user) {
       if (user instanceof AuthenticatedUser) {
          return users.findUserById(((AuthenticatedUser) user).getId());
       } else {
@@ -23,7 +24,11 @@ public final class UserCompanion extends ServiceCompanion  {
       }
    }
 
-   public <T> CompletionStage<T> withUserOrDefault(User user, T defaultValue, Function<maquette.core.entities.users.User, CompletionStage<T>> action) {
+   public CompletionStage<UserEntity> withUser(String userId) {
+      return users.findUserById(userId);
+   }
+
+   public <T> CompletionStage<T> withUserOrDefault(User user, T defaultValue, Function<UserEntity, CompletionStage<T>> action) {
       if (user instanceof AuthenticatedUser) {
          return users.findUserById(((AuthenticatedUser) user).getId()).thenCompose(action);
       } else {

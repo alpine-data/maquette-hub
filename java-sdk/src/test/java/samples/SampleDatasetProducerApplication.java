@@ -13,7 +13,7 @@ public class SampleDatasetProducerApplication {
 
         var sink = Maquette
            .create()
-           .dataset("some-dataset")
+           .dataset("test-dataset-1")
            .sink(Country.class, "some message");
 
         Source

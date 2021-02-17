@@ -14,6 +14,7 @@ import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
+import maquette.core.values.data.DataZone;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
@@ -42,11 +43,13 @@ public class CreateStreamCommand implements Command {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getStreamServices()
-         .create(user, title, name, summary, retention, schema, visibility, classification, personalInformation)
+         .create(user, title, name, summary, retention, schema, visibility, classification, personalInformation, zone)
          .thenApply(pid -> MessageResult.apply("Successfully created stream `%s`", name));
    }
 
@@ -55,13 +58,13 @@ public class CreateStreamCommand implements Command {
       return apply(
          "Some Stream", "some-stream", Operators.lorem(),
          Retention.apply(6, DurationUnit.HOURS), SchemaBuilder
-               .record("Test")
-               .fields()
-               .requiredLong("id")
-               .requiredString("color")
-               .optionalDouble("price")
-               .endRecord(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE);
+            .record("Test")
+            .fields()
+            .requiredLong("id")
+            .requiredString("color")
+            .optionalDouble("price")
+            .endRecord(),
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
    }
 
 }

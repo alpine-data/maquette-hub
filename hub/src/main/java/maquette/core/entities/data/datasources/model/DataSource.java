@@ -36,6 +36,14 @@ public class DataSource implements DataAsset<DataSource> {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
+   DataAssetState state;
+
+   int likes;
+
+   boolean liked;
+
    Schema schema;
 
    Instant fetched;

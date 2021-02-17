@@ -18,9 +18,13 @@ public class ContainerConfig {
 
     String command;
 
+    String hostName;
+
     Map<String, String> environment;
 
     List<PortSpec> ports;
+
+    List<String> networks;
 
     String memory;
 
@@ -48,6 +52,10 @@ public class ContainerConfig {
         } else {
             return List.copyOf(ports);
         }
+    }
+
+    public String getHostName() {
+        return Optional.ofNullable(hostName).orElse(name);
     }
 
     public Optional<String> getMemory() {

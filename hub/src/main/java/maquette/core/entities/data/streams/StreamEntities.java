@@ -11,10 +11,7 @@ import maquette.core.ports.StreamsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 import org.apache.commons.lang.NotImplementedException;
@@ -31,7 +28,7 @@ public class StreamEntities implements DataAssetEntities<StreamProperties, Strea
 
    public CompletionStage<StreamProperties> create(
       User executor, String title, String name, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return repository
       .findAssetByName(name)
@@ -42,7 +39,8 @@ public class StreamEntities implements DataAssetEntities<StreamProperties, Strea
             var created = ActionMetadata.apply(executor);
             var stream = StreamProperties.apply(
                UID.apply(), title, name, summary, retention, schema,
-               visibility, classification, personalInformation, created, created);
+               visibility, classification, personalInformation,
+               zone, DataAssetState.APPROVED, created, created);
 
             return repository
                .insertOrUpdateAsset(stream)

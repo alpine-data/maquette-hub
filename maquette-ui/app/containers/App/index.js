@@ -20,7 +20,7 @@ import CreateDataAccessRequest from '../CreateDataAccessRequest/Loadable';
 import CreateCollection from 'containers/CreateCollection/Loadable';
 import CreateProject from 'containers/CreateProject/Loadable';
 import CreateDataset from 'containers/CreateDataset/Loadable';
-import CreateDataSource from 'containers/CreateDataSource/Loadable';
+import CreateSource from 'containers/CreateSource/Loadable';
 import CreateSandbox from 'containers/CreateSandbox/Loadable';
 import CreateStream from 'containers/CreateStream/Loadable';
 import Dashboard from 'containers/Dashboard/Loadable';
@@ -32,6 +32,8 @@ import Project from 'containers/Project/Loadable';
 import Sandbox from 'containers/Sandbox/Loadable';
 import Search from 'containers/Search/Loadable';
 import Stream from 'containers/Stream/Loadable';
+import UserProfile from 'containers/UserProfile/Loadable';
+import UserSettings from 'containers/UserSettings/Loadable';
 
 import GlobalStyle from '../../global-styles';
 import './custom-theme.less';
@@ -44,7 +46,7 @@ export function App({ app, onInitialize, onUserChanged }) {
     onInitialize();
   }, []);
 
-  return <Layout username={ app.currentUser.name } onUserChanged={ onUserChanged }>
+  return <Layout username={ app.currentUser.name } userId={ app.currentUser.id } onUserChanged={ onUserChanged }>
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route path="/search" component={Search} />
@@ -53,22 +55,22 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/new/collection" component={CreateCollection} />
         <Route path="/new/project" component={CreateProject} />
         <Route path="/new/dataset" component={CreateDataset} />
-        <Route path="/new/datasource" component={CreateDataSource} />
+        <Route path="/new/datasource" component={CreateSource} />
         <Route path="/new/sandbox" component={CreateSandbox} />
         <Route path="/new/stream" component={CreateStream} />
 
         <Route path="/shop" exact component={DataShop} />
         <Route path="/shop/:tab" exact component={DataShop} />
 
-        <Route path="/shop/collections/:collection" exact component={Collection} />
-        <Route path="/shop/collections/:collection/tree/:tag/*" component={Collection}  />
-        <Route path="/shop/collections/:collection/tree/:tag" component={Collection}  />
-        <Route path="/shop/collections/:collection/:tab" exact component={Collection} />
-        <Route path="/shop/collections/:collection/:tab/:id" exact component={Collection} />
+        <Route path="/shop/collections/:asset" exact component={Collection} />
+        <Route path="/shop/collections/:asset/:tab/tree/:tag/*" component={Collection}  />
+        <Route path="/shop/collections/:asset/:tab/tree/:tag" component={Collection}  />
+        <Route path="/shop/collections/:asset/:tab" exact component={Collection} />
+        <Route path="/shop/collections/:asset/:tab/:id" exact component={Collection} />
 
-        <Route path="/shop/datasets/:dataset" exact component={Dataset} />
-        <Route path="/shop/datasets/:dataset/:tab" exact component={Dataset} />
-        <Route path="/shop/datasets/:dataset/:tab/:id" exact component={Dataset} />
+        <Route path="/shop/datasets/:asset" exact component={Dataset} />
+        <Route path="/shop/datasets/:asset/:tab" exact component={Dataset} />
+        <Route path="/shop/datasets/:asset/:tab/:id" exact component={Dataset} />
         
         <Route path="/shop/sources/:source" exact component={DataSource} />
         <Route path="/shop/sources/:source/:tab" exact component={DataSource} />
@@ -78,8 +80,19 @@ export function App({ app, onInitialize, onUserChanged }) {
         <Route path="/shop/streams/:stream/:tab" exact component={Stream} />
         <Route path="/shop/streams/:stream/:tab/:id" exact component={Stream} />
 
+        <Route path="/user/settings" exact component={UserSettings} />
+        <Route path="/user/settings/:tab" exact component={UserSettings} />
+        <Route path="/users/:id" exact component={UserProfile} />
+
         <Route path="/:project" exact component={Project} />
         <Route path="/:project/sandboxes/:sandbox" exact component={Sandbox} />
+
+        <Route path="/:project/data/collections/:asset" exact component={Collection} />
+        <Route path="/:project/data/collections/:asset/data/tree/:tag/*" component={Collection}  />
+        <Route path="/:project/data/collections/:asset/data/tree/:tag" component={Collection}  />
+        <Route path="/:project/data/collections/:asset/:tab" exact component={Collection} />
+        <Route path="/:project/data/collections/:asset/:tab/:id" exact component={Collection} />
+
         <Route path="/:project/:tab" exact component={Project} />
         <Route path="/:project/:tab/:id" exact component={Project} />
         <Route component={NotFoundPage} />

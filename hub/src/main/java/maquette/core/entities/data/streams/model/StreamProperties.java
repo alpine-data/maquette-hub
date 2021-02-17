@@ -5,12 +5,10 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.data.DataAssetProperties;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
 import org.apache.avro.Schema;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @With
@@ -36,12 +34,32 @@ public class StreamProperties implements DataAssetProperties<StreamProperties> {
 
    PersonalInformation personalInformation;
 
+   DataZone zone;
+
+   DataAssetState state;
+
    ActionMetadata created;
 
    ActionMetadata updated;
 
    public Optional<Schema> getSchema() {
       return Optional.ofNullable(schema);
+   }
+
+   public DataZone getZone() {
+      if (Objects.isNull(zone)) {
+         return DataZone.RAW;
+      } else {
+         return zone;
+      }
+   }
+
+   public DataAssetState getState() {
+      if (Objects.isNull(state)) {
+         return DataAssetState.APPROVED;
+      } else {
+         return state;
+      }
    }
 
 }

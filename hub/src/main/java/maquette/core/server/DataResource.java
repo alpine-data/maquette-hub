@@ -193,8 +193,6 @@ public final class DataResource {
 
          CompletionStage<Records> recordsCS;
 
-         System.out.println(ctx.headerMap());
-
          if (ctx.headerMap().containsKey("x-project")) {
             recordsCS = services
                .getDatasetServices()

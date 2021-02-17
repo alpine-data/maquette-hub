@@ -52,6 +52,7 @@ public final class DatasetCompanion extends ServiceCompanion {
                   (members, requests, versions) -> Dataset.apply(
                      dataset.getId(), properties.getTitle(), properties.getName(), properties.getSummary(),
                      properties.getVisibility(), properties.getClassification(), properties.getPersonalInformation(),
+                     properties.getZone(), properties.getState(), 0, false,
                      properties.getCreated(), properties.getUpdated(),
                      members, requests, List.of(), versions));
          });

@@ -35,15 +35,7 @@ const ContentWrapper = styled.div`
 `
 
 const markdown = `
-# Hello, *world*
-
-## Foo
-Test foo bar [Some Link](http://foo.bar)
-
----
-### Bar
-
-> Hello World
+Edit this file to add notes to your project.
 `;
 
 function MarkdownBox({ title, value, onUpdate }) {
