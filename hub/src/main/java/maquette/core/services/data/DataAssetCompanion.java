@@ -3,8 +3,10 @@ package maquette.core.services.data;
 import akka.Done;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.services.ServiceCompanion;
@@ -12,16 +14,17 @@ import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.access.DataAccessRequestStatus;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataAssetProperties;
-import maquette.core.values.data.DataVisibility;
+import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.data.*;
 import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extends DataAssetEntities<P, ?>> extends ServiceCompanion {
@@ -112,6 +115,30 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
       });
    }
 
+   public <T> CompletionStage<Optional<T>> filterPermission(User user, String asset, Function<DataAssetPermissions, Boolean> check, T passThrough) {
+      var entityCS = assets.getByName(asset);
+      var propertiesCS = entityCS.thenCompose(DataAssetEntity::getProperties);
+      var accessRequestsCS = Operators.compose(entityCS, propertiesCS, (entity, properties) -> entity
+         .getAccessRequests()
+         .getDataAccessRequests()
+         .thenCompose(requests -> Operators.allOf(requests
+            .stream()
+            .map(request -> enrichDataAccessRequest(properties, request)))))
+         .thenCompose(cs -> cs);
+      var membersListCS = entityCS.thenCompose(entity -> entity.getMembers().getMembers());
+
+      return Operators.compose(accessRequestsCS, membersListCS, (accessRequests, membersList) -> {
+         var members = GenericDataAssetMembers.apply(membersList, accessRequests);
+         var result = check.apply(members.getDataAssetPermissions(user));
+
+         if (result) {
+            return Optional.of(passThrough);
+         } else {
+            return Optional.empty();
+         }
+      });
+   }
+
    public <T> CompletionStage<Optional<T>> filterMember(User user, String asset, T passThrough) {
       return filterMember(user, asset, null, passThrough);
    }
@@ -160,6 +187,10 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
          }));
    }
 
+   public CompletionStage<Boolean> hasPermission(User user, String asset, Function<DataAssetPermissions, Boolean> check) {
+      return filterPermission(user, asset, check, Done.getInstance()).thenApply(Optional::isPresent);
+   }
+
    public CompletionStage<Boolean> isSubscribedConsumer(User user, String asset, UID project) {
       return filterSubscribedConsumer(user, asset, project, Done.getInstance()).thenApply(Optional::isPresent);
    }
@@ -182,6 +213,16 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
 
    public CompletionStage<Boolean> isVisible(String asset) {
       return filterVisible(asset, Done.getInstance()).thenApply(Optional::isPresent);
+   }
+
+   @Value
+   @AllArgsConstructor(staticName = "apply")
+   private static class GenericDataAssetMembers implements DataAssetMembers {
+
+      List<GrantedAuthorization<DataAssetMemberRole>> members;
+
+      List<DataAccessRequest> accessRequests;
+
    }
 
 }

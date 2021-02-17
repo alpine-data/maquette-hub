@@ -65,8 +65,7 @@ public final class StreamServicesSecured implements StreamServices {
 
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, name, DataAssetMemberRole.STEWARD))
+            () -> assets.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone));
    }
 
@@ -74,8 +73,7 @@ public final class StreamServicesSecured implements StreamServices {
    public CompletionStage<Done> updateProperties(User executor, String name, Retention retention, Schema schema) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, name, DataAssetMemberRole.STEWARD))
+            () -> assets.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.updateProperties(executor, name, retention, schema));
    }
 

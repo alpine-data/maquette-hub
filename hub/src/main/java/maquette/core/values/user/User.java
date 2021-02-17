@@ -14,6 +14,8 @@ public interface User {
 
     Authorization toAuthorization();
 
+
+
     default boolean isSystemUser() {
         return false;
     }

@@ -12,6 +12,7 @@ import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
@@ -42,7 +43,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> grant(User executor, String asset, Authorization member, DataAssetMemberRole role) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.grant(executor, asset, member, role));
    }
 
@@ -50,7 +51,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> revoke(User executor, String asset, Authorization member) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.revoke(executor, asset, member));
    }
 
@@ -58,8 +59,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER),
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.STEWARD))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canReviewLogs))
          .thenCompose(ok -> delegate.getAccessLogs(executor, asset));
    }
 
@@ -68,7 +68,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
       return companion
          .withAuthorization(
             () -> companion.isVisible(asset),
-            () -> companion.isMember(executor, asset))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.createDataAccessRequest(executor, asset, project, reason));
    }
 
@@ -141,7 +141,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
       return companion
          .withAuthorization(
             executor::isSystemUserCS,
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.remove(executor, asset));
    }
 
@@ -150,8 +150,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
       return companion
          .withAuthorization(
             executor::isSystemUserCS,
-            () -> companion.isMember(executor, asset),
-            () -> companion.isRequester(executor, asset, request))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.getDataAccessRequest(executor, asset, request));
    }
 
@@ -159,7 +158,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> grantDataAccessRequest(User executor, String asset, UID request, @Nullable Instant until, @Nullable String message) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.grantDataAccessRequest(executor, asset, request, until, message));
    }
 
@@ -167,7 +166,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> rejectDataAccessRequest(User executor, String asset, UID request, String reason) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.rejectDataAccessRequest(executor, asset, request, reason));
    }
 
@@ -175,7 +174,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> updateDataAccessRequest(User executor, String asset, UID request, String reason) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER),
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings),
             () -> companion.isRequester(executor, asset, request))
          .thenCompose(ok -> delegate.updateDataAccessRequest(executor, asset, request, reason));
    }
@@ -184,7 +183,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> withdrawDataAccessRequest(User executor, String asset, UID request, @Nullable String reason) {
       return companion
          .withAuthorization(
-            () -> companion.isMember(executor, asset, DataAssetMemberRole.OWNER),
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings),
             () -> companion.isRequester(executor, asset, request))
          .thenCompose(ok -> delegate.withdrawDataAccessRequest(executor, asset, request, reason));
    }

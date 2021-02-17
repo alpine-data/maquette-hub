@@ -61,16 +61,17 @@ public final class CollectionServicesSecured implements CollectionServices {
       User executor, String name, String updatedName, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
-      return delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone);
+      return companion
+         .withAuthorization(
+            () -> assets.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
+         .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone));
    }
 
    @Override
    public CompletionStage<List<String>> listFiles(User executor, String collection) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.listFiles(executor, collection));
    }
 
@@ -78,9 +79,7 @@ public final class CollectionServicesSecured implements CollectionServices {
    public CompletionStage<List<String>> listFiles(User executor, String collection, String tag) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.listFiles(executor, collection, tag));
    }
 
@@ -88,37 +87,39 @@ public final class CollectionServicesSecured implements CollectionServices {
    public CompletionStage<Done> put(User executor, String collection, BinaryObject data, String file, String message) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canProduce))
          .thenCompose(ok -> delegate.put(executor, collection, data, file, message));
    }
 
    @Override
    public CompletionStage<Done> putAll(User executor, String collection, BinaryObject data, String basePath, String message) {
-      // TODO
-      return delegate.putAll(executor, collection, data, basePath, message);
+      return companion
+         .withAuthorization(
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canProduce))
+         .thenCompose(ok -> delegate.putAll(executor, collection, data, basePath, message));
    }
 
    @Override
    public CompletionStage<BinaryObject> readAll(User executor, String collection) {
-      // TODO
-      return delegate.readAll(executor, collection);
+      return companion
+         .withAuthorization(
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canConsume))
+         .thenCompose(ok -> delegate.readAll(executor, collection));
    }
 
    @Override
    public CompletionStage<BinaryObject> readAll(User executor, String collection, String tag) {
-      return delegate.readAll(executor, collection, tag);
+      return companion
+         .withAuthorization(
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canConsume))
+         .thenCompose(ok -> delegate.readAll(executor, collection, tag));
    }
 
    @Override
    public CompletionStage<BinaryObject> read(User executor, String collection, String file) {
       return companion
          .withAuthorization(
-            () -> assets.isSubscribedConsumer(executor, collection),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.read(executor, collection, file));
    }
 
@@ -126,10 +127,7 @@ public final class CollectionServicesSecured implements CollectionServices {
    public CompletionStage<BinaryObject> read(User executor, String collection, String tag, String file) {
       return companion
          .withAuthorization(
-            () -> assets.isSubscribedConsumer(executor, collection),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.CONSUMER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.read(executor, collection, tag, file));
    }
 
@@ -137,9 +135,7 @@ public final class CollectionServicesSecured implements CollectionServices {
    public CompletionStage<Done> remove(User executor, String collection, String file) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canProduce))
          .thenCompose(ok -> delegate.remove(executor, collection, file));
    }
 
@@ -147,9 +143,7 @@ public final class CollectionServicesSecured implements CollectionServices {
    public CompletionStage<Done> tag(User executor, String collection, String tag, String message) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, collection, DataAssetMemberRole.PRODUCER))
+            () -> assets.hasPermission(executor, collection, DataAssetPermissions::canProduce))
          .thenCompose(ok -> delegate.tag(executor, collection, tag, message));
    }
 

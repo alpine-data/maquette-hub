@@ -46,10 +46,7 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    public CompletionStage<Records> download(User executor, String dataSource) {
       return companion
          .withAuthorization(
-            () -> assets.isSubscribedConsumer(executor, dataSource),
-            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.OWNER),
-            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.MEMBER),
-            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.CONSUMER))
+            () -> assets.hasPermission(executor, dataSource, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.download(executor, dataSource));
    }
 
@@ -72,7 +69,7 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, name, DataAssetMemberRole.OWNER))
+            () -> assets.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation));
    }
 
@@ -83,7 +80,7 @@ public final class DataSourceServicesSecured implements DataSourceServices {
 
       return companion
          .withAuthorization(
-            () -> assets.isMember(executor, dataSource, DataAssetMemberRole.OWNER))
+            () -> assets.hasPermission(executor, dataSource, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.updateDatabaseProperties(executor, dataSource, driver, connection, username, password, query, accessType));
    }
 

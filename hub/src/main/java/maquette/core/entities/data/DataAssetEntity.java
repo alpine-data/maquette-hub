@@ -4,8 +4,11 @@ import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.datasets.AccessRequests;
 import maquette.core.values.UID;
+import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.DataAssetProperties;
+import maquette.core.values.user.User;
 
 import java.util.concurrent.CompletionStage;
 
