@@ -14,9 +14,6 @@ import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 SyntaxHighlighter.registerLanguage('json', json);
 
-import Background from '../../resources/datashop-background.png';
-import StreamCodeExamples from '../StreamCodeExamples';
-
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { FlexboxGrid } from 'rsuite';
 
