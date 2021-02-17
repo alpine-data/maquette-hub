@@ -6,6 +6,7 @@ import maquette.core.entities.data.streams.model.Stream;
 import maquette.core.entities.data.streams.model.StreamProperties;
 import maquette.core.services.data.AccessRequestServices;
 import maquette.core.services.data.MemberServices;
+import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.DataZone;
@@ -20,7 +21,8 @@ public interface StreamServices extends MemberServices, AccessRequestServices {
 
    CompletionStage<StreamProperties> create(
       User executor, String title, String name, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone);
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone,
+      Authorization owner, Authorization steward);
 
    CompletionStage<Stream> get(User executor, String asset);
 

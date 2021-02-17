@@ -33,11 +33,14 @@ public final class StreamServicesSecured implements StreamServices {
    @Override
    public CompletionStage<StreamProperties> create(
       User executor, String title, String name, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation,
+      DataZone zone, Authorization owner, Authorization steward) {
 
       return companion
          .withAuthorization(() -> companion.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, title, name, summary, retention, schema, visibility, classification, personalInformation, zone));
+         .thenCompose(ok -> delegate.create(
+            executor, title, name, summary, retention, schema,
+            visibility, classification, personalInformation, zone, owner, steward));
    }
 
    @Override

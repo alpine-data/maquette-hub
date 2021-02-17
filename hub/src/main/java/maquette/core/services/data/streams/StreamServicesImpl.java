@@ -34,9 +34,12 @@ public final class StreamServicesImpl implements StreamServices {
    @Override
    public CompletionStage<StreamProperties> create(
       User executor, String title, String name, String summary, Retention retention, Schema schema,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone,
+      Authorization owner, Authorization steward) {
 
-      return entities.create(executor, title, name, summary, retention, schema, visibility, classification, personalInformation, zone);
+      return entities.create(
+         executor, title, name, summary, retention, schema,
+         visibility, classification, personalInformation, zone, owner, steward);
    }
 
    @Override

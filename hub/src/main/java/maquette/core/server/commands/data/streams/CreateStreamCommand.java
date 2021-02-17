@@ -12,6 +12,7 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.DataVisibility;
 import maquette.core.values.data.DataZone;
@@ -33,7 +34,9 @@ public class CreateStreamCommand implements Command {
 
    String summary;
 
-   Retention retention;
+   int retentionDuration;
+
+   DurationUnit retentionUnit;
 
    Schema schema;
 
@@ -45,11 +48,19 @@ public class CreateStreamCommand implements Command {
 
    DataZone zone;
 
+   String owner;
+
+   String steward;
+
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getStreamServices()
-         .create(user, title, name, summary, retention, schema, visibility, classification, personalInformation, zone)
+         .create(user, title, name, summary, Retention.apply(
+            retentionDuration, retentionUnit), schema,
+            visibility, classification, personalInformation, zone,
+            UserAuthorization.apply(owner), UserAuthorization.apply(steward))
          .thenApply(pid -> MessageResult.apply("Successfully created stream `%s`", name));
    }
 
@@ -57,14 +68,14 @@ public class CreateStreamCommand implements Command {
    public Command example() {
       return apply(
          "Some Stream", "some-stream", Operators.lorem(),
-         Retention.apply(6, DurationUnit.HOURS), SchemaBuilder
+         6, DurationUnit.HOURS, SchemaBuilder
             .record("Test")
             .fields()
             .requiredLong("id")
             .requiredString("color")
             .optionalDouble("price")
             .endRecord(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob");
    }
 
 }
