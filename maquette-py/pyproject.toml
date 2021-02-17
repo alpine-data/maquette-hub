@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maquette"
-version = "0.1.0"
+version = "0.1.1"
 description = "A command line interface for Maquette Data Science and Machine Learning Platform."
 authors = ["Johannes Forster <johannesforster@kpmg.com>", "Michael Wellner <michaelwellner@kpmg.com>"]
 license = "Apache-2.0"
@@ -26,7 +26,7 @@ pyinstaller = "^4.0"
 jupyter = "^1.0.0"
 
 [tool.poetry.scripts]
-mq = "main:mq"
+mq = "maquette.cli:mq"
 unix_env = "unix_env:unix_env"
 
 [build-system]
