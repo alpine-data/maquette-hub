@@ -2,6 +2,7 @@ package maquette.core.services.projects;
 
 import akka.Done;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.DatasetEntities;
@@ -14,9 +15,11 @@ import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
+import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.entities.projects.model.MlflowConfiguration;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
@@ -36,12 +39,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProjectServicesImpl implements ProjectServices {
 
    private static final Logger LOG = LoggerFactory.getLogger(ProjectServices.class);
@@ -66,6 +68,20 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    SandboxCompanion sandboxCompanion;
 
+   public static ProjectServicesImpl apply(
+      ProcessManager processes, ProjectEntities projects, DatasetEntities datasets, DataSourceEntities dataSources,
+      SandboxEntities sandboxes, InfrastructureManager infrastructure, ProjectCompanion companion,
+      DatasetCompanion datasetCompanion, DataSourceCompanion dataSourceCompanion, SandboxCompanion sandboxCompanion) {
+
+      var impl = new ProjectServicesImpl(
+         processes, projects, datasets, dataSources, sandboxes,
+         infrastructure, companion, datasetCompanion, dataSourceCompanion, sandboxCompanion);
+
+      impl.initialize();
+
+      return impl;
+   }
+
    @Override
    public CompletionStage<Done> create(User executor, String name, String title, String summary) {
       return projects
@@ -85,35 +101,7 @@ public final class ProjectServicesImpl implements ProjectServices {
                .thenCompose(infrastructure::applyConfig)
                .thenCompose(done -> project.getProperties());
          })
-         .thenCompose(project -> {
-            /*
-             * Configure Mlflow router for MLflow instance for this project.
-             */
-            var maybeMlflowConfig = project.getMlflowConfiguration();
-
-            if (maybeMlflowConfig.isPresent()) {
-               var mlflowConfig = maybeMlflowConfig.get();
-
-               return infrastructure
-                  .getDeployment(mlflowConfig.getDeploymentName())
-                  .map(deployment -> deployment.getContainer(mlflowConfig.getMlflowContainerName(project.getId())))
-                  .map(maybeContainer -> maybeContainer
-                     .map(Container::getMappedPortUrls)
-                     .orElse(CompletableFuture.completedFuture(Maps.newHashMap())))
-                  .orElse(CompletableFuture.completedFuture(Maps.newHashMap()))
-                  .thenCompose(mlflowPorts -> {
-                     if (mlflowPorts.containsKey(5000)) {
-                        return infrastructure.registerRoute(project.getId().getValue(), mlflowConfig.getMlflowBasePath(project.getId()), mlflowPorts.get(5000).toString());
-                     } else {
-                        LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", project.getId());
-                        return CompletableFuture.completedFuture(Done.getInstance());
-                     }
-                  });
-            } else {
-               return CompletableFuture.completedFuture(Done.getInstance());
-            }
-         })
-         .thenApply(ignore -> Done.getInstance());
+         .thenCompose(this::linkToolchainProxy);
    }
 
    @Override
@@ -174,9 +162,15 @@ public final class ProjectServicesImpl implements ProjectServices {
                .map(Stack::getProperties)
                .collect(Collectors.toList());
 
+            var mlflowCS = propertiesCS
+               .thenCompose(properties -> Operators.optCS(properties
+                  .getMlflowConfiguration()
+                  .flatMap(config -> infrastructure.getDeployment(config.getDeploymentName()))
+                  .map(Deployment::getProperties)));
+
             return Operators.compose(
-               propertiesCS, membersCS, accessRequestsCS, sandboxesCS, linkedDataAssetsCS,
-               (properties, members, accessRequests, sandboxes, linkedDataAssets) -> {
+               propertiesCS, membersCS, accessRequestsCS, sandboxesCS, linkedDataAssetsCS, mlflowCS,
+               (properties, members, accessRequests, sandboxes, linkedDataAssets, mlflow) -> {
                   var mlflowBaseUrl = properties
                      .getMlflowConfiguration()
                      .map(c -> c.getMlflowBasePath(project.getId()))
@@ -186,7 +180,7 @@ public final class ProjectServicesImpl implements ProjectServices {
                      project.getId(), properties.getName(), properties.getTitle(), properties.getSummary(),
                      mlflowBaseUrl, properties.getCreated(), properties.getModified(), accessRequests, members,
                      linkedDataAssets.stream().map(as -> (DataAsset<?>) as).collect(Collectors.toList()),
-                     sandboxes, stacks);
+                     sandboxes, stacks, mlflow.orElse(null));
                });
          });
    }
@@ -231,6 +225,45 @@ public final class ProjectServicesImpl implements ProjectServices {
       return projects
          .getProjectByName(name)
          .thenCompose(project -> project.members().removeMember(user, authorization));
+   }
+
+   private void initialize() {
+      projects
+         .getProjects()
+         .thenApply(projects -> projects.stream().map(this::linkToolchainProxy))
+         .thenCompose(Operators::allOf)
+         .thenRun(() -> LOG.info("Initialized projects"));
+   }
+
+   private CompletionStage<Done> linkToolchainProxy(ProjectProperties projectProperties) {
+      return Operators.optCS(projectProperties
+         .getMlflowConfiguration()
+         .flatMap(mlflowConfig -> infrastructure
+            .getDeployment(mlflowConfig.getDeploymentName())
+            .flatMap(deployment -> deployment.getContainer(mlflowConfig.getMlflowContainerName(projectProperties.getId())))
+            .map(Container::getProperties)))
+         .thenApply(properties -> properties.map(ContainerProperties::getMappedPortUrls))
+         .thenApply(ports -> ports.orElse(Maps.newHashMap()))
+         .thenCompose(mlflowPorts -> {
+            var pid = projectProperties.getId();
+
+            if (mlflowPorts.containsKey(5000) && projectProperties.getMlflowConfiguration().isPresent()) {
+               var mlflowConfig = projectProperties.getMlflowConfiguration().get();
+
+               return infrastructure
+                  .registerRoute(
+                     pid.getValue(),
+                     mlflowConfig.getMlflowBasePath(pid),
+                     mlflowPorts.get(5000).toString())
+                  .thenApply(done -> {
+                     LOG.info("Configure MLFlow proxy for project `{}`", projectProperties.getName());
+                     return done;
+                  });
+            } else {
+               LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", pid);
+               return CompletableFuture.completedFuture(Done.getInstance());
+            }
+         });
    }
 
    private static DeploymentConfig createMlflowDeploymentConfig(UID project, MlflowConfiguration properties) {

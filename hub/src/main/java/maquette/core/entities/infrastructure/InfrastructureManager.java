@@ -36,18 +36,8 @@ public final class InfrastructureManager implements MlflowProxyPort {
       InfrastructureProvider infrastructureProvider, InfrastructureRepository repository, MlflowProxyPort mlflowProxy) {
       HashMap<String, Deployment> deployments = Maps.newHashMap();
 
-      InfrastructureManager mgr = new InfrastructureManager(infrastructureProvider, repository, mlflowProxy, deployments);
-
-      mgr
-         .initialize()
-         .thenApply(done -> {
-            LOG.info("Infrastructure initialization complete");
-            return Done.getInstance();
-         })
-         .exceptionally(ex -> {
-            LOG.warn("Exception during infrastructure initialization", ex);
-            return Done.getInstance();
-         });
+      var mgr = new InfrastructureManager(infrastructureProvider, repository, mlflowProxy, deployments);
+      Operators.suppressExceptions(mgr::initialize);
 
       return mgr;
    }
@@ -61,6 +51,14 @@ public final class InfrastructureManager implements MlflowProxyPort {
             .collect(Collectors.toList())))
          .thenApply(deployments -> {
             deployments.forEach(d -> this.deployments.put(d.getConfig().getName(), d));
+            return Done.getInstance();
+         })
+         .thenApply(done -> {
+            LOG.info("Infrastructure initialization complete");
+            return Done.getInstance();
+         })
+         .exceptionally(ex -> {
+            LOG.warn("Exception during infrastructure initialization", ex);
             return Done.getInstance();
          });
    }

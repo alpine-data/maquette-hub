@@ -3,6 +3,8 @@ package maquette.core.entities.projects.model;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
+import maquette.core.entities.infrastructure.Deployment;
+import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.sandboxes.model.Sandbox;
 import maquette.core.entities.sandboxes.model.stacks.StackProperties;
 import maquette.core.values.ActionMetadata;
@@ -43,6 +45,8 @@ public class Project {
     List<Sandbox> sandboxes;
 
     List<StackProperties> stacks;
+
+    DeploymentProperties infrastructure;
 
     public boolean isMember(User user, ProjectMemberRole role) {
         return members

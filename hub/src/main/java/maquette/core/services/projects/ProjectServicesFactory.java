@@ -1,7 +1,6 @@
 package maquette.core.services.projects;
 
 import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
@@ -30,7 +29,9 @@ public final class ProjectServicesFactory {
       var datasetCompanion = DatasetCompanion.apply(DataAssetCompanion.apply(datasets, projects));
       var datasourceCompanion = DataSourceCompanion.apply(DataAssetCompanion.apply(dataSources, projects));
       var sandboxCompanion = SandboxCompanion.apply(processes, infrastructure);
-      var impl = ProjectServicesImpl.apply(processes, projects, datasets, dataSources, sandboxes, infrastructure, comp, datasetCompanion, datasourceCompanion, sandboxCompanion);
+      var impl = ProjectServicesImpl.apply(
+         processes, projects, datasets, dataSources, sandboxes, infrastructure,
+         comp, datasetCompanion, datasourceCompanion, sandboxCompanion);
 
       return ProjectServicesSecured.apply(impl, comp);
    }

@@ -15,6 +15,7 @@ app.get('/api/routes', function(_, res) {
 });
 
 app.post('/api/routes', express.json(), function (req, res) {
+    routes = _.filter(routes, r => r.id !== req.body.id);
     routes = _.concat(routes, [ _.pick(req.body, 'id', 'route', 'target') ])
     res.sendStatus(204);
 });

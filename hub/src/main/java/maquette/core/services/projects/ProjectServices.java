@@ -5,8 +5,6 @@ import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.authorization.Authorization;
-import maquette.core.values.authorization.GrantedAuthorization;
-import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 
 import java.util.List;
