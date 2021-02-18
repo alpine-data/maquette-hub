@@ -10,6 +10,4 @@ public class ProjectContext {
 
    UID id;
 
-   String name;
-
 }

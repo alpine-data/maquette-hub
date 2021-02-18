@@ -11,10 +11,9 @@ import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.services.users.UserServices;
+import maquette.core.values.UID;
 import maquette.core.values.exceptions.DomainException;
-import maquette.core.values.user.AnonymousUser;
-import maquette.core.values.user.AuthenticatedUser;
-import maquette.core.values.user.SystemUser;
+import maquette.core.values.user.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +85,8 @@ public final class MaquetteServer {
 
    private Handler handleAuthentication(String userIdHeaderName, String userRolesHeaderName, UserServices userServices) {
       String userDetailsHeaderName = "x-user-details";
+      String projectContextHeaderName = "x-project";
+      String environmentContextHeaderName = "x-environment";
 
       return ctx -> {
          var headers = ctx.headerMap();
@@ -104,7 +105,20 @@ public final class MaquetteServer {
                }
 
                if (headers.containsKey(userDetailsHeaderName)) {
-                  userServices.updateUserDetails(user, headers.get(userDetailsHeaderName));
+                  var details = headers.get(userDetailsHeaderName);
+                  userServices.updateUserDetails(user, details);
+               }
+
+               if (headers.containsKey(projectContextHeaderName)) {
+                  user = user.withProjectContext(ProjectContext.apply(UID.apply(headers.get(projectContextHeaderName))));
+               }
+
+               if (headers.containsKey(environmentContextHeaderName)) {
+                  try {
+                     user = user.withEnvironmentContext(EnvironmentContext.fromString(headers.get(environmentContextHeaderName)));
+                  } catch (Exception ex) {
+                     LOG.warn("An error occurred reading the environment context of a request.", ex);
+                  }
                }
 
                ctx.attribute("user", user);
