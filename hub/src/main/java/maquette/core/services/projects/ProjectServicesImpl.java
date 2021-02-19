@@ -18,12 +18,10 @@ import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
+import maquette.core.entities.projects.ModelEntities;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
-import maquette.core.entities.projects.model.MlflowConfiguration;
-import maquette.core.entities.projects.model.Project;
-import maquette.core.entities.projects.model.ProjectMemberRole;
-import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.projects.model.*;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.sandboxes.model.stacks.Stack;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
@@ -210,6 +208,18 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    /*
+    * Model management
+    */
+
+   @Override
+   public CompletionStage<List<Model>> getModels(User user, String name) {
+      return projects
+         .getProjectByName(name)
+         .thenCompose(ProjectEntity::getModels)
+         .thenCompose(ModelEntities::getModels);
+   }
+
+   /*
     * Manage members
     */
 
@@ -249,6 +259,7 @@ public final class ProjectServicesImpl implements ProjectServices {
 
             if (mlflowPorts.containsKey(5000) && projectProperties.getMlflowConfiguration().isPresent()) {
                var mlflowConfig = projectProperties.getMlflowConfiguration().get();
+               var externalPort = mlflowPorts.get(5000).toString();
 
                return infrastructure
                   .registerRoute(
@@ -258,7 +269,10 @@ public final class ProjectServicesImpl implements ProjectServices {
                   .thenApply(done -> {
                      LOG.info("Configure MLFlow proxy for project `{}`", projectProperties.getName());
                      return done;
-                  });
+                  })
+                  .thenCompose(done -> projects
+                     .getProjectById(projectProperties.getId())
+                     .thenCompose(p -> p.setMlflowConfiguration(mlflowConfig.withTrackingUrl(externalPort))));
             } else {
                LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", pid);
                return CompletableFuture.completedFuture(Done.getInstance());

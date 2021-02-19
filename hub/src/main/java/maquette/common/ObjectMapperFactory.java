@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.scala.DefaultScalaModule;
@@ -22,18 +24,37 @@ public final class ObjectMapperFactory {
 
     public ObjectMapper create(boolean pretty) {
         ObjectMapper om = new ObjectMapper();
+        configureMapper(om, pretty);
+        return om;
+    }
+
+    public ObjectMapper create() {
+        return create(false);
+    }
+
+    public ObjectMapper createYaml() {
+        var jf = new YAMLFactory();
+        var om = new ObjectMapper(jf);
+
+        jf.disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID);
+        configureMapper(om, false);
+
+        return om;
+    }
+
+    private void configureMapper(ObjectMapper om, boolean pretty) {
         om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         om.registerModule(new JavaTimeModule());
         om.registerModule(new Jdk8Module());
         om.registerModule(new DefaultScalaModule());
 
         om.getSerializationConfig()
-          .getDefaultVisibilityChecker()
-          .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-          .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-          .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-          .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
-          .withCreatorVisibility(JsonAutoDetect.Visibility.ANY);
+           .getDefaultVisibilityChecker()
+           .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+           .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+           .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+           .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
+           .withCreatorVisibility(JsonAutoDetect.Visibility.ANY);
 
         om.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         om.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
@@ -51,12 +72,6 @@ public final class ObjectMapperFactory {
         }
 
         om.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-        return om;
-    }
-
-    public ObjectMapper create() {
-        return create(false);
     }
 
 }

@@ -14,6 +14,7 @@ import maquette.core.values.exceptions.ProjectNotFoundException;
 import maquette.core.values.user.User;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @Getter
@@ -66,6 +67,13 @@ public final class ProjectEntity {
       return repository
          .findProjectById(id)
          .thenApply(opt -> opt.orElseThrow(() -> ProjectNotFoundException.applyFromId(id)));
+   }
+
+   public CompletionStage<ModelEntities> getModels() {
+      return getProperties()
+         .thenApply(ProjectProperties::getMlflowConfiguration)
+         .thenApply(Optional::orElseThrow)
+         .thenApply(configuration -> ModelEntities.apply(id, configuration));
    }
 
 }

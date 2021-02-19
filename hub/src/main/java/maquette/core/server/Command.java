@@ -117,6 +117,7 @@ import java.util.concurrent.CompletionStage;
 
       // Projects
       @JsonSubTypes.Type(value = CreateProjectCommand.class, name = "projects create"),
+      @JsonSubTypes.Type(value = GetModelsCommand.class, name = "projects get models"),
       @JsonSubTypes.Type(value = GetProjectCommand.class, name = "projects get"),
       @JsonSubTypes.Type(value = GetProjectEnvironmentCommand.class, name = "projects environment"),
       @JsonSubTypes.Type(value = ListProjectsCommand.class, name = "projects list"),

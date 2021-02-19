@@ -2,6 +2,7 @@ package maquette.core.server.views;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.entities.projects.model.Model;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.entities.sandboxes.model.stacks.StackProperties;
@@ -15,6 +16,8 @@ import java.util.List;
 public class ProjectView implements CommandResult {
 
    Project project;
+
+   List<Model> models;
 
    boolean isMember;
 

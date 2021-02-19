@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.values.UID;
+import org.mlflow.tracking.MlflowClient;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -19,6 +20,8 @@ public class MlflowConfiguration {
 
    String postgresUsername;
 
+   String internalTrackingUrl;
+
    @SuppressWarnings("unused")
    private MlflowConfiguration() {
       this.deploymentName = "";
@@ -26,6 +29,7 @@ public class MlflowConfiguration {
       this.minioSecretKey = "";
       this.postgresPassword = "";
       this.postgresUsername = "";
+      this.internalTrackingUrl = "";
    }
 
    public static MlflowConfiguration apply(UID project) {
@@ -35,7 +39,7 @@ public class MlflowConfiguration {
       var postgresPassword = Operators.randomHash();
       var postgresUsername = Operators.randomHash();
 
-      return apply(deploymentId, minioAccessKey, minioSecretKey, postgresPassword, postgresUsername);
+      return apply(deploymentId, minioAccessKey, minioSecretKey, postgresPassword, postgresUsername, null);
    }
 
    public String getMinioContainerName(UID project) {
@@ -56,6 +60,12 @@ public class MlflowConfiguration {
 
    public String getSandboxNetworkName(UID project) {
       return String.format("mq--%s--sandboxes", project);
+   }
+
+   public MlflowConfiguration withTrackingUrl(String internalTrackingUrl) {
+      return apply(
+         deploymentName, minioAccessKey, minioSecretKey,
+         postgresPassword, postgresUsername, internalTrackingUrl);
    }
 
 }

@@ -3,6 +3,7 @@ package maquette.core.services.projects;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.entities.projects.model.Model;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
@@ -70,6 +71,12 @@ public class ProjectServicesSecured implements ProjectServices {
       return companion
          .isAuthorized(() -> companion.isMember(user, name, ProjectMemberRole.ADMIN))
          .thenCompose(ok -> delegate.update(user, name, updatedName, title, summary));
+   }
+
+   @Override
+   public CompletionStage<List<Model>> getModels(User user, String name) {
+      // TODO mw: Check auth
+      return delegate.getModels(user, name);
    }
 
    @Override

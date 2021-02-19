@@ -1,6 +1,7 @@
 package maquette.core.services.projects;
 
 import akka.Done;
+import maquette.core.entities.projects.model.Model;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
@@ -28,6 +29,11 @@ public interface ProjectServices {
     CompletionStage<Done> remove(User user, String name);
 
     CompletionStage<Done> update(User user, String name, String updatedName, String title, String summary);
+
+    /*
+     * Models
+     */
+    CompletionStage<List<Model>> getModels(User user, String name);
 
     /*
      * Manage members

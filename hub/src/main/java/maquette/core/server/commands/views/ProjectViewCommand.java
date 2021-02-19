@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.server.Command;
@@ -12,8 +13,6 @@ import maquette.core.server.views.ProjectView;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -25,15 +24,20 @@ public class ProjectViewCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      return services
+      var projectCS = services
          .getProjectServices()
-         .get(user, project)
-         .thenApply(project -> {
-            var isMember = project.isMember(user);
-            var isAdmin = project.isMember(user, ProjectMemberRole.ADMIN);
+         .get(user, project);
 
-            return ProjectView.apply(project, isMember, isAdmin);
-         });
+      var modelsCS = services
+         .getProjectServices()
+         .getModels(user, project);
+
+      return Operators.compose(projectCS, modelsCS, (project, models) -> {
+         var isMember = project.isMember(user);
+         var isAdmin = project.isMember(user, ProjectMemberRole.ADMIN);
+
+         return ProjectView.apply(project, models, isMember, isAdmin);
+      });
    }
 
    @Override
