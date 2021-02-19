@@ -95,6 +95,7 @@ export function App({ app, onInitialize, onUserChanged }) {
 
         <Route path="/:project/:tab" exact component={Project} />
         <Route path="/:project/:tab/:id" exact component={Project} />
+        <Route path="/:project/:tab/:id/:id2" exact component={Project} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />

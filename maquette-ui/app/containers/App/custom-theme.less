@@ -585,3 +585,90 @@ input.mq--editable-paragraph--input {
         text-decoration: underline;
     }
 }
+
+//== Model Summary
+.mq--modern-summary {
+    background-color: @B100;
+    padding: 20px 20px;
+
+    .mq--modern-summary--title {
+        display: block;
+        font-weight: bold;
+    }
+
+    ul.mq--modern-summary--flavours {
+        display: block;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0;
+            padding: 0 5px 0 0;
+            display: inline-block;
+            font-size: smaller;
+            color: @B700;
+
+            &::after {
+                margin: 0 0 0 5px;
+                content: "|"
+            }
+
+            &:last-child::after {
+                content: ""
+            }
+        }
+    }
+}
+
+.mq--modern-summary-link {
+    &:hover {
+        background-color: @B200;
+        cursor: pointer;
+    }
+}
+
+.mq--metrics--trend {
+    .mq--metrics--trend--value {
+        font-size: xx-large;
+        font-weight: bold;
+        padding-right: 5px;
+    }
+
+    .mq--metrics--trend--label {
+        display: block;
+        font-weight: bold;
+        font-size: small;
+    }
+
+    .mq--metrics--trend--diff {
+        display: block;
+        font-size: smaller;
+        color: @B700;
+
+        &.negative .mq--icon {
+            color: #ff0000;
+        }
+
+        &.positive .mq--icon {
+            color: #00ff00;
+        }
+    }
+}
+
+.mq--metrics--text {
+    .mq--metrics--text--label {
+        display: block;
+        font-size: smaller;
+        color: @B700;
+    }
+
+    .mq--metrics--text--value {
+        display: block;
+        font-size: small;
+
+        a {
+            color: @text-color;
+        }
+    }
+}

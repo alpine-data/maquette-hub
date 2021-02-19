@@ -19,6 +19,7 @@ function ProjectToolchainSettings({ view, ...props }) {
 
     <Deployment 
       title="MLflow" 
+      icon="tensorflow"
       subtitle="Experiment Tracking &amp; Model Management" 
       deployment={ view.project.infrastructure }
       properties={{ foo: 'BAR', some_secret: 'hello world!' }} />

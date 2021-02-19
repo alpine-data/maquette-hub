@@ -18,7 +18,7 @@ import saga from './saga';
 import { load, update, dismissError } from './actions';
 
 import ProjectExperiments from '../../components/ProjectExperiments';
-import ProjectModels from '../../components/ProjectModels';
+import ProjectModels, { titles as modelTitles } from '../../components/ProjectModels';
 import ProjectOverview from '../../components/ProjectOverview';
 import ProjectSettings from '../../components/ProjectSettings';
 import ProjectDataAssets from '../../components/ProjectDataAssets';
@@ -26,7 +26,7 @@ import Sandboxes from '../../components/Sandboxes';
 import ViewContainer from '../../components/ViewContainer';
 
 export const getProjectTabs = (
-  project, isAdmin = false, isMember = false, components = {}) => {
+  project, isAdmin = false, isMember = false, components = {}, titles = {}) => {
 
   return [
     {
@@ -73,11 +73,11 @@ export const getProjectTabs = (
       component: components.experiments || (() => <></>)
     },
     {
+      titles: titles.models || (() => []),
       label: 'Models',
       link: `/${project}/models`,
       key: 'models',
       visible: true,
-      background: false,
       component: components.models || (() => <></>)
     },
     {
@@ -126,7 +126,7 @@ export function Project(props) {
     data: () => <ProjectDataAssets { ...props } />,
     sandboxes: () => <Sandboxes { ...props } />,
     experiments: () => <ProjectExperiments { ...data } />,
-    models: () => <ProjectModels { ...data } />,
+    models: () => <ProjectModels view={ data } { ...props } />,
     settings: () => <ProjectSettings { ...props} onUpdate={ onUpdate } onGrant={ onGrant } onRevoke={ onRevoke } /> 
   };
 

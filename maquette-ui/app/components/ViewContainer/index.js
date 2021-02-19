@@ -19,7 +19,6 @@ import Loader from 'components/Loader';
 import ErrorTitles from './error_titles.json';
 import ProjectBackground from '../../resources/projects-background.png';
 import SandboxBackground from '../../resources/sandboxes-background.png';
-import projectSaga from '../../containers/UserProfile/saga';
 
 const backgrounds = {
   data: ProjectBackground,
@@ -46,7 +45,12 @@ function ViewContainer({
   const defaultContentFactory = (_.isEmpty(tabs) && !_.isEmpty(props.children) && (() => props.children)) || (props.content && (() => props.content())) || NoContent
   const childrenFactory = activeTab && activeTab.component || defaultContentFactory;
 
-  const pageTitle = (_.isEmpty(titles) && 'Maquette') || `${ _.last(titles).label } - Maquette`
+  let mergedTitles = titles;
+  if (activeTab && activeTab.titles) {
+    mergedTitles = _.concat(titles, activeTab.titles(props))
+  }
+
+  const pageTitle = (_.isEmpty(mergedTitles) && 'Maquette') || `${ _.last(mergedTitles).label } - Maquette`
 
   let actualBackground = background;
 
@@ -66,7 +70,7 @@ function ViewContainer({
             <FlexboxGrid.Item colspan={ 20 }>
               <h1>
                 { 
-                  _.reduce(_.map(titles, title => {
+                  _.reduce(_.map(mergedTitles, title => {
                     if (title.link) {
                       return <Link key={ title.label } to={ title.link }>{ title.label }</Link>
                     } else {
@@ -172,6 +176,8 @@ function ViewContainer({
 
 ViewContainer.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.shape({
+    titles: PropTypes.func,
+    summary: PropTypes.func,
     label: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
