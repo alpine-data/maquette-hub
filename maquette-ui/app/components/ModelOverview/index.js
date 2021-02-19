@@ -7,6 +7,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Breadcrumb, FlexboxGrid, Table } from 'rsuite';
+
+import { timeAgo } from '../../utils/helpers';
+
 import Container from '../Container';
 import ModernSummary, { TextMetric, TrendMetric } from '../ModernSummary';
 import UserCard from '../UserCard';
@@ -14,14 +17,14 @@ import VerticalTabs from '../VerticalTabs';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
-function Overview() {
+function Overview({ model, view }) {
   return <FlexboxGrid justify="space-between">
     <FlexboxGrid.Item colspan={ 16 }>
       <h5>
         Description
       </h5>
       <p className="mq--p-leading">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        { model.description || <>No description yet.</> }
       </p>
     </FlexboxGrid.Item>
 
@@ -49,20 +52,36 @@ function Overview() {
         Versions
       </h5>
 
-      <Table autoHeight data={ [] }>
-        <Table.Column flexGrow={ 3 }>
+      <Table autoHeight data={ model.versions }>
+        <Table.Column flexGrow={ 1 }>
           <Table.HeaderCell>Version</Table.HeaderCell>
           <Table.Cell dataKey="version" />
         </Table.Column>
 
-        <Table.Column flexGrow={ 1 }>
-          <Table.HeaderCell>Registered at</Table.HeaderCell>
-          <Table.Cell dataKey="registeredAt" />
+        <Table.Column flexGrow={ 3 }>
+          <Table.HeaderCell>Description</Table.HeaderCell>
+          <Table.Cell>
+            {
+              row => <>
+                {
+                  !_.isEmpty(row.description) && <>
+                    { row.description }<>huhu</>
+                  </> || <>
+                    <span className="mq--sub">No description</span>
+                  </>
+                }
+              </>
+            }
+          </Table.Cell>
         </Table.Column>
 
-        <Table.Column flexGrow={ 1 }>
-          <Table.HeaderCell>Registered by</Table.HeaderCell>
-          <Table.Cell dataKey="registeredBy" />
+        <Table.Column flexGrow={ 2 }>
+          <Table.HeaderCell>Registered</Table.HeaderCell>
+          <Table.Cell>
+            {
+              row => <>{ timeAgo(row.registered.at) } ago by { row.registered.by }</>
+            }
+          </Table.Cell>
         </Table.Column>
 
         <Table.Column flexGrow={ 1 }>
@@ -82,20 +101,21 @@ function Overview() {
 }
 
 function ModelOverview({ view, model, ...props }) {
+  console.log(model);
   
   return <Container xlg>
     <Breadcrumb>
-      <Breadcrumb.Item componentClass={ Link } to="/project/models" >Models</Breadcrumb.Item>
-      <Breadcrumb.Item active>Sample Model</Breadcrumb.Item>
+      <Breadcrumb.Item componentClass={ Link } to={ `/${view.project.name}/models` } >Models</Breadcrumb.Item>
+      <Breadcrumb.Item active>{ model.name }</Breadcrumb.Item>
     </Breadcrumb>
 
     <div style={{ marginBottom: '30px' }}>
       <ModernSummary
-        title="Some Model"
-        tags={ [ 'Python Function', 'Tensorflow Model' ] }
+        title={ model.name }
+        tags={ model.flavors || model.flavours }
         metrics={[
           <TrendMetric
-            value={ 3 }
+            value={ model.warnings }
             label='Warnings'
             text='+3 last 7 days'
             trend='up'
@@ -118,7 +138,7 @@ function ModelOverview({ view, model, ...props }) {
           link: `/${view.project.name}/models/${model}`,
           key: "overview",
           visible: true,
-          component: () => <Overview />
+          component: () => <Overview view={ view } model={ model } />
         },
         {
           label: "Dashboard",

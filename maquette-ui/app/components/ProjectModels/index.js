@@ -21,15 +21,42 @@ function MlflowModels({ project }) {
     }} />;
 }
 
-function ProjectModels({ view, ...props }) {
-  const model = _.get(props, 'match.params.id');
+function Models({ view, ...props }) {
+  return <Container lg>
+      {
+        _.map(view.models, model => <React.Fragment key={ model.name }>
+          <ModelSummary
+            title={ model.name }
+            tags={ model.flavours || model.flavors }
+            link={ `/${view.project.name}/models/${model.name}` } 
+            warnings={ 0 }
+            owner={{ id: model.updated.by, name: 'Egon Olsen' }}
+            updated={ model.updated.at } />
+        </React.Fragment>)
+      }
 
-  if (model) {
+{
+        _.map(view.models, model => <React.Fragment key={ model.name }>
+          <ModelSummary
+            title={ model.name }
+            tags={ model.flavours || model.flavors }
+            link={ `/${view.project.name}/models/${model.name}` } 
+            warnings={ 0 }
+            owner={{ id: model.updated.by, name: 'Egon Olsen' }}
+            updated={ model.updated.at } />
+        </React.Fragment>)
+      }
+    </Container>;
+}
+
+function ProjectModels({ view, ...props }) {
+  const modelName = _.get(props, 'match.params.id');
+
+  if (modelName) {
+    const model = _.find(view.models, { name: modelName });
     return <ModelOverview view={ view } model={ model } { ...props } />
   } else {
-    return <Container lg>
-      <ModelSummary />
-    </Container>;
+    return <Models view={ view } />
   }
 }
 

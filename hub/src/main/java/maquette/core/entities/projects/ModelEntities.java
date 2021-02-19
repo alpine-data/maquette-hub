@@ -3,6 +3,7 @@ package maquette.core.entities.projects;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.projects.model.MlflowConfiguration;
 import maquette.core.entities.projects.model.Model;
+import maquette.core.entities.projects.model.ModelVersion;
 import maquette.core.entities.projects.ports.MlflowPort;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -51,7 +52,18 @@ public final class ModelEntities {
                var description = "";
                var warnings = 0;
 
-               return Model.apply(title, name, flavors, description, warnings, List.of(), created, updated);
+               var versions = registeredModel
+                  .getVersions()
+                  .stream()
+                  .map(v -> {
+                     var registered = ActionMetadata.apply(v.getUser(), v.getCreated());
+                     return ModelVersion.apply(
+                        v.getVersion(), v.getDescription(),
+                        registered, registered, v.getStage());
+                  })
+                  .collect(Collectors.toList());
+
+               return Model.apply(title, name, flavors, description, warnings, List.of(), versions, created, updated);
             })
             .collect(Collectors.toList()))
          .exceptionally(ex -> {

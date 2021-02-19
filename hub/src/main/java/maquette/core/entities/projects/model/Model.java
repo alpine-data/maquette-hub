@@ -24,6 +24,8 @@ public class Model {
 
    List<GrantedAuthorization<ModelMemberRole>> team;
 
+   List<ModelVersion> versions;
+
    ActionMetadata created;
 
    ActionMetadata updated;
