@@ -8,9 +8,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar, FlexboxGrid } from 'rsuite';
 
-function UserCard({ user, role }) {
+function UserCard({ user, role, users = {} }) {
+  if (typeof(user) === 'string') {
+    user = users[user] || { id: user, name: user }
+  }
+
   return <FlexboxGrid align="middle" style={{ marginBottom: '10px' }}>
-    <FlexboxGrid.Item>
+    <FlexboxGrid.Item style={{ lineHeight: 0 }}>
       <Avatar src={ user.avatar } />
     </FlexboxGrid.Item>
     <FlexboxGrid.Item style={{ marginLeft: '10px' }}>

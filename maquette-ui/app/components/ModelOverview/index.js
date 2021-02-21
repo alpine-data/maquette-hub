@@ -6,18 +6,28 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Breadcrumb, FlexboxGrid, Table } from 'rsuite';
+import { Breadcrumb, Button, Dropdown, FlexboxGrid } from 'rsuite';
 
-import { timeAgo } from '../../utils/helpers';
+import { timeAgo, formatDate } from '../../utils/helpers';
 
 import Container from '../Container';
+import ModelQuestionnaire from '../ModelQuestionnaire';
+import ModelSettings from '../ModelSettings';
 import ModernSummary, { TextMetric, TrendMetric } from '../ModernSummary';
 import UserCard from '../UserCard';
 import VerticalTabs from '../VerticalTabs';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
+const roleLabels = {
+  "owner": "Owner",
+  "sme": "Subject Matter Expert",
+  "reviewer": "Reviewer",
+  "ds": "Data Scientist"
+}
+
 function Overview({ model, view }) {
+  console.log(model);
   return <FlexboxGrid justify="space-between">
     <FlexboxGrid.Item colspan={ 16 }>
       <h5>
@@ -34,17 +44,14 @@ function Overview({ model, view }) {
       </h5>
 
       
-      <UserCard
-        role="Owner"
-        user={{ id: 'alice', name: 'Gustav Gustavson' }} />
-
-      <UserCard
-        role="Subject Matter Expert"
-        user={{ id: 'alice', name: 'Gustav Gustavson' }} />
-
-      <UserCard
-        role="Reviewer"
-        user={{ id: 'alice', name: 'Gustav Gustavson' }} />
+      {
+        _.map(model.members, member => <UserCard 
+          key={ `${member.role}/${member.authorization.name}` }
+          role={ roleLabels[member.role] }
+          user={ member.authorization.name }
+          users={ view.users }
+        />)
+      }
     </FlexboxGrid.Item>
 
     <FlexboxGrid.Item colspan={ 24 }>
@@ -52,70 +59,78 @@ function Overview({ model, view }) {
         Versions
       </h5>
 
-      <Table autoHeight data={ model.versions }>
-        <Table.Column flexGrow={ 1 }>
-          <Table.HeaderCell>Version</Table.HeaderCell>
-          <Table.Cell dataKey="version" />
-        </Table.Column>
-
-        <Table.Column flexGrow={ 3 }>
-          <Table.HeaderCell>Description</Table.HeaderCell>
-          <Table.Cell>
-            {
-              row => <>
-                {
-                  !_.isEmpty(row.description) && <>
-                    { row.description }<>huhu</>
-                  </> || <>
-                    <span className="mq--sub">No description</span>
-                  </>
-                }
-              </>
-            }
-          </Table.Cell>
-        </Table.Column>
-
-        <Table.Column flexGrow={ 2 }>
-          <Table.HeaderCell>Registered</Table.HeaderCell>
-          <Table.Cell>
-            {
-              row => <>{ timeAgo(row.registered.at) } ago by { row.registered.by }</>
-            }
-          </Table.Cell>
-        </Table.Column>
-
-        <Table.Column flexGrow={ 1 }>
-          <Table.HeaderCell>Stage</Table.HeaderCell>
-          <Table.Cell dataKey="stage" />
-        </Table.Column>
-
-        <Table.Column flexGrow={ 1 }>
-          <Table.HeaderCell>Actions</Table.HeaderCell>
-          <Table.Cell>
-            { row => <>Hier</> }
-          </Table.Cell>
-        </Table.Column>
-      </Table>
+      {
+        _.map(model.versions, version => <React.Fragment key={ version.version }>
+          <ModernSummary
+            title={ `Version ${version.version}` }
+            tags={ [ version.description || 'No description' ] }
+            appearance="ghost"
+            metricColspan={ 3 }
+            actionsColspan={ 1 }
+            metrics={ [
+              <TextMetric 
+                label="Stage"
+                value={ version.stage } />,
+                <TextMetric
+                label="Registered" 
+                value={ formatDate(version.registered.at ) } />,
+              <TextMetric
+                label="Updated" 
+                value={ timeAgo(version.updated.at) } />,
+              <TextMetric
+                label="Code Quality" 
+                value="No issues" />,
+              <TextMetric
+                label="Governance"
+                value="Action required" />,
+              <TextMetric
+                label="Monitoring"
+                value="No issues" />
+            ] }
+            actions={
+              <Dropdown 
+                appearance="default" 
+                title="..."
+                renderTitle={children => {
+                  return <Button color="blue">{children} </Button>;
+                }}>
+                <Dropdown.Item componentClass={ Link } to={ `` }>Some action</Dropdown.Item>
+                <Dropdown.Item>Archive model</Dropdown.Item>
+              </Dropdown>
+            } />   
+        </React.Fragment>)
+      }
     </FlexboxGrid.Item>
   </FlexboxGrid>
 }
 
-function ModelOverview({ view, model, ...props }) {
-  console.log(model);
-  
+function ModelOverview({ view, model, onGrantModelRole, onRevokeModelRole, onUpdateModel, ...props }) {  
+  const stages = _.map(
+    [
+      _.get(_.find(model.versions, { stage: 'None' }), 'version') || '-',
+      _.get(_.find(model.versions, { stage: 'Staging' }), 'version') || '-',
+      _.get(_.find(model.versions, { stage: 'Production' }), 'version') || '-'
+    ], version => {
+      if (version !== '-') {
+        return `Version ${version}`;
+      } else {
+        return version;
+      }
+    });
+
   return <Container xlg>
     <Breadcrumb>
       <Breadcrumb.Item componentClass={ Link } to={ `/${view.project.name}/models` } >Models</Breadcrumb.Item>
-      <Breadcrumb.Item active>{ model.name }</Breadcrumb.Item>
+      <Breadcrumb.Item active>{ model.title }</Breadcrumb.Item>
     </Breadcrumb>
 
     <div style={{ marginBottom: '30px' }}>
       <ModernSummary
-        title={ model.name }
+        title={ model.title }
         tags={ model.flavors || model.flavours }
         metrics={[
           <TrendMetric
-            value={ model.warnings }
+            value={ _.size(model.warnings) }
             label='Warnings'
             text='+3 last 7 days'
             trend='up'
@@ -126,7 +141,7 @@ function ModelOverview({ view, model, ...props }) {
             text='No changes last 7 days' />,
           <TextMetric
             label="Development / Staging / Production"
-            value="Version 23 / Version 10 / Version 10" />,
+            value={ _.join(stages, ' / ') } />,
         ]} />
     </div>
 
@@ -135,36 +150,52 @@ function ModelOverview({ view, model, ...props }) {
       tabs={[
         {
           label: "Overview",
-          link: `/${view.project.name}/models/${model}`,
+          link: `/${view.project.name}/models/${model.name}`,
           key: "overview",
           visible: true,
           component: () => <Overview view={ view } model={ model } />
         },
         {
           label: "Dashboard",
-          link: `/${view.project.name}/models/${model}/dashboard`,
+          link: `/${view.project.name}/models/${model.name}/dashboard`,
           key: "dashboard",
           visible: true,
           component: () => <>Huhuh</>
         },
         {
           label: "Relationships",
-          link: `/${view.project.name}/models/${model}/relationships`,
+          link: `/${view.project.name}/models/${model.name}/relationships`,
           key: "relationships",
           visible: true,
           component: () => <>Huhuh</>
         },
         {
           label: "Settings",
-          link: `/${view.project.name}/models/${model}/settings`,
+          link: `/${view.project.name}/models/${model.name}/settings`,
           key: "settings",
           visible: true,
-          component: () => <>Huhuh</>
+          component: () => <ModelSettings 
+            view={ view } 
+            model={ model }
+            onGrant={ value => onGrantModelRole(_.assign({ model: model.name }, value)) }
+            onRevoke={ value => onRevokeModelRole(_.assign({ model: model.name }, value )) }
+            onUpdate={ state => onUpdateModel('projects models update', _.assign({ model: model.name }, state)) } />
+        },
+        {
+          label: "Questionnaire",
+          link: `/${view.project.name}/models/${model.name}/questionnaire`,
+          key: "questionnaire",
+          visible: true,
+          component: () => <ModelQuestionnaire view={ view } model={ model } />
         }
       ]} />
   </Container>;
 }
 
 ModelOverview.propTypes = {};
+
+ModelOverview.defaultProps = {
+  onUpdateModel: console.log
+}
 
 export default ModelOverview;

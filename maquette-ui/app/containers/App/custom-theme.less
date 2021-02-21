@@ -587,6 +587,7 @@ input.mq--editable-paragraph--input {
 }
 
 //== Model Summary
+
 .mq--modern-summary {
     background-color: @B100;
     padding: 20px 20px;
@@ -622,6 +623,11 @@ input.mq--editable-paragraph--input {
     }
 }
 
+.mq--modern-summary.mq--modern-summary-ghost {
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
 .mq--modern-summary-link {
     &:hover {
         background-color: @B200;
@@ -652,9 +658,16 @@ input.mq--editable-paragraph--input {
         }
 
         &.positive .mq--icon {
-            color: #00ff00;
+            color: #8aaa00;
+        }
+
+        .mq--icon.mq--icon--small .rs-icon {
+            font-size: 11px;
+            line-height: 14px;
         }
     }
+
+
 }
 
 .mq--metrics--text {
@@ -662,14 +675,68 @@ input.mq--editable-paragraph--input {
         display: block;
         font-size: smaller;
         color: @B700;
+        line-height: 14px;
+
+        .rs-icon {
+            font-size: 10px;
+        }
     }
 
     .mq--metrics--text--value {
         display: block;
         font-size: small;
+        line-height: 14px;
 
         a {
             color: @text-color;
+        }
+
+        .rs-icon {
+            font-size: 11px;
+            line-height: 14px;
+        }
+
+        .negative {
+            color: #ff0000;
+        }
+
+        .positive {
+            color: #8aaa00;
+        }
+    }
+}
+
+//== Surveys
+
+.sv_main  {
+    font-family: @font-family-base;
+
+    .sv_container {
+
+        .sv_header {
+            display: none;
+        }
+
+        .sv_body {
+            padding: 0;
+            border-top-color: @primary-color;
+        }
+
+        input[type="button"], button {
+            background-color: @primary-color;
+        }
+
+        input:focus, 
+        .sv_q_text_root:focus, 
+        .sv_q_dropdown_control:focus,
+        input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]):focus,
+        select:focus,
+        textarea:focus {
+            border-color: @primary-medium-color;
+        }
+
+        .sv_body.sv_completed_page > h3 {
+            font-weight: normal;
         }
     }
 }

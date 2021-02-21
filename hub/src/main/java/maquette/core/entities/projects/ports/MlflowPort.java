@@ -1,12 +1,13 @@
 package maquette.core.entities.projects.ports;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import maquette.common.ObjectMapperFactory;
 import maquette.common.Operators;
 import maquette.core.entities.projects.model.MlflowConfiguration;
-import maquette.core.entities.projects.model.ModelFromRegistry;
-import maquette.core.entities.projects.model.VersionFromRegistry;
+import maquette.core.entities.projects.model.model.ModelFromRegistry;
+import maquette.core.entities.projects.model.model.VersionFromRegistry;
 import maquette.core.entities.projects.ports.model.MLModel;
 import maquette.core.entities.projects.ports.model.ModelVersionsResponse;
 import maquette.core.entities.projects.ports.model.RegisteredModelsResponse;
@@ -18,11 +19,11 @@ import org.mlflow.api.proto.Service;
 import org.mlflow.tracking.MlflowClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -39,12 +40,16 @@ public final class MlflowPort {
 
    private final OkHttpClient client;
 
+   private final MlflowClient mlflowClient;
+
    public static MlflowPort apply(MlflowConfiguration mlflowConfiguration, UID project, ObjectMapper om) {
       OkHttpClient client = new OkHttpClient.Builder()
          .readTimeout(3, TimeUnit.MINUTES)
          .build();
 
-      return apply(mlflowConfiguration, project, om, client);
+      return apply(
+         mlflowConfiguration, project, om, client,
+         new MlflowClient(mlflowConfiguration.getInternalTrackingUrl()));
    }
 
    public static MlflowPort apply(MlflowConfiguration mlflowConfiguration, UID project) {
@@ -62,8 +67,7 @@ public final class MlflowPort {
                .getModelVersions()
                .stream()
                .map(version -> {
-                  var run = new MlflowClient(mlflowConfiguration.getInternalTrackingUrl())
-                     .getRun(version.getRunId());
+                  var run = mlflowClient.getRun(version.getRunId());
 
                   var commit = run
                      .getData()
@@ -123,11 +127,22 @@ public final class MlflowPort {
    }
 
    public ModelFromRegistry getModel(String name) {
+      return findModel(name).orElseThrow();
+   }
+
+   public Optional<ModelFromRegistry> findModel(String name) {
       return getModels()
          .stream()
          .filter(m -> m.getName().equals(name))
-         .findFirst()
-         .orElseThrow();
+         .findFirst();
+   }
+
+   public void transitionStage(String name, String version, String stage) {
+      var url = String.format(
+         "/api/2.0/preview/mlflow/model-versions/transition-stage?name=%s&version=%s&stage=%s",
+         name, version, stage);
+
+      query(url, JsonNode.class);
    }
 
    private <T> T query(String url, Class<T> responseType) {

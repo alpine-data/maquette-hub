@@ -1,9 +1,10 @@
-package maquette.core.entities.projects.model;
+package maquette.core.entities.projects.model.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 @Value
@@ -25,5 +26,13 @@ public class VersionFromRegistry {
    String gitUrl;
 
    Set<String> flavors;
+
+   public Optional<String> getGitCommit() {
+      return Optional.ofNullable(gitCommit);
+   }
+
+   public Optional<String> gitUrl() {
+      return Optional.ofNullable(gitUrl);
+   }
 
 }

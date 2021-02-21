@@ -121,13 +121,37 @@ export function Project(props) {
     props.dispatch(update('projects revoke', request));
   }
 
+  const onUpdateModel = (command, values) => {
+    const request = _.assign({ project }, values);
+    props.dispatch(update(command, request));
+  }
+
+  const onGrantModelRole = (value) => {
+    const request = _.assign(value, { project });
+    props.dispatch(update('projects models grant', request));
+  }
+
+  const onRevokeModelRole = (value) => {
+    const request = _.assign(value, { project });
+    props.dispatch(update('projects models revoke', request));
+  }
+
   const components = {
     overview: () => <ProjectOverview view={ data } />,
     data: () => <ProjectDataAssets { ...props } />,
     sandboxes: () => <Sandboxes { ...props } />,
     experiments: () => <ProjectExperiments { ...data } />,
-    models: () => <ProjectModels view={ data } { ...props } />,
-    settings: () => <ProjectSettings { ...props} onUpdate={ onUpdate } onGrant={ onGrant } onRevoke={ onRevoke } /> 
+    models: () => <ProjectModels 
+      view={ data } 
+      onGrantModelRole={ onGrantModelRole }
+      onRevokeModelRole={ onRevokeModelRole }
+      onUpdateModel={ onUpdateModel }
+      { ...props } />,
+    settings: () => <ProjectSettings 
+      { ...props} 
+      onUpdate={ onUpdate } 
+      onGrant={ onGrant } 
+      onRevoke={ onRevoke } /> 
   };
 
   return <ViewContainer 

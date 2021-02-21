@@ -23,7 +23,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileSystemProjectsRepository implements ProjectsRepository {
+public final class FileSystemProjectsRepository implements ProjectsRepository {
 
    private static final String PROPERTIES_FILE = "project.json";
 

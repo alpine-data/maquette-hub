@@ -1,19 +1,24 @@
 package maquette.core.services.projects;
 
 import akka.Done;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.projects.model.Model;
+import maquette.core.entities.projects.model.model.Model;
+import maquette.core.entities.projects.model.model.ModelMemberRole;
+import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.exceptions.NotAuthorizedException;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -74,9 +79,49 @@ public class ProjectServicesSecured implements ProjectServices {
    }
 
    @Override
-   public CompletionStage<List<Model>> getModels(User user, String name) {
+   public CompletionStage<List<ModelProperties>> getModels(User user, String name) {
       // TODO mw: Check auth
       return delegate.getModels(user, name);
+   }
+
+   @Override
+   public CompletionStage<Model> getModel(User user, String project, String model) {
+      // TODO mw: Check auth
+      return delegate.getModel(user, project, model);
+   }
+
+   @Override
+   public CompletionStage<Done> updateModel(User user, String project, String model, String title, String description) {
+      // TODO mw: Check auth
+      return delegate.updateModel(user, project, model, title, description);
+   }
+
+   @Override
+   public CompletionStage<Done> answerQuestionnaire(User user, String project, String model, String version, JsonNode responses) {
+      // TODO mw: Check auth
+      return delegate.answerQuestionnaire(user, project, model, version, responses);
+   }
+
+   @Override
+   public CompletionStage<Done> approveModel(User user, String project, String model, String version) {
+      return delegate.approveModel(user, project, model, version);
+   }
+
+   @Override
+   public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
+      return delegate.getLatestQuestionnaireAnswers(user, project, model);
+   }
+
+   @Override
+   public CompletionStage<Done> grantModelRole(User user, String project, String model, UserAuthorization authorization, ModelMemberRole role) {
+      // TODO mw: Check auth
+      return delegate.grantModelRole(user, project, model, authorization, role);
+   }
+
+   @Override
+   public CompletionStage<Done> revokeModelRole(User user, String name, String model, UserAuthorization authorization) {
+      // TODO mw: Check auth
+      return delegate.revokeModelRole(user, name, model, authorization);
    }
 
    @Override

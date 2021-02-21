@@ -41,27 +41,39 @@ TrendMetric.defaultProps = {
   sentiment: 'neutral'
 }
 
-export function TextMetric({ value, label }) {
+export function TextMetric({ value, label, icon, sentiment }) {
   return <div className="mq--metrics--text">
-    <span className="mq--metrics--text--label">{ label }</span>
-    <span className="mq--metrics--text--value">{ value }</span>
+    <span className="mq--metrics--text--label">
+      { icon && <><Icon icon={ icon } />&nbsp;</> }
+      { label }
+    </span>
+    <span className="mq--metrics--text--value">
+      { sentiment && <span className={ sentiment }><Icon icon="dot-circle-o" />&nbsp;</span> }
+      { value }
+    </span>
   </div>
 }
 
-function ModernSummary({ title, tags, metrics, metricColspan, link }) {
-  const availableColumns = 24 - (1 - _.isEmpty(link));
+function ModernSummary({ title, tags, metrics, metricColspan, link, appearance, actions, actionsColspan }) {
+  let availableColumns = 24 - (1 - _.isEmpty(link));
+
+  if (!_.isEmpty(actions)) {
+    availableColumns = availableColumns - actionsColspan;
+  }
+
   const titleColspan = availableColumns - (_.size(metrics) * metricColspan);
-  
+
   return <div 
     className={ cx({ 
       'mq--modern-summary': true, 
+      [`mq--modern-summary-${appearance}`]: true,
       'mq--modern-summary-link': !_.isEmpty(link) }) }>
 
     <FlexboxGrid align="middle">
       <FlexboxGrid.Item colspan={ titleColspan }>
         <span className="mq--modern-summary--title">{ title }</span>
         {
-          _.size(metrics) > 0 && <>
+          _.size(tags) > 0 && <>
             <ul className="mq--modern-summary--flavours">
               { 
                 _.map(tags, tag => <li key={ tag }>{ tag }</li>)
@@ -84,11 +96,19 @@ function ModernSummary({ title, tags, metrics, metricColspan, link }) {
           </FlexboxGrid.Item>
         </>
       }
+      {
+        actions && <>
+          <FlexboxGrid.Item colspan={ actionsColspan } style={{ textAlign: 'right' }}>
+            { actions }
+          </FlexboxGrid.Item>
+        </>
+      }
     </FlexboxGrid>
   </div>;
 }
 
 ModernSummary.propTypes = {
+  appearance: PropTypes.oneOf(['normal', 'ghost']),
   title: PropTypes.string.isRequired,
   tags: PropTypes.arrayOf(PropTypes.node).isRequired,
   metrics: PropTypes.arrayOf(PropTypes.node).isRequired,
@@ -97,7 +117,8 @@ ModernSummary.propTypes = {
 };
 
 ModernSummary.defaultProps = {
-  metricColspan: 5
+  metricColspan: 5,
+  actionsColspan: 2,
 }
 
 export default ModernSummary;

@@ -1,4 +1,4 @@
-package maquette.core.entities.projects.model;
+package maquette.core.entities.projects.model.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;

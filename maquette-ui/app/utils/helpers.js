@@ -20,7 +20,17 @@ export function timeAgo(jsonDateTimeString) {
 
 export function formatTime(jsonDateTimeString) {
     try {
-        return new Date(jsonDateTimeString).toLocaleString();
+        return new Date(jsonDateTimeString).toLocaleString(
+            undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', secon: '2-digit' });
+    } catch (e) {
+        return '';
+    }
+}
+
+export function formatDate(jsonDateTimeString) {
+    try {
+        return new Date(jsonDateTimeString).toLocaleDateString(
+            undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
     } catch (e) {
         return '';
     }

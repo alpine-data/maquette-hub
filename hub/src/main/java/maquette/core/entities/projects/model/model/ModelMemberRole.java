@@ -1,4 +1,4 @@
-package maquette.core.entities.projects.model;
+package maquette.core.entities.projects.model.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

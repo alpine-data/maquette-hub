@@ -7,6 +7,7 @@ import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.projects.model.MlflowConfiguration;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.ProjectMemberRole;
+import maquette.core.entities.projects.ports.ModelsRepository;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -24,6 +25,8 @@ public final class ProjectEntity {
    private final UID id;
 
    private final ProjectsRepository repository;
+
+   private final ModelsRepository models;
 
    public MembersCompanion<ProjectMemberRole> members() {
       return MembersCompanion.apply(id, repository);
@@ -73,7 +76,7 @@ public final class ProjectEntity {
       return getProperties()
          .thenApply(ProjectProperties::getMlflowConfiguration)
          .thenApply(Optional::orElseThrow)
-         .thenApply(configuration -> ModelEntities.apply(id, configuration));
+         .thenApply(configuration -> ModelEntities.apply(id, configuration, models));
    }
 
 }

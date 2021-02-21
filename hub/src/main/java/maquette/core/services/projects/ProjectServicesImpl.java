@@ -1,6 +1,7 @@
 package maquette.core.services.projects;
 
 import akka.Done;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,9 +20,13 @@ import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ModelEntities;
+import maquette.core.entities.projects.ModelEntity;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.entities.projects.model.*;
+import maquette.core.entities.projects.model.model.Model;
+import maquette.core.entities.projects.model.model.ModelProperties;
+import maquette.core.entities.projects.model.model.ModelMemberRole;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.sandboxes.model.stacks.Stack;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
@@ -30,6 +35,7 @@ import maquette.core.services.data.datasources.DataSourceCompanion;
 import maquette.core.services.sandboxes.SandboxCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.data.DataAsset;
 import maquette.core.values.user.User;
 import org.slf4j.Logger;
@@ -37,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -212,11 +219,85 @@ public final class ProjectServicesImpl implements ProjectServices {
     */
 
    @Override
-   public CompletionStage<List<Model>> getModels(User user, String name) {
+   public CompletionStage<List<ModelProperties>> getModels(User user, String name) {
       return projects
          .getProjectByName(name)
          .thenCompose(ProjectEntity::getModels)
          .thenCompose(ModelEntities::getModels);
+   }
+
+   @Override
+   public CompletionStage<Model> getModel(User user, String project, String model) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(entity -> {
+            var propertiesCS = entity.getProperties();
+            var membersCS = entity.getMembers();
+
+            return Operators.compose(propertiesCS, membersCS, Model::fromProperties);
+         });
+   }
+
+   @Override
+   public CompletionStage<Done> updateModel(User user, String project, String model, String title, String description) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.updateModel(user, title, description));
+   }
+
+   @Override
+   public CompletionStage<Done> answerQuestionnaire(User user, String project, String model, String version, JsonNode responses) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.answerQuestionnaire(user, version, responses));
+   }
+
+   @Override
+   public CompletionStage<Done> approveModel(User user, String project, String model, String version) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.approveModel(user, version));
+   }
+
+   @Override
+   public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(ModelEntity::getLatestQuestionnaireAnswers);
+   }
+
+   /*
+    * Manage model members
+    */
+
+   @Override
+   public CompletionStage<Done> grantModelRole(User user, String project, String model, UserAuthorization authorization, ModelMemberRole role) {
+      // TODO mw: Check membership of project
+
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.addMember(user, authorization, role));
+   }
+
+   @Override
+   public CompletionStage<Done> revokeModelRole(User user, String project, String model, UserAuthorization authorization) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.removeMember(user, authorization));
    }
 
    /*

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.projects.exceptions.ProjectAlreadyExistsException;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.projects.ports.ModelsRepository;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
 public final class ProjectEntities {
 
    private final ProjectsRepository repository;
+
+   private final ModelsRepository models;
 
    public CompletionStage<ProjectProperties> createProject(User executor, String name, String title, String summary) {
       return findProjectByName(name)
@@ -43,13 +46,13 @@ public final class ProjectEntities {
    public CompletionStage<Optional<ProjectEntity>> findProjectById(UID id) {
       return repository
          .findProjectById(id)
-         .thenApply(maybeProject -> maybeProject.map(project -> ProjectEntity.apply(project.getId(), repository)));
+         .thenApply(maybeProject -> maybeProject.map(project -> ProjectEntity.apply(project.getId(), repository, models)));
    }
 
    public CompletionStage<Optional<ProjectEntity>> findProjectByName(String name) {
       return repository
          .findProjectByName(name)
-         .thenApply(maybeProject -> maybeProject.map(project -> ProjectEntity.apply(project.getId(), repository)));
+         .thenApply(maybeProject -> maybeProject.map(project -> ProjectEntity.apply(project.getId(), repository, models)));
    }
 
    public CompletionStage<ProjectEntity> getProjectById(UID id) {
@@ -72,7 +75,7 @@ public final class ProjectEntities {
          .thenCompose(all -> Operators.allOf(all
             .stream()
             .map(p -> ProjectEntity
-               .apply(p.getId(), repository)
+               .apply(p.getId(), repository, models)
                .members()
                .getMembers()
                .thenApply(members -> Pair.create(p, members)))))

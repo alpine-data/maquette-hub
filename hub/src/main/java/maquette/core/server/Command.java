@@ -116,14 +116,20 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = WithdrawStreamDataAccessRequestCommand.class, name = "streams access-requests withdraw"),
 
       // Projects
+      @JsonSubTypes.Type(value = AnswerModelQuestionnaireCommand.class, name = "projects models answer-questionnaire"),
+      @JsonSubTypes.Type(value = ApproveModelCommand.class, name = "projects models approve"),
       @JsonSubTypes.Type(value = CreateProjectCommand.class, name = "projects create"),
-      @JsonSubTypes.Type(value = GetModelsCommand.class, name = "projects get models"),
+      @JsonSubTypes.Type(value = GetModelsCommand.class, name = "projects models list"),
+      @JsonSubTypes.Type(value = GetModelCommand.class, name = "projects models get"),
       @JsonSubTypes.Type(value = GetProjectCommand.class, name = "projects get"),
       @JsonSubTypes.Type(value = GetProjectEnvironmentCommand.class, name = "projects environment"),
       @JsonSubTypes.Type(value = ListProjectsCommand.class, name = "projects list"),
       @JsonSubTypes.Type(value = RemoveProjectCommand.class, name = "projects remove"),
+      @JsonSubTypes.Type(value = GrantModelRoleCommand.class, name = "projects models grant"),
       @JsonSubTypes.Type(value = GrantProjectAccessCommand.class, name = "projects grant"),
+      @JsonSubTypes.Type(value = RevokeModelRoleCommand.class, name = "projects models revoke"),
       @JsonSubTypes.Type(value = RevokeProjectAccessCommand.class, name = "projects revoke"),
+      @JsonSubTypes.Type(value = UpdateModelCommand.class, name = "projects models update"),
       @JsonSubTypes.Type(value = UpdateProjectPropertiesCommand.class, name = "projects update"),
 
       // Sandboxes
