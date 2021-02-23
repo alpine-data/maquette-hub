@@ -66,9 +66,10 @@ Summary.Footer = ({ children, className, ...props }) => {
 } 
 
 Summary.Summaries = ({ children, className, ...props }) => {
+  
   return <div className={ cx("mq--summaries", className) } { ...props }>
       { children }
-    </div>
+  </div>
 }
 
 Summary.Summaries.Header = ({ children, className, ...props }) => {

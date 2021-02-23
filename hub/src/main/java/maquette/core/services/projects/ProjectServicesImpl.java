@@ -268,6 +268,15 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    @Override
+   public CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.promoteModel(user, version, stage));
+   }
+
+   @Override
    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
       return projects
          .getProjectByName(project)

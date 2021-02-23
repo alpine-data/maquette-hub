@@ -127,6 +127,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = RemoveProjectCommand.class, name = "projects remove"),
       @JsonSubTypes.Type(value = GrantModelRoleCommand.class, name = "projects models grant"),
       @JsonSubTypes.Type(value = GrantProjectAccessCommand.class, name = "projects grant"),
+      @JsonSubTypes.Type(value = PromoteModelCommand.class, name = "projects models promote"),
       @JsonSubTypes.Type(value = RevokeModelRoleCommand.class, name = "projects models revoke"),
       @JsonSubTypes.Type(value = RevokeProjectAccessCommand.class, name = "projects revoke"),
       @JsonSubTypes.Type(value = UpdateModelCommand.class, name = "projects models update"),

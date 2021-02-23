@@ -9,10 +9,11 @@ import { Link } from 'react-router-dom';
 import { Button, FlexboxGrid } from 'rsuite';
 import styled from 'styled-components';
 
-import { ProjectSummary } from '../../containers/Dashboard';
+
 
 import Container from '../Container';
 import { Asset } from '../DataAssetBrowser';
+import ProjectSummary from '../ProjectSummary';
 import Summary from '../Summary';
 
 const Lines = styled.div`
@@ -67,7 +68,7 @@ function UserProfileOverview({ view }) {
             </>
           }
 
-          { 
+          {
             _.size(view.projects) > 0 && <>
               <Summary.Summaries>
                 { _.map(view.projects, p => <ProjectSummary project={ p } key={ p.name } />) }

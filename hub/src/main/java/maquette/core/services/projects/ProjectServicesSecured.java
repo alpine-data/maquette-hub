@@ -104,7 +104,14 @@ public class ProjectServicesSecured implements ProjectServices {
 
    @Override
    public CompletionStage<Done> approveModel(User user, String project, String model, String version) {
+      // TODO mw: Check auth
       return delegate.approveModel(user, project, model, version);
+   }
+
+   @Override
+   public CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage) {
+      // TODO mw: Check auth
+      return delegate.promoteModel(user, project, model, version, stage);
    }
 
    @Override

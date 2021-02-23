@@ -31,6 +31,10 @@ public class VersionFromRegistry {
       return Optional.ofNullable(gitCommit);
    }
 
+   public Optional<String> getGitUrl() {
+      return Optional.ofNullable(gitUrl);
+   }
+
    public Optional<String> gitUrl() {
       return Optional.ofNullable(gitUrl);
    }

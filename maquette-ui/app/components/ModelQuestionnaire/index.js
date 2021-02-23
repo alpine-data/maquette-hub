@@ -5,39 +5,75 @@
  */
 
 import React from 'react';
-// import PropTypes from 'prop-types';
-// import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import { Breadcrumb } from 'rsuite';
+
+import { timeAgo, formatDate } from '../../utils/helpers';
 
 import { Survey } from 'survey-react';
+import Container from '../Container';
+import ModernSummary, { TextMetric } from '../ModernSummary';
 
-const surveyJSON = { title: "Tell us, what technologies do you use?", pages: [
-  { name:"page1", questions: [ 
-      { type: "radiogroup", choices: [ "Yes", "No" ], isRequired: true, name: "frameworkUsing",title: "Do you use any front-end framework like Bootstrap?" },
-      { type: "checkbox", choices: ["Bootstrap","Foundation"], hasOther: true, isRequired: true, name: "framework", title: "What front-end framework do you use?", visibleIf: "{frameworkUsing} = 'Yes'" }
-   ]},
-  { name: "page2", questions: [
-    { type: "radiogroup", choices: ["Yes","No"],isRequired: true, name: "mvvmUsing", title: "Do you use any MVVM framework?" },
-    { type: "checkbox", choices: [ "AngularJS", "KnockoutJS", "React" ], hasOther: true, isRequired: true, name: "mvvm", title: "What MVVM framework do you use?", visibleIf: "{mvvmUsing} = 'Yes'" } ] },
-  { name: "page3",questions: [
-    { type: "comment", name: "about", title: "Please tell us about your main requirements for Survey library" } ] }
- ]
-}
+function ModelQuestionnaire({ model, version, view, onUpdateModel }) {  
+  const questions = _.get(version, 'questionnaire.questions');
+  const answers = _.get(version, 'questionnaire.answers.responses');
+  const prefilled = _.get(view, 'latestQuestionnaireResponses') || {};
 
-const existingValue = {
-  "frameworkUsing": "Yes",
-  "framework": [
-    "Foundation"
-  ],
-  "mvvmUsing": "No",
-  "about": "asdasd"
-}
+  console.log(answers, prefilled);
 
-function ModelQuestionnaire() {
-  return <>
-    <Survey data={ existingValue } json={ surveyJSON } onComplete={ (sender, options) => {
-      console.log(sender.data);
-    } } />
-  </>;
+  return <Container xlg>
+    <Breadcrumb>
+      <Breadcrumb.Item componentClass={ Link } to={ `/${view.project.name}/models` }>Models</Breadcrumb.Item>
+      <Breadcrumb.Item componentClass={ Link } to={ `/${view.project.name}/models/${model.name}` } >{ model.title }</Breadcrumb.Item>
+      <Breadcrumb.Item active>Version { version.version }</Breadcrumb.Item>
+      <Breadcrumb.Item active>Questionnaire</Breadcrumb.Item>
+    </Breadcrumb>
+
+    <ModernSummary
+      title={ `Version ${version.version}` }
+      tags={ [ version.description || 'No description' ] }
+      metricColspan={ 3 }
+      actionsColspan={ 1 }
+      metrics={ [
+        <TextMetric 
+          label="Stage"
+          value={ version.stage } />,
+        <TextMetric
+          label="Registered" 
+          value={ formatDate(version.registered.at ) } />,
+        <TextMetric
+          label="Updated" 
+          value={ timeAgo(version.updated.at) } />,
+        <TextMetric
+          label="Code Quality" 
+          value="No issues" />,
+        <TextMetric
+          label="Governance"
+          value="Action required" />,
+        <TextMetric
+          label="Monitoring"
+          value="No issues" />
+      ] }
+      />
+
+      <Container lg>
+        {
+          _.isEmpty(answers) && <>
+            <Survey data={ prefilled } json={ questions } onComplete={ (sender) => {
+              onUpdateModel('projects models answer-questionnaire', {
+                project: view.project.name,
+                model: model.name,
+                version: version.version,
+                answers: sender.data
+              })
+            } } />
+          </> || <>
+            <Survey data={ answers } json={ questions } mode="display" />
+          </>
+        }
+        
+      </Container>
+  </Container>
 }
 
 ModelQuestionnaire.propTypes = {};

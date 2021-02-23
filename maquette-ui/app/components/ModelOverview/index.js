@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Breadcrumb, Button, Dropdown, FlexboxGrid } from 'rsuite';
+import { Breadcrumb, FlexboxGrid } from 'rsuite';
 
 import { timeAgo, formatDate } from '../../utils/helpers';
 
@@ -26,8 +26,7 @@ const roleLabels = {
   "ds": "Data Scientist"
 }
 
-function Overview({ model, view }) {
-  console.log(model);
+function Overview({ model, view, onUpdateModel }) {
   return <FlexboxGrid justify="space-between">
     <FlexboxGrid.Item colspan={ 16 }>
       <h5>
@@ -87,17 +86,7 @@ function Overview({ model, view }) {
                 label="Monitoring"
                 value="No issues" />
             ] }
-            actions={
-              <Dropdown 
-                appearance="default" 
-                title="..."
-                renderTitle={children => {
-                  return <Button color="blue">{children} </Button>;
-                }}>
-                <Dropdown.Item componentClass={ Link } to={ `` }>Some action</Dropdown.Item>
-                <Dropdown.Item>Archive model</Dropdown.Item>
-              </Dropdown>
-            } />   
+            link={ `/${view.project.name}/models/${model.name}/versions/${version.version}` } />   
         </React.Fragment>)
       }
     </FlexboxGrid.Item>
@@ -153,7 +142,10 @@ function ModelOverview({ view, model, onGrantModelRole, onRevokeModelRole, onUpd
           link: `/${view.project.name}/models/${model.name}`,
           key: "overview",
           visible: true,
-          component: () => <Overview view={ view } model={ model } />
+          component: () => <Overview 
+            view={ view } 
+            model={ model }
+            onUpdateModel={ onUpdateModel } />
         },
         {
           label: "Dashboard",

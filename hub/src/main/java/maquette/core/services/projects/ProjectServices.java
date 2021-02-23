@@ -48,6 +48,8 @@ public interface ProjectServices {
 
     CompletionStage<Done> approveModel(User user, String project, String model, String version);
 
+    CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage);
+
     CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model);
 
     /*

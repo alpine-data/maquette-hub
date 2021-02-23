@@ -53,9 +53,16 @@ public final class ModelCompanion {
                .stream()
                .map(v -> {
                   var registered = ActionMetadata.apply(v.getUser(), v.getCreated());
-                  return ModelVersion.apply(
+                  var version = ModelVersion.apply(
                      v.getVersion(), v.getDescription(),
-                     registered, v.getStage(), defaultQuestionnaire);
+                     registered, v.getFlavors(), v.getStage(), defaultQuestionnaire);
+
+                  version = version
+                     .withGitCommit(v.getGitCommit().orElse(null))
+                     .withGitTransferUrl(v.getGitUrl().orElse(null));
+
+
+                  return version;
                })
                .collect(Collectors.toList());
 
@@ -74,7 +81,10 @@ public final class ModelCompanion {
                   if (versionsMap.containsKey(versionFromRegistry.getVersion())) {
                      return versionsMap
                         .get(versionFromRegistry.getVersion())
-                        .withStage(versionFromRegistry.getStage());
+                        .withStage(versionFromRegistry.getStage())
+                        .withGitCommit(versionFromRegistry.getGitCommit().orElse(null))
+                        .withGitTransferUrl(versionFromRegistry.getGitTransferUrl().orElse(null))
+                        .withFlavours(versionFromRegistry.getFlavours());
                   } else {
                      return versionFromRegistry;
                   }

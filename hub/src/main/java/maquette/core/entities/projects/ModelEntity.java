@@ -81,6 +81,14 @@ public final class ModelEntity {
          });
    }
 
+   public CompletionStage<Done> promoteModel(User executor, String version, String stage) {
+      return getProperties()
+         .thenApply(model -> {
+            mlflowPort.transitionStage(model.getName(), version, stage);
+            return Done.getInstance();
+         });
+   }
+
    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers() {
       return getProperties()
          .thenApply(model -> model

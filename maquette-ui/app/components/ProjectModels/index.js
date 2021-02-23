@@ -5,21 +5,13 @@
  */
 
 import React from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 import Container from '../Container';
-import IFrameDisplay from '../IFrameDisplay';
 import ModelOverview from '../ModelOverview';
+import ModelQuestionnaire from '../ModelQuestionnaire';
 import ModelSummary from '../ModelSummary';
-
-function MlflowModels({ project }) {
-  return <IFrameDisplay 
-    src={ `${project.mlflowBaseUrl}/#/models` }
-    frameId='mlflow_frame'
-    onLoad={ css => {
-      css.insertRule('.App-header { display: none }', css.cssRules.length);
-      css.insertRule('html, body { overflow: hidden }', css.cssRules.length);
-    }} />;
-}
+import ModelVersion from '../ModelVersion';
 
 function Models({ view, ...props }) {
   return <Container lg>
@@ -40,12 +32,37 @@ function Models({ view, ...props }) {
 function ProjectModels({ view, onUpdateModel, ...props }) {
   const modelName = _.get(props, 'match.params.id');
 
-  if (modelName) {
-    const model = _.find(view.models, { name: modelName });
-    return <ModelOverview view={ view } model={ model } onUpdateModel={ onUpdateModel } { ...props } />
-  } else {
-    return <Models view={ view } />
-  }
+  return <Switch>
+    <Route 
+      exact
+      path="/:project/models/:model/versions/:version"
+      render={ routerProps => {
+        const model = _.find(view.models, { name: modelName });
+        const version = _.find(model.versions, { version: _.get(routerProps, 'match.params.version') })
+
+        return <ModelVersion view={ view } model={ model } version={ version } onUpdateModel={ onUpdateModel } { ...props } />
+      } } />
+
+    <Route 
+      path="/:project/models/:model/versions/:version/:tab"
+      render={ routerProps => {
+        const model = _.find(view.models, { name: modelName });
+        const version = _.find(model.versions, { version: _.get(routerProps, 'match.params.version') })
+        const tab = _.get(routerProps, 'match.params.tab');
+
+        return <ModelVersion view={ view } model={ model } version={ version } tab={ tab } { ...props } />
+      } } />
+
+    <Route 
+      path="/:project/models/:model" 
+      render={ () => {
+        const model = _.find(view.models, { name: modelName });
+        return <ModelOverview model={ model } view={ view } onUpdateModel={ onUpdateModel } { ...props } />
+      } } />
+
+    <Route
+      render={ () => <Models view={ view } { ...props } /> } />
+  </Switch>;
 }
 
 ProjectModels.propTypes = {};

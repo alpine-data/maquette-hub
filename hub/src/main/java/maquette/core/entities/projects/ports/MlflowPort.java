@@ -1,8 +1,10 @@
 package maquette.core.entities.projects.ports;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import maquette.common.ObjectMapperFactory;
 import maquette.common.Operators;
 import maquette.core.entities.projects.model.MlflowConfiguration;
@@ -12,8 +14,10 @@ import maquette.core.entities.projects.ports.model.MLModel;
 import maquette.core.entities.projects.ports.model.ModelVersionsResponse;
 import maquette.core.entities.projects.ports.model.RegisteredModelsResponse;
 import maquette.core.values.UID;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import org.mlflow.api.proto.Service;
 import org.mlflow.tracking.MlflowClient;
@@ -139,10 +143,18 @@ public final class MlflowPort {
 
    public void transitionStage(String name, String version, String stage) {
       var url = String.format(
-         "/api/2.0/preview/mlflow/model-versions/transition-stage?name=%s&version=%s&stage=%s",
-         name, version, stage);
+         "%s/api/2.0/preview/mlflow/model-versions/transition-stage",
+         mlflowConfiguration.getInternalTrackingUrl(), name, version, stage);
 
-      query(url, JsonNode.class);
+      var req = TransitionStageRequest.apply(name, version, stage, false);
+      var json = Operators.suppressExceptions(() -> om.writeValueAsString(req));
+
+      var request = new Request.Builder()
+         .url(url)
+         .post(RequestBody.create(json, MediaType.parse("application/json")))
+         .build();
+
+      query(request, JsonNode.class);
    }
 
    private <T> T query(String url, Class<T> responseType) {
@@ -152,6 +164,10 @@ public final class MlflowPort {
          .get()
          .build();
 
+      return query(request, responseType);
+   }
+
+   private <T> T query(Request request, Class<T> responseType) {
       try {
          var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
 
@@ -159,14 +175,14 @@ public final class MlflowPort {
             var body = response.body();
             var content = body != null ? Operators.suppressExceptions(body::string) : "";
             content = StringUtils.leftPad(content, 3);
-            throw new RuntimeException("Received non-successful response from MLflow `" + requestUrl + "`:\n" + content);
+            throw new RuntimeException("Received non-successful response from MLflow `" + request.url() + "`:\n" + content);
          } else {
             var body = response.body();
             var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
             return Operators.suppressExceptions(() -> om.readValue(content, responseType));
          }
       } catch (Exception e) {
-         throw new RuntimeException("Exception occurred requesting information from MLflow `" + requestUrl + "`", e);
+         throw new RuntimeException("Exception occurred requesting information from MLflow `" + request.url() + "`", e);
       }
    }
 
@@ -191,6 +207,21 @@ public final class MlflowPort {
       } catch (Exception e) {
          throw new RuntimeException("Exception occurred requesting information from MLflow", e);
       }
+   }
+
+   @Data
+   @AllArgsConstructor(staticName = "apply")
+   private static class TransitionStageRequest {
+
+      String name;
+
+      String version;
+
+      String stage;
+
+      @JsonProperty("archive_existing_versions")
+      boolean archiveExistingVersions;
+
    }
 
 }
