@@ -24,6 +24,7 @@ import ProjectSettings from '../../components/ProjectSettings';
 import ProjectDataAssets from '../../components/ProjectDataAssets';
 import Sandboxes from '../../components/Sandboxes';
 import ViewContainer from '../../components/ViewContainer';
+import ProjectApplications from '../../components/ProjectApplications';
 
 export const getProjectTabs = (
   project, isAdmin = false, isMember = false, components = {}, titles = {}) => {
@@ -79,6 +80,13 @@ export const getProjectTabs = (
       key: 'models',
       visible: true,
       component: components.models || (() => <></>)
+    },
+    {
+      label: 'Applications',
+      link: `/${project}/applications`,
+      key: 'applications',
+      visible: true,
+      component: components.applications || (() => <></>)
     },
     {
       label: 'Settings',
@@ -147,6 +155,9 @@ export function Project(props) {
       onRevokeModelRole={ onRevokeModelRole }
       onUpdateModel={ onUpdateModel }
       { ...props } />,
+    applications: () => <ProjectApplications
+      view={ data }
+      onUpdate={ onUpdateModel } />,
     settings: () => <ProjectSettings 
       { ...props} 
       onUpdate={ onUpdate } 
