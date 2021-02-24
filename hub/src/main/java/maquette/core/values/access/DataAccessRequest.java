@@ -2,7 +2,6 @@ package maquette.core.values.access;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;

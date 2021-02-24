@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.projects.exceptions.ProjectAlreadyExistsException;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.projects.ports.ApplicationsRepository;
 import maquette.core.entities.projects.ports.ModelsRepository;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
@@ -27,6 +28,8 @@ public final class ProjectEntities {
 
    private final ModelsRepository models;
 
+   private final ApplicationsRepository applications;
+
    public CompletionStage<ProjectProperties> createProject(User executor, String name, String title, String summary) {
       return findProjectByName(name)
          .thenCompose(maybeProject -> {
@@ -46,13 +49,15 @@ public final class ProjectEntities {
    public CompletionStage<Optional<ProjectEntity>> findProjectById(UID id) {
       return repository
          .findProjectById(id)
-         .thenApply(maybeProject -> maybeProject.map(project -> ProjectEntity.apply(project.getId(), repository, models)));
+         .thenApply(maybeProject -> maybeProject.map(project ->
+            ProjectEntity.apply(project.getId(), repository, models, applications)));
    }
 
    public CompletionStage<Optional<ProjectEntity>> findProjectByName(String name) {
       return repository
          .findProjectByName(name)
-         .thenApply(maybeProject -> maybeProject.map(project -> ProjectEntity.apply(project.getId(), repository, models)));
+         .thenApply(maybeProject -> maybeProject.map(project ->
+            ProjectEntity.apply(project.getId(), repository, models, applications)));
    }
 
    public CompletionStage<ProjectEntity> getProjectById(UID id) {
@@ -75,7 +80,7 @@ public final class ProjectEntities {
          .thenCompose(all -> Operators.allOf(all
             .stream()
             .map(p -> ProjectEntity
-               .apply(p.getId(), repository, models)
+               .apply(p.getId(), repository, models, applications)
                .members()
                .getMembers()
                .thenApply(members -> Pair.create(p, members)))))

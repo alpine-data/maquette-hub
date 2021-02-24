@@ -40,6 +40,10 @@ public class ProjectViewCommand implements Command {
                .getModel(user, project, m.getName())))
          .thenCompose(Operators::allOf);
 
+      var applicationsCS = services
+         .getProjectServices()
+         .getApplications(user, project);
+
       var usersCS = services
          .getUserServices()
          .getUsers(user)
@@ -47,12 +51,14 @@ public class ProjectViewCommand implements Command {
             .stream()
             .collect(Collectors.toMap(UserProfile::getId, u -> u)));
 
-      return Operators.compose(projectCS, modelsCS, usersCS, (project, models, users) -> {
-         var isMember = project.isMember(user);
-         var isAdmin = project.isMember(user, ProjectMemberRole.ADMIN);
+      return Operators.compose(
+         projectCS, modelsCS, applicationsCS, usersCS,
+         (project, models, applications, users) -> {
+            var isMember = project.isMember(user);
+            var isAdmin = project.isMember(user, ProjectMemberRole.ADMIN);
 
-         return ProjectView.apply(project, models, users, isMember, isAdmin);
-      });
+            return ProjectView.apply(project, models, applications, users, isMember, isAdmin);
+         });
    }
 
    @Override

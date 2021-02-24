@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileSystemModelsRepository implements ModelsRepository {
+public final class FileSystemModelsRepository implements ModelsRepository {
 
    private static final Logger LOG = LoggerFactory.getLogger(ModelsRepository.class);
 

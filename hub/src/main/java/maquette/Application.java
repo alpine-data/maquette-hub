@@ -9,6 +9,7 @@ import maquette.adapters.datasets.DatasetsStores;
 import maquette.adapters.datasources.DataSourcesRepositories;
 import maquette.adapters.infrastructure.InfrastructureProviders;
 import maquette.adapters.infrastructure.InfrastructureRepositories;
+import maquette.adapters.projects.ApplicationsRepositories;
 import maquette.adapters.projects.FileSystemModelsRepository;
 import maquette.adapters.projects.ModelsRepositories;
 import maquette.adapters.projects.ProjectsRepositories;
@@ -18,6 +19,7 @@ import maquette.adapters.users.UsersRepositories;
 import maquette.common.ObjectMapperFactory;
 import maquette.core.CoreApp;
 import maquette.core.config.ApplicationConfiguration;
+import maquette.core.entities.projects.ports.ApplicationsRepository;
 
 public class Application {
 
@@ -29,6 +31,7 @@ public class Application {
       var infrastructureRepository = InfrastructureRepositories.create(om);
       var projectsRepository = ProjectsRepositories.create(om);
       var modelsRepository = ModelsRepositories.create(om);
+      var applicationsRepository = ApplicationsRepositories.create(om);
 
       var collectionsRepository = CollectionsRepositories.create(om);
       var datasetsRepository = DatasetsRepositories.create(om);
@@ -44,9 +47,23 @@ public class Application {
       var jdbcPort = JdbcJdbiImpl.apply();
 
       CoreApp.apply(
-         config, infrastructureProvider, infrastructureRepository, projectsRepository, modelsRepository,
-         collectionsRepository, datasetsRepository, datasetsStore, dataSourcesRepository, streamsRepository,
-         sandboxesRepository, usersRepository, dataExplorer, mlflowProxyPort, jdbcPort, om);
+         config,
+         infrastructureProvider,
+         infrastructureRepository,
+         projectsRepository,
+         modelsRepository,
+         applicationsRepository,
+         collectionsRepository,
+         datasetsRepository,
+         datasetsStore,
+         dataSourcesRepository,
+         streamsRepository,
+         sandboxesRepository,
+         usersRepository,
+         dataExplorer,
+         mlflowProxyPort,
+         jdbcPort,
+         om);
    }
 
 }

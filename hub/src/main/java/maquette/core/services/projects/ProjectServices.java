@@ -2,6 +2,7 @@ package maquette.core.services.projects;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
+import maquette.core.entities.projects.model.apps.Application;
 import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.Project;
@@ -59,6 +60,14 @@ public interface ProjectServices {
 
     CompletionStage<Done> revokeModelRole(User user, String name, String model, UserAuthorization authorization);
 
+    /*
+     * Manage applications
+     */
+    CompletionStage<Done> createApplication(User user, String project, String name, String description, String gitRepository);
+
+    CompletionStage<List<Application>> getApplications(User user, String project);
+
+    CompletionStage<Done> removeApplication(User user, String project, String name);
 
     /*
      * Manage members

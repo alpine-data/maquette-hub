@@ -3,7 +3,6 @@ package maquette.core.entities.projects.model;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.sandboxes.model.Sandbox;
 import maquette.core.entities.sandboxes.model.stacks.StackProperties;

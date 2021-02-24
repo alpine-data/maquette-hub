@@ -16,6 +16,7 @@ import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.entities.projects.ports.ApplicationsRepository;
 import maquette.core.entities.projects.ports.ModelsRepository;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.users.UserEntities;
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
-public class CoreApp {
+public final class CoreApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoreApp.class);
 
@@ -43,12 +44,23 @@ public class CoreApp {
     }
 
     public static CoreApp apply(
-       ApplicationConfiguration configuration, InfrastructureProvider infrastructureProvider,
-       InfrastructureRepository infrastructureRepository, ProjectsRepository projectsRepository, ModelsRepository modelsRepository,
-       CollectionsRepository collectionsRepository, DatasetsRepository datasetsRepository, RecordsStore recordsStore,
-       DataSourcesRepository dataSourceRepository, StreamsRepository streamsRepository,
-       SandboxesRepository sandboxesRepository, UsersRepository usersRepository,
-       DataExplorer dataExplorer, MlflowProxyPort mlflowProxyPort, JdbcPort jdbcPort, ObjectMapper om) {
+       ApplicationConfiguration configuration,
+       InfrastructureProvider infrastructureProvider,
+       InfrastructureRepository infrastructureRepository,
+       ProjectsRepository projectsRepository,
+       ModelsRepository modelsRepository,
+       ApplicationsRepository applicationsRepository,
+       CollectionsRepository collectionsRepository,
+       DatasetsRepository datasetsRepository,
+       RecordsStore recordsStore,
+       DataSourcesRepository dataSourceRepository,
+       StreamsRepository streamsRepository,
+       SandboxesRepository sandboxesRepository,
+       UsersRepository usersRepository,
+       DataExplorer dataExplorer,
+       MlflowProxyPort mlflowProxyPort,
+       JdbcPort jdbcPort,
+       ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
 
@@ -63,7 +75,7 @@ public class CoreApp {
 
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository, mlflowProxyPort);
         var processManager = ProcessManager.apply();
-        var projects = ProjectEntities.apply(projectsRepository, modelsRepository);
+        var projects = ProjectEntities.apply(projectsRepository, modelsRepository, applicationsRepository);
 
         var collections = CollectionEntities.apply(collectionsRepository);
         var datasets = DatasetEntities.apply(datasetsRepository, recordsStore, dataExplorer);

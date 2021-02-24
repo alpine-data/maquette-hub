@@ -21,6 +21,9 @@ import maquette.core.server.commands.data.streams.members.GrantStreamMemberComma
 import maquette.core.server.commands.data.streams.members.RevokeStreamMemberCommand;
 import maquette.core.server.commands.data.streams.requests.*;
 import maquette.core.server.commands.projects.*;
+import maquette.core.server.commands.projects.applications.CreateApplicationCommand;
+import maquette.core.server.commands.projects.applications.RemoveApplicationCommand;
+import maquette.core.server.commands.projects.applications.ListApplicationsCommand;
 import maquette.core.server.commands.sandboxes.CreateSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetStacksCommand;
@@ -118,16 +121,19 @@ import java.util.concurrent.CompletionStage;
       // Projects
       @JsonSubTypes.Type(value = AnswerModelQuestionnaireCommand.class, name = "projects models answer-questionnaire"),
       @JsonSubTypes.Type(value = ApproveModelCommand.class, name = "projects models approve"),
+      @JsonSubTypes.Type(value = CreateApplicationCommand.class, name = "projects applications create"),
       @JsonSubTypes.Type(value = CreateProjectCommand.class, name = "projects create"),
       @JsonSubTypes.Type(value = GetModelsCommand.class, name = "projects models list"),
       @JsonSubTypes.Type(value = GetModelCommand.class, name = "projects models get"),
       @JsonSubTypes.Type(value = GetProjectCommand.class, name = "projects get"),
       @JsonSubTypes.Type(value = GetProjectEnvironmentCommand.class, name = "projects environment"),
+      @JsonSubTypes.Type(value = ListApplicationsCommand.class, name = "projects applications list"),
       @JsonSubTypes.Type(value = ListProjectsCommand.class, name = "projects list"),
       @JsonSubTypes.Type(value = RemoveProjectCommand.class, name = "projects remove"),
       @JsonSubTypes.Type(value = GrantModelRoleCommand.class, name = "projects models grant"),
       @JsonSubTypes.Type(value = GrantProjectAccessCommand.class, name = "projects grant"),
       @JsonSubTypes.Type(value = PromoteModelCommand.class, name = "projects models promote"),
+      @JsonSubTypes.Type(value = RemoveApplicationCommand.class, name = "projects applications remove"),
       @JsonSubTypes.Type(value = RevokeModelRoleCommand.class, name = "projects models revoke"),
       @JsonSubTypes.Type(value = RevokeProjectAccessCommand.class, name = "projects revoke"),
       @JsonSubTypes.Type(value = UpdateModelCommand.class, name = "projects models update"),

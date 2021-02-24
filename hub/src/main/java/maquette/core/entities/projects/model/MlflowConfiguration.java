@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.values.UID;
-import org.mlflow.tracking.MlflowClient;
 
 @Value
 @AllArgsConstructor(staticName = "apply")

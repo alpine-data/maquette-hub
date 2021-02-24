@@ -15,8 +15,6 @@ import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value

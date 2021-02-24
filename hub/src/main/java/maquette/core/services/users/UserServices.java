@@ -2,7 +2,6 @@ package maquette.core.services.users;
 
 import akka.Done;
 import maquette.core.entities.projects.model.ProjectProperties;
-import maquette.core.entities.users.model.UserDetails;
 import maquette.core.entities.users.model.UserNotification;
 import maquette.core.entities.users.model.UserProfile;
 import maquette.core.entities.users.model.UserSettings;

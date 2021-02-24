@@ -7,7 +7,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.mlflow.tracking.MlflowClient;
 
 import java.util.concurrent.TimeUnit;
 

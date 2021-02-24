@@ -3,8 +3,6 @@ package maquette.core.server.views;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.entities.data.datasets.model.Dataset;
-import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
-import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.users.model.UserProfile;
 import maquette.core.server.CommandResult;
 import maquette.core.values.data.DataAssetPermissions;

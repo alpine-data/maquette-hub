@@ -4,14 +4,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.results.DataResult;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 

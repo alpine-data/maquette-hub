@@ -4,6 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.entities.projects.model.apps.Application;
 import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
 import maquette.core.entities.projects.model.model.ModelProperties;
@@ -129,6 +130,24 @@ public class ProjectServicesSecured implements ProjectServices {
    public CompletionStage<Done> revokeModelRole(User user, String name, String model, UserAuthorization authorization) {
       // TODO mw: Check auth
       return delegate.revokeModelRole(user, name, model, authorization);
+   }
+
+   @Override
+   public CompletionStage<Done> createApplication(User user, String project, String name, String description, String gitRepository) {
+      // TODO mw: Check auth
+      return delegate.createApplication(user, project, name, description, gitRepository);
+   }
+
+   @Override
+   public CompletionStage<List<Application>> getApplications(User user, String project) {
+      // TODO mw: Check auth
+      return delegate.getApplications(user, project);
+   }
+
+   @Override
+   public CompletionStage<Done> removeApplication(User user, String project, String name) {
+      // TODO mw: Check auth
+      return delegate.removeApplication(user, project, name);
    }
 
    @Override

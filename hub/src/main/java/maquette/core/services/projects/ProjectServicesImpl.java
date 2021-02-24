@@ -19,11 +19,9 @@ import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
-import maquette.core.entities.projects.ModelEntities;
-import maquette.core.entities.projects.ModelEntity;
-import maquette.core.entities.projects.ProjectEntities;
-import maquette.core.entities.projects.ProjectEntity;
+import maquette.core.entities.projects.*;
 import maquette.core.entities.projects.model.*;
+import maquette.core.entities.projects.model.apps.Application;
 import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
@@ -307,6 +305,32 @@ public final class ProjectServicesImpl implements ProjectServices {
          .thenCompose(ProjectEntity::getModels)
          .thenApply(models -> models.getModel(model))
          .thenCompose(m -> m.removeMember(user, authorization));
+   }
+
+   @Override
+   public CompletionStage<Done> createApplication(User user, String project, String name, String description, String gitRepository) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getApplications)
+         .thenCompose(apps -> apps.createApplication(user, name, description, gitRepository))
+         .thenApply(i -> Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<List<Application>> getApplications(User user, String project) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getApplications)
+         .thenCompose(ApplicationEntities::listApplications);
+   }
+
+   @Override
+   public CompletionStage<Done> removeApplication(User user, String project, String name) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getApplications)
+         .thenCompose(apps -> apps.getApplicationByName(name))
+         .thenCompose(app -> app.remove(user));
    }
 
    /*

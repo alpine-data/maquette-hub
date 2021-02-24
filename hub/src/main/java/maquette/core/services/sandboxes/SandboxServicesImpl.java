@@ -14,7 +14,6 @@ import maquette.core.entities.sandboxes.model.SandboxProperties;
 import maquette.core.entities.sandboxes.model.stacks.*;
 import maquette.core.services.projects.EnvironmentType;
 import maquette.core.services.projects.ProjectCompanion;
-import maquette.core.services.projects.ProjectServices;
 import maquette.core.values.user.User;
 
 import java.util.List;

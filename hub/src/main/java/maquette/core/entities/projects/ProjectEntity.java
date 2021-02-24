@@ -7,6 +7,7 @@ import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.projects.model.MlflowConfiguration;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.ProjectMemberRole;
+import maquette.core.entities.projects.ports.ApplicationsRepository;
 import maquette.core.entities.projects.ports.ModelsRepository;
 import maquette.core.ports.ProjectsRepository;
 import maquette.core.values.ActionMetadata;
@@ -16,6 +17,7 @@ import maquette.core.values.user.User;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Getter
@@ -27,6 +29,8 @@ public final class ProjectEntity {
    private final ProjectsRepository repository;
 
    private final ModelsRepository models;
+
+   private final ApplicationsRepository applications;
 
    public MembersCompanion<ProjectMemberRole> members() {
       return MembersCompanion.apply(id, repository);
@@ -64,6 +68,11 @@ public final class ProjectEntity {
          var updated = properties.withMlflowConfiguration(config);
          return repository.insertOrUpdateProject(updated);
       });
+   }
+
+   public CompletionStage<ApplicationEntities> getApplications() {
+      return CompletableFuture
+         .completedFuture(ApplicationEntities.apply(id, applications));
    }
 
    public CompletionStage<ProjectProperties> getProperties() {

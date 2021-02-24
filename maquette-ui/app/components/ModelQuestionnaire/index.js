@@ -57,20 +57,20 @@ function ModelQuestionnaire({ model, version, view, onUpdateModel }) {
       />
 
       <Container lg>
-        {
-          _.isEmpty(answers) && <>
-            <Survey data={ prefilled } json={ questions } onComplete={ (sender) => {
-              onUpdateModel('projects models answer-questionnaire', {
-                project: view.project.name,
-                model: model.name,
-                version: version.version,
-                answers: sender.data
-              })
-            } } />
-          </> || <>
-            <Survey data={ answers } json={ questions } mode="display" />
-          </>
-        }
+      {
+        _.isEmpty(answers) && <>
+          <Survey data={ prefilled } json={ questions } onComplete={ (sender) => {
+            onUpdateModel('projects models answer-questionnaire', {
+              project: view.project.name,
+              model: model.name,
+              version: version.version,
+              answers: sender.data
+            })
+          } } />
+        </> || <>
+          <Survey data={ answers } json={ questions } mode="display" />
+        </>
+      }
         
       </Container>
   </Container>

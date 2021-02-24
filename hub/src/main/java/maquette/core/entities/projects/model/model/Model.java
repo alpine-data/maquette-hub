@@ -1,11 +1,9 @@
 package maquette.core.entities.projects.model.model;
 
-import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.entities.projects.exceptions.ModelVersionNotFoundException;
-import maquette.core.entities.projects.model.model.actions.ModelAction;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.GrantedAuthorization;
 

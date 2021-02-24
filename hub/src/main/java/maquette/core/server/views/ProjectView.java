@@ -3,6 +3,7 @@ package maquette.core.server.views;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.entities.projects.model.Project;
+import maquette.core.entities.projects.model.apps.Application;
 import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.users.model.UserProfile;
 import maquette.core.server.CommandResult;
@@ -17,6 +18,8 @@ public class ProjectView implements CommandResult {
    Project project;
 
    List<Model> models;
+
+   List<Application> applications;
 
    Map<String, UserProfile> users;
 
