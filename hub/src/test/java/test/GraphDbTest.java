@@ -1,35 +1,34 @@
 package test;
 
-import maquette.Application;
 import maquette.core.entities.dependencies.Dependencies;
-import maquette.core.entities.dependencies.model.ApplicationNode;
-import maquette.core.entities.dependencies.model.DataAssetNode;
+import maquette.core.entities.dependencies.model.*;
 import maquette.core.values.UID;
-import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;
 
 public class GraphDbTest {
 
    @Test
    public void test() {
-      /*
-      var connectionString = "jdbc:neo4j:bolt://localhost:7687";
-      var query = "CREATE (p\\\\:Person { id: '1234', foo: 'bar' })-[\\\\:LIKES]->(t\\\\:Animals)";
-      Jdbi jdbi = Jdbi.create(connectionString, "neo4j", "password");
+      var d = Dependencies.apply();
+      var datasetA = DataAssetNode.apply(DataAssetType.DATASET, UID.apply("dataset-a"));
+      var datasetB = DataAssetNode.apply(DataAssetType.SOURCE, UID.apply("dataset-b"));
 
-      System.out.println(query);
+      var project = ProjectNode.apply(UID.apply("project"));
 
-      jdbi
-         .withHandle(handle -> handle
-            .createUpdate(query)
-            .execute());
+      var applicationA = ApplicationNode.apply(project.getProject(), UID.apply("application-a"));
+      var applicationB = ApplicationNode.apply(project.getProject(), UID.apply("application-b"));
+      var applicationC = ApplicationNode.apply(project.getProject(), UID.apply("application-c"));
 
-       */
+      var modelA = ModelNode.apply(project.getProject(), "model-a");
 
-      var deps = Dependencies.apply();
-      deps.trackConsumption(
-         DataAssetNode.apply("dataset", UID.apply()),
-         ApplicationNode.apply(UID.apply(), UID.apply()));
+      d.trackProduction(datasetA, applicationA);
+      d.trackConsumption(datasetA, modelA);
+
+      d.trackConsumption(datasetA, applicationB);
+      d.trackUsage(modelA, applicationB);
+      d.trackProduction(datasetB, applicationB);
+
+      d.trackConsumption(datasetB, applicationC);
    }
 
 }

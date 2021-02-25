@@ -20,6 +20,7 @@ import maquette.core.server.commands.data.streams.*;
 import maquette.core.server.commands.data.streams.members.GrantStreamMemberCommand;
 import maquette.core.server.commands.data.streams.members.RevokeStreamMemberCommand;
 import maquette.core.server.commands.data.streams.requests.*;
+import maquette.core.server.commands.dependencies.*;
 import maquette.core.server.commands.projects.*;
 import maquette.core.server.commands.projects.applications.CreateApplicationCommand;
 import maquette.core.server.commands.projects.applications.RemoveApplicationCommand;
@@ -41,6 +42,15 @@ import java.util.concurrent.CompletionStage;
    property = "command")
 @JsonSubTypes(
    {
+      // Dependencies
+      @JsonSubTypes.Type(value = TrackConsumptionByApplicationCommand.class, name = "dependencies track consumption app"),
+      @JsonSubTypes.Type(value = TrackConsumptionByModelCommand.class, name = "dependencies track consumption model"),
+      @JsonSubTypes.Type(value = TrackConsumptionByProjectCommand.class, name = "dependencies track consumption project"),
+      @JsonSubTypes.Type(value = TrackModelUsageByApplicationCommand.class, name = "dependencies track usage app"),
+      @JsonSubTypes.Type(value = TrackProductionByApplicationCommand.class, name = "dependencies track production app"),
+      @JsonSubTypes.Type(value = TrackProductionByProjectCommand.class, name = "dependencies track production project"),
+      @JsonSubTypes.Type(value = TrackProductionByUserCommand.class, name = "dependencies track production user"),
+
       // Collections
       @JsonSubTypes.Type(value = CreateCollectionCommand.class, name = "collections create"),
       @JsonSubTypes.Type(value = CreateCollectionTagCommand.class, name = "collections tag"),

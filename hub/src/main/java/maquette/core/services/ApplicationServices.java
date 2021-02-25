@@ -13,6 +13,8 @@ import maquette.core.services.data.datasources.DataSourceServices;
 import maquette.core.services.data.datasources.DataSourceServicesFactory;
 import maquette.core.services.data.streams.StreamServices;
 import maquette.core.services.data.streams.StreamServicesFactory;
+import maquette.core.services.dependencies.DependencyServices;
+import maquette.core.services.dependencies.DependencyServicesFactory;
 import maquette.core.services.projects.ProjectServices;
 import maquette.core.services.projects.ProjectServicesFactory;
 import maquette.core.services.sandboxes.SandboxServices;
@@ -23,6 +25,8 @@ import maquette.core.services.users.UserServicesFactory;
 @Getter
 @AllArgsConstructor(staticName = "apply")
 public final class ApplicationServices {
+
+    DependencyServices dependencyServices;
 
     ConfigurationServices configurationServices;
 
@@ -60,9 +64,13 @@ public final class ApplicationServices {
         var streamServices = StreamServicesFactory.apply(runtime.getStreams(), runtime.getProjects());
         var configurationServices = ConfigurationServicesFactory.apply(runtime.getUsers());
 
+        var dependencyServices = DependencyServicesFactory.apply(
+           runtime.getDependencies(), runtime.getProjects(), runtime.getDatasets(),
+           runtime.getCollections(), runtime.getDataSources(), runtime.getStreams());
+
         return apply(
-           configurationServices, processServices, projectServices, collectionServices, datasetServices,
-           dataSourceServices, streamServices, sandboxServices, userServices);
+           dependencyServices, configurationServices, processServices, projectServices, collectionServices,
+           datasetServices, dataSourceServices, streamServices, sandboxServices, userServices);
     }
 
 }

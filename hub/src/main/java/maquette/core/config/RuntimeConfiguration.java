@@ -9,6 +9,7 @@ import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.streams.StreamEntities;
+import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
@@ -42,5 +43,7 @@ public final class RuntimeConfiguration {
     private final SandboxEntities sandboxes;
 
     private final UserEntities users;
+
+    private final Dependencies dependencies;
 
 }
