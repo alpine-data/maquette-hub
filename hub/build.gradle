@@ -45,6 +45,7 @@ dependencies {
     compile group: 'org.apache.avro', name: 'avro', version: '1.10.0'
     compile group: 'org.kohsuke', name: 'github-api', version: '1.122'
     compile group: 'org.mlflow', name: 'mlflow-client', version: '1.13.1'
+    compile group: 'org.neo4j', name: 'neo4j-jdbc-driver', version: '4.0.1'
     compile group: 'org.jdbi', name: 'jdbi3-core', version: '3.18.0'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
     compile group: 'org.webjars', name: 'swagger-ui', version: '3.24.3'

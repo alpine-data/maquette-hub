@@ -8,3 +8,15 @@ services:
       MQ_BASE_URL: http://host.docker.internal:9042/api/
       MQ_USERNAME: 'mq_service_key'
       MQ_AUTH_USERNAME: 'mq_service_key'
+
+  neo4j:
+    image: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - "neodata:/data"
+
+volumes:
+  neodata:
+  

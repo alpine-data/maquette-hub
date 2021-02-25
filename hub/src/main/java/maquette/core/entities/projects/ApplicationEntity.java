@@ -32,6 +32,14 @@ public final class ApplicationEntity {
          });
    }
 
+   public UID getId() {
+      return id;
+   }
+
+   public UID getProject() {
+      return project;
+   }
+
    public CompletionStage<Application> getProperties() {
       return applications
          .findApplicationById(project, id)

@@ -100,6 +100,14 @@ public final class ModelEntity {
             .findFirst());
    }
 
+   public String getName() {
+      return name;
+   }
+
+   public UID getProject() {
+      return project;
+   }
+
    /*
     * Manage members/ roles
     */

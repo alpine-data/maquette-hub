@@ -14,9 +14,6 @@ public class MlflowTests {
 
    @Test
    public void test() {
-      var out = MlflowPort
-         .apply("http://localhost:55020", UID.apply("34984c15"))
-         .getModels();
 
       /*
       new MlflowClient("http://localhost:55020")

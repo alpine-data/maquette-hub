@@ -1,0 +1,4 @@
+MERGE (asset:DataAsset { id: '{{ dataAsset.getId() }}', type: '{{ dataAsset.getType() }}' })
+MERGE (model:Model { project: '{{ model.getProject() }}', name: '{{ model.getName() }}' })
+MERGE (asset)-[c:CONSUMED_BY]->(model)
+SET c.tracked = datetime()
