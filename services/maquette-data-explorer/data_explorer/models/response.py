@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional,List, Dict, Union
+from typing import Optional,List
 from pydantic import BaseModel
 
 class Type(str,Enum):
@@ -20,5 +20,6 @@ class Column(BaseModel):
 
 class ResponseBody(BaseModel):
     columns: List[Column]
-    dataset: str
-    version: str
+    dataset: Optional[str]
+    version: Optional[str]
+    source: Optional[str]
