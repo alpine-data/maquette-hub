@@ -5,6 +5,7 @@ import maquette
 import shutil
 import yaml
 import chevron
+import fnmatch
 
 from git import Repo
 
@@ -138,21 +139,54 @@ def code_repositorys_clone(template, target):
     print("# Repository cloned from git")
     shutil.rmtree(os.path.join(target,".git"))
     if os.path.exists(os.path.join(target, "code_repository.yaml")):
+
+        # Get all file paths
+        fnames = []
+        for root, d_names, f_names in os.walk(target):
+            for f in f_names:
+                fnames.append(os.path.join(root, f))
+
+        # access yaml
         with open(os.path.join(target, "code_repository.yaml")) as file:
             code_repo_yaml = yaml.load(file, Loader=yaml.FullLoader)
         print("code_repository.yaml loaded")
-        if "templated-files" in code_repo_yaml:
-            print("found files attribute")
-            file_list = code_repo_yaml["templated-files"]
-            for file in file_list:
-                with open(os.path.join(target, file["path"])) as temp_file:
-                    value_dict = {}
-                    for value_item in file["values"]:
-                        value = click.prompt(value_item["question"], default=value_item["default"])
-                        value_dict[value_item["label"]] = value
-                    output = chevron.render(temp_file, value_dict)
-                with open(os.path.join(target, file["path"]), "w") as out_file:
-                    out_file.write(output)
+
+
+        if "templates" in code_repo_yaml:
+            print("found template attribute")
+            templates = code_repo_yaml["templates"]
+            if "filter" in templates:
+                filter_list = templates["filter"]
+            else:
+                print("Nothing to filter, you get the full mustache treatment ( °┏＿┓°) ")
+
+            # reduce fname by filter list
+            for filter in filter_list:
+                fnames = [x for x in fnames if x not in fnmatch.filter(fnames, filter)]
+
+            print("---------- List of files to be mustached ----------")
+            print(fnames)
+            print("-----------（°〜～°）-----------")
+
+            if "values" in templates:
+                print("")
+                value_dict = {}
+                for value_item in templates["values"]:
+                    # go trough the values list and ask the questions
+                    value = click.prompt(value_item["question"], default=value_item["default"])
+                    value_dict[value_item["label"]] = value
+
+                    # go through all files per value, very inefficient, thank you for nothing chevron
+                    for file in fnames:
+                        with open(file) as temp_file:
+                            output = chevron.render(temp_file, value_dict)
+                        with open(file, "w") as out_file:
+                            out_file.write(output)
+                        print(file + "has been mustached (•┏∞┓•) ")
+            else:
+                print("nothing to mustache (￣┏Д┓￣ )")
+    else:
+        print("No code_repository.yaml found in " + template)
 
 
 if __name__ == '__main__':
