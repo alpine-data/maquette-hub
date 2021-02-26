@@ -1,0 +1,2 @@
+MATCH (root:DataAsset {{ dataAsset }}) -[r*]- (d)
+RETURN root, d, r

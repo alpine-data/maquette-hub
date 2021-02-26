@@ -6,7 +6,7 @@ import maquette.core.values.UID;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class DataAssetNode {
+public class DataAssetNode implements DependencyNode {
 
    DataAssetType type;
 

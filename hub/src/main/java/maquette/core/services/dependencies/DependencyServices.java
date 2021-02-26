@@ -2,11 +2,16 @@ package maquette.core.services.dependencies;
 
 import akka.Done;
 import maquette.core.entities.dependencies.model.DataAssetType;
+import maquette.core.entities.dependencies.neo4j.Graph;
+import maquette.core.services.dependencies.model.DependencyPropertiesNode;
 import maquette.core.values.user.User;
 
 import java.util.concurrent.CompletionStage;
 
 public interface DependencyServices {
+
+   CompletionStage<Graph<DependencyPropertiesNode>> getDependencyGraph(
+      User executor, DataAssetType type, String assetName);
 
    CompletionStage<Done> trackConsumptionByApplication(
       User executor, DataAssetType type, String assetName, String projectName, String applicationName);

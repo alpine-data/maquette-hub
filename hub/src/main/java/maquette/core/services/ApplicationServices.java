@@ -66,7 +66,7 @@ public final class ApplicationServices {
 
         var dependencyServices = DependencyServicesFactory.apply(
            runtime.getDependencies(), runtime.getProjects(), runtime.getDatasets(),
-           runtime.getCollections(), runtime.getDataSources(), runtime.getStreams());
+           runtime.getCollections(), runtime.getDataSources(), runtime.getStreams(), runtime.getUsers());
 
         return apply(
            dependencyServices, configurationServices, processServices, projectServices, collectionServices,

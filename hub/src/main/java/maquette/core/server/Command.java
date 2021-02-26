@@ -43,6 +43,7 @@ import java.util.concurrent.CompletionStage;
 @JsonSubTypes(
    {
       // Dependencies
+      @JsonSubTypes.Type(value = GetDataAssetDependencyGraph.class, name = "dependencies get data-asset"),
       @JsonSubTypes.Type(value = TrackConsumptionByApplicationCommand.class, name = "dependencies track consumption app"),
       @JsonSubTypes.Type(value = TrackConsumptionByModelCommand.class, name = "dependencies track consumption model"),
       @JsonSubTypes.Type(value = TrackConsumptionByProjectCommand.class, name = "dependencies track consumption project"),

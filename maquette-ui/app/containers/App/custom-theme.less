@@ -738,3 +738,58 @@ input.mq--editable-paragraph--input {
         }
     }
 }
+
+//== Graphs
+
+.mq--graph--node {
+    padding: 10px;
+    border: 2px solid @B300;
+    background-color: #fff;
+
+    &.mq--graph--node--data-asset {
+        border-color: @primary-medium-color;
+    }
+
+    &.mq--graph--node-primary.mq--graph--node--data-asset {
+        background-color: @primary-medium-color;
+    }
+
+    &.mq--graph--node--model {
+        border-color: #73007d;
+    }
+
+    &.mq--graph--node-primary.mq--graph--node--model {
+        background-color: #73007d;
+    }
+
+    &.mq--graph--node--application {
+        border-color: #156100;
+    }
+
+    &.mq--graph--node-primary.mq--graph--node--application {
+        background-color: #156100;
+    }
+
+    &.mq--graph--node--project {
+        border-color: #820124;
+    }
+
+    &.mq--graph--node-primary.mq--graph--node--project {
+        background-color: #820124;
+    }
+
+    &.mq--graph--node--user {
+        border-color: #014573;
+    }
+
+    &.mq--graph--node-primary.mq--graph--node--user {
+        background-color: #014573;
+    }
+
+    &.mq--graph--node-primary, 
+    &.mq--graph--node-primary .mq--metrics--text--label,
+    &.mq--graph--node-primary .mq--metrics--text .mq--metrics--text--value a {
+        color: #fff;
+        font-weight: bold;
+    }
+}

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.dependencies.model.DataAssetType;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.views.DatasetView;
@@ -47,9 +48,13 @@ public class DatasetViewCommand implements Command, DataAssetViewCommandMixin {
       var stewardsCS = datasetCS.thenCompose(dataset ->
          getUserProfiles(user, services, dataset, DataAssetMemberRole.STEWARD));
 
-      return Operators.compose(datasetCS, logsCS, ownersCS, stewardsCS, (dataset, logs, owners, stewards) -> {
+      var graphCS = services
+         .getDependencyServices()
+         .getDependencyGraph(user, DataAssetType.DATASET, name);
+
+      return Operators.compose(datasetCS, logsCS, ownersCS, stewardsCS, graphCS, (dataset, logs, owners, stewards, graph) -> {
          var permissions = dataset.getDataAssetPermissions(user);
-         return DatasetView.apply(dataset, logs, permissions, owners, stewards);
+         return DatasetView.apply(dataset, logs, permissions, owners, stewards, graph);
       });
    }
 

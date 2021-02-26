@@ -6,6 +6,7 @@ import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.entities.users.UserEntities;
 
 public final class DependencyServicesFactory {
 
@@ -19,7 +20,8 @@ public final class DependencyServicesFactory {
       DatasetEntities datasets,
       CollectionEntities collections,
       DataSourceEntities dataSources,
-      StreamEntities streams) {
+      StreamEntities streams,
+      UserEntities users) {
 
       return DependencyServicesImpl.apply(
          dependencies,
@@ -27,7 +29,8 @@ public final class DependencyServicesFactory {
          datasets,
          collections,
          dataSources,
-         streams);
+         streams,
+         users);
    }
 
 }

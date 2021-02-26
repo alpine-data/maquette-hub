@@ -5,8 +5,7 @@
  */
 
 import _ from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { FlexboxGrid, Tooltip, Whisper } from 'rsuite';
@@ -16,6 +15,7 @@ import DataAssetProjects from '../DataAssetProjects';
 import DataAssetProperties from '../DataAssetProperties';
 import UserCard from '../UserCard';
 import CodeExamples from '../CodeExamples';
+import DependencyGraph from '../DependencyGraph';
 
 const Review = styled.div`
   display: inline-block;
@@ -23,7 +23,49 @@ const Review = styled.div`
   background-color: #ff0000;
 `;
 
+function transformDependencies(view, container) {
+  const assetId = view[container].id;
+
+  var nodes = _.map(_.get(view, 'dependencies.nodes') || [], node => {
+    const type = _.get(node, 'properties.nodeType');
+    const id = _.get(node, 'properties.id');
+    const primary = _.isEqual(type, 'data-asset') && _.isEqual(assetId, id)
+
+    let typeLabel = type;
+    if (_.isEqual(type, 'data-asset')) {
+      typeLabel = view[container].type;
+    }
+
+    return {
+      id: `node-${node.id}`,
+      type,
+      data: {
+        type,
+        label: typeLabel,
+        title: _.get(node, 'properties.properties.title') || _.get(node, 'properties.properties.name'),
+        primary,
+        link: '/foo/bar/todo'
+      }
+    }
+  });
+
+  var relationships = _.map(_.get(view, 'dependencies.relationships') || [], rel => {
+    return {
+      id: `rel-${rel.id}`,
+      source: `node-${rel.startNode}`,
+      target: `node-${rel.endNode}`,
+      type: 'smoothstep',
+      animated: true,
+      style: { stroke: '#333', 'stroke-width': 2 }
+    }
+  })
+
+  return _.concat(nodes, relationships);
+}
+
 function DataAssetOverview({ view, container, codeExamples }) {
+  var dependencies = useMemo(() => transformDependencies(view, container), [view.dependencies]);
+
   return <Container>
     <h5>Properties</h5>
     <DataAssetProperties resource={ view[container] } />
@@ -45,18 +87,8 @@ function DataAssetOverview({ view, container, codeExamples }) {
 
     <>
       <hr />
-      <h5>Related data assets <span className="mq--sub">(alpha)</span></h5>
-      {
-        _.includes(['swiss-agency-clients', 'db-bb', 'next-best-action-commercial', 'dow-jones-news', 'commercial-client-news'], view[container].name) && <>
-          <img 
-            width="100%"
-            src="https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBiMmJbRGF0YXNldDxiciAvPkJpc25vZGUgUmlzayBTY29yZSAtIENvbXBhbmllc11cbiAgICBjbGllbnRzW0RhdGEgU291cmNlPGJyIC8-U3dpc3MgQWdlbmN5IENsaWVudHNdXG4gICAgbmV3c1tTdHJlYW08YnIgLz5Eb3cgSm9uZXMgTmV3c11cbiAgICBldmVudHNbU3RyZWFtPGJyIC8-Q29tbWVyY2lhbCBDbGllbnQgTmV3c11cbiAgICBzdWdnZXN0ZWRbXCJTdHJlYW08YnIgLz5OZXh0IEJlc3QgQWN0aW9ucyAoQ29tbWVyY2lhbClcIl1cblxuICAgIGNsaWVudHMgLS0-IGV2ZW50c1xuICAgIGIyYiAtLT4gZXZlbnRzXG4gICAgbmV3cyAtLT4gZXZlbnRzXG4gICAgZXZlbnRzIC0tPiBzdWdnZXN0ZWRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJuZXV0cmFsIn0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9" 
-            alt="Stream dependencies" />
-          <p className="mq--sub">Last Analysis: 26.01.2020 10:31</p>
-        </> || <>
-          <p>No dependencies to other assets found.</p>
-        </>
-      }
+      <h5>Related data assets</h5>
+      <DependencyGraph graph={ dependencies } />
     </>
 
     <>

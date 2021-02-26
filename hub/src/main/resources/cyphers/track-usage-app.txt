@@ -1,4 +1,4 @@
-MERGE (model:Model { project: '{{ model.getProject() }}', name: '{{ model.getName() }}' })
-MERGE (app:Application { project: '{{ application.getProject() }}', id: '{{ application.getId() }}' })
+MERGE (model:Model {{ model }})
+MERGE (app:Application {{ application }})
 MERGE (model)-[c:USED_BY]->(app)
 SET c.tracked = datetime()

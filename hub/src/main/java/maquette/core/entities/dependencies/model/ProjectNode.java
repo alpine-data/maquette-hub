@@ -6,7 +6,7 @@ import maquette.core.values.UID;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class ProjectNode {
+public class ProjectNode implements DependencyNode {
 
    UID project;
 

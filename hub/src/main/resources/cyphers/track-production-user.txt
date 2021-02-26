@@ -1,4 +1,4 @@
-MERGE (asset:DataAsset { id: '{{ dataAsset.getId() }}', type: '{{ dataAsset.getType() }}' })
-MERGE (user:User { id: '{{ user.getId() }}' })
+MERGE (asset:DataAsset {{ dataAsset }})
+MERGE (user:User {{ user }})
 MERGE (user)-[c:PRODUCES]->(asset)
 SET c.tracked = datetime()
