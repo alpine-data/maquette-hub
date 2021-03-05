@@ -135,7 +135,7 @@ def code_repositorys_list():
 @click.argument('template')
 @click.argument('target')
 def code_repositorys_clone(template, target):
-    Repo.clone_from("https://github.com/AiBlues/mlflow--sample-project.git", target)
+    Repo.clone_from(template, target)
     print("# Repository cloned from git")
     shutil.rmtree(os.path.join(target,".git"))
     if os.path.exists(os.path.join(target, "code_repository.yaml")):
