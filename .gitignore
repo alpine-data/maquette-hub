@@ -81,8 +81,11 @@ gradle-app.setting
 .idea
 
 ### Application Runtime Files ###
-data/
-data.demo/
+/data
+/data.demo
+
+/hub/data
+/hub/data.demo
 
 ### Python ###
 .ipynb_checkpoints
