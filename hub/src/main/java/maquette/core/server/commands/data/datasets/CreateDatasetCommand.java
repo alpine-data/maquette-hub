@@ -15,6 +15,7 @@ import maquette.core.values.data.DataZone;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -41,11 +42,22 @@ public class CreateDatasetCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
+      var ownerAuth = user.toAuthorization();
+      var stewardAuth = user.toAuthorization();
+
+      if (!Objects.isNull(owner)) {
+         ownerAuth = UserAuthorization.apply(owner);
+      }
+
+      if (!Objects.isNull(steward)) {
+         stewardAuth = UserAuthorization.apply(steward);
+      }
+
       return services
          .getDatasetServices()
          .create(
             user, title, name, summary, visibility, classification, personalInformation, zone,
-            UserAuthorization.apply(owner), UserAuthorization.apply(steward))
+            ownerAuth, stewardAuth)
          .thenApply(pid -> MessageResult.apply("Successfully created dataset `%s`", name));
    }
 
