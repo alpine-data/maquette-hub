@@ -354,7 +354,9 @@ public final class ProjectServicesImpl implements ProjectServices {
    private void initialize() {
       projects
          .getProjects()
-         .thenApply(projects -> projects.stream().map(this::linkToolchainProxy))
+         .thenApply(projects -> projects
+            .stream()
+            .map(this::linkToolchainProxy))
          .thenCompose(Operators::allOf)
          .thenRun(() -> LOG.info("Initialized projects"));
    }
@@ -388,9 +390,13 @@ public final class ProjectServicesImpl implements ProjectServices {
                      .getProjectById(projectProperties.getId())
                      .thenCompose(p -> p.setMlflowConfiguration(mlflowConfig.withTrackingUrl(externalPort))));
             } else {
-               LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", pid);
+               LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", projectProperties.getName());
                return CompletableFuture.completedFuture(Done.getInstance());
             }
+         })
+         .exceptionally(e -> {
+            LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", projectProperties.getName());
+            return Done.getInstance();
          });
    }
 
