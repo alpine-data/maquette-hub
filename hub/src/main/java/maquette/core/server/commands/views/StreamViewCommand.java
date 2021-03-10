@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.dependencies.model.DataAssetType;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.views.StreamView;
@@ -41,9 +42,13 @@ public class StreamViewCommand implements Command, DataAssetViewCommandMixin {
       var stewardsCS = streamCS.thenCompose(stream ->
          getUserProfiles(user, services, stream, DataAssetMemberRole.STEWARD));
 
-      return Operators.compose(streamCS, logsCS, ownersCS, stewardsCS, (stream, logs, owners, stewards) -> {
+      var graphCS = services
+         .getDependencyServices()
+         .getDependencyGraph(user, DataAssetType.STREAM, name);
+
+      return Operators.compose(streamCS, logsCS, ownersCS, stewardsCS, graphCS, (stream, logs, owners, stewards, graph) -> {
          var permissions = stream.getDataAssetPermissions(user);
-         return StreamView.apply(stream, logs, permissions, owners, stewards);
+         return StreamView.apply(stream, logs, permissions, owners, stewards, graph);
       });
    }
 

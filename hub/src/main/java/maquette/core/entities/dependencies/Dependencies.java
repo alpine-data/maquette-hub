@@ -8,16 +8,14 @@ import maquette.common.ObjectMapperFactory;
 import maquette.common.Operators;
 import maquette.common.Templates;
 import maquette.core.entities.dependencies.model.*;
-import maquette.core.entities.dependencies.neo4j.Graph;
-import maquette.core.entities.dependencies.neo4j.QueryRequest;
-import maquette.core.entities.dependencies.neo4j.QueryResponse;
-import maquette.core.entities.dependencies.neo4j.Result;
+import maquette.core.entities.dependencies.neo4j.*;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -53,7 +51,13 @@ public final class Dependencies {
          "cyphers/get-dependencies-data.txt",
          Map.of("dataAsset", Operators.suppressExceptions(() -> om.writeValueAsString(dataAsset))));
 
-      return CompletableFuture.completedFuture(query(stmt));
+      var graph = query(stmt);
+
+      if (graph.getNodes().isEmpty()) {
+         graph = graph.withNodes(List.of(Node.apply("0", List.of(), dataAsset)));
+      }
+
+      return CompletableFuture.completedFuture(graph);
    }
 
    public CompletionStage<Done> trackConsumption(DataAssetNode dataAsset, ApplicationNode application) {
