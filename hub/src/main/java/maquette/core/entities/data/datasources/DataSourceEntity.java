@@ -4,9 +4,8 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
-import maquette.core.entities.data.DataAssetEntity;
-import maquette.core.entities.data.datasets.AccessRequests;
-import maquette.core.values.data.records.Records;
+import maquette.core.entities.data.assets.AccessRequests;
+import maquette.core.entities.data.assets.DataAssetEntity;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.entities.data.datasources.model.DataSourceAccessType;
 import maquette.core.entities.data.datasources.model.DataSourceDatabaseProperties;
@@ -18,10 +17,8 @@ import maquette.core.ports.JdbcPort;
 import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.DataClassification;
-import maquette.core.values.data.DataVisibility;
-import maquette.core.values.data.PersonalInformation;
+import maquette.core.values.data.*;
+import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +40,40 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
 
    public CompletionStage<Records> download(User executor) {
       return withProperties(props -> jdbcPort.read(props.getDatabase()));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor) {
+      return withProperties(properties -> {
+         var updated = properties;
+
+         if (properties.getState().equals(DataAssetState.REVIEW_REQUIRED)) {
+            updated = updated
+               .withState(DataAssetState.APPROVED)
+               .withUpdated(executor);
+         }
+
+         return repository.insertOrUpdateAsset(updated);
+      });
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, boolean deprecate) {
+      return withProperties(properties -> {
+         var updated = properties;
+
+         if (deprecate && properties.getState().equals(DataAssetState.APPROVED)) {
+            updated = updated
+               .withState(DataAssetState.DEPRECATED)
+               .withUpdated(executor);
+         } else if (!deprecate && properties.getState().equals(DataAssetState.DEPRECATED)) {
+            updated = updated
+               .withState(DataAssetState.APPROVED)
+               .withUpdated(executor);
+         }
+
+         return repository.insertOrUpdateAsset(updated);
+      });
    }
 
    @Override
@@ -68,11 +99,40 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
 
    public CompletionStage<Done> update(
       User executor, String name, String title, String summary,
-      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
-
-      // TODO mw: value validation ...
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
       return withProperties(properties -> {
+         var state = properties.getState();
+         boolean reviewRequired = false;
+
+         if (!properties.getPersonalInformation().equals(personalInformation)) {
+            switch (properties.getPersonalInformation()) {
+               case PERSONAL_INFORMATION:
+               case SENSITIVE_PERSONAL_INFORMATION:
+                  reviewRequired = true;
+                  break;
+               default:
+                  // ok
+            }
+
+            switch (personalInformation) {
+               case PERSONAL_INFORMATION:
+               case SENSITIVE_PERSONAL_INFORMATION:
+                  reviewRequired = true;
+                  break;
+               default:
+                  // ok
+            }
+         }
+
+         if (!properties.getZone().equals(zone) && zone == DataZone.GOLD) {
+            reviewRequired = true;
+         }
+
+         if (state.equals(DataAssetState.APPROVED) && reviewRequired) {
+            state = DataAssetState.REVIEW_REQUIRED;
+         }
+
          var updated = properties
             .withName(name)
             .withTitle(title)
@@ -80,7 +140,9 @@ public final class DataSourceEntity implements DataAssetEntity<DataSourcePropert
             .withVisibility(visibility)
             .withClassification(classification)
             .withPersonalInformation(personalInformation)
-            .withUpdated(ActionMetadata.apply(executor));
+            .withZone(zone)
+            .withState(state)
+            .withUpdated(executor);
 
          return repository.insertOrUpdateAsset(updated);
       });

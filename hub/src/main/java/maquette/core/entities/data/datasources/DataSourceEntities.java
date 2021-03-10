@@ -2,7 +2,7 @@ package maquette.core.entities.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.assets.DataAssetEntities;
 import maquette.core.entities.data.datasources.exceptions.DataSourceAlreadyExistsException;
 import maquette.core.entities.data.datasources.exceptions.DataSourceFetchException;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;

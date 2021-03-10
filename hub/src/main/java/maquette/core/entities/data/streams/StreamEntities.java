@@ -2,7 +2,7 @@ package maquette.core.entities.data.streams;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.assets.DataAssetEntities;
 import maquette.core.entities.data.streams.exceptions.StreamAlreadyExistsException;
 import maquette.core.entities.data.streams.exceptions.StreamNotFoundException;
 import maquette.core.entities.data.streams.model.Retention;

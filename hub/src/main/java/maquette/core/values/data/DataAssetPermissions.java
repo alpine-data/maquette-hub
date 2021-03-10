@@ -1,5 +1,6 @@
 package maquette.core.values.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -7,38 +8,40 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DataAssetPermissions {
 
-   public static DataAssetPermissions apply(
-      boolean isOwner, boolean isSteward, boolean isConsumer, boolean isProducer, boolean isMember, boolean isSubscriber) {
+   boolean owner;
+   boolean steward;
+   boolean consumer;
+   boolean producer;
+   boolean member;
+   boolean subscriber;
 
-      var canProduce = isOwner || isSteward || isProducer || isMember;
-      var canConsume = isOwner || isSteward || isConsumer || isMember || isSubscriber;
-      var canChangeSettings = isOwner || isSteward;
-      var canReviewLogs = isOwner || isSteward;
-
-      return apply(canProduce, canConsume, canChangeSettings, canReviewLogs);
-   }
-
-   boolean canProduce;
-
-   boolean canConsume;
-
-   boolean canChangeSettings;
-
-   boolean canReviewLogs;
-
+   @JsonProperty("canChangeSettings")
    public boolean canChangeSettings() {
-      return canChangeSettings;
+      return owner || steward;
    }
 
+   @JsonProperty("canManageAccessRequests")
+   public boolean canManageAccessRequests() {
+      return owner || steward;
+   }
+
+   @JsonProperty("canConsumer")
    public boolean canConsume() {
-      return canConsume;
+      return owner || steward || consumer || member || subscriber;
    }
 
+   @JsonProperty("canManageState")
+   public boolean canManageState() {
+      return owner;
+   }
+
+   @JsonProperty("canProduce")
    public boolean canProduce() {
-      return canProduce;
+      return owner || producer || steward || member;
    }
 
+   @JsonProperty("canReviewLogs")
    public boolean canReviewLogs() {
-      return canReviewLogs;
+      return owner || steward;
    }
 }

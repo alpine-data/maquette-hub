@@ -4,13 +4,11 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
-import maquette.core.entities.data.DataAssetEntity;
+import maquette.core.entities.data.assets.AccessRequests;
+import maquette.core.entities.data.assets.DataAssetEntity;
 import maquette.core.entities.data.collections.model.CollectionProperties;
-import maquette.core.entities.data.datasets.AccessRequests;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.ports.CollectionsRepository;
-import maquette.core.ports.ObjectStore;
-import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.*;
 import maquette.core.values.user.User;
@@ -25,6 +23,40 @@ public final class CollectionEntity implements DataAssetEntity<CollectionPropert
    private final UID id;
 
    private final CollectionsRepository repository;
+
+   @Override
+   public CompletionStage<Done> approve(User executor) {
+      return withProperties(properties -> {
+         var updated = properties;
+
+         if (properties.getState().equals(DataAssetState.REVIEW_REQUIRED)) {
+            updated = updated
+               .withState(DataAssetState.APPROVED)
+               .withUpdated(executor);
+         }
+
+         return repository.insertOrUpdateAsset(updated);
+      });
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, boolean deprecate) {
+      return withProperties(properties -> {
+         var updated = properties;
+
+         if (deprecate && properties.getState().equals(DataAssetState.APPROVED)) {
+            updated = updated
+               .withState(DataAssetState.DEPRECATED)
+               .withUpdated(executor);
+         } else if (!deprecate && properties.getState().equals(DataAssetState.DEPRECATED)) {
+            updated = updated
+               .withState(DataAssetState.APPROVED)
+               .withUpdated(executor);
+         }
+
+         return repository.insertOrUpdateAsset(updated);
+      });
+   }
 
    @Override
    public AccessLogsCompanion getAccessLogs() {
@@ -59,9 +91,38 @@ public final class CollectionEntity implements DataAssetEntity<CollectionPropert
       User executor, String name, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
-      // TODO mw: value validation ...
-
       return withProperties(properties -> {
+         var state = properties.getState();
+         boolean reviewRequired = false;
+
+         if (!properties.getPersonalInformation().equals(personalInformation)) {
+            switch (properties.getPersonalInformation()) {
+               case PERSONAL_INFORMATION:
+               case SENSITIVE_PERSONAL_INFORMATION:
+                  reviewRequired = true;
+                  break;
+               default:
+                  // ok
+            }
+
+            switch (personalInformation) {
+               case PERSONAL_INFORMATION:
+               case SENSITIVE_PERSONAL_INFORMATION:
+                  reviewRequired = true;
+                  break;
+               default:
+                  // ok
+            }
+         }
+
+         if (!properties.getZone().equals(zone) && zone == DataZone.GOLD) {
+            reviewRequired = true;
+         }
+
+         if (state.equals(DataAssetState.APPROVED) && reviewRequired) {
+            state = DataAssetState.REVIEW_REQUIRED;
+         }
+
          var updated = properties
             .withName(name)
             .withTitle(title)
@@ -69,8 +130,9 @@ public final class CollectionEntity implements DataAssetEntity<CollectionPropert
             .withVisibility(visibility)
             .withClassification(classification)
             .withPersonalInformation(personalInformation)
-            .withUpdated(ActionMetadata.apply(executor))
-            .withZone(zone);
+            .withZone(zone)
+            .withState(state)
+            .withUpdated(executor);
 
          return repository.insertOrUpdateAsset(updated);
       });

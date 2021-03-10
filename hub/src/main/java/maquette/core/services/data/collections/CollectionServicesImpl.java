@@ -6,6 +6,7 @@ import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.collections.CollectionEntity;
 import maquette.core.entities.data.collections.model.Collection;
 import maquette.core.entities.data.collections.model.CollectionProperties;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.services.data.DataAssetServices;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
@@ -62,6 +63,21 @@ public final class CollectionServicesImpl implements CollectionServices {
       return entities
          .getByName(name)
          .thenCompose(as -> as.update(executor, name, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String collection) {
+      return assets.approve(executor, collection);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String collection, boolean deprecate) {
+      return assets.deprecate(executor, collection, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String collection) {
+      return assets.getOpenTasks(executor, collection);
    }
 
    @Override

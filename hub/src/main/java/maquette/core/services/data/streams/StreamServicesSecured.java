@@ -2,6 +2,7 @@ package maquette.core.services.data.streams;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.entities.data.streams.model.Stream;
@@ -67,6 +68,21 @@ public final class StreamServicesSecured implements StreamServices {
          .withAuthorization(
             () -> assets.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String asset) {
+      return delegate.approve(executor, asset);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate) {
+      return delegate.deprecate(executor, asset, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
+      return delegate.getOpenTasks(executor, asset);
    }
 
    @Override

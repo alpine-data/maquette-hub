@@ -4,8 +4,11 @@ import akka.Done;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.DataAssetEntities;
-import maquette.core.entities.data.DataAssetEntity;
+import maquette.core.entities.data.assets.DataAssetEntities;
+import maquette.core.entities.data.assets.DataAssetEntity;
+import maquette.core.entities.data.datasets.model.tasks.ReviewAccessRequest;
+import maquette.core.entities.data.datasets.model.tasks.ReviewDataAsset;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.values.UID;
@@ -15,6 +18,7 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
+import maquette.core.values.data.DataAssetState;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 import maquette.core.values.user.User;
@@ -27,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E extends DataAssetEntity<P>, EN extends DataAssetEntities<P, E>> implements DataAssetServices<P, E> {
@@ -139,6 +144,54 @@ public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E ext
             } else {
                return CompletableFuture.completedFuture(Done.getInstance());
             }
+         });
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String asset) {
+      return assets
+         .getByName(asset)
+         .thenCompose(e -> e.approve(executor));
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate) {
+      return assets
+         .getByName(asset)
+         .thenCompose(ds -> ds.deprecate(executor, deprecate));
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
+      return assets
+         .getByName(asset)
+         .thenCompose(entity -> {
+            var propertiesCS = entity
+               .getProperties();
+
+            var openAccessRequestsCS = entity
+               .getAccessRequests()
+               .getOpenDataAccessRequests();
+
+            var reviewAccessRequestsCS = Operators
+               .compose(propertiesCS, openAccessRequestsCS, (properties, openAccessRequests) -> openAccessRequests
+                  .stream()
+                  .map(request -> companion
+                     .enrichDataAccessRequest(properties, request)
+                     .thenApply(r -> (Task) ReviewAccessRequest.apply(r.getAsset().getTitle(), r.getProject().getTitle(), r.getId()))))
+               .thenCompose(Operators::allOf);
+
+            var reviewAssetCS = propertiesCS.thenApply(properties -> {
+               if (properties.getState().equals(DataAssetState.REVIEW_REQUIRED)) {
+                  return List.of((Task) ReviewDataAsset.apply(properties));
+               } else {
+                  return List.<Task>of();
+               }
+            });
+
+            return Operators.compose(reviewAccessRequestsCS, reviewAssetCS, (reviewAccessRequests, reviewAsset) -> Stream
+               .concat(reviewAccessRequests.stream(), reviewAsset.stream())
+               .collect(Collectors.toList()));
          });
    }
 

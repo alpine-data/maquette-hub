@@ -42,9 +42,10 @@ public class CreateDatasetCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      var ownerAuth = user.toAuthorization();
-      var stewardAuth = user.toAuthorization();
+      UserAuthorization ownerAuth = null;
+      UserAuthorization stewardAuth = null;
 
+      // TODO move logic to service layer.
       if (!Objects.isNull(owner)) {
          ownerAuth = UserAuthorization.apply(owner);
       }

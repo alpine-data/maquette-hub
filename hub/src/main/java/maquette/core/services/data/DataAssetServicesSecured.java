@@ -4,8 +4,9 @@ import akka.Done;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.DataAssetEntities;
-import maquette.core.entities.data.DataAssetEntity;
+import maquette.core.entities.data.assets.DataAssetEntities;
+import maquette.core.entities.data.assets.DataAssetEntity;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -33,10 +34,12 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
 
    DataAssetCompanion<P, EN> companion;
 
-   public static <P extends DataAssetProperties<P>, E extends DataAssetEntity<P>, EN extends DataAssetEntities<P, E>> DataAssetServicesSecured<P, E, EN> apply(
-      DataAssetServices<P, E> delegate, DataAssetCompanion<P, EN> companion) {
+   EN assets;
 
-      return new DataAssetServicesSecured<>(delegate, companion);
+   public static <P extends DataAssetProperties<P>, E extends DataAssetEntity<P>, EN extends DataAssetEntities<P, E>> DataAssetServicesSecured<P, E, EN> apply(
+      DataAssetServices<P, E> delegate, DataAssetCompanion<P, EN> companion, EN assets) {
+
+      return new DataAssetServicesSecured<>(delegate, companion, assets);
    }
 
    @Override
@@ -146,11 +149,39 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    }
 
    @Override
+   public CompletionStage<Done> approve(User executor, String asset) {
+      return companion
+         .withAuthorization(
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageState))
+         .thenCompose(ok -> delegate.approve(executor, asset));
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate) {
+      return companion
+         .withAuthorization(
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageState))
+         .thenCompose(ok -> delegate.deprecate(executor, asset, deprecate));
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
+      return delegate
+         .getOpenTasks(executor, asset)
+         .thenApply(result -> result
+            .stream()
+            .map(task -> companion.filterPermission(executor, asset, task::canExecuteTask, task)))
+         .thenCompose(Operators::allOf)
+         .thenApply(Operators::filterOptional);
+   }
+
+   @Override
    public CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String asset, UID request) {
       return companion
          .withAuthorization(
             executor::isSystemUserCS,
-            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageAccessRequests),
+            () -> companion.isRequester(executor, asset, request))
          .thenCompose(ok -> delegate.getDataAccessRequest(executor, asset, request));
    }
 
@@ -158,7 +189,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> grantDataAccessRequest(User executor, String asset, UID request, @Nullable Instant until, @Nullable String message) {
       return companion
          .withAuthorization(
-            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageAccessRequests))
          .thenCompose(ok -> delegate.grantDataAccessRequest(executor, asset, request, until, message));
    }
 
@@ -166,7 +197,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> rejectDataAccessRequest(User executor, String asset, UID request, String reason) {
       return companion
          .withAuthorization(
-            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings))
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageAccessRequests))
          .thenCompose(ok -> delegate.rejectDataAccessRequest(executor, asset, request, reason));
    }
 
@@ -174,7 +205,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> updateDataAccessRequest(User executor, String asset, UID request, String reason) {
       return companion
          .withAuthorization(
-            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings),
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageAccessRequests),
             () -> companion.isRequester(executor, asset, request))
          .thenCompose(ok -> delegate.updateDataAccessRequest(executor, asset, request, reason));
    }
@@ -183,7 +214,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    public CompletionStage<Done> withdrawDataAccessRequest(User executor, String asset, UID request, @Nullable String reason) {
       return companion
          .withAuthorization(
-            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canChangeSettings),
+            () -> companion.hasPermission(executor, asset, DataAssetPermissions::canManageAccessRequests),
             () -> companion.isRequester(executor, asset, request))
          .thenCompose(ok -> delegate.withdrawDataAccessRequest(executor, asset, request, reason));
    }

@@ -2,7 +2,7 @@ package maquette.core.entities.data.datasets;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.assets.DataAssetEntities;
 import maquette.core.entities.data.datasets.exceptions.DatasetAlreadyExistsException;
 import maquette.core.entities.data.datasets.exceptions.DatasetNotFoundException;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
@@ -42,10 +42,16 @@ public final class DatasetEntities implements DataAssetEntities<DatasetPropertie
             if (maybeDataset.isPresent()) {
                return CompletableFuture.failedFuture(DatasetAlreadyExistsException.withName(name));
             } else {
+               var state = DataAssetState.APPROVED;
+
+               if (zone.equals(DataZone.PREPARED)) {
+                  state = DataAssetState.REVIEW_REQUIRED;
+               }
+
                var created = ActionMetadata.apply(executor);
                var dataset = DatasetProperties.apply(
                   UID.apply(), title, name, summary,
-                  visibility, classification, personalInformation, zone, DataAssetState.APPROVED, created, created);
+                  visibility, classification, personalInformation, zone, state, created, created);
 
                return repository
                   .insertOrUpdateAsset(dataset)

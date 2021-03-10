@@ -1,4 +1,4 @@
-package maquette.core.entities.data.datasets;
+package maquette.core.entities.data.assets;
 
 import akka.Done;
 import lombok.AccessLevel;
@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AccessRequests<T extends DataAssetProperties<T>> {
@@ -68,6 +69,15 @@ public final class AccessRequests<T extends DataAssetProperties<T>> {
 
    public CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests() {
       return requestsRepository.findDataAccessRequestsByAsset(id);
+   }
+
+   public CompletionStage<List<DataAccessRequestProperties>> getOpenDataAccessRequests() {
+      return requestsRepository
+         .findDataAccessRequestsByAsset(id)
+         .thenApply(requests -> requests
+            .stream()
+            .filter(r -> r.getStatus().equals(DataAccessRequestStatus.REQUESTED))
+            .collect(Collectors.toList()));
    }
 
    public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID accessRequestId) {

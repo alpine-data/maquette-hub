@@ -2,6 +2,7 @@ package maquette.core.services.data.datasources;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.values.data.*;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
@@ -63,10 +64,27 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    }
 
    @Override
-   public CompletionStage<Done> update(User executor, String name, String updatedName, String title, String summary, DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation) {
+   public CompletionStage<Done> update(
+      User executor, String name, String updatedName, String title, String summary,
+      DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
       return entities
          .getByName(name)
-         .thenCompose(ds -> ds.update(executor, updatedName, title, summary, visibility, classification, personalInformation));
+         .thenCompose(ds -> ds.update(executor, updatedName, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String asset) {
+      return assets.approve(executor, asset);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate) {
+      return assets.deprecate(executor, asset, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
+      return assets.getOpenTasks(executor, asset);
    }
 
    @Override

@@ -3,12 +3,7 @@ package maquette.core.services.dependencies;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.DataAssetEntities;
-import maquette.core.entities.data.DataAssetEntity;
-import maquette.core.entities.data.collections.CollectionEntities;
-import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasources.DataSourceEntities;
-import maquette.core.entities.data.streams.StreamEntities;
+import maquette.core.entities.data.assets.DataAssetEntity;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.dependencies.model.*;
 import maquette.core.entities.dependencies.neo4j.Graph;
@@ -30,17 +25,11 @@ public final class DependencyServicesImpl implements DependencyServices {
 
    private static final Logger LOG = LoggerFactory.getLogger(DependencyServicesImpl.class);
 
+   private final DependencyCompanion comp;
+
    private final Dependencies dependencies;
 
    private final ProjectEntities projects;
-
-   private final DatasetEntities datasets;
-
-   private final CollectionEntities collections;
-
-   private final DataSourceEntities dataSources;
-
-   private final StreamEntities streams;
 
    private final UserEntities users;
 
@@ -48,7 +37,7 @@ public final class DependencyServicesImpl implements DependencyServices {
    public CompletionStage<Graph<DependencyPropertiesNode>> getDependencyGraph(
       User executor, DataAssetType type, String assetName) {
 
-      return getDataAssetEntitiesForType(type)
+      return comp.getDataAssetEntitiesForType(type)
          .getByName(assetName)
          .thenCompose(asset -> {
             var node = DataAssetNode.apply(type, asset.getId());
@@ -74,7 +63,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof DataAssetNode) {
                      var n = (DataAssetNode) node.getProperties();
-                     return getDataAssetEntitiesForType(n.getType())
+                     return comp.getDataAssetEntitiesForType(n.getType())
                         .getById(n.getId())
                         .thenCompose(DataAssetEntity::getProperties)
                         .thenApply(p -> (DependencyPropertiesNode) DataAssetPropertiesNode.apply(n.getType(), n.getId(), p))
@@ -130,164 +119,52 @@ public final class DependencyServicesImpl implements DependencyServices {
    @Override
    public CompletionStage<Done> trackConsumptionByApplication(
       User executor, DataAssetType type, String assetName, String projectName, String applicationName) {
-      var projectCS = projects
-         .getProjectByName(projectName);
 
-      var appCS = projectCS
-         .thenCompose(ProjectEntity::getApplications)
-         .thenCompose(entities -> entities.getApplicationByName(applicationName));
-
-      var assetCS = getDataAssetEntitiesForType(type)
-         .getByName(assetName);
-
-      return Operators
-         .compose(projectCS, appCS, assetCS, (project, app, asset) -> {
-            var assetNode = DataAssetNode.apply(type, asset.getId());
-            var appNode = ApplicationNode.apply(project.getId(), app.getId());
-            return dependencies.trackConsumption(assetNode, appNode);
-         })
-         .thenCompose(cs -> cs);
+      return comp.trackConsumptionByApplication(executor, type, assetName, projectName, applicationName);
    }
 
    @Override
    public CompletionStage<Done> trackConsumptionByModel(
       User executor, DataAssetType type, String assetName, String projectName, String modelName) {
 
-      var projectCS = projects
-         .getProjectByName(projectName);
-
-      var modelCS = projectCS
-         .thenCompose(ProjectEntity::getModels)
-         .thenApply(modelEntities -> modelEntities.getModel(modelName));
-
-      var assetCS = getDataAssetEntitiesForType(type)
-         .getByName(assetName);
-
-      return Operators
-         .compose(projectCS, modelCS, assetCS, (project, model, asset) -> {
-            var assetNode = DataAssetNode.apply(type, asset.getId());
-            var modelNode = ModelNode.apply(project.getId(), model.getName());
-            return dependencies.trackConsumption(assetNode, modelNode);
-         })
-         .thenCompose(cs -> cs);
+      return comp.trackConsumptionByModel(executor, type, assetName, projectName, modelName);
    }
 
    @Override
    public CompletionStage<Done> trackConsumptionByProject(
-      User executor, DataAssetType type, String assetName, String projectName, String userId) {
+      User executor, DataAssetType type, String assetName, String projectName) {
 
-      var projectCS = projects
-         .getProjectByName(projectName);
-
-      var assetCS = getDataAssetEntitiesForType(type)
-         .getByName(assetName);
-
-      return Operators
-         .compose(
-            projectCS, assetCS, (project, asset) -> {
-               var assetNode = DataAssetNode.apply(type, asset.getId());
-               var userNode = UserNode.apply(userId);
-               var projectNode = ProjectNode.apply(project.getId());
-
-               return dependencies.trackConsumption(assetNode, userNode, projectNode);
-            })
-         .thenCompose(cs -> cs);
+      return comp.trackConsumptionByProject(executor, type, assetName, projectName);
    }
 
    @Override
    public CompletionStage<Done> trackProductionByApplication(
       User executor, DataAssetType type, String assetName, String projectName, String applicationName) {
 
-      var projectCS = projects
-         .getProjectByName(projectName);
-
-      var appCS = projectCS
-         .thenCompose(ProjectEntity::getApplications)
-         .thenCompose(entities -> entities.getApplicationByName(applicationName));
-
-      var assetCS = getDataAssetEntitiesForType(type)
-         .getByName(assetName);
-
-      return Operators
-         .compose(projectCS, appCS, assetCS, (project, app, asset) -> {
-            var assetNode = DataAssetNode.apply(type, asset.getId());
-            var appNode = ApplicationNode.apply(project.getId(), app.getId());
-            return dependencies.trackProduction(assetNode, appNode);
-         })
-         .thenCompose(cs -> cs);
+      return comp.trackProductionByApplication(executor, type, assetName, projectName, applicationName);
    }
 
    @Override
    public CompletionStage<Done> trackProductionByUser(
       User executor, DataAssetType type, String assetName, String userId) {
 
-      return getDataAssetEntitiesForType(type)
-         .getByName(assetName)
-         .thenApply(DataAssetEntity::getId)
-         .thenCompose(asset -> {
-            var assetNode = DataAssetNode.apply(type, asset);
-            var userNode = UserNode.apply(userId);
-            return dependencies.trackProduction(assetNode, userNode);
-         });
+      return comp.trackProductionByUser(executor, type, assetName, userId);
    }
 
    @Override
    public CompletionStage<Done> trackProductionByProject(
-      User executor, DataAssetType type, String assetName, String projectName, String userId) {
+      User executor, DataAssetType type, String assetName, String projectName) {
 
-      var projectCS = projects
-         .getProjectByName(projectName);
-
-      var assetCS = getDataAssetEntitiesForType(type)
-         .getByName(assetName);
-
-      return Operators
-         .compose(
-            projectCS, assetCS, (project, asset) -> {
-               var assetNode = DataAssetNode.apply(type, asset.getId());
-               var userNode = UserNode.apply(userId);
-               var projectNode = ProjectNode.apply(project.getId());
-
-               return dependencies.trackProduction(assetNode, userNode, projectNode);
-            })
-         .thenCompose(cs -> cs);
+      return comp.trackProductionByProject(executor, type, assetName, projectName);
    }
 
    @Override
    public CompletionStage<Done> trackModelUsageByApplication(
       User executor, String projectName, String modelName, String applicationProjectName, String applicationName) {
 
-      var modelCS = projects
-         .getProjectByName(projectName)
-         .thenCompose(ProjectEntity::getModels)
-         .thenApply(models -> models.getModel(modelName));
-
-      var applicationCS = projects
-         .getProjectByName(applicationProjectName)
-         .thenCompose(ProjectEntity::getApplications)
-         .thenCompose(apps -> apps.getApplicationByName(applicationName));
-
-      return Operators
-         .compose(modelCS, applicationCS, (model, application) -> {
-            var modelNode = ModelNode.apply(model.getProject(), model.getName());
-            var applicationNode = ApplicationNode.apply(application.getProject(), application.getId());
-            return dependencies.trackUsage(modelNode, applicationNode);
-         })
-         .thenCompose(cs -> cs);
+      return comp.trackModelUsageByApplication(executor, projectName, modelName, applicationProjectName, applicationName);
    }
 
-   private DataAssetEntities<?, ?> getDataAssetEntitiesForType(DataAssetType type) {
-      switch (type) {
-         case DATASET:
-            return datasets;
-         case COLLECTION:
-            return collections;
-         case SOURCE:
-            return dataSources;
-         case STREAM:
-         default:
-            return streams;
-      }
-   }
+
 
 }

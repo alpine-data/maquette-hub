@@ -1,6 +1,5 @@
 package maquette.core.server.commands.data.datasources;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -44,7 +43,7 @@ public class UpdateDataSourcePropertiesCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataSourceServices()
-         .update(user, source, name, title, summary, visibility, classification, personalInformation)
+         .update(user, source, name, title, summary, visibility, classification, personalInformation, zone)
          .thenApply(done -> MessageResult.apply("Successfully updated data source."));
    }
 

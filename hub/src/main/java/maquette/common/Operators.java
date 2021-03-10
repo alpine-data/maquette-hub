@@ -145,6 +145,14 @@ public final class Operators {
         }
     }
 
+    public static <T> List<T> filterOptional(List<Optional<T>> optionals) {
+        return optionals
+           .stream()
+           .filter(Optional::isPresent)
+           .map(Optional::get)
+           .collect(Collectors.toList());
+    }
+
     public static boolean isCause(Class<? extends Throwable> expected, Throwable exc) {
         return expected.isInstance(exc) || (
                 exc != null && isCause(expected, exc.getCause())

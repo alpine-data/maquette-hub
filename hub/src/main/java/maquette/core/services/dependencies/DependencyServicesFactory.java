@@ -23,14 +23,8 @@ public final class DependencyServicesFactory {
       StreamEntities streams,
       UserEntities users) {
 
-      return DependencyServicesImpl.apply(
-         dependencies,
-         projects,
-         datasets,
-         collections,
-         dataSources,
-         streams,
-         users);
+      var companion = DependencyCompanion.apply(dependencies, projects, datasets, collections, dataSources, streams);
+      return DependencyServicesImpl.apply(companion, dependencies, projects, users);
    }
 
 }

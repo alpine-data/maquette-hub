@@ -8,9 +8,9 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
-import maquette.core.services.users.UserServices;
 import maquette.core.values.UID;
 import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.*;
@@ -44,7 +44,7 @@ public final class MaquetteServer {
          .before(server.handleAuthentication(
             config.getServer().getUserIdHeaderName(),
             config.getServer().getUserRolesHeaderName(),
-            services.getUserServices()))
+            services, runtime))
 
          .post("/api/commands", commandResource.getCommand())
          .get("/api/commands", commandResource.getCommands())
@@ -83,7 +83,12 @@ public final class MaquetteServer {
       return server;
    }
 
-   private Handler handleAuthentication(String userIdHeaderName, String userRolesHeaderName, UserServices userServices) {
+   private Handler handleAuthentication(
+      String userIdHeaderName,
+      String userRolesHeaderName,
+      ApplicationServices services,
+      RuntimeConfiguration runtime) {
+
       String userDetailsHeaderName = "x-user-details";
       String projectContextHeaderName = "x-project";
       String environmentContextHeaderName = "x-environment";
@@ -106,11 +111,19 @@ public final class MaquetteServer {
 
                if (headers.containsKey(userDetailsHeaderName)) {
                   var details = headers.get(userDetailsHeaderName);
-                  userServices.updateUserDetails(user, details);
+                  services.getUserServices().updateUserDetails(user, details);
                }
 
                if (headers.containsKey(projectContextHeaderName)) {
-                  user = user.withProjectContext(ProjectContext.apply(UID.apply(headers.get(projectContextHeaderName))));
+                  var projectId = UID.apply(headers.get(projectContextHeaderName));
+                  var projectProperties = runtime
+                     .getProjects()
+                     .getProjectById(projectId)
+                     .thenCompose(ProjectEntity::getProperties)
+                     .toCompletableFuture()
+                     .get();
+
+                  user = user.withProjectContext(ProjectContext.apply(projectId, projectProperties));
                }
 
                if (headers.containsKey(environmentContextHeaderName)) {

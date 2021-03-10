@@ -4,8 +4,8 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.companions.AccessLogsCompanion;
 import maquette.core.entities.companions.MembersCompanion;
-import maquette.core.entities.data.DataAssetEntity;
-import maquette.core.entities.data.datasets.AccessRequests;
+import maquette.core.entities.data.assets.DataAssetEntity;
+import maquette.core.entities.data.assets.AccessRequests;
 import maquette.core.entities.data.datasources.exceptions.DataSourceNotFoundException;
 import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.entities.data.streams.model.StreamProperties;
@@ -26,6 +26,40 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
    private final UID id;
 
    private final StreamsRepository repository;
+
+   @Override
+   public CompletionStage<Done> approve(User executor) {
+      return withProperties(properties -> {
+         var updated = properties;
+
+         if (properties.getState().equals(DataAssetState.REVIEW_REQUIRED)) {
+            updated = updated
+               .withState(DataAssetState.APPROVED)
+               .withUpdated(executor);
+         }
+
+         return repository.insertOrUpdateAsset(updated);
+      });
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, boolean deprecate) {
+      return withProperties(properties -> {
+         var updated = properties;
+
+         if (deprecate && properties.getState().equals(DataAssetState.APPROVED)) {
+            updated = updated
+               .withState(DataAssetState.DEPRECATED)
+               .withUpdated(executor);
+         } else if (!deprecate && properties.getState().equals(DataAssetState.DEPRECATED)) {
+            updated = updated
+               .withState(DataAssetState.APPROVED)
+               .withUpdated(executor);
+         }
+
+         return repository.insertOrUpdateAsset(updated);
+      });
+   }
 
    @Override
    public AccessLogsCompanion getAccessLogs() {
@@ -56,9 +90,38 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
       User executor, String name, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone) {
 
-      // TODO mw: value validation ...
-
       return withProperties(properties -> {
+         var state = properties.getState();
+         boolean reviewRequired = false;
+
+         if (!properties.getPersonalInformation().equals(personalInformation)) {
+            switch (properties.getPersonalInformation()) {
+               case PERSONAL_INFORMATION:
+               case SENSITIVE_PERSONAL_INFORMATION:
+                  reviewRequired = true;
+                  break;
+               default:
+                  // ok
+            }
+
+            switch (personalInformation) {
+               case PERSONAL_INFORMATION:
+               case SENSITIVE_PERSONAL_INFORMATION:
+                  reviewRequired = true;
+                  break;
+               default:
+                  // ok
+            }
+         }
+
+         if (!properties.getZone().equals(zone) && zone == DataZone.GOLD) {
+            reviewRequired = true;
+         }
+
+         if (state.equals(DataAssetState.APPROVED) && reviewRequired) {
+            state = DataAssetState.REVIEW_REQUIRED;
+         }
+
          var updated = properties
             .withName(name)
             .withTitle(title)
@@ -66,8 +129,9 @@ public class StreamEntity implements DataAssetEntity<StreamProperties> {
             .withVisibility(visibility)
             .withClassification(classification)
             .withPersonalInformation(personalInformation)
-            .withUpdated(ActionMetadata.apply(executor))
-            .withZone(zone);
+            .withZone(zone)
+            .withState(state)
+            .withUpdated(executor);
 
          return repository.insertOrUpdateAsset(updated);
       });

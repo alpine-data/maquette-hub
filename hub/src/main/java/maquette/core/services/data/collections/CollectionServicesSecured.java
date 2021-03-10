@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.collections.model.Collection;
 import maquette.core.entities.data.collections.model.CollectionProperties;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
@@ -65,6 +66,21 @@ public final class CollectionServicesSecured implements CollectionServices {
          .withAuthorization(
             () -> assets.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
          .thenCompose(ok -> delegate.update(executor, name, updatedName, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String asset) {
+      return delegate.approve(executor, asset);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate) {
+      return delegate.deprecate(executor, asset, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
+      return getOpenTasks(executor, asset);
    }
 
    @Override

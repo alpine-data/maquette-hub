@@ -88,13 +88,12 @@ public final class Dependencies {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
-   public CompletionStage<Done> trackConsumption(DataAssetNode dataAsset, UserNode user, ProjectNode project) {
+   public CompletionStage<Done> trackConsumption(DataAssetNode dataAsset, ProjectNode project) {
       var query = Templates
          .renderTemplateFromResources(
             "cyphers/track-consumption-project.txt",
             Map.of(
                "dataAsset", Operators.suppressExceptions(() -> om.writeValueAsString(dataAsset)),
-               "user", Operators.suppressExceptions(() -> om.writeValueAsString(user)),
                "project", Operators.suppressExceptions(() -> om.writeValueAsString(project))))
          .replace(":", "\\\\:");
 
@@ -124,7 +123,7 @@ public final class Dependencies {
    public CompletionStage<Done> trackProduction(DataAssetNode dataAsset, UserNode user) {
       var query = Templates
          .renderTemplateFromResources(
-            "cyphers/track-consumption-user.txt",
+            "cyphers/track-production-user.txt",
             Map.of(
                "dataAsset", Operators.suppressExceptions(() -> om.writeValueAsString(dataAsset)),
                "user", Operators.suppressExceptions(() -> om.writeValueAsString(user))))
@@ -137,14 +136,13 @@ public final class Dependencies {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
-   public CompletionStage<Done> trackProduction(DataAssetNode dataAsset, UserNode user, ProjectNode project) {
+   public CompletionStage<Done> trackProduction(DataAssetNode dataAsset, ProjectNode project) {
       var query = Templates
          .renderTemplateFromResources(
             "cyphers/track-production-project.txt",
             Map.of(
                "dataAsset", Operators.suppressExceptions(() -> om.writeValueAsString(dataAsset)),
-               "project", Operators.suppressExceptions(() -> om.writeValueAsString(project)),
-               "user", Operators.suppressExceptions(() -> om.writeValueAsString(user))))
+               "project", Operators.suppressExceptions(() -> om.writeValueAsString(project))))
          .replace(":", "\\\\:");
 
       jdbi.withHandle(handle -> handle

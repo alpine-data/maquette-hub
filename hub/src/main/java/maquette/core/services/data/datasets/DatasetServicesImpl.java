@@ -7,6 +7,7 @@ import maquette.core.entities.data.datasets.DatasetEntity;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.values.data.*;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.logs.DataAccessType;
@@ -72,6 +73,21 @@ public final class DatasetServicesImpl implements DatasetServices {
       return datasets
          .getByName(dataset)
          .thenCompose(ds -> ds.update(executor, updatedName, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String dataset) {
+      return assets.approve(executor, dataset);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String dataset, boolean deprecate) {
+      return assets.deprecate(executor, dataset, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String dataset) {
+      return assets.getOpenTasks(executor, dataset);
    }
 
    @Override
@@ -146,16 +162,6 @@ public final class DatasetServicesImpl implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<Records> download(User executor, UID project, String dataset, DatasetVersion version) {
-      return datasets
-         .getByName(dataset)
-         .thenCompose(ds -> {
-            var logged = ds.getAccessLogs().log(executor, project, DataAccessType.CONSUME, String.format("downloaded version `%s`", version));
-            return logged.thenCompose(l -> ds.getRevisions().download(executor, version));
-         });
-   }
-
-   @Override
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return datasets
          .getByName(dataset)
@@ -171,20 +177,6 @@ public final class DatasetServicesImpl implements DatasetServices {
          .getByName(dataset)
          .thenCompose(ds -> {
             var logged = ds.getAccessLogs().log(executor, DataAccessType.CONSUME, "downloaded latest version");
-            return logged.thenCompose(l -> ds
-               .getRevisions()
-               .getVersions()
-               .thenApply(versions -> versions.stream().map(CommittedRevision::getVersion).findFirst().orElse(DatasetVersion.apply("1.0.0")))
-               .thenCompose(version -> ds.getRevisions().download(executor, version)));
-         });
-   }
-
-   @Override
-   public CompletionStage<Records> download(User executor, UID project, String dataset) {
-      return datasets
-         .getByName(dataset)
-         .thenCompose(ds -> {
-            var logged = ds.getAccessLogs().log(executor, project, DataAccessType.CONSUME, "downloaded latest version");
             return logged.thenCompose(l -> ds
                .getRevisions()
                .getVersions()

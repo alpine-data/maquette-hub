@@ -1,4 +1,4 @@
-package maquette.core.entities.data;
+package maquette.core.entities.data.assets;
 
 import akka.Done;
 import maquette.core.values.UID;

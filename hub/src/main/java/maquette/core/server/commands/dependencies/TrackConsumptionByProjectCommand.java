@@ -29,7 +29,7 @@ public class TrackConsumptionByProjectCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDependencyServices()
-         .trackConsumptionByProject(user, type, asset, project, user.getDisplayName())
+         .trackConsumptionByProject(user, type, asset, project)
          .thenApply(done -> MessageResult.apply("Ok"));
    }
 

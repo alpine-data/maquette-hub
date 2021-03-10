@@ -2,7 +2,7 @@ package maquette.core.entities.data.collections;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.assets.DataAssetEntities;
 import maquette.core.entities.data.collections.exceptions.CollectionAlreadyExistsException;
 import maquette.core.entities.data.collections.exceptions.CollectionNotFoundException;
 import maquette.core.entities.data.collections.model.CollectionProperties;

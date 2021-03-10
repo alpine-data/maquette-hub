@@ -8,10 +8,13 @@ import maquette.core.server.commands.data.collections.members.GrantCollectionMem
 import maquette.core.server.commands.data.collections.members.RevokeCollectionMemberCommand;
 import maquette.core.server.commands.data.collections.requests.*;
 import maquette.core.server.commands.data.datasets.*;
-import maquette.core.server.commands.data.datasets.revisions.*;
+import maquette.core.server.commands.data.datasets.members.GrantDatasetMemberCommand;
+import maquette.core.server.commands.data.datasets.members.RevokeDatasetMemberCommand;
 import maquette.core.server.commands.data.datasets.requests.*;
-import maquette.core.server.commands.data.datasets.members.*;
-import maquette.core.server.commands.data.datasets.tokens.*;
+import maquette.core.server.commands.data.datasets.revisions.CommitRevisionCommand;
+import maquette.core.server.commands.data.datasets.revisions.CreateRevisionCommand;
+import maquette.core.server.commands.data.datasets.tokens.CreateDatasetDataAccessTokenCommand;
+import maquette.core.server.commands.data.datasets.tokens.ListDatasetDataAccessTokensCommand;
 import maquette.core.server.commands.data.datasources.*;
 import maquette.core.server.commands.data.datasources.members.GrantDataSourceMemberCommand;
 import maquette.core.server.commands.data.datasources.members.RevokeDataSourceMemberCommand;
@@ -23,8 +26,8 @@ import maquette.core.server.commands.data.streams.requests.*;
 import maquette.core.server.commands.dependencies.*;
 import maquette.core.server.commands.projects.*;
 import maquette.core.server.commands.projects.applications.CreateApplicationCommand;
-import maquette.core.server.commands.projects.applications.RemoveApplicationCommand;
 import maquette.core.server.commands.projects.applications.ListApplicationsCommand;
+import maquette.core.server.commands.projects.applications.RemoveApplicationCommand;
 import maquette.core.server.commands.sandboxes.CreateSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetSandboxCommand;
 import maquette.core.server.commands.sandboxes.GetStacksCommand;
@@ -72,6 +75,8 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = WithdrawCollectionDataAccessRequestCommand.class, name = "collections access-requests withdraw"),
 
       // Datasets
+      @JsonSubTypes.Type(value = ApproveDatasetCommand.class, name = "datasets approve"),
+      @JsonSubTypes.Type(value = DeprecateDatasetCommand.class, name = "datasets deprecate"),
       @JsonSubTypes.Type(value = CreateDatasetCommand.class, name = "datasets create"),
       @JsonSubTypes.Type(value = CreateDatasetDataAccessRequestCommand.class, name = "datasets access-requests create"),
       @JsonSubTypes.Type(value = GetDatasetCommand.class, name = "datasets get"),

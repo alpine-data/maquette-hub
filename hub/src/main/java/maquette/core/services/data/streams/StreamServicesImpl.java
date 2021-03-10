@@ -2,6 +2,7 @@ package maquette.core.services.data.streams;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.data.streams.StreamEntity;
 import maquette.core.entities.data.streams.model.Retention;
@@ -73,6 +74,21 @@ public final class StreamServicesImpl implements StreamServices {
       return entities
          .getByName(name)
          .thenCompose(as -> as.update(executor, updatedName, title, summary, visibility, classification, personalInformation, zone));
+   }
+
+   @Override
+   public CompletionStage<Done> approve(User executor, String asset) {
+      return assets.approve(executor, asset);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate) {
+      return assets.deprecate(executor, asset, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
+      return assets.getOpenTasks(executor, asset);
    }
 
    @Override

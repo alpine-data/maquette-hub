@@ -6,6 +6,7 @@ import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.values.data.*;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
@@ -70,6 +71,21 @@ public final class DatasetServicesSecured implements DatasetServices {
    }
 
    @Override
+   public CompletionStage<Done> approve(User executor, String dataset) {
+      return delegate.approve(executor, dataset);
+   }
+
+   @Override
+   public CompletionStage<Done> deprecate(User executor, String dataset, boolean deprecate) {
+      return delegate.deprecate(executor, dataset, deprecate);
+   }
+
+   @Override
+   public CompletionStage<List<Task>> getOpenTasks(User executor, String dataset) {
+      return delegate.getOpenTasks(executor, dataset);
+   }
+
+   @Override
    public CompletionStage<Done> grant(User executor, String dataset, Authorization member, DataAssetMemberRole role) {
       return delegate.grant(executor, dataset, member, role);
    }
@@ -131,15 +147,6 @@ public final class DatasetServicesSecured implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<Records> download(User executor, UID project, String dataset, DatasetVersion version) {
-      return companion
-         .withAuthorization(
-            executor::isSystemUserCS,
-            () -> assets.hasPermission(executor, dataset, DataAssetPermissions::canConsume))
-         .thenCompose(ok -> delegate.download(executor, project, dataset, version));
-   }
-
-   @Override
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return companion
          .withAuthorization(
@@ -155,15 +162,6 @@ public final class DatasetServicesSecured implements DatasetServices {
             executor::isSystemUserCS,
             () -> assets.hasPermission(executor, dataset, DataAssetPermissions::canConsume))
          .thenCompose(ok -> delegate.download(executor, dataset));
-   }
-
-   @Override
-   public CompletionStage<Records> download(User executor, UID project, String dataset) {
-      return companion
-         .withAuthorization(
-            executor::isSystemUserCS,
-            () -> assets.hasPermission(executor, dataset, DataAssetPermissions::canConsume))
-         .thenCompose(ok -> delegate.download(executor, project, dataset));
    }
 
    @Override

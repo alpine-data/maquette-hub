@@ -1,6 +1,7 @@
 package maquette.core.services.data.streams;
 
 import akka.Done;
+import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.entities.data.streams.model.Retention;
 import maquette.core.entities.data.streams.model.Stream;
 import maquette.core.entities.data.streams.model.StreamProperties;
@@ -33,6 +34,12 @@ public interface StreamServices extends MemberServices, AccessRequestServices {
    CompletionStage<Done> update(
       User executor, String name, String updatedName, String title, String summary,
       DataVisibility visibility, DataClassification classification, PersonalInformation personalInformation, DataZone zone);
+
+   CompletionStage<Done> approve(User executor, String asset);
+
+   CompletionStage<Done> deprecate(User executor, String asset, boolean deprecate);
+
+   CompletionStage<List<Task>> getOpenTasks(User executor, String asset);
 
    CompletionStage<Done> updateProperties(User executor, String name, Retention retention, Schema schema);
 

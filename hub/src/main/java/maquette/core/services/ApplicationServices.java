@@ -59,7 +59,7 @@ public final class ApplicationServices {
         var userServices = UserServicesFactory.apply(runtime.getProjects(), runtime.getCollections(), runtime.getDatasets(), runtime.getDataSources(), runtime.getStreams(), runtime.getUsers());
         var sandboxServices = SandboxServicesFactory.apply(runtime.getProcessManager(), runtime.getInfrastructureManager(), runtime.getProjects(), runtime.getSandboxes(), runtime.getDatasets());
         var collectionServices = CollectionServicesFactory.apply(runtime.getCollections(), runtime.getProjects());
-        var datasetServices = DatasetServicesFactory.apply(runtime.getProjects(), runtime.getDatasets(), runtime.getProcessManager());
+        var datasetServices = DatasetServicesFactory.apply(runtime);
         var dataSourceServices = DataSourceServicesFactory.apply(runtime.getDataSources(), runtime.getProjects());
         var streamServices = StreamServicesFactory.apply(runtime.getStreams(), runtime.getProjects());
         var configurationServices = ConfigurationServicesFactory.apply(runtime.getUsers());

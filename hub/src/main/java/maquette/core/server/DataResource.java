@@ -6,9 +6,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.values.data.records.Records;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.UID;
+import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 import org.apache.commons.io.FileUtils;
 
@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor()
 public final class DataResource {
@@ -150,19 +149,9 @@ public final class DataResource {
          var dataset = ctx.pathParam("dataset");
          var version = ctx.pathParam("version");
 
-         CompletionStage<Records> recordsCS;
-
-         if (ctx.headerMap().containsKey("x-project")) {
-            recordsCS = services
-               .getDatasetServices()
-               .download(user, UID.apply(ctx.headerMap().get("x-project")), dataset, DatasetVersion.apply(version));
-         } else {
-            recordsCS = services
-               .getDatasetServices()
-               .download(user, dataset, DatasetVersion.apply(version));
-         }
-
-         var result = recordsCS
+         var result = services
+            .getDatasetServices()
+            .download(user, dataset, DatasetVersion.apply(version))
             .thenApply(records -> {
                var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                records.toFile(file);
@@ -191,19 +180,9 @@ public final class DataResource {
          var user = (User) Objects.requireNonNull(ctx.attribute("user"));
          var dataset = ctx.pathParam("dataset");
 
-         CompletionStage<Records> recordsCS;
-
-         if (ctx.headerMap().containsKey("x-project")) {
-            recordsCS = services
-               .getDatasetServices()
-               .download(user, UID.apply(ctx.headerMap().get("x-project")), dataset);
-         } else {
-            recordsCS = services
-               .getDatasetServices()
-               .download(user, dataset);
-         }
-
-         var result = recordsCS
+         var result = services
+            .getDatasetServices()
+            .download(user, dataset)
             .thenApply(records -> {
                var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                records.toFile(file);

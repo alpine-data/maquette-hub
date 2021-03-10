@@ -20,7 +20,7 @@ public interface DependencyServices {
       User executor, DataAssetType type, String assetName, String projectName, String modelName);
 
    CompletionStage<Done> trackConsumptionByProject(
-      User executor, DataAssetType type, String assetName, String projectName, String userId);
+      User executor, DataAssetType type, String assetName, String projectName);
 
    CompletionStage<Done> trackProductionByApplication(
       User executor, DataAssetType type, String assetName, String projectName, String applicationName);
@@ -29,7 +29,7 @@ public interface DependencyServices {
       User executor, DataAssetType type, String assetName, String userId);
 
    CompletionStage<Done> trackProductionByProject(
-      User executor, DataAssetType type, String assetName, String projectName, String userId);
+      User executor, DataAssetType type, String assetName, String projectName);
 
    CompletionStage<Done> trackModelUsageByApplication(
       User executor, String projectName, String modelName, String applicationProjectName, String applicationName);

@@ -19,6 +19,11 @@ public interface User {
 
     Optional<EnvironmentContext> getEnvironmentContext();
 
+    default Optional<ApplicationContext> getApplicationContext() {
+        // TODO
+        return Optional.empty();
+    };
+
     default boolean isSystemUser() {
         return false;
     }

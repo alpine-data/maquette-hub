@@ -11,6 +11,7 @@ import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.infrastructure.InfrastructureManager;
+import maquette.core.entities.logs.AccessLogs;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.sandboxes.SandboxEntities;
@@ -45,5 +46,7 @@ public final class RuntimeConfiguration {
     private final UserEntities users;
 
     private final Dependencies dependencies;
+
+    private final AccessLogs logs;
 
 }
