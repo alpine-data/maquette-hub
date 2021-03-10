@@ -1,5 +1,6 @@
 package maquette.sdk.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -7,6 +8,7 @@ import java.util.Optional;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EnvironmentConfiguration {
 
    String id;
