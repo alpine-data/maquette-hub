@@ -1,5 +1,5 @@
 {
-    "proxy-url": "http://localhost:3000",
+    "proxy-url": "http://host.docker.internal:3000",
     "port": "3030",
 
     "user-id-header": "x-user-id",
@@ -49,6 +49,6 @@
     ],
 
     "routes": {
-        "/_mlflow": "http://localhost:3040"
+        "/_mlflow": "http://host.docker.internal:3040"
     }
 }

@@ -9,7 +9,6 @@ import { Route, Switch } from 'react-router-dom';
 
 import Container from '../Container';
 import ModelOverview from '../ModelOverview';
-import ModelQuestionnaire from '../ModelQuestionnaire';
 import ModelSummary from '../ModelSummary';
 import ModelVersion from '../ModelVersion';
 
@@ -50,7 +49,7 @@ function ProjectModels({ view, onUpdateModel, ...props }) {
         const version = _.find(model.versions, { version: _.get(routerProps, 'match.params.version') })
         const tab = _.get(routerProps, 'match.params.tab');
 
-        return <ModelVersion view={ view } model={ model } version={ version } tab={ tab } { ...props } />
+        return <ModelVersion view={ view } model={ model } version={ version } onUpdateModel={ onUpdateModel } tab={ tab } { ...props } />
       } } />
 
     <Route 

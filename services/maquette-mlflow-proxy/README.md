@@ -55,3 +55,11 @@ List registered routes.
 $ curl \
     --request GET 'http://localhost:3040/api/routes'
 ```
+
+## Deployment
+
+For deployment purposes (e.g. for local testing, the service can be packaged in a Docker file):
+
+```bash
+docker build -t mq-services--mlflow-proxy:0.0.1 .
+```

@@ -9,6 +9,16 @@ services:
       MQ_USERNAME: 'mq_service_key'
       MQ_AUTH_USERNAME: 'mq_service_key'
 
+  authentication-proxy:
+    image: mq-services--authentication-proxy:0.0.1
+    ports:
+      - "3030:3030"
+
+  mlflow-proxy:
+    image: mq-services--mlflow-proxy:0.0.1
+    ports:
+      - "3040:3040"
+
   neo4j:
     image: neo4j
     ports:

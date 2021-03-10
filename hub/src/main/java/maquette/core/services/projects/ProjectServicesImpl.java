@@ -376,13 +376,15 @@ public final class ProjectServicesImpl implements ProjectServices {
 
             if (mlflowPorts.containsKey(5000) && projectProperties.getMlflowConfiguration().isPresent()) {
                var mlflowConfig = projectProperties.getMlflowConfiguration().get();
-               var externalPort = mlflowPorts.get(5000).toString();
+               var externalPort = mlflowPorts
+                  .get(5000)
+                  .toString();
 
                return infrastructure
                   .registerRoute(
                      pid.getValue(),
                      mlflowConfig.getMlflowBasePath(pid),
-                     mlflowPorts.get(5000).toString())
+                     mlflowPorts.get(5000).toString().replace("localhost", "host.docker.internal"))
                   .thenApply(done -> {
                      LOG.info("Configure MLFlow proxy for project `{}`", projectProperties.getName());
                      return done;

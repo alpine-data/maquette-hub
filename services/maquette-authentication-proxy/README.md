@@ -79,3 +79,11 @@ $ cd ..
 $ rm -rf service/public
 $ mv app/build service/public
 ```
+
+## Deployment
+
+For deployment purposes (e.g. for local testing, the service can be packaged in a Docker file):
+
+```bash
+docker build -t mq-services--authentication-proxy:0.0.1 .
+```
