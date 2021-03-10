@@ -55,7 +55,8 @@ function transformDependencies(view, container) {
       source: `node-${rel.startNode}`,
       target: `node-${rel.endNode}`,
       type: 'smoothstep',
-      animated: true,
+      animated: false,
+      arrowHeadType: 'arrow',
       style: { stroke: '#333', 'stroke-width': 2 }
     }
   })

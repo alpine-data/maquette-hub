@@ -8,7 +8,7 @@ import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import ReactFlow, { Background, Controls, Handle, isNode } from 'react-flow-renderer'
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import dagre from 'dagre';
 
 import { Icon, IconButton } from 'rsuite';
@@ -18,6 +18,7 @@ const GraphWrapper = styled.div`
   position: relative;
   border: 1px solid #cccccc;
   height: 400px;
+  background: #fff;
 `;
 
 const FullScreenWrapper = styled.div`
@@ -108,6 +109,7 @@ function DependencyGraph({ graph }) {
 
   return   <Wrapper>
     <ReactFlow 
+      arrowHeadColor="#333"
       onLoad={
         (reactFlowInstance) => {
           reactFlowInstance.fitView();
