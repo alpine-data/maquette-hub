@@ -9,8 +9,9 @@ import maquette.core.entities.data.assets.DataAssetEntity;
 import maquette.core.entities.data.datasets.model.tasks.ReviewAccessRequest;
 import maquette.core.entities.data.datasets.model.tasks.ReviewDataAsset;
 import maquette.core.entities.data.datasets.model.tasks.Task;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.entities.projects.ProjectEntities;
-import maquette.core.entities.projects.ProjectEntity;
+import maquette.core.services.logs.LogsCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -19,14 +20,11 @@ import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.data.DataAssetState;
-import maquette.core.values.data.logs.DataAccessLogEntry;
-import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -42,10 +40,12 @@ public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E ext
 
    private final DataAssetCompanion<P, EN> companion;
 
-   public static <P extends DataAssetProperties<P>, E extends DataAssetEntity<P>, EN extends DataAssetEntities<P, E>> DataAssetServicesImpl<P, E, EN> apply(
-      EN assets, ProjectEntities projects, DataAssetCompanion<P, EN> companion) {
+   private final LogsCompanion logs;
 
-      return new DataAssetServicesImpl<>(assets, projects, companion);
+   public static <P extends DataAssetProperties<P>, E extends DataAssetEntity<P>, EN extends DataAssetEntities<P, E>> DataAssetServicesImpl<P, E, EN> apply(
+      EN assets, ProjectEntities projects, DataAssetCompanion<P, EN> companion, LogsCompanion logs) {
+
+      return new DataAssetServicesImpl<>(assets, projects, companion, logs);
    }
 
    @Override
@@ -63,51 +63,10 @@ public final class DataAssetServicesImpl<P extends DataAssetProperties<P>, E ext
    }
 
    @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
       return assets
-         .getByName(asset)
-         .thenCompose(assetEntity -> {
-            var logsCS = assetEntity
-               .getAccessLogs()
-               .getLogs();
-
-            var projectIdsCS = logsCS.thenApply(logs -> logs
-               .stream()
-               .map(DataAccessLogEntryProperties::getProject)
-               .filter(Optional::isPresent)
-               .map(Optional::get)
-               .collect(Collectors.toSet()));
-
-            var projectEntitiesCS = projectIdsCS.thenCompose(projectIds -> Operators
-               .allOf(projectIds
-                  .stream()
-                  .map(projects::findProjectById))
-               .thenApply(maybeProjects -> maybeProjects
-                  .stream()
-                  .filter(Optional::isPresent)
-                  .map(Optional::get)
-                  .collect(Collectors.toList())));
-
-            var projectPropertiesCS = projectEntitiesCS
-               .thenCompose(entities -> Operators.allOf(entities
-                  .stream()
-                  .map(ProjectEntity::getProperties)));
-
-            var assetPropertiesCS = assetEntity.getProperties();
-
-            return Operators.compose(projectPropertiesCS, assetPropertiesCS, logsCS, (projectProperties, assetProperties, logs) -> logs
-               .stream()
-               .map(log -> {
-                  var project = projectProperties
-                     .stream()
-                     .filter(p -> p.getId().equals(log.getProject().orElse(null)))
-                     .findFirst()
-                     .orElse(null);
-
-                  return DataAccessLogEntry.apply(assetProperties, project, log.getAccessType(), log.getAccessed(), log.getMessage());
-               })
-               .collect(Collectors.toList()));
-         });
+         .getResourceUID(asset)
+         .thenCompose(logs::getLogsByResourcePrefix);
    }
 
    @Override

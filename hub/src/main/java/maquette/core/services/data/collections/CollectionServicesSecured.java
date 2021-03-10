@@ -6,6 +6,7 @@ import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.collections.model.Collection;
 import maquette.core.entities.data.collections.model.CollectionProperties;
 import maquette.core.entities.data.datasets.model.tasks.Task;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
@@ -13,7 +14,6 @@ import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.*;
 import maquette.core.values.data.binary.BinaryObject;
-import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,7 +80,7 @@ public final class CollectionServicesSecured implements CollectionServices {
 
    @Override
    public CompletionStage<List<Task>> getOpenTasks(User executor, String asset) {
-      return getOpenTasks(executor, asset);
+      return delegate.getOpenTasks(executor, asset);
    }
 
    @Override
@@ -164,7 +164,7 @@ public final class CollectionServicesSecured implements CollectionServices {
    }
 
    @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
       return delegate.getAccessLogs(executor, asset);
    }
 

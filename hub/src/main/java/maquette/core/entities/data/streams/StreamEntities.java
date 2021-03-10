@@ -93,4 +93,14 @@ public class StreamEntities implements DataAssetEntities<StreamProperties, Strea
       throw new NotImplementedException();
    }
 
+   @Override
+   public CompletionStage<UID> getResourceUID(String asset) {
+      return getByName(asset).thenApply(StreamEntity::getId).thenApply(this::getResourceUID);
+   }
+
+   @Override
+   public UID getResourceUID(UID asset) {
+      return asset.withParent("streams");
+   }
+
 }

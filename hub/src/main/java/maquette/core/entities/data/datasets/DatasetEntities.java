@@ -97,4 +97,14 @@ public final class DatasetEntities implements DataAssetEntities<DatasetPropertie
       throw new NotImplementedException(); // TODO
    }
 
+   @Override
+   public CompletionStage<UID> getResourceUID(String asset) {
+      return getByName(asset).thenApply(DatasetEntity::getId).thenApply(this::getResourceUID);
+   }
+
+   @Override
+   public UID getResourceUID(UID asset) {
+      return asset.withParent("datasets");
+   }
+
 }

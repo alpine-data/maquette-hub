@@ -7,6 +7,7 @@ import maquette.common.Operators;
 import maquette.core.entities.data.assets.DataAssetEntities;
 import maquette.core.entities.data.assets.DataAssetEntity;
 import maquette.core.entities.data.datasets.model.tasks.Task;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -15,7 +16,6 @@ import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.DataAssetProperties;
-import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +59,7 @@ public final class DataAssetServicesSecured<P extends DataAssetProperties<P>, E 
    }
 
    @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
       return companion
          .withAuthorization(
             () -> companion.hasPermission(executor, asset, DataAssetPermissions::canReviewLogs))

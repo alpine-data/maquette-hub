@@ -8,6 +8,7 @@ import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
 import maquette.core.entities.data.datasets.model.tasks.Task;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.values.data.*;
 import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.logs.DataAccessType;
@@ -38,11 +39,6 @@ public final class DatasetServicesImpl implements DatasetServices {
    private final DataAssetServices<DatasetProperties, DatasetEntity> assets;
 
    private final DatasetCompanion companion;
-
-   @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
-      return assets.getAccessLogs(executor, asset);
-   }
 
    @Override
    public CompletionStage<DatasetProperties> create(
@@ -98,6 +94,11 @@ public final class DatasetServicesImpl implements DatasetServices {
    @Override
    public CompletionStage<Done> revoke(User executor, String dataset, Authorization member) {
       return assets.revoke(executor, dataset, member);
+   }
+
+   @Override
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
+      return assets.getAccessLogs(executor, asset);
    }
 
    @Override

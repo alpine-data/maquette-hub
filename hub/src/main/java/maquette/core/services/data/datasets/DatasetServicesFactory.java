@@ -17,7 +17,7 @@ public final class DatasetServicesFactory {
       var processes = runtime.getProcessManager();
       var dependencies = runtime.getDependencies();
 
-      var assets = DataAssetServicesFactory.apply(datasets, projects);
+      var assets = DataAssetServicesFactory.apply(datasets, runtime);
       var assetsCompanion = DataAssetCompanion.apply(datasets, projects);
       var dependenciesCompanion = DependencyCompanion.apply(
          dependencies, projects, datasets,

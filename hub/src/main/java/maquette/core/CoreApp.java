@@ -11,12 +11,11 @@ import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.streams.StreamEntities;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.infrastructure.InfrastructureManager;
-import maquette.core.entities.logs.AccessLogs;
+import maquette.core.entities.logs.Logs;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ports.ApplicationsRepository;
@@ -88,7 +87,7 @@ public final class CoreApp {
         var sandboxes = SandboxEntities.apply(sandboxesRepository);
         var users = UserEntities.apply(usersRepository, om);
         var dependencies = Dependencies.apply();
-        var logs = AccessLogs.apply();
+        var logs = Logs.apply();
 
         var runtime = RuntimeConfiguration.apply(
            app, system, om, collections, datasets, dataSources, streams, infrastructureManager,

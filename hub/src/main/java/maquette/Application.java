@@ -1,7 +1,5 @@
 package maquette;
 
-import maquette.adapters.infrastructure.MaquetteMlflowProxyService;
-import maquette.adapters.jdbc.JdbcJdbiImpl;
 import maquette.adapters.MaquetteDataExplorer;
 import maquette.adapters.collections.CollectionsRepositories;
 import maquette.adapters.datasets.DatasetsRepositories;
@@ -9,8 +7,9 @@ import maquette.adapters.datasets.DatasetsStores;
 import maquette.adapters.datasources.DataSourcesRepositories;
 import maquette.adapters.infrastructure.InfrastructureProviders;
 import maquette.adapters.infrastructure.InfrastructureRepositories;
+import maquette.adapters.infrastructure.MaquetteMlflowProxyService;
+import maquette.adapters.jdbc.JdbcJdbiImpl;
 import maquette.adapters.projects.ApplicationsRepositories;
-import maquette.adapters.projects.FileSystemModelsRepository;
 import maquette.adapters.projects.ModelsRepositories;
 import maquette.adapters.projects.ProjectsRepositories;
 import maquette.adapters.sandboxes.SandboxesRepositories;
@@ -19,7 +18,6 @@ import maquette.adapters.users.UsersRepositories;
 import maquette.common.ObjectMapperFactory;
 import maquette.core.CoreApp;
 import maquette.core.config.ApplicationConfiguration;
-import maquette.core.entities.projects.ports.ApplicationsRepository;
 
 public class Application {
 

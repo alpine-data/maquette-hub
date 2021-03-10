@@ -25,4 +25,8 @@ public interface DataAssetEntities<T extends DataAssetProperties<T>, E extends D
 
    CompletionStage<Done> remove(UID asset);
 
+   CompletionStage<UID> getResourceUID(String asset);
+
+   UID getResourceUID(UID asset);
+
 }

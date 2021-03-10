@@ -1,7 +1,6 @@
 package maquette.core.services.data.datasources;
 
-import maquette.core.entities.data.datasources.DataSourceEntities;
-import maquette.core.entities.projects.ProjectEntities;
+import maquette.core.config.RuntimeConfiguration;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.services.data.DataAssetServicesFactory;
 
@@ -11,8 +10,11 @@ public final class DataSourceServicesFactory {
 
    }
 
-   public static DataSourceServices apply(DataSourceEntities dataSources, ProjectEntities projects) {
-      var assets = DataAssetServicesFactory.apply(dataSources, projects);
+   public static DataSourceServices apply(RuntimeConfiguration runtime) {
+      var dataSources = runtime.getDataSources();
+      var projects = runtime.getProjects();
+
+      var assets = DataAssetServicesFactory.apply(dataSources, runtime);
       var assetsCompanion = DataAssetCompanion.apply(dataSources, projects);
       var companion = DataSourceCompanion.apply(assetsCompanion);
       var delegate = DataSourceServicesImpl.apply(dataSources, assets, companion);

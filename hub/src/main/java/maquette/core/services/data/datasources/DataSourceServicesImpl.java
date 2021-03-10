@@ -3,17 +3,17 @@ package maquette.core.services.data.datasources;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.data.datasets.model.tasks.Task;
-import maquette.core.values.data.*;
-import maquette.core.values.data.logs.DataAccessLogEntry;
-import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasources.DataSourceEntities;
 import maquette.core.entities.data.datasources.DataSourceEntity;
 import maquette.core.entities.data.datasources.model.*;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.services.data.DataAssetServices;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.*;
+import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -113,7 +113,7 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    }
 
    @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
       return assets.getAccessLogs(executor, asset);
    }
 

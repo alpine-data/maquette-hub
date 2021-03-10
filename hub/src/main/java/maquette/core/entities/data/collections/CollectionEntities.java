@@ -91,4 +91,16 @@ public final class CollectionEntities implements DataAssetEntities<CollectionPro
       throw new NotImplementedException();
    }
 
+   @Override
+   public CompletionStage<UID> getResourceUID(String asset) {
+      return getByName(asset)
+         .thenApply(CollectionEntity::getId)
+         .thenApply(this::getResourceUID);
+   }
+
+   @Override
+   public UID getResourceUID(UID asset) {
+      return asset.withParent("collections");
+   }
+
 }

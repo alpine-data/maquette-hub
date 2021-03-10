@@ -113,6 +113,16 @@ public final class DataSourceEntities implements DataAssetEntities<DataSourcePro
       throw new NotImplementedException();
    }
 
+   @Override
+   public CompletionStage<UID> getResourceUID(String asset) {
+      return getByName(asset).thenApply(DataSourceEntity::getId).thenApply(this::getResourceUID);
+   }
+
+   @Override
+   public UID getResourceUID(UID asset) {
+      return asset.withParent("sources");
+   }
+
    public CompletionStage<ConnectionTestResult> test(DataSourceDriver driver, String connection, String username, String password, String query) {
       return jdbcPort.test(driver, connection, username, password, query);
    }

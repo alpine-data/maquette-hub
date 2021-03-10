@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.entities.data.collections.model.Collection;
 import maquette.core.entities.dependencies.neo4j.Graph;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.entities.users.model.UserProfile;
 import maquette.core.server.CommandResult;
 import maquette.core.services.dependencies.model.DependencyPropertiesNode;
@@ -18,7 +19,7 @@ public class CollectionView implements CommandResult {
 
    Collection collection;
 
-   List<DataAccessLogEntry> logs;
+   List<LogEntry> logs;
 
    DataAssetPermissions permissions;
 

@@ -6,17 +6,17 @@ import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
 import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.tasks.Task;
-import maquette.core.values.data.*;
-import maquette.core.values.data.logs.DataAccessLogEntry;
-import maquette.core.values.data.records.Records;
 import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
+import maquette.core.entities.data.datasets.model.tasks.Task;
+import maquette.core.entities.logs.LogEntry;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.data.*;
+import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
@@ -96,7 +96,7 @@ public final class DatasetServicesSecured implements DatasetServices {
    }
 
    @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
       return delegate.getAccessLogs(executor, asset);
    }
 

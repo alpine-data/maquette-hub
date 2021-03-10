@@ -12,16 +12,16 @@ import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
 import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.entities.data.datasets.model.tasks.Task;
 import maquette.core.entities.dependencies.model.DataAssetType;
-import maquette.core.entities.logs.AccessLogs;
 import maquette.core.entities.logs.Action;
 import maquette.core.entities.logs.ActionCategory;
+import maquette.core.entities.logs.LogEntry;
+import maquette.core.entities.logs.Logs;
 import maquette.core.services.dependencies.DependencyCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.*;
-import maquette.core.values.data.logs.DataAccessLogEntry;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
@@ -36,13 +36,11 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetServicesLogged implements DatasetServices {
 
-   private static final String RESOURCE_PARENT = "datasets";
-
    private final DatasetEntities datasets;
 
    private final DatasetServices delegate;
 
-   private final AccessLogs logs;
+   private final Logs logs;
 
    private final DependencyCompanion dependencies;
 
@@ -51,7 +49,7 @@ public final class DatasetServicesLogged implements DatasetServices {
       return delegate
          .create(executor, title, name, summary, visibility, classification, personalInformation, zone, owner, steward)
          .thenApply(properties -> {
-            logs.log(executor, Action.apply(ActionCategory.ADMINISTRATION, "Created dataset `%s`", name), properties.getId().withParent(RESOURCE_PARENT));
+            logs.log(executor, Action.apply(ActionCategory.ADMINISTRATION, "Created dataset `%s`", name), datasets.getResourceUID(properties.getId()));
             return properties;
          });
    }
@@ -61,7 +59,7 @@ public final class DatasetServicesLogged implements DatasetServices {
       return delegate
          .remove(executor, dataset)
          .thenApply(done -> {
-            getResourceUID(dataset).thenCompose(resource -> logs.log(executor, Action.apply(ActionCategory.ADMINISTRATION, "Deleted dataset `%s`", dataset), resource));
+            datasets.getResourceUID(dataset).thenCompose(resource -> logs.log(executor, Action.apply(ActionCategory.ADMINISTRATION, "Deleted dataset `%s`", dataset), resource));
             return done;
          });
    }
@@ -71,7 +69,7 @@ public final class DatasetServicesLogged implements DatasetServices {
       return delegate
          .get(executor, dataset)
          .thenApply(result -> {
-            logs.log(executor, Action.apply(ActionCategory.VIEW, "Fetched dataset details for dataset `%s`", dataset), result.getId().withParent(RESOURCE_PARENT));
+            logs.log(executor, Action.apply(ActionCategory.VIEW, "Fetched dataset details for dataset `%s`", dataset), datasets.getResourceUID(result.getId()));
             return result;
          });
    }
@@ -138,9 +136,9 @@ public final class DatasetServicesLogged implements DatasetServices {
             Action.apply(
                ActionCategory.ADMINISTRATION,
                "Updated dataset `%s` properties: %s",
-               String.join(", "),
+               updatedName,
                String.join(", ", changed)),
-            previous.getId().withParent(RESOURCE_PARENT));
+            datasets.getResourceUID(previous.getId()));
 
          return Done.getInstance();
       });
@@ -152,7 +150,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .approve(executor, dataset)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Approved dataset configurations `%s`", dataset);
-            getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
 
             return result;
          });
@@ -164,7 +162,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .deprecate(executor, dataset, deprecate)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.READ, "Deprecated dataset `%s`", dataset);
-            getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
 
             return result;
          });
@@ -176,7 +174,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .getOpenTasks(executor, dataset)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.VIEW, "Fetched open tasks for asset `%s`", dataset);
-            getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -186,7 +184,7 @@ public final class DatasetServicesLogged implements DatasetServices {
       return delegate
          .commitRevision(executor, dataset, revision, message)
          .thenApply(result -> {
-            getResourceUID(dataset)
+            datasets.getResourceUID(dataset)
                .thenCompose(resource -> logs.log(
                   executor,
                   Action.apply(
@@ -217,11 +215,14 @@ public final class DatasetServicesLogged implements DatasetServices {
       return delegate
          .createRevision(executor, dataset, schema)
          .thenApply(result -> {
-            getResourceUID(dataset)
+            datasets.getResourceUID(dataset)
                .thenCompose(resource -> logs.log(
                   executor,
                   Action.apply(ActionCategory.WRITE, "Created revision `%s` of dataset `%s`", result.getId(), dataset),
                   resource));
+
+            var action = Action.apply(ActionCategory.WRITE, "Uploaded data to revision `%s` from dataset `%s`", result.getId(), dataset);
+            datasets.getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
 
             return result;
          });
@@ -233,7 +234,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .download(executor, dataset, version)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.READ, "Downloaded version `%s` from dataset `%s`", version, dataset);
-            getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
 
             if (executor.getProjectContext().isPresent()) {
                var ctx = executor.getProjectContext().get();
@@ -253,7 +254,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .download(executor, dataset)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.READ, "Downloaded latest version from dataset `%s`", dataset);
-            getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
 
             if (executor.getProjectContext().isPresent()) {
                var ctx = executor.getProjectContext().get();
@@ -270,21 +271,16 @@ public final class DatasetServicesLogged implements DatasetServices {
    @Override
    public CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records) {
       return delegate
-         .upload(executor, dataset, revision, records)
-         .thenApply(result -> {
-            var action = Action.apply(ActionCategory.WRITE, "Uploaded data to revision `%s` from dataset `%s`", revision, dataset);
-            getResourceUID(dataset).thenApply(resource -> logs.log(executor, action, resource));
-            return result;
-         });
+         .upload(executor, dataset, revision, records);
    }
 
    @Override
-   public CompletionStage<List<DataAccessLogEntry>> getAccessLogs(User executor, String asset) {
+   public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String asset) {
       return delegate
          .getAccessLogs(executor, asset)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.VIEW, "Fetched access logs from dataset `%s`", asset);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -295,7 +291,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .createDataAccessRequest(executor, asset, project, reason)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Created data access request to `%s` for project `%s`", asset, project);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -306,7 +302,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .getDataAccessRequest(executor, asset, request)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.VIEW, "Fetched access request `%s` from `%s`", request, asset);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -317,7 +313,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .grantDataAccessRequest(executor, asset, request, until, message)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Granted data access request to `%s`", request);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -328,7 +324,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .rejectDataAccessRequest(executor, asset, request, reason)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Rejected data access request `%s`", request);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -339,7 +335,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .updateDataAccessRequest(executor, asset, request, reason)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Updated data access request `%s`", request);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -350,7 +346,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .withdrawDataAccessRequest(executor, asset, request, reason)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Withdrawn data access request `%s`", request);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -361,7 +357,7 @@ public final class DatasetServicesLogged implements DatasetServices {
          .grant(executor, asset, member, role)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Granted `%s` to `%s`", role, member);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
    }
@@ -372,16 +368,9 @@ public final class DatasetServicesLogged implements DatasetServices {
          .revoke(executor, asset, member)
          .thenApply(result -> {
             var action = Action.apply(ActionCategory.ADMINISTRATION, "Revoked access for `%s`", member);
-            getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
+            datasets.getResourceUID(asset).thenApply(resource -> logs.log(executor, action, resource));
             return result;
          });
-   }
-
-   private CompletionStage<UID> getResourceUID(String asset) {
-      return datasets
-         .getByName(asset)
-         .thenCompose(DatasetEntity::getProperties)
-         .thenApply(p -> p.getId().withParent(RESOURCE_PARENT));
    }
 
 }

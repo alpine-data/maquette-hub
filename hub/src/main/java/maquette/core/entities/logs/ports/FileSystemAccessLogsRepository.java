@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.ObjectMapperFactory;
 import maquette.common.Operators;
-import maquette.core.entities.logs.LogEntry;
+import maquette.core.entities.logs.LogEntryProperties;
 import maquette.core.values.UID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public final class FileSystemAccessLogsRepository implements AccessLogsRepositor
    }
 
    @Override
-   public CompletionStage<Done> append(LogEntry entry) {
+   public CompletionStage<Done> append(LogEntryProperties entry) {
       var file = directory.resolve(String.format(
          "%s.log.json",
          DATE_TIME_FORMATTER.format(entry.getLogged())
@@ -62,11 +62,11 @@ public final class FileSystemAccessLogsRepository implements AccessLogsRepositor
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
-   private Stream<LogEntry> readAll() {
+   private Stream<LogEntryProperties> readAll() {
       return Operators.suppressExceptions(() -> Files.walk(directory))
-         .filter(p -> p.getFileName().endsWith("log.json"))
+         .filter(p -> p.getFileName().toString().endsWith("log.json"))
          .map(p -> Operators.ignoreExceptionsWithDefault(
-            () -> om.readValue(p.toFile(), LogEntry.class),
+            () -> om.readValue(p.toFile(), LogEntryProperties.class),
             null,
             LOG
          ))
@@ -74,23 +74,23 @@ public final class FileSystemAccessLogsRepository implements AccessLogsRepositor
    }
 
    @Override
-   public CompletionStage<List<LogEntry>> getByProject(UID project) {
+   public CompletionStage<List<LogEntryProperties>> getByProject(UID project) {
       return CompletableFuture.completedFuture(readAll()
          .filter(e -> e.getProject() != null && e.getProject().equals(project))
          .collect(Collectors.toList()));
    }
 
    @Override
-   public CompletionStage<List<LogEntry>> getByUser(String userId) {
+   public CompletionStage<List<LogEntryProperties>> getByUser(String userId) {
       return CompletableFuture.completedFuture(readAll()
          .filter(e -> e.getUserId() != null && e.getUserId().equals(userId))
          .collect(Collectors.toList()));
    }
 
    @Override
-   public CompletionStage<List<LogEntry>> getByResourcePrefix(UID resource) {
+   public CompletionStage<List<LogEntryProperties>> getByResourcePrefix(UID resource) {
       return CompletableFuture.completedFuture(readAll()
-         .filter(e -> e.getResource() != null && e.getProject().getValue().startsWith(resource.getValue()))
+         .filter(e -> e.getResource().isPresent() && e.getResource().get().getValue().startsWith(resource.getValue()))
          .collect(Collectors.toList()));
    }
 
