@@ -1,5 +1,6 @@
 package maquette.core.entities.projects.model.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -10,11 +11,11 @@ import maquette.core.entities.projects.model.model.events.Approved;
 import maquette.core.entities.projects.model.model.events.ModelVersionEvent;
 import maquette.core.entities.projects.model.model.events.Registered;
 import maquette.core.entities.projects.model.model.events.StateChangedEvent;
-import maquette.core.entities.projects.model.model.governance.CodeQuality;
-import maquette.core.entities.projects.model.model.governance.DataDependencies;
-import maquette.core.entities.projects.model.model.governance.GitDetails;
+import maquette.core.entities.projects.model.model.governance.*;
 import maquette.core.entities.projects.model.questionnaire.Questionnaire;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.data.DataZone;
+import maquette.core.values.data.PersonalInformation;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ModelVersion {
 
    String version;
@@ -112,14 +114,149 @@ public class ModelVersion {
 
    public Optional<CodeQuality> getCodeQuality() { return Optional.ofNullable(codeQuality); }
 
+   @JsonProperty("codeQualityChecks")
+   public List<CheckResult> getCodeQualityChecks() {
+      List<CheckResult> result = Lists.newArrayList();
+
+      if (gitDetails == null || gitDetails.getCommit().isEmpty()) {
+         result.add(CheckException.apply("Code is not tracked with Git"));
+      } else {
+         result.add(CheckOk.apply(String.format("Code is tracked with Git. The commit is `%s`", gitDetails.getCommit().get())));
+      }
+
+      if (gitDetails == null || gitDetails.getTransferUrl().isEmpty()) {
+         result.add(CheckException.apply("Code is not tracked with central Git repository"));
+      } else {
+         result.add(CheckOk.apply("Code is tracked at %s"));
+      }
+
+      if (gitDetails == null || !gitDetails.isMaster()) {
+         result.add(CheckException.apply("Code is not merged in main branch"));
+      } else {
+         result.add(CheckOk.apply("Code merged in main branch"));
+      }
+
+      if (codeQuality == null) {
+         result.add(CheckException.apply("Code quality is not measured."));
+         result.add(CheckException.apply("Test coverage is not measured."));
+      } else {
+         result.add(CheckOk.apply("Code quality is tracked."));
+
+         var critical = codeQuality
+            .getIssues()
+            .stream()
+            .filter(i -> i.getType().equals(IssueType.CRITICAL))
+            .count();
+
+         var warnings = codeQuality
+            .getIssues()
+            .stream()
+            .filter(i -> i.getType().equals(IssueType.WARNING))
+            .count();
+
+         if (critical > 0) {
+            result.add(CheckException.apply("%d critical code quality issue(s)"));
+         } else {
+            result.add(CheckOk.apply("No critical code quality issues"));
+         }
+
+         if (warnings > 0) {
+            result.add(CheckWarning.apply("%d minor code quality issue(s)"));
+         } else {
+            result.add(CheckOk.apply("No minor code quality issues"));
+         }
+
+         if (codeQuality.getTestCoverage() < 60) {
+            result.add(CheckWarning.apply(String.format("Test coverage is below 60%% - Currently %d%%", codeQuality.getTestCoverage())));
+         } else {
+            result.add(CheckOk.apply(String.format("Test coverage of %s%%", codeQuality.getTestCoverage())));
+         }
+      }
+
+      return result;
+   }
+
+   @JsonProperty("codeQualitySummary")
+   public String getCodeQualitySummary() {
+      var checks = getCodeQualityChecks();
+      var exceptions = checks.stream().filter(r -> r instanceof CheckException).count();
+      var warnings = checks.stream().filter(r -> r instanceof CheckWarning).count();
+
+      if (exceptions > 0) {
+         return String.format("%d exceptions, %d warnings", exceptions, warnings);
+      } else if (warnings > 0) {
+         return String.format("%d warnings", warnings);
+      } else {
+         return "Diddly doodly fine";
+      }
+   }
+
    public Optional<DataDependencies> getDataDependencies() {
       return Optional.ofNullable(dataDependencies);
+   }
+
+   @JsonProperty("dataDependencyChecks")
+   public List<CheckResult> getDataDependencyChecks() {
+      List<CheckResult> result = Lists.newArrayList();
+
+      if (dataDependencies == null) {
+         result.add(CheckWarning.apply("Data dependencies not tracked."));
+      } else {
+         result.add(CheckOk.apply("Data dependencies tracked"));
+
+         if (this.isDependantOnSPI()) {
+            result.add(CheckWarning.apply("The model depends on sensitive personal information"));
+         }
+
+         if (this.isDependantOnPI()) {
+            result.add(CheckWarning.apply("The model depends on personal information"));
+         }
+
+         if (this.isDependantOnRawData()) {
+            result.add(CheckWarning.apply("The model depends on raw data sets"));
+         }
+      }
+
+      return result;
+   }
+
+   @JsonProperty("dataDependencySummary")
+   public String getDataDependencySummary() {
+      var checks = getDataDependencyChecks();
+      var exceptions = checks.stream().filter(r -> r instanceof CheckException).count();
+      var warnings = checks.stream().filter(r -> r instanceof CheckWarning).count();
+
+      if (exceptions > 0) {
+         return String.format("%d exceptions, %d warnings", exceptions, warnings);
+      } else if (warnings > 0) {
+         return String.format("%d warnings", warnings);
+      } else {
+         return "Okily Dokily!";
+      }
+   }
+
+   @JsonProperty("dataGovernanceSummary")
+   public String getDataGovernanceSummary() {
+      var state = getState();
+
+      if (questionnaire == null) {
+         return "Questionnaire not filled";
+      } else if (state.equals(ModelVersionState.REVIEW_REQUESTED)) {
+         return "Review requested";
+      } else if (state.equals(ModelVersionState.REJECTED)) {
+         return "Model rejected";
+      } else if (state.equals(ModelVersionState.APPROVED)) {
+         return "Model is approved";
+      } else {
+         return "Requires review";
+      }
    }
 
    public Optional<GitDetails> getGitDetails() {
       return Optional.ofNullable(gitDetails);
    }
 
+   @JsonProperty("state")
    public ModelVersionState getState() {
       return events
          .stream()
@@ -129,6 +266,42 @@ public class ModelVersion {
          .map(StateChangedEvent::getState)
          .findFirst()
          .orElse(ModelVersionState.REGISTERED);
+   }
+
+   @JsonProperty("isDependantOnPI")
+   public boolean isDependantOnPI() {
+      if (dataDependencies == null) {
+         return false;
+      } else {
+         return dataDependencies
+            .getAssets()
+            .stream()
+            .anyMatch(asset -> asset.getPersonalInformation().equals(PersonalInformation.PERSONAL_INFORMATION));
+      }
+   }
+
+   @JsonProperty("isDependantOnRawData")
+   public boolean isDependantOnRawData() {
+      if (dataDependencies == null) {
+         return false;
+      } else {
+         return dataDependencies
+            .getAssets()
+            .stream()
+            .anyMatch(asset -> asset.getZone().equals(DataZone.RAW));
+      }
+   }
+
+   @JsonProperty("isDependantOnSPI")
+   public boolean isDependantOnSPI() {
+      if (dataDependencies == null) {
+         return false;
+      } else {
+         return dataDependencies
+            .getAssets()
+            .stream()
+            .anyMatch(asset -> asset.getPersonalInformation().equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION));
+      }
    }
 
    public ModelVersion withEvent(ModelVersionEvent event) {

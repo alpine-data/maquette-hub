@@ -69,7 +69,7 @@ function ModernSummary({ title, tags, metrics, metricColspan, link, appearance, 
       [`mq--modern-summary-${appearance}`]: true,
       'mq--modern-summary-link': !_.isEmpty(link) }) }>
 
-    <FlexboxGrid align="middle">
+    <FlexboxGrid align="middle" justify="space-between">
       <FlexboxGrid.Item colspan={ titleColspan }>
         <span className="mq--modern-summary--title">{ title }</span>
         {
@@ -84,7 +84,7 @@ function ModernSummary({ title, tags, metrics, metricColspan, link, appearance, 
       </FlexboxGrid.Item>
       {
         _.map(metrics, (metric, idx) => <React.Fragment key={ `metric-${idx}` }>
-          <FlexboxGrid.Item colspan={ metricColspan }>
+          <FlexboxGrid.Item>
             { metric }
           </FlexboxGrid.Item>
         </React.Fragment>)

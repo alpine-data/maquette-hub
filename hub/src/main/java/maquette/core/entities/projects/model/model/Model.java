@@ -1,9 +1,11 @@
 package maquette.core.entities.projects.model.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.entities.projects.exceptions.ModelVersionNotFoundException;
+import maquette.core.entities.projects.model.model.governance.CheckWarning;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.GrantedAuthorization;
 
@@ -58,6 +60,20 @@ public class Model {
          .stream()
          .filter(v -> v.getVersion().equals(version))
          .findAny();
+   }
+
+   @JsonProperty("warnings")
+   public long getWarnings() {
+      return versions
+         .stream()
+         .findFirst()
+         .map(version -> {
+            var count = version.getCodeQualityChecks().stream().filter(r -> r instanceof CheckWarning).count();
+            count += version.getDataDependencies().stream().count();
+
+            return count;
+         })
+         .orElse(0L);
    }
 
    public Model withVersion(ModelVersion version) {

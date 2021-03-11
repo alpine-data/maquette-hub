@@ -78,13 +78,13 @@ function Overview({ model, view, onUpdateModel }) {
                 value={ timeAgo(version.updated.at) } />,
               <TextMetric
                 label="Code Quality" 
-                value="No issues" />,
+                value={ version.codeQualitySummary } />,
+              <TextMetric
+                label="Dependencies"
+                value={ version.dataDependencySummary } />,
               <TextMetric
                 label="Governance"
-                value="Action required" />,
-              <TextMetric
-                label="Monitoring"
-                value="No issues" />
+                value={ version.dataGovernanceSummary } />
             ] }
             link={ `/${view.project.name}/models/${model.name}/versions/${version.version}` } />   
         </React.Fragment>)
