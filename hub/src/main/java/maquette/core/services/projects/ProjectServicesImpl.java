@@ -7,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasets.DatasetEntity;
 import maquette.core.entities.data.datasets.model.Dataset;
 import maquette.core.entities.data.datasets.model.DatasetProperties;
@@ -21,17 +20,26 @@ import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.*;
-import maquette.core.entities.projects.model.*;
+import maquette.core.entities.projects.model.MlflowConfiguration;
+import maquette.core.entities.projects.model.Project;
+import maquette.core.entities.projects.model.ProjectMemberRole;
+import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.apps.Application;
 import maquette.core.entities.projects.model.model.Model;
-import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
+import maquette.core.entities.projects.model.model.ModelProperties;
+import maquette.core.entities.projects.model.model.events.Approved;
+import maquette.core.entities.projects.model.model.events.Rejected;
+import maquette.core.entities.projects.model.model.events.ReviewRequested;
+import maquette.core.entities.projects.model.model.governance.CodeIssue;
+import maquette.core.entities.projects.model.model.governance.CodeQuality;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.sandboxes.model.stacks.Stack;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
 import maquette.core.services.data.datasets.DatasetCompanion;
 import maquette.core.services.data.datasources.DataSourceCompanion;
 import maquette.core.services.sandboxes.SandboxCompanion;
+import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
@@ -40,6 +48,7 @@ import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -263,7 +272,9 @@ public final class ProjectServicesImpl implements ProjectServices {
          .getProjectByName(project)
          .thenCompose(ProjectEntity::getModels)
          .thenApply(models -> models.getModel(model))
-         .thenCompose(m -> m.approveModel(user, version));
+         .thenCompose(m -> m.updateModelVersion(
+            user, version,
+            v -> v.withEvent(Approved.apply(ActionMetadata.apply(user)))));
    }
 
    @Override
@@ -273,6 +284,36 @@ public final class ProjectServicesImpl implements ProjectServices {
          .thenCompose(ProjectEntity::getModels)
          .thenApply(models -> models.getModel(model))
          .thenCompose(m -> m.promoteModel(user, version, stage));
+   }
+
+   @Override
+   public CompletionStage<Done> rejectModel(User user, String project, String model, String version, String reason) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.updateModelVersion(user, version, mdl -> mdl.withEvent(Rejected.apply(ActionMetadata.apply(user), reason))));
+   }
+
+   @Override
+   public CompletionStage<Done> requestModelReview(User user, String project, String model, String version) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.updateModelVersion(user, version, mdl -> mdl.withEvent(ReviewRequested.apply(ActionMetadata.apply(user)))));
+   }
+
+   @Override
+   public CompletionStage<Done> reportCodeQuality(User user, String project, String model, String version, String commit, int score, int coverage, List<CodeIssue> issues) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.updateModelVersion(user, version, mdl -> {
+            var quality = CodeQuality.apply(Instant.now(), commit, score, coverage, issues);
+            return mdl.withCodeQuality(quality);
+         }));
    }
 
    @Override

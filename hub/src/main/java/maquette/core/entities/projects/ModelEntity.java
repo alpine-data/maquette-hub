@@ -1,13 +1,16 @@
 package maquette.core.entities.projects;
 
 import akka.Done;
+import akka.japi.Function;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.entities.projects.exceptions.ModelNotFoundException;
-import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.ModelFromRegistry;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
+import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.ModelVersion;
+import maquette.core.entities.projects.model.model.events.QuestionnaireFilled;
 import maquette.core.entities.projects.model.questionnaire.Answers;
 import maquette.core.entities.projects.ports.MlflowPort;
 import maquette.core.entities.projects.ports.ModelsRepository;
@@ -36,7 +39,6 @@ public final class ModelEntity {
 
    private final ModelCompanion companion;
 
-
    private final String name;
 
    public CompletionStage<ModelProperties> getProperties() {
@@ -52,6 +54,17 @@ public final class ModelEntity {
          .thenCompose(model -> models.insertOrUpdateModel(project, model));
    }
 
+   public CompletionStage<Done> updateModelVersion(User executor, String version, Function<ModelVersion, ModelVersion> update) {
+      return getProperties()
+         .thenCompose(model -> {
+            var updatedVersion = Operators
+               .suppressExceptions(() -> update.apply(model.getVersion(version)))
+               .withUpdated(ActionMetadata.apply(executor));
+
+            return models.insertOrUpdateModel(project, model.withVersion(updatedVersion));
+         });
+   }
+
    public CompletionStage<Done> answerQuestionnaire(User executor, String version, JsonNode responses) {
       return getProperties()
          .thenCompose(model -> {
@@ -63,18 +76,7 @@ public final class ModelEntity {
 
             updatedVersion = updatedVersion
                .withQuestionnaire(questionnaire)
-               .withUpdated(ActionMetadata.apply(executor));
-
-            return models.insertOrUpdateModel(project, model.withVersion(updatedVersion));
-         });
-   }
-
-   public CompletionStage<Done> approveModel(User executor, String version) {
-      return getProperties()
-         .thenCompose(model -> {
-            var updatedVersion = model
-               .getVersion(version)
-               .withApproved(ActionMetadata.apply(executor))
+               .withEvent(QuestionnaireFilled.apply(ActionMetadata.apply(executor)))
                .withUpdated(ActionMetadata.apply(executor));
 
             return models.insertOrUpdateModel(project, model.withVersion(updatedVersion));

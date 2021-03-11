@@ -11,6 +11,7 @@ import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.projects.model.model.governance.CodeIssue;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.exceptions.NotAuthorizedException;
@@ -113,6 +114,21 @@ public class ProjectServicesSecured implements ProjectServices {
    public CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage) {
       // TODO mw: Check auth
       return delegate.promoteModel(user, project, model, version, stage);
+   }
+
+   @Override
+   public CompletionStage<Done> rejectModel(User user, String project, String model, String version, String reason) {
+      return delegate.rejectModel(user, project, model, version, reason);
+   }
+
+   @Override
+   public CompletionStage<Done> requestModelReview(User user, String project, String model, String version) {
+      return delegate.requestModelReview(user, project, model, version);
+   }
+
+   @Override
+   public CompletionStage<Done> reportCodeQuality(User user, String project, String model, String version, String commit, int score, int coverage, List<CodeIssue> issues) {
+      return delegate.reportCodeQuality(user, project, model, version, commit, score, coverage, issues);
    }
 
    @Override

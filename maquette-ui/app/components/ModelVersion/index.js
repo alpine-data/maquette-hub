@@ -20,6 +20,15 @@ const ActionButton = styled(Button)`
   width: 100%;
   max-width: 220px;
   margin-bottom: 10px !important;
+  display: block;
+  
+  &.rs-btn-ghost {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  &.rs-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
 `;
 
 function ModelAction({ model, view, version, action, onUpdateModel }) {
@@ -27,7 +36,7 @@ function ModelAction({ model, view, version, action, onUpdateModel }) {
     case 'approve':
       return <ActionButton
         appearance='ghost' 
-        onSelect={ () => {
+        onClick={ () => {
           onUpdateModel('projects models approve', { 
             project: view.project.name,
             model: model.name,
@@ -50,7 +59,7 @@ function ModelAction({ model, view, version, action, onUpdateModel }) {
     case 'archive':
       return <ActionButton 
         appearance='ghost' 
-        onSelect={ () => {
+        onClick={ () => {
           onUpdateModel('projects models promote', {
             project: view.project.name,
             model: model.name,
@@ -62,7 +71,7 @@ function ModelAction({ model, view, version, action, onUpdateModel }) {
     case 'restore':
       return <ActionButton 
         appearance='ghost' 
-        onSelect={ () => {
+        onClick={ () => {
           onUpdateModel('projects models promote', {
             project: view.project.name,
             model: model.name,
@@ -74,7 +83,7 @@ function ModelAction({ model, view, version, action, onUpdateModel }) {
     case 'promote':
       return <ActionButton 
         appearance='ghost' 
-        onSelect={ () => {
+        onClick={ () => {
           onUpdateModel('projects models promote', {
             project: view.project.name,
             model: model.name,
@@ -207,12 +216,12 @@ function ModelVersion({ view, model, version, tab, onUpdateModel }) {
       />
 
       <VerticalTabs
-        active= { tab || 'summary' }
+        active= { tab || 'overview' }
         tabs={[
           {
-            label: 'Summary',
+            label: 'Overview',
             link: `/${view.project.name}/models/${model.name}/versions/${version.version}`,
-            key: 'summary',
+            key: 'overview',
             visible: true,
             component: () => <Overview view={ view } model={ model } version={ version } onUpdateModel={ onUpdateModel } />
           },

@@ -2,13 +2,15 @@ package maquette.core.services.projects;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
-import maquette.core.entities.projects.model.apps.Application;
-import maquette.core.entities.projects.model.model.Model;
-import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectMemberRole;
 import maquette.core.entities.projects.model.ProjectProperties;
+import maquette.core.entities.projects.model.apps.Application;
+import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
+import maquette.core.entities.projects.model.model.ModelProperties;
+import maquette.core.entities.projects.model.model.governance.CodeIssue;
+import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -50,6 +52,12 @@ public interface ProjectServices {
     CompletionStage<Done> approveModel(User user, String project, String model, String version);
 
     CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage);
+
+    CompletionStage<Done> rejectModel(User user, String project, String model, String version, String reason);
+
+    CompletionStage<Done> requestModelReview(User user, String project, String model, String version);
+
+    CompletionStage<Done> reportCodeQuality(User user, String project, String model, String version, String commit, int score, int coverage, List<CodeIssue> issues);
 
     CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model);
 

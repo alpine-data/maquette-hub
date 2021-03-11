@@ -7,6 +7,7 @@ import maquette.common.Operators;
 import maquette.core.entities.projects.model.model.ModelFromRegistry;
 import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.ModelVersion;
+import maquette.core.entities.projects.model.model.governance.GitDetails;
 import maquette.core.entities.projects.model.questionnaire.Questionnaire;
 import maquette.core.entities.projects.ports.ModelsRepository;
 import maquette.core.values.ActionMetadata;
@@ -57,10 +58,10 @@ public final class ModelCompanion {
                      v.getVersion(), v.getDescription(),
                      registered, v.getFlavors(), v.getStage(), defaultQuestionnaire);
 
-                  version = version
-                     .withGitCommit(v.getGitCommit().orElse(null))
-                     .withGitTransferUrl(v.getGitUrl().orElse(null));
-
+                  if (v.getGitCommit().isPresent()) {
+                     var gitDetails = GitDetails.apply(v.getGitCommit().orElse(null), v.getGitUrl().orElse(null), false);
+                     version = version.withGitDetails(gitDetails);
+                  }
 
                   return version;
                })
@@ -79,11 +80,14 @@ public final class ModelCompanion {
                .stream()
                .map(versionFromRegistry -> {
                   if (versionsMap.containsKey(versionFromRegistry.getVersion())) {
-                     return versionsMap
-                        .get(versionFromRegistry.getVersion())
+                     var v = versionsMap.get(versionFromRegistry.getVersion());
+
+                     if (versionFromRegistry.getGitDetails().isPresent() && v.getGitDetails().isPresent() && v.getGitDetails().get().isMaster()) {
+                        v = v.withGitDetails(versionFromRegistry.getGitDetails().get().withMaster(true));
+                     }
+
+                     return v
                         .withStage(versionFromRegistry.getStage())
-                        .withGitCommit(versionFromRegistry.getGitCommit().orElse(null))
-                        .withGitTransferUrl(versionFromRegistry.getGitTransferUrl().orElse(null))
                         .withFlavours(versionFromRegistry.getFlavours());
                   } else {
                      return versionFromRegistry;
