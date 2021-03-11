@@ -15,15 +15,20 @@ import ModelVersion from '../ModelVersion';
 function Models({ view, ...props }) {
   return <Container lg>
       {
-        _.map(view.models, model => <React.Fragment key={ model.name }>
-          <ModelSummary
-            title={ model.title }
-            tags={ [ model.name ] }
-            link={ `/${view.project.name}/models/${model.name}` } 
-            warnings={ _.size(model.warnings) }
-            owner={{ id: model.updated.by, name: 'Egon Olsen' }}
-            updated={ model.updated.at } />
-        </React.Fragment>)
+        _.map(view.models, model => {
+          const updatedBy = _.get(view, `users.${model.updated.by}`) || { id: model.updated.by, name: model.updated.by };
+
+          return <React.Fragment key={ model.name }>
+            <ModelSummary
+              title={ model.title }
+              tags={ [ model.name ] }
+              link={ `/${view.project.name}/models/${model.name}` } 
+              warnings={ model.warnings }
+              exceptions={ model.exceptions }
+              updatedBy={ updatedBy }
+              updated={ model.updated.at } />
+          </React.Fragment>
+        })
       }
     </Container>;
 }

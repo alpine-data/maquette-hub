@@ -119,7 +119,22 @@ public final class ModelEntity {
    }
 
    public CompletionStage<List<GrantedAuthorization<ModelMemberRole>>> getMembers() {
-      return models.findAllMembers(project, name);
+      return models
+         .findAllMembers(project, name)
+         .thenCompose(members -> {
+            if (members.isEmpty()) {
+               return getProperties()
+                  .thenApply(p -> p.getCreated().getBy())
+                  .thenApply(UserAuthorization::apply)
+                  .thenApply(auth -> GrantedAuthorization.apply(ActionMetadata.apply(auth.getName()), auth, ModelMemberRole.OWNER))
+                  .thenCompose(owner -> models.insertOrUpdateMember(project, name, owner))
+                  .thenCompose(done -> models.insertOrUpdateMember(project, name, GrantedAuthorization.apply(
+                     ActionMetadata.apply("alice"), UserAuthorization.apply("alice"), ModelMemberRole.REVIEWER))) // TODO get default review from Project configuration.
+                  .thenCompose(done -> getMembers());
+            } else {
+               return CompletableFuture.completedFuture(members);
+            }
+         });
    }
 
    public CompletionStage<Done> removeMember(User executor, UserAuthorization member) {

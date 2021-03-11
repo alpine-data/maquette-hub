@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes(
    {
       @JsonSubTypes.Type(value = CheckOk.class, name = "ok"),
+      @JsonSubTypes.Type(value = CheckException.class, name = "exception"),
       @JsonSubTypes.Type(value = CheckWarning.class, name = "warning")
    })
 public interface CheckResult {

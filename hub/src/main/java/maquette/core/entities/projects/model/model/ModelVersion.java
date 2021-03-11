@@ -70,7 +70,11 @@ public class ModelVersion {
          actions.add(ReviewQuestionnaire.apply());
       }
 
-      if (getApproved().isEmpty() && questionnaire.getAnswers().isPresent()) {
+      if (getApproved().isEmpty() && questionnaire.getAnswers().isPresent() && !getState().equals(ModelVersionState.REVIEW_REQUESTED)) {
+         actions.add(RequestReview.apply());
+      }
+
+      if (getState().equals(ModelVersionState.REVIEW_REQUESTED)) {
          actions.add(ApproveModel.apply());
       }
 
@@ -127,7 +131,7 @@ public class ModelVersion {
       if (gitDetails == null || gitDetails.getTransferUrl().isEmpty()) {
          result.add(CheckException.apply("Code is not tracked with central Git repository"));
       } else {
-         result.add(CheckOk.apply("Code is tracked at %s"));
+         result.add(CheckOk.apply(String.format("Code is tracked at `%s`", gitDetails.getTransferUrl().get())));
       }
 
       if (gitDetails == null || !gitDetails.isMaster()) {

@@ -27,6 +27,7 @@ import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.apps.Application;
 import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
+import maquette.core.entities.projects.model.model.ModelMembersCompanion;
 import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.events.Approved;
 import maquette.core.entities.projects.model.model.events.Rejected;
@@ -236,16 +237,27 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    @Override
    public CompletionStage<Model> getModel(User user, String project, String model) {
-      return projects
-         .getProjectByName(project)
-         .thenCompose(ProjectEntity::getModels)
-         .thenApply(models -> models.getModel(model))
-         .thenCompose(entity -> {
-            var propertiesCS = entity.getProperties();
-            var membersCS = entity.getMembers();
+      var projectCS = projects
+         .getProjectByName(project);
 
-            return Operators.compose(propertiesCS, membersCS, Model::fromProperties);
-         });
+      var modelEntityCS = projectCS
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model));
+
+      var projectMembersCS = projectCS
+         .thenCompose(p -> p.members().getMembers());
+
+      return Operators
+         .compose(modelEntityCS, projectMembersCS, (modelEntity, projectMembers) -> {
+            var propertiesCS = modelEntity.getProperties();
+            var membersCS = modelEntity.getMembers();
+            var permissionsCS = membersCS
+               .thenApply(members -> ModelMembersCompanion.apply(members, projectMembers))
+               .thenApply(comp -> comp.getDataAssetPermissions(user));
+
+            return Operators.compose(propertiesCS, membersCS, permissionsCS, Model::fromProperties);
+         })
+         .thenCompose(cs -> cs);
    }
 
    @Override
@@ -255,6 +267,15 @@ public final class ProjectServicesImpl implements ProjectServices {
          .thenCompose(ProjectEntity::getModels)
          .thenApply(models -> models.getModel(model))
          .thenCompose(m -> m.updateModel(user, title, description));
+   }
+
+   @Override
+   public CompletionStage<Done> updateModelVersion(User user, String project, String model, String version, String description) {
+      return projects
+         .getProjectByName(project)
+         .thenCompose(ProjectEntity::getModels)
+         .thenApply(models -> models.getModel(model))
+         .thenCompose(m -> m.updateModelVersion(user, version, mdl -> mdl.withDescription(description)));
    }
 
    @Override

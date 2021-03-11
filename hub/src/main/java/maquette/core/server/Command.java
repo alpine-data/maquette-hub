@@ -160,6 +160,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = RevokeModelRoleCommand.class, name = "projects models revoke"),
       @JsonSubTypes.Type(value = RequestModelReviewCommand.class, name = "projects models request-review"),
       @JsonSubTypes.Type(value = UpdateModelCommand.class, name = "projects models update"),
+      @JsonSubTypes.Type(value = UpdateModelVersionCommand.class, name = "projects models update-version"),
 
       // Sandboxes
       @JsonSubTypes.Type(value = CreateSandboxCommand.class, name = "sandboxes create"),

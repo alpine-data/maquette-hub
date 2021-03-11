@@ -11,13 +11,12 @@ import { Breadcrumb, FlexboxGrid } from 'rsuite';
 import { timeAgo, formatDate } from '../../utils/helpers';
 
 import Container from '../Container';
+import EditableParagraph from '../EditableParagraph';
 import ModelQuestionnaire from '../ModelQuestionnaire';
 import ModelSettings from '../ModelSettings';
 import ModernSummary, { TextMetric, TrendMetric } from '../ModernSummary';
 import UserCard from '../UserCard';
 import VerticalTabs from '../VerticalTabs';
-// import PropTypes from 'prop-types';
-// import styled from 'styled-components';
 
 const roleLabels = {
   "owner": "Owner",
@@ -32,9 +31,19 @@ function Overview({ model, view, onUpdateModel }) {
       <h5>
         Description
       </h5>
-      <p className="mq--p-leading">
-        { model.description || <>No description yet.</> }
-      </p>
+
+      <EditableParagraph 
+        label="Edit description"
+        value={ model.description } 
+        placeholder="No description yet."
+        className="mq--p-leading"
+        onChange={ value => onUpdateModel('projects models update', {
+          project: view.project.name,
+          model: model.name,
+          description: value,
+          title: model.title
+        })
+      } />
     </FlexboxGrid.Item>
 
     <FlexboxGrid.Item colspan={ 7 }>
@@ -119,13 +128,19 @@ function ModelOverview({ view, model, onGrantModelRole, onRevokeModelRole, onUpd
         tags={ model.flavors || model.flavours }
         metrics={[
           <TrendMetric
-            value={ _.size(model.warnings) }
-            label='Warnings'
-            text='+3 last 7 days'
-            trend='up'
+            value={ model.exceptions }
+            label='Exceptions'
+            text='Must be fixed'
+            trend='right'
             sentiment='negative' />,
           <TrendMetric
-            value={ 12 }
+            value={ model.warnings }
+            label='Warnings'
+            text='Have a look'
+            trend='right'
+            sentiment='neutral' />,
+          <TrendMetric
+            value={ 0 }
             label='Consumers'
             text='No changes last 7 days' />,
           <TextMetric

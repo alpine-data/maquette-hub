@@ -39,9 +39,16 @@ public final class ModelCompanion {
             var createdBy = registeredModel
                .getVersions()
                .get(registeredModel.getVersions().size() - 1)
-               .getUser();
+               .getUser()
+               .replace("michaelwellner", "michael"); // TODO ensure right user names tracked by MLflow.
+
             var created = ActionMetadata.apply(createdBy, registeredModel.getCreated());
-            var updatedBy = registeredModel.getVersions().get(0).getUser();
+
+            var updatedBy = registeredModel
+               .getVersions()
+               .get(0)
+               .getUser()
+               .replace("michaelwellner", "michael"); // TODO ensure right user names tracked by MLflow.
 
             var updatedTime = registeredModel.getVersions().get(0).getCreated();
             var updated = ActionMetadata.apply(updatedBy, updatedTime);
@@ -53,7 +60,10 @@ public final class ModelCompanion {
                .getVersions()
                .stream()
                .map(v -> {
-                  var registered = ActionMetadata.apply(v.getUser(), v.getCreated());
+                  var registered = ActionMetadata.apply(
+                     v.getUser().replace("michaelwellner", "michael"), // TODO ensure right user names tracked by MLflow.
+                     v.getCreated());
+
                   var version = ModelVersion.apply(
                      v.getVersion(), v.getDescription(),
                      registered, v.getFlavors(), v.getStage(), defaultQuestionnaire);
@@ -84,6 +94,8 @@ public final class ModelCompanion {
 
                      if (versionFromRegistry.getGitDetails().isPresent() && v.getGitDetails().isPresent() && v.getGitDetails().get().isMaster()) {
                         v = v.withGitDetails(versionFromRegistry.getGitDetails().get().withMaster(true));
+                     } else {
+                        v = v.withGitDetails(versionFromRegistry.getGitDetails().orElse(null));
                      }
 
                      return v

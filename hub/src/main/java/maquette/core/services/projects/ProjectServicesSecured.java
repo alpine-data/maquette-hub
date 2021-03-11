@@ -99,6 +99,11 @@ public class ProjectServicesSecured implements ProjectServices {
    }
 
    @Override
+   public CompletionStage<Done> updateModelVersion(User user, String project, String model, String version, String description) {
+      return delegate.updateModelVersion(user, project, model, version, description);
+   }
+
+   @Override
    public CompletionStage<Done> answerQuestionnaire(User user, String project, String model, String version, JsonNode responses) {
       // TODO mw: Check auth
       return delegate.answerQuestionnaire(user, project, model, version, responses);

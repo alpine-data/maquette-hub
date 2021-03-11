@@ -5,10 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.entities.projects.exceptions.ModelVersionNotFoundException;
+import maquette.core.entities.projects.model.model.governance.CheckException;
 import maquette.core.entities.projects.model.model.governance.CheckWarning;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.GrantedAuthorization;
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,7 +39,10 @@ public class Model {
 
    List<GrantedAuthorization<ModelMemberRole>> members;
 
-   public static Model fromProperties(ModelProperties properties, List<GrantedAuthorization<ModelMemberRole>> members) {
+   ModelPermissions permissions;
+
+   public static Model fromProperties(ModelProperties properties, List<GrantedAuthorization<ModelMemberRole>> members, ModelPermissions permissions) {
+
       return apply(
          properties.getTitle(),
          properties.getName(),
@@ -48,10 +52,11 @@ public class Model {
          properties.getVersions(),
          properties.getCreated(),
          properties.getUpdated(),
-         members);
+         members,
+         permissions);
    }
 
-   public ModelVersion getVersion(String version){
+   public ModelVersion getVersion(String version) {
       return findVersion(version).orElseThrow(() -> ModelVersionNotFoundException.apply(name, version));
    }
 
@@ -62,14 +67,28 @@ public class Model {
          .findAny();
    }
 
+   @JsonProperty("exceptions")
+   public long getExceptions() {
+      return versions
+         .stream()
+         .max(Comparator.comparing(m -> m.getRegistered().getAt()))
+         .map(version -> {
+            var count = version.getCodeQualityChecks().stream().filter(r -> r instanceof CheckException).count();
+            count += version.getDataDependencyChecks().stream().filter(r -> r instanceof CheckException).count();
+
+            return count;
+         })
+         .orElse(0L);
+   }
+
    @JsonProperty("warnings")
    public long getWarnings() {
       return versions
          .stream()
-         .findFirst()
+         .max(Comparator.comparing(m -> m.getRegistered().getAt()))
          .map(version -> {
             var count = version.getCodeQualityChecks().stream().filter(r -> r instanceof CheckWarning).count();
-            count += version.getDataDependencies().stream().count();
+            count += version.getDataDependencyChecks().stream().filter(r -> r instanceof CheckWarning).count();
 
             return count;
          })
