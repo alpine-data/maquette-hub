@@ -51,6 +51,15 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
   const grantControls = () => {
     return <>
       <FormGroup>
+        <ControlLabel>Allowed environments</ControlLabel>
+        <RadioGroup value="any">
+          <Radio value="any">Any environment</Radio>
+          <Radio value="sandbox">Any sandbox environment</Radio>
+          <Radio value="on-premise">On-premise sandbox environment's only</Radio>
+        </RadioGroup>
+      </FormGroup>
+      
+      <FormGroup>
         <ControlLabel>Message</ControlLabel>
         <Input 
           componentClass="textarea" 
@@ -70,6 +79,7 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
             onChange={ onChange('validity_date') } />
         </FormGroup>
       }
+
       <FormGroup>
         <ButtonToolbar>
           <Button 

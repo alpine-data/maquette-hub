@@ -32,7 +32,7 @@ public class GrantDataSourceDataAccessRequestCommand implements Command {
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
-         .getDatasetServices()
+         .getDataSourceServices()
          .grantDataAccessRequest(user, asset, id, until, message)
          .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
    }

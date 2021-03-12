@@ -26,7 +26,6 @@ import org.mlflow.tracking.MlflowClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -190,7 +189,9 @@ public final class MlflowPort {
          } else {
             var body = response.body();
             var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
-            return Operators.suppressExceptions(() -> om.readValue(content, responseType));
+            var result = Operators.suppressExceptions(() -> om.readValue(content, responseType));
+            if (body != null) body.close();
+            return result;
          }
       } catch (Exception e) {
          throw new RuntimeException("Exception occurred requesting information from MLflow `" + request.url() + "`", e);
@@ -213,7 +214,9 @@ public final class MlflowPort {
             throw new RuntimeException("Received non-successful response from MLflow:\n" + content);
          } else {
             var body = response.body();
-            return body != null ? Operators.suppressExceptions(body::string) : "";
+            var result = body != null ? Operators.suppressExceptions(body::string) : "";
+            if (body != null) body.close();
+            return result;
          }
       } catch (Exception e) {
          throw new RuntimeException("Exception occurred requesting information from MLflow", e);
@@ -235,7 +238,9 @@ public final class MlflowPort {
             var body = response.body();
 
             if (body != null) {
-               return Optional.ofNullable(BinaryObjects.fromInputStream(body.byteStream()));
+               var result = Optional.ofNullable(BinaryObjects.fromInputStream(body.byteStream()));
+               body.close();
+               return result;
             } else {
                return Optional.empty();
             }

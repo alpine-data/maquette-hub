@@ -2,7 +2,7 @@
   "title": "Tell us, what technologies do you use?",
   "pages": [
     {
-      "name": "page1",
+      "name": "explainability",
       "questions": [
         {
           "type": "radiogroup",
@@ -11,26 +11,43 @@
             "No"
           ],
           "isRequired": true,
-          "name": "frameworkUsing",
-          "title": "Do you use any front-end framework like Bootstrap?"
+          "name": "bu_exp_access",
+          "title": "Does the business user need to have access to the explainability dashboard?"
         },
         {
-          "type": "checkbox",
+          "type": "radiogroup",
           "choices": [
-            "Bootstrap",
-            "Foundation"
+            "Yes",
+            "No"
           ],
-          "hasOther": true,
           "isRequired": true,
-          "name": "framework",
-          "title": "What front-end framework do you use?",
-          "visibleIf": "{frameworkUsing} = 'Yes'"
+          "name": "explains",
+          "title": "Does the explainability dashboard describe a decision of a model in a sufficient manner?"
+        },
+        {
+          "type": "comment",
+          "isRequired": true,
+          "name": "describe",
+          "title": "Please describe what is missing and specify if questionnaire can be accepted",
+          "visibleIf": "{explains} = 'No'"
         }
       ]
     },
     {
-      "name": "page2",
+      "name": "fairness",
       "questions": [
+        {
+          "type": "checkbox",
+          "choices": [
+            "GDPR",
+            "FIDLEG",
+            "FIDLEV"
+          ],
+          "isRequired": true,
+          "hasOther": true,
+          "name": "regulation",
+          "title": "What type of regulations apply to the collection, processing and use of data within the data processing application?"
+        },
         {
           "type": "radiogroup",
           "choices": [
@@ -38,21 +55,28 @@
             "No"
           ],
           "isRequired": true,
-          "name": "mvvmUsing",
-          "title": "Do you use any MVVM framework?"
+          "name": "pi_delete",
+          "title": "Is it possible to delete PI data and exclude them from the model?"
         },
         {
-          "type": "checkbox",
+          "type": "radiogroup",
           "choices": [
-            "AngularJS",
-            "KnockoutJS",
-            "React"
+            "Yes",
+            "No"
           ],
-          "hasOther": true,
           "isRequired": true,
-          "name": "mvvm",
-          "title": "What MVVM framework do you use?",
-          "visibleIf": "{mvvmUsing} = 'Yes'"
+          "name": "pi_delete",
+          "title": "Will the model be used in production?"
+        },
+        {
+          "type": "radiogroup",
+          "choices": [
+            "Yes",
+            "No"
+          ],
+          "isRequired": true,
+          "name": "pi_delete",
+          "title": "Is the application exposed externally?"
         }
       ]
     },
@@ -62,7 +86,7 @@
         {
           "type": "comment",
           "name": "about",
-          "title": "Please tell us about your main requirements for Survey library"
+          "title": "Please add additional comments if required."
         }
       ]
     }
