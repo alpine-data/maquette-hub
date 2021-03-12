@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import maquette.common.ObjectMapperFactory;
 import maquette.common.Operators;
+import maquette.core.entities.projects.model.model.ModelExplainer;
 import maquette.core.entities.projects.model.model.ModelFromRegistry;
 import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.ModelVersion;
@@ -14,6 +15,8 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -71,6 +74,17 @@ public final class ModelCompanion {
                   if (v.getGitCommit().isPresent()) {
                      var gitDetails = GitDetails.apply(v.getGitCommit().orElse(null), v.getGitUrl().orElse(null), false);
                      version = version.withGitDetails(gitDetails);
+                  }
+
+                  if (v.getExplainer().isPresent()) {
+                     var path = Path.of(String.format(
+                        "/Users/michaelwellner/Workspaces/maquette-hub/hub/data/projects/%s/models/%s/xpl/%s/xpl.pkl", // TODO configurable Path
+                        project, name, v.getVersion()));
+
+                     Operators.suppressExceptions(() -> Files.createDirectories(path.getParent()));
+                     v.getExplainer().get().toFile(path);
+
+                     version = version.withExplainer(ModelExplainer.apply(path));
                   }
 
                   return version;

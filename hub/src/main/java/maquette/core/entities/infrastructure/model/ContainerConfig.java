@@ -26,9 +26,16 @@ public class ContainerConfig {
 
     List<String> networks;
 
+    List<Volume> volumes;
+
     String memory;
 
     Double cores;
+
+    @SuppressWarnings("unused")
+    private ContainerConfig() {
+        this(null, null, null, null, Maps.newHashMap(), List.of(), List.of(), List.of(), null, null);
+    }
 
     public static ContainerConfigBuilder builder(String name, String image) {
         return ContainerConfigBuilder.apply(name, image);

@@ -14,6 +14,8 @@ import maquette.core.entities.projects.ports.model.MLModel;
 import maquette.core.entities.projects.ports.model.ModelVersionsResponse;
 import maquette.core.entities.projects.ports.model.RegisteredModelsResponse;
 import maquette.core.values.UID;
+import maquette.core.values.data.binary.BinaryObject;
+import maquette.core.values.data.binary.BinaryObjects;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,6 +26,7 @@ import org.mlflow.tracking.MlflowClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -107,6 +110,13 @@ public final class MlflowPort {
                      .createYaml()
                      .readValue(download(downloadPath), MLModel.class));
 
+                  var explainerPath = String.format(
+                     "%s/get-artifact?path=xpl.pkl&run_uuid=%s",
+                     mlflowConfiguration.getMlflowBasePath(project),
+                     version.getRunId());
+
+                  var explainer = downloadFile(explainerPath).orElse(null);
+
                   return VersionFromRegistry.apply(
                      version.getVersion(),
                      version.getDescription(),
@@ -115,7 +125,8 @@ public final class MlflowPort {
                      run.getInfo().getUserId(),
                      commit,
                      gitUrl,
-                     mlModel.getFlavors().keySet());
+                     mlModel.getFlavors().keySet(),
+                     explainer);
                })
                .sorted(Comparator.comparing(VersionFromRegistry::getCreated).reversed())
                .collect(Collectors.toList());
@@ -203,6 +214,31 @@ public final class MlflowPort {
          } else {
             var body = response.body();
             return body != null ? Operators.suppressExceptions(body::string) : "";
+         }
+      } catch (Exception e) {
+         throw new RuntimeException("Exception occurred requesting information from MLflow", e);
+      }
+   }
+
+   private Optional<BinaryObject> downloadFile(String url) {
+      var request = new Request.Builder()
+         .url(String.format("%s%s", mlflowConfiguration.getInternalTrackingUrl(), url))
+         .get()
+         .build();
+
+      try {
+         var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+
+         if (!response.isSuccessful()) {
+            return Optional.empty();
+         } else {
+            var body = response.body();
+
+            if (body != null) {
+               return Optional.ofNullable(BinaryObjects.fromInputStream(body.byteStream()));
+            } else {
+               return Optional.empty();
+            }
          }
       } catch (Exception e) {
          throw new RuntimeException("Exception occurred requesting information from MLflow", e);

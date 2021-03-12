@@ -78,7 +78,7 @@ public final class ProjectCompanion extends ServiceCompanion {
                .thenApply(properties -> {
                   if (properties.getMlflowConfiguration().isPresent()) {
                      return infrastructure
-                        .getDeployment(properties.getMlflowConfiguration().get().getDeploymentName());
+                        .findDeployment(properties.getMlflowConfiguration().get().getDeploymentName());
                   } else {
                      return Optional.<Deployment>empty();
                   }
@@ -94,12 +94,12 @@ public final class ProjectCompanion extends ServiceCompanion {
                   var config = properties.getMlflowConfiguration().get();
 
                   var mlflowPortsCS = dep
-                     .getContainer(config.getMlflowContainerName(pid))
+                     .findContainer(config.getMlflowContainerName(pid))
                      .map(Container::getMappedPortUrls)
                      .orElse(CompletableFuture.completedFuture(Maps.newHashMap()));
 
                   var minioPortsCS = dep
-                     .getContainer(config.getMinioContainerName(pid))
+                     .findContainer(config.getMinioContainerName(pid))
                      .map(Container::getMappedPortUrls)
                      .orElse(CompletableFuture.completedFuture(Maps.newHashMap()));
 

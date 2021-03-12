@@ -50,13 +50,13 @@ public final class DatasetServicesValidated implements DatasetServices {
          .validate("visibility", visibility, NotNullValidator.apply())
          .validate("classification", classification, NotNullValidator.apply())
          .validate("personalInformation", personalInformation, NotNullValidator.apply())
-         .validate("zone", zone, NotNullValidator.apply())
          .validate("owner", owner, AuthorizationValidator.apply(UserAuthorization.class, false))
          .validate("steward", owner, AuthorizationValidator.apply(UserAuthorization.class, false))
          .checkAndFail()
          .thenCompose(done -> {
             Authorization oOwner;
             Authorization oSteward;
+            DataZone oZone;
 
             if (Objects.isNull(owner)) {
                oOwner = executor.toAuthorization();
@@ -65,14 +65,20 @@ public final class DatasetServicesValidated implements DatasetServices {
             }
 
             if (Objects.isNull(steward)) {
-               oSteward = owner;
+               oSteward = oOwner;
             } else {
                oSteward = steward;
             }
 
+            if (Objects.isNull(zone)) {
+               oZone = DataZone.RAW;
+            } else {
+               oZone = zone;
+            }
+
             return delegate.create(
                executor, title, name, summary,
-               visibility, classification, personalInformation, zone, oOwner, oSteward);
+               visibility, classification, personalInformation, oZone, oOwner, oSteward);
          });
    }
 

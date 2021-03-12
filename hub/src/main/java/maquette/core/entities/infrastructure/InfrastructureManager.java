@@ -86,12 +86,16 @@ public final class InfrastructureManager implements MlflowProxyPort {
       }
    }
 
-   public Optional<Deployment> getDeployment(String name) {
+   public Optional<Deployment> findDeployment(String name) {
       if (deployments.containsKey(name)) {
          return Optional.of(deployments.get(name));
       } else {
          return Optional.empty();
       }
+   }
+
+   public Deployment getDeployment(String name) {
+      return findDeployment(name).orElseThrow(() -> new RuntimeException("Deployment not found ...")); // TODO ...
    }
 
    public CompletionStage<Done> startDeployment(String name) {

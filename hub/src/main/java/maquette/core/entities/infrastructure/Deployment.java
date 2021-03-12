@@ -34,8 +34,12 @@ public final class Deployment {
       return new Deployment(config, List.copyOf(containers), Instant.now(), DeploymentStatus.STARTED);
    }
 
-   public Optional<Container> getContainer(String name) {
+   public Optional<Container> findContainer(String name) {
       return containers.stream().filter(c -> c.getConfig().getName().equals(name)).findFirst();
+   }
+
+   public Container getContainer(String name) {
+      return findContainer(name).orElseThrow(() -> new RuntimeException("Container not found ..."));
    }
 
    public CompletionStage<DeploymentProperties> getProperties() {

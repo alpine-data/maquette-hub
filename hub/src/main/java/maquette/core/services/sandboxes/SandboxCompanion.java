@@ -28,7 +28,7 @@ public final class SandboxCompanion extends ServiceCompanion {
             .getStacks()
             .stream()
             .map(stack -> infrastructure
-               .getDeployment(stack.getDeployment()).orElseThrow()
+               .findDeployment(stack.getDeployment()).orElseThrow()
                .getProperties()
                .thenCompose(deploymentProperties -> {
                   var stackConfiguration = stack.getConfiguration();

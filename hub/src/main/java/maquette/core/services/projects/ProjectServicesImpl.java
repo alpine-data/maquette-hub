@@ -18,6 +18,7 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
+import maquette.core.entities.infrastructure.model.Volume;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.*;
 import maquette.core.entities.projects.model.MlflowConfiguration;
@@ -49,6 +50,7 @@ import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +181,7 @@ public final class ProjectServicesImpl implements ProjectServices {
             var mlflowCS = propertiesCS
                .thenCompose(properties -> Operators.optCS(properties
                   .getMlflowConfiguration()
-                  .flatMap(config -> infrastructure.getDeployment(config.getDeploymentName()))
+                  .flatMap(config -> infrastructure.findDeployment(config.getDeploymentName()))
                   .map(Deployment::getProperties)));
 
             return Operators.compose(
@@ -338,6 +340,35 @@ public final class ProjectServicesImpl implements ProjectServices {
    }
 
    @Override
+   public CompletionStage<Done> runExplainer(User user, String project, String model, String version) {
+      var projectEntityCS = projects.getProjectByName(project);
+      var modelEntityCS = projectEntityCS.thenCompose(ProjectEntity::getModels).thenApply(models -> models.getModel(model));
+      var modelPropertiesCS = modelEntityCS.thenCompose(ModelEntity::getProperties);
+
+      return Operators.compose(
+         projectEntityCS, modelEntityCS, modelPropertiesCS,
+         (projectEntity, modelEntity, modelProperties) -> modelProperties
+            .getVersion(version)
+            .getExplainer()
+            .map(explainer -> {
+               var cfg = createExplainerDeploymentConfig(projectEntity.getId(), explainer.getFile());
+               return infrastructure
+                  .applyConfig(cfg)
+                  .thenCompose(done -> infrastructure.getDeployment(cfg.getName()).getContainers().get(0).getMappedPortUrls())
+                  .thenCompose(mappedPorts -> {
+                     LOG.info("Started explainer runtime {} for {}/{}/{}", cfg.getName(), project, model, version);
+
+                     return modelEntity.updateModelVersion(user, version, mdl -> {
+                        var explainerUpdated = explainer.withExternalUrl(mappedPorts.get(8050).toString());
+                        return mdl.withExplainer(explainerUpdated);
+                     });
+                  });
+            }))
+         .thenCompose(Operators::optCS)
+         .thenApply(opt -> opt.orElse(Done.getInstance()));
+   }
+
+   @Override
    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
       return projects
          .getProjectByName(project)
@@ -428,8 +459,8 @@ public final class ProjectServicesImpl implements ProjectServices {
       return Operators.optCS(projectProperties
          .getMlflowConfiguration()
          .flatMap(mlflowConfig -> infrastructure
-            .getDeployment(mlflowConfig.getDeploymentName())
-            .flatMap(deployment -> deployment.getContainer(mlflowConfig.getMlflowContainerName(projectProperties.getId())))
+            .findDeployment(mlflowConfig.getDeploymentName())
+            .flatMap(deployment -> deployment.findContainer(mlflowConfig.getMlflowContainerName(projectProperties.getId())))
             .map(Container::getProperties)))
          .thenApply(properties -> properties.map(ContainerProperties::getMappedPortUrls))
          .thenApply(ports -> ports.orElse(Maps.newHashMap()))
@@ -505,6 +536,21 @@ public final class ProjectServicesImpl implements ProjectServices {
          .withContainerConfig(minioContainerCfg)
          .withContainerConfig(postgresContainerCfg)
          .withContainerConfig(mlflowContainerCfg)
+         .build();
+   }
+
+   private static DeploymentConfig createExplainerDeploymentConfig(UID project, Path explainerFile) {
+      var name = String.format("mq--%s--xpl-%s", project.getValue(), UID.apply(8));
+      var containerCfg = ContainerConfig
+         .builder(name, "mq-services--shapash:0.0.1")
+         .withEnvironmentVariable("MQ_XPL_PATH", "/opt/xpl/xpl.pkl")
+         .withVolume(Volume.apply(explainerFile.getParent().toAbsolutePath(), "/opt/xpl"))
+         .withPort(8050)
+         .build();
+
+      return DeploymentConfig
+         .builder(name)
+         .withContainerConfig(containerCfg)
          .build();
    }
 

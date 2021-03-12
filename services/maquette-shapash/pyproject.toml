@@ -8,6 +8,7 @@ authors = ["AiPunk <johannes.forster@gmail.com>"]
 python = "~3.8"
 maquette = "0.1.2"
 shapash = "^1.2.0"
+llvmlite = "^0.34.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -25,6 +25,8 @@ public final class ContainerConfigBuilder {
 
    private final List<String> networks;
 
+   private final List<Volume> volumes;
+
    private String memory;
 
    private Double cores;
@@ -32,7 +34,7 @@ public final class ContainerConfigBuilder {
    public static ContainerConfigBuilder apply(String name, String image) {
       return new ContainerConfigBuilder(
          name, image, null, null, Maps.newHashMap(),
-         Lists.newArrayList(), Lists.newArrayList(), null, null);
+         Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(), null, null);
    }
 
    public ContainerConfigBuilder withCommand(String command) {
@@ -80,8 +82,13 @@ public final class ContainerConfigBuilder {
       return this;
    }
 
+   public ContainerConfigBuilder withVolume(Volume volume) {
+      volumes.add(volume);
+      return this;
+   }
+
    public ContainerConfig build() {
-      return ContainerConfig.apply(name, image, command, hostName, environment, ports, networks, memory, cores);
+      return ContainerConfig.apply(name, image, command, hostName, environment, ports, networks, volumes, memory, cores);
    }
 
 }

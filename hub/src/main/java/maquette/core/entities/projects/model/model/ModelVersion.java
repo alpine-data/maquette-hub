@@ -53,11 +53,13 @@ public class ModelVersion {
 
    List<ModelVersionEvent> events;
 
+   ModelExplainer explainer;
+
    public static ModelVersion apply(
       String version, String description, ActionMetadata registered, Set<String> flavours, String stage, Questionnaire questionnaire) {
       return apply(
          version, description, registered, registered, flavours, stage,
-         questionnaire, null, null, null, List.of(Registered.apply(registered)));
+         questionnaire, null, null, null, List.of(Registered.apply(registered)), null);
    }
 
    @JsonProperty("actions")
@@ -180,6 +182,12 @@ public class ModelVersion {
       return result;
    }
 
+   @SuppressWarnings("unused")
+   @JsonProperty("codeQualityChecks")
+   private void setCodeQualityChecks(List<CheckResult> value) {
+      // ignore
+   }
+
    @JsonProperty("codeQualitySummary")
    public String getCodeQualitySummary() {
       var checks = getCodeQualityChecks();
@@ -224,6 +232,12 @@ public class ModelVersion {
       return result;
    }
 
+   @JsonProperty("dataDependencyChecks")
+   @SuppressWarnings("unused")
+   private void setDataDependenciesChecks(List<CheckResult> value) {
+      // ignore
+   }
+
    @JsonProperty("dataDependencySummary")
    public String getDataDependencySummary() {
       var checks = getDataDependencyChecks();
@@ -258,6 +272,10 @@ public class ModelVersion {
 
    public Optional<GitDetails> getGitDetails() {
       return Optional.ofNullable(gitDetails);
+   }
+
+   public Optional<ModelExplainer> getExplainer() {
+      return Optional.ofNullable(explainer);
    }
 
    @JsonProperty("state")

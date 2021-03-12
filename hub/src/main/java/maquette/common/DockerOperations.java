@@ -68,6 +68,15 @@ public final class DockerOperations {
                }
             });
 
+            var mounts = config
+               .getVolumes()
+               .stream()
+               .map(v -> new Mount()
+                  .withSource(v.getSource().toString())
+                  .withTarget(v.getPath())
+                  .withType(MountType.BIND))
+               .collect(Collectors.toList());
+
             var environment = config
                .getEnvironment()
                .entrySet()
@@ -75,12 +84,18 @@ public final class DockerOperations {
                .map(e -> e.getKey() + "=" + e.getValue())
                .collect(Collectors.toList());
 
+            var hostConfig = new HostConfig().withPortBindings(portBindings);
+
+            if (!mounts.isEmpty()) {
+               hostConfig = hostConfig.withMounts(mounts);
+            }
+
             var createCmd = client
                .createContainerCmd(config.getImage())
                .withName(config.getName())
                .withEnv(environment)
                .withExposedPorts(exposedPorts.stream().map(Pair::getRight).collect(Collectors.toList()))
-               .withHostConfig(new HostConfig().withPortBindings(portBindings))
+               .withHostConfig(hostConfig)
                .withHostName(config.getHostName());
 
             config.getCommand().ifPresent(cmd -> createCmd.withCmd(cmd.split(" ")));

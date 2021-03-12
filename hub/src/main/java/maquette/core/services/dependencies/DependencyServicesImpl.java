@@ -86,7 +86,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         })
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof ProjectNode) {
-                     var n = (ModelNode) node.getProperties();
+                     var n = (ProjectNode) node.getProperties();
                      return projects
                         .getProjectById(n.getProject())
                         .thenCompose(ProjectEntity::getProperties)

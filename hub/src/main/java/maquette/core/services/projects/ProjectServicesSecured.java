@@ -137,6 +137,11 @@ public class ProjectServicesSecured implements ProjectServices {
    }
 
    @Override
+   public CompletionStage<Done> runExplainer(User user, String project, String model, String version) {
+      return delegate.runExplainer(user, project, model, version);
+   }
+
+   @Override
    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
       return delegate.getLatestQuestionnaireAnswers(user, project, model);
    }

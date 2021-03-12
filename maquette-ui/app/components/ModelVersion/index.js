@@ -18,6 +18,7 @@ import ModernSummary, { TextMetric } from '../ModernSummary';
 import VerticalTabs from '../VerticalTabs';
 import EditableParagraph from '../EditableParagraph';
 import _ from 'lodash';
+import IFrameDisplay from '../IFrameDisplay';
 
 const ActionButton = styled(Button)`
   width: 100%;
@@ -420,6 +421,35 @@ function ReviewModel({ view, model, version, onUpdateModel }) {
   </div>
 }
 
+var IFrame = styled.iframe`
+  width: 100%;
+  border: 0;
+  margin-top: 15px;
+`;
+
+function Explainer({ view, model, version, onUpdateModel }) {
+  return <>
+    {
+      _.isEmpty(version.explainer.externalUrl) && <>
+        <Button appearance="primary" onClick={ () => onUpdateModel('projects models run-explainer', {
+              project: view.project.name,
+              model: model.name,
+              version: version.version
+        }) }>
+
+          Launch Explainer Dashboard
+        </Button>
+      </> || <>
+        <IFrame 
+            name={ "Explainer" }
+            id={ "Explainer" }
+            src={ version.explainer.externalUrl }
+            style={{ width: '100%', height: '1000px' }} />
+      </>
+    }
+  </>
+}
+
 function ModelVersion({ view, model, version, tab, onUpdateModel }) {
   return <Container xlg>
     <Breadcrumb>
@@ -471,6 +501,13 @@ function ModelVersion({ view, model, version, tab, onUpdateModel }) {
             key: 'questionnaire',
             visible: true,
             component: () => <Questionnaire view={ view } model={ model } version={ version } onUpdateModel={ onUpdateModel } />
+          },
+          {
+            label: 'Explainer',
+            link: `/${view.project.name}/models/${model.name}/versions/${version.version}/explainer`,
+            key: 'explainer',
+            visible: !_.isEmpty(_.get(version, 'explainer.file')),
+            component: () => <Explainer view={ view } model={ model } version={ version } onUpdateModel={ onUpdateModel } />
           },
           {
             label: 'Review',

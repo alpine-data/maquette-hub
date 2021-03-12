@@ -159,6 +159,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = ReportModelCodeQualityCommand.class, name = "projects models report-cq"),
       @JsonSubTypes.Type(value = RevokeModelRoleCommand.class, name = "projects models revoke"),
       @JsonSubTypes.Type(value = RequestModelReviewCommand.class, name = "projects models request-review"),
+      @JsonSubTypes.Type(value = RunExplainerCommand.class, name = "projects models run-explainer"),
       @JsonSubTypes.Type(value = UpdateModelCommand.class, name = "projects models update"),
       @JsonSubTypes.Type(value = UpdateModelVersionCommand.class, name = "projects models update-version"),
 

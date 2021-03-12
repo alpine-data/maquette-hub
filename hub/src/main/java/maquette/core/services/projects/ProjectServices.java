@@ -60,6 +60,8 @@ public interface ProjectServices {
 
    CompletionStage<Done> reportCodeQuality(User user, String project, String model, String version, String commit, int score, int coverage, List<CodeIssue> issues);
 
+   CompletionStage<Done> runExplainer(User user, String project, String model, String version);
+
    CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model);
 
    /*
