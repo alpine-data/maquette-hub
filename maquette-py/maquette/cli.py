@@ -117,6 +117,13 @@ def projects_remove(name):
     maquette.project(name).delete()
     print("# You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
+@projects.command("report-cq")
+def projects_report_cq():
+    name = config.get_project_name()
+    project = maquette.project(name)
+    project.report_code_quality()
+
+
 @mq.group()
 def code():
     """
