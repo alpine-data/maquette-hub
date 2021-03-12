@@ -5,7 +5,6 @@ import pathlib
 class EnvironmentConfiguration:
 
 #TODO authentication only implemented for stupid(s), implement the other 2
-#TODO auto dump env variables similar to unix_env.py (then this can be replaced)
     mq_config: str = None
     mq_yaml_list = []
 

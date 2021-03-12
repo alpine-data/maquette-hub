@@ -5,10 +5,14 @@ from io import BytesIO
 
 import pandas as pd
 import pandavro
+import git
 
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import EnvironmentConfiguration
+from maquette_lib.__code_repository_config import CodeRepositoryConfiguration
+from pylint.lint.run import Run
 
+code_repository = CodeRepositoryConfiguration()
 config = EnvironmentConfiguration()
 client = Client.from_config(config)
 
@@ -539,6 +543,41 @@ class Project:
                 arg]
         return Collection(project_name=self.name, *args, )
 
+    def report_code_quality(self):
+        # get pylint code reports
+        train_script = code_repository.get_train_script()
+        report = Run([train_script, '--output-format=json'], do_exit=False)
+        score = report.linter.stats['global_note']
+        issues = []
+        for stat in report.linter.reporter.messages:
+            issue = {
+                "location": stat["path"] + str(stat["line"]),
+                "type": stat["type"],
+                "message": stat["message"]
+            }
+            issues.append(issue)
+
+        # get git hash
+        repo = git.Repo(search_parent_directories=True)
+        sha = repo.head.object.hexsha
+
+        args = {
+            "project": self.name,
+            "commit": sha,
+            "score": score,
+            #TODO: attach coveragePy results
+            "coverage": 35,
+            "issues": issues
+        }
+
+        if self.__header:
+            headers = {'Content-Type': 'application/json', **self.__header}
+        else:
+            headers = {'Content-Type': 'application/json'}
+        client.command(cmd='projects models report-cq',
+                       args=args,
+                       headers=headers)
+        return self
 
 #TODO: Read project_id via config!
 def project(name: str, title: str = None, summary: str = None) -> Project:
