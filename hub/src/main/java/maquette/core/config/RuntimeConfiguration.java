@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.core.entities.data.assets_v2.DataAssetEntities;
+import maquette.core.entities.data.assets_v2.DataAssetProviders;
 import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasources.DataSourceEntities;
@@ -26,6 +28,10 @@ public final class RuntimeConfiguration {
     private final ActorSystem system;
 
     private final ObjectMapper objectMapper;
+
+    private final DataAssetEntities dataAssets;
+
+    private final DataAssetProviders providers;
 
     private final CollectionEntities collections;
 
