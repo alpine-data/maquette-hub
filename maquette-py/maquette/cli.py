@@ -1,17 +1,19 @@
-import click
-import pandas as pd
-import os
-import maquette
-import shutil
-import yaml
-import chevron
 import fnmatch
 import pipes
+import os
+import shutil
+
+import click
+import pandas as pd
+import yaml
+import chevron
 
 from git import Repo
 
+import maquette
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import EnvironmentConfiguration
+
 
 config = EnvironmentConfiguration()
 client = Client.from_config(config)
@@ -47,8 +49,8 @@ def projects_init(name, title, summary):
     """
     maquette.project(name,title,summary).create()
     print('# Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
-               '# \n'                                                 
-              '# To activate the project type: mq project activate ' + name)
+            '# \n'                                                 
+            '# To activate the project type: mq project activate ' + name)
 
 
 @projects.command("ls")
@@ -73,7 +75,7 @@ def projects_activate(name):
 
     """
     project = maquette.project(name).activate()
-    config.activate_project(project_name=project.name, project_id=project.id)
+    config.activate_project(project_name=project.name, project_id=project.project_id)
 
     status, response = client.command(cmd='projects environment', args={'name': name})
     if status == 200:
@@ -110,7 +112,8 @@ def projects_env():
 @projects.command("deactivate")
 def projects_deactivate():
     """
-    Currently only removes the currently activate environment variables from the config, no default env needed or available
+    Currently only removes the currently activate environment variables from the config, no default env needed or
+    available
     """
     config.remove_process_envs()
     print('Removed Environment from Config')
@@ -181,8 +184,8 @@ def code_repositorys_clone(template, target):
                 print("Nothing to filter, you get the full mustache treatment ( °┏＿┓°) ")
 
             # reduce fname by filter list
-            for filter in filter_list:
-                fnames = [x for x in fnames if x not in fnmatch.filter(fnames, filter)]
+            for file_filter in filter_list:
+                fnames = [x for x in fnames if x not in fnmatch.filter(fnames, file_filter)]
 
             print("---------- List of files to be mustached ----------")
             print(fnames)

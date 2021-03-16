@@ -1,6 +1,6 @@
+import pathlib
 import os
 import yaml
-import pathlib
 
 class EnvironmentConfiguration:
 
@@ -40,7 +40,7 @@ class EnvironmentConfiguration:
             roles = self.mq_yaml_list['authentication'].get('roles', 'a-team, b-team')
         else:
             roles = 'a-team, b-team'
-        return os.environ.get('MQ_ROLES', 'a-team, b-team').split(", ")
+        return os.environ.get('MQ_ROLES', roles).split(", ")
 
     def get_project(self) -> str:
         if 'project' in self.mq_yaml_list:
@@ -59,6 +59,8 @@ class EnvironmentConfiguration:
     def get_process_env(self):
         if 'environment' in self.mq_yaml_list:
             return self.mq_yaml_list['environment'].items()
+        else:
+            return None
 
     def activate_project(self, project_name, project_id):
         if self.mq_config:

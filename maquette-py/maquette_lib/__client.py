@@ -1,6 +1,6 @@
-import requests
-
 from typing import List, Tuple
+
+import requests
 
 from .__user_config import EnvironmentConfiguration
 
@@ -40,7 +40,8 @@ class Client:
             args: dict for additional json arguments
             headers: dict for header parameters
 
-        Returns: Tuple with the result status code and the content of the response if the status code is in between 200 and 299
+        Returns: Tuple with the result status code and the content of the response if the status code is in between
+        200 and 299
 
         """
         request_body = {'command': cmd}
@@ -55,12 +56,12 @@ class Client:
 
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
+
+        if (("Accept", "application/csv") in headers.items()) or (("Accept", "text/plain") in headers.items()):
+            result = response.content
         else:
-            if (("Accept", "application/csv") in headers.items()) or (("Accept", "text/plain") in headers.items()):
-                result = response.content
-            else:
-                result = response.json()
-            return response.status_code, result
+            result = response.json()
+        return response.status_code, result
 
     def get(self, url: str, headers=None) -> requests.Response:
         """
@@ -80,8 +81,7 @@ class Client:
         if response.status_code < 200 or response.status_code > 299:
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
-        else:
-            return response
+        return response
 
     def put(self, url: str, json=None, files=None, headers=None) -> requests.Response:
         """
@@ -103,8 +103,7 @@ class Client:
         if response.status_code < 200 or response.status_code > 299:
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
-        else:
-            return response
+        return response
 
     def post(self, url: str, json=None, files=None, headers=None) -> requests.Response:
         """
@@ -126,5 +125,4 @@ class Client:
         if response.status_code < 200 or response.status_code > 299:
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
-        else:
-            return response
+        return response
