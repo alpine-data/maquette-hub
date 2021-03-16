@@ -37,10 +37,11 @@ class EnvironmentConfiguration:
 
     def get_roles(self):
         if 'authentication' in self.mq_yaml_list:
-            roles = self.mq_yaml_list['authentication'].get('roles', 'a-team, b-team')
+            roles = self.mq_yaml_list['authentication'].get('roles', ['a-team', 'b-team'])
+            roles = ','.join(roles)
         else:
             roles = 'a-team, b-team'
-        return os.environ.get('MQ_ROLES', roles).split(", ")
+        return os.environ.get('MQ_ROLES', roles).split(",")
 
     def get_project(self) -> str:
         if 'project' in self.mq_yaml_list:

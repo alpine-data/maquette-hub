@@ -16,5 +16,20 @@ $ poetry install
 ```
 
 ## Maquette CLI
+The CLI is documented within the CLI. Sounds funny but a good starting point is following command
+```
+$ mq --help
+```
+###Projects
+#### Report Code Quality
+```
+$ mq projects report-cq [packge_names, script.py, ...]
+```
+the `report-cq` command sends code quality information to the Maquette Hub...
+
+to report the Pytest-Coverage, pytest has to be run previously with following parameters
+```
+$ python -m pytest cov=<your-packages> > test/test-report.log
+```
 
 ## Maquette SDK
