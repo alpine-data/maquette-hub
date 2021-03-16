@@ -6,7 +6,7 @@ authors = ["AiPunk <johannes.forster@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "~3.8"
-maquette = "0.1.2"
+maquette = "0.1.6"
 shapash = "^1.2.0"
 llvmlite = "^0.34.0"
 
