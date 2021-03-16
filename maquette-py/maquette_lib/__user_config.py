@@ -4,7 +4,7 @@ import pathlib
 
 class EnvironmentConfiguration:
 
-#TODO authentication only implemented for stupid(s), implement the other 2
+    #TODO authentication only implemented for stupid(s), implement the other 2
     mq_config: str = None
     mq_yaml_list = []
 
@@ -55,6 +55,10 @@ class EnvironmentConfiguration:
         else:
             project_name = None
         return os.environ.get('MQ_PROJECT_NAME', project_name)
+
+    def get_process_env(self):
+        if 'environment' in self.mq_yaml_list:
+            return self.mq_yaml_list['environment'].items()
 
     def activate_project(self, project_name, project_id):
         if self.mq_config:

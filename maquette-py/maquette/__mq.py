@@ -1,5 +1,7 @@
 import json
 import os
+import re
+
 from enum import Enum
 from io import BytesIO
 
@@ -543,10 +545,13 @@ class Project:
                 arg]
         return Collection(project_name=self.name, *args, )
 
-    def report_code_quality(self):
+    def report_code_quality(self, packages = None, test_report = None):
         # get pylint code reports
-        train_script = code_repository.get_train_script()
-        report = Run([train_script, '--output-format=json'], do_exit=False)
+        if packages:
+            file_param = packages.append('--output-format=json')
+        else:
+            file_param = [code_repository.get_train_script(), '--output-format=json']
+        report = Run(file_param, do_exit=False)
         score = report.linter.stats['global_note']
         issues = []
         for stat in report.linter.reporter.messages:
@@ -561,12 +566,27 @@ class Project:
         repo = git.Repo(search_parent_directories=True)
         sha = repo.head.object.hexsha
 
+        # get Pytest coverage if test-report exist
+        coverage = 0
+        if test_report:
+            report_file = test_report
+        else:
+            report_file = "./test/test-report.log"
+        if os.path.exists(report_file):
+            # parse log file and get total coverage
+            with open(report_file, "r") as log:
+                    log_content = log.readlines()
+                    for line in log_content:
+                        x = line.find("TOTAL")
+                        if x > -1:
+                            coverage_string = line[-4:-2]
+                            coverage = int(coverage_string)
+
         args = {
             "project": self.name,
             "commit": sha,
             "score": score,
-            #TODO: attach coveragePy results
-            "coverage": 35,
+            "coverage": coverage,
             "issues": issues
         }
 

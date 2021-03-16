@@ -21,6 +21,7 @@ pyyaml = "^5.4.1"
 gitpython = "^3.1.12"
 chevron = "^0.14.0"
 pylint = "^2.7.2"
+pytest = "^6.2.2"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.0"

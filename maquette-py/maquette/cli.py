@@ -6,6 +6,7 @@ import shutil
 import yaml
 import chevron
 import fnmatch
+import pipes
 
 from git import Repo
 
@@ -63,7 +64,7 @@ def projects_list():
 
 @projects.command("activate")
 @click.argument('name')
-def activate(name):
+def projects_activate(name):
     """
     Activate project.
 
@@ -80,9 +81,9 @@ def activate(name):
         for (env_key, env_value) in env_variables.items():
             config.add_process_env(env_key, env_value)
         if os.name == 'posix':
-            print('# You are on a Unix based  system  c[○┬●]כ \n'
+            print('# You are on a Unix based  system, so you are not done yet c[○┬●]כ \n'
                   '# Please copy and run the command: \n'
-                  'eval $(unix_env)')
+                  'eval $(mq projects env)')
         else:
             for (env_key, env_value) in config.mq_yaml_list['environment'].items():
                 os.system("SETX {0} {1}".format(env_key, env_value))
@@ -94,9 +95,20 @@ def activate(name):
         raise RuntimeError('# Ups! Something went wrong (ⓧ_ⓧ)\n'
                            '# status code: ' + str(status) + ', content:\n' + response)
 
+@projects.command("end")
+def projects_env():
+    envs = config.get_process_env()
+    if envs:
+        for (key, value) in envs:
+            print('export ' + key + '=' + pipes.quote(value)+'\n')
+    else:
+        print('# We could not find an activate project \n'
+              '# Please run: mq projects activate <my_awesome_project> \n'
+              '# Or create one if you do not have one yet with: mq projects create <my_awesome_project>')
+
 
 @projects.command("deactivate")
-def deactivate():
+def projects_deactivate():
     """
     Currently only removes the currently activate environment variables from the config, no default env needed or available
     """
@@ -118,10 +130,11 @@ def projects_remove(name):
     print("# You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
 @projects.command("report-cq")
-def projects_report_cq():
+@projects.argument("files", nargs=-1)
+def projects_report_cq(files):
     name = config.get_project_name()
     project = maquette.project(name)
-    project.report_code_quality()
+    project.report_code_quality(files)
 
 
 @mq.group()
