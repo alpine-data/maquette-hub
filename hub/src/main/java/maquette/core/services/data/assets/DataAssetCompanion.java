@@ -11,6 +11,7 @@ import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.services.ServiceCompanion;
 import maquette.core.values.UID;
+import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.access.DataAccessRequestV2;
@@ -220,6 +221,10 @@ public final class DataAssetCompanion extends ServiceCompanion {
 
       List<DataAccessRequestV2> accessRequests;
 
+      public List<DataAccessRequest> getAccessRequests() {
+         // TODO: Transform
+         return List.of();
+      }
    }
 
 }

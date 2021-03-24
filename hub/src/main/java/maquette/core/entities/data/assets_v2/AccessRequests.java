@@ -38,8 +38,8 @@ public final class AccessRequests {
             var requestId = UID.apply(String.valueOf(existingRequests + 1));
             var request = DataAccessRequestProperties.apply(requestId, created, id, project, reason);
 
-            if (properties.getClassification().equals(DataClassification.PUBLIC) &&
-               properties.getPersonalInformation().equals(PersonalInformation.NONE)) {
+            if (properties.getMetadata().getClassification().equals(DataClassification.PUBLIC) &&
+               properties.getMetadata().getPersonalInformation().equals(PersonalInformation.NONE)) {
                request.addEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(), "Automatically approved access to public data asset."));
             }
 

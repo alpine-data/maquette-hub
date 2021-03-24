@@ -10,12 +10,23 @@ public final class DataAssetProviders {
 
    private final Map<String, DataAssetProvider> providers;
 
-   public DataAssetProvider get(String type) {
+   public DataAssetProvider getByName(String type) {
       if (providers.containsKey(type)) {
          return providers.get(type);
       } else {
          throw UnknownDataAssetTypeException.apply(type);
       }
+   }
+
+   @SuppressWarnings("unchecked")
+   public <T extends DataAssetProvider> T getByType(Class<T> type) {
+      return providers
+         .values()
+         .stream()
+         .filter(type::isInstance)
+         .map(p -> (T) p)
+         .findFirst()
+         .orElseThrow();
    }
 
 }

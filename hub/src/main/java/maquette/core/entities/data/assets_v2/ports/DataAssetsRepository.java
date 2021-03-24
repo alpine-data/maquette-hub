@@ -20,13 +20,30 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
     */
    CompletionStage<Optional<DataAssetProperties>> findEntityByName(String name);
 
+   default CompletionStage<Optional<DataAssetProperties>> findEntityByNameAndType(String name, String type) {
+      return findEntityByName(name)
+         .thenApply(opt -> opt.flatMap(properties -> {
+            if (properties.getType().equals(type)) {
+               return Optional.of(properties);
+            } else {
+               return Optional.empty();
+            }
+         }));
+   }
+
    CompletionStage<Optional<DataAssetProperties>> findEntitiesById(UID id);
 
    <T> CompletionStage<Optional<T>> fetchCustomProperties(UID id, Class<T> expectedType);
 
-   default CompletionStage<DataAssetProperties> getEntitiesByName(String name) {
+   default CompletionStage<DataAssetProperties> getEntityByName(String name) {
       return findEntityByName(name).thenCompose(opt -> opt
          .<CompletionStage<DataAssetProperties>>map(CompletableFuture::completedFuture)
+         .orElseGet(() -> CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromName(name))));
+   }
+
+   default CompletionStage<DataAssetProperties> getEntityByNameAndType(String name, String type) {
+      return findEntityByNameAndType(name, type).thenCompose(opt -> opt
+         .map(CompletableFuture::completedFuture)
          .orElseGet(() -> CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromName(name))));
    }
 

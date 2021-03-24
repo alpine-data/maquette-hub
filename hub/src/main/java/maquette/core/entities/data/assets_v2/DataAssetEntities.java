@@ -89,9 +89,22 @@ public final class DataAssetEntities {
             properties.getId(), repository, providers)));
    }
 
+   public CompletionStage<Optional<DataAssetEntity>> findByName(String name, String expectedType) {
+      return repository
+         .findEntityByNameAndType(name, expectedType)
+         .thenApply(optProperties -> optProperties.map(properties -> DataAssetEntity.apply(
+            properties.getId(), repository, providers)));
+   }
+
    public CompletionStage<DataAssetEntity> getByName(String name) {
       return repository
-         .getEntitiesByName(name)
+         .getEntityByName(name)
+         .thenApply(properties -> DataAssetEntity.apply(properties.getId(), repository, providers));
+   }
+
+   public CompletionStage<DataAssetEntity> getByName(String name, String expectedType) {
+      return repository
+         .getEntityByNameAndType(name, expectedType)
          .thenApply(properties -> DataAssetEntity.apply(properties.getId(), repository, providers));
    }
 

@@ -29,6 +29,8 @@ public final class RuntimeConfiguration {
 
     private final ObjectMapper objectMapper;
 
+    private final DataAssetProviders dataAssetProviders;
+
     private final DataAssetEntities dataAssets;
 
     private final DataAssetProviders providers;

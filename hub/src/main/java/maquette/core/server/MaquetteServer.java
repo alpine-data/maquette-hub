@@ -1,5 +1,6 @@
 package maquette.core.server;
 
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
 import io.javalin.plugin.json.JavalinJackson;
@@ -9,6 +10,7 @@ import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.projects.ProjectEntity;
+import maquette.core.server.commands.SampleCommand;
 import maquette.core.server.results.MessageResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.UID;
@@ -33,6 +35,8 @@ public final class MaquetteServer {
 
       JavalinJackson.configure(runtime.getObjectMapper());
 
+      runtime.getObjectMapper().registerSubtypes(new NamedType(SampleCommand.class, "sample"));
+
       var adminResource = new AdminResource(config);
       var commandResource = new CommandResource(runtime, services);
       var dataResource = new DataResource(services);
@@ -49,19 +53,6 @@ public final class MaquetteServer {
          .post("/api/commands", commandResource.getCommand())
          .get("/api/commands", commandResource.getCommands())
          .get("/api/commands/examples", commandResource.getCommandExamples())
-
-         .post("/api/data/collections/:collection", collectionDataResource.upload())
-         .get("/api/data/collections/:collection/latest", collectionDataResource.download())
-         .get("/api/data/collections/:collection/tags/:tag", collectionDataResource.download())
-         .get("/api/data/collections/:collection/latest/*", collectionDataResource.downloadFile())
-         .get("/api/data/collections/:collection/tags/:tag/*", collectionDataResource.downloadFile())
-         .delete("/api/data/collections/:collection/latest/*", collectionDataResource.remove())
-
-         .post("/api/data/datasets/:dataset", dataResource.uploadDatasetFile())
-         .post("/api/data/datasets/:dataset/:revision", dataResource.upload())
-         .get("/api/data/datasets/:dataset/:version", dataResource.downloadDatasetVersion())
-         .get("/api/data/datasets/:dataset", dataResource.downloadLatestDatasetVersion())
-         .get("/api/data/sources/:source", dataResource.downloadDatasource())
 
          .get("/api/about", adminResource.getAbout())
          .get("/api/about/user", adminResource.getUserInfo())

@@ -62,13 +62,13 @@ public final class DataAssetServicesImpl implements DataAssetServices {
                .thenCompose(Operators::allOf);
 
             var customPropertiesCS = propertiesCS.thenCompose(properties -> {
-               var provider = providers.get(properties.getType());
+               var provider = providers.getByName(properties.getType());
                return entity.getCustomProperties(provider.getPropertiesType());
             });
 
             var customDetailsCS = Operators
                .compose(propertiesCS, customPropertiesCS, (properties, customProperties) -> providers
-                  .get(properties.getType())
+                  .getByName(properties.getType())
                   .getDetails(properties, customProperties))
                .thenCompose(cs -> cs);
 

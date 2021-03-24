@@ -23,6 +23,10 @@ import maquette.core.server.commands.data.streams.*;
 import maquette.core.server.commands.data.streams.members.GrantStreamMemberCommand;
 import maquette.core.server.commands.data.streams.members.RevokeStreamMemberCommand;
 import maquette.core.server.commands.data.streams.requests.*;
+import maquette.core.server.commands.data_v2.*;
+import maquette.core.server.commands.data_v2.members.GrantDataAssetMemberCommand;
+import maquette.core.server.commands.data_v2.members.RevokeDataAssetMemberCommand;
+import maquette.core.server.commands.data_v2.requests.*;
 import maquette.core.server.commands.dependencies.*;
 import maquette.core.server.commands.projects.*;
 import maquette.core.server.commands.projects.applications.CreateApplicationCommand;
@@ -55,6 +59,26 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = TrackProductionByApplicationCommand.class, name = "dependencies track production app"),
       @JsonSubTypes.Type(value = TrackProductionByProjectCommand.class, name = "dependencies track production project"),
       @JsonSubTypes.Type(value = TrackProductionByUserCommand.class, name = "dependencies track production user"),
+
+      // Data Assets
+      @JsonSubTypes.Type(value = ApproveDataAssetCommand.class, name = "data-assets approve"),
+      @JsonSubTypes.Type(value = CreateDataAssetCommand.class, name = "data-assets create"),
+      @JsonSubTypes.Type(value = DeprecateDataAssetCommand.class, name = "data-assets deprecate"),
+      @JsonSubTypes.Type(value = GetDataAssetCommand.class, name = "data-assets get"),
+      @JsonSubTypes.Type(value = ListDataAssetsCommand.class, name = "data-assets list"),
+      @JsonSubTypes.Type(value = RemoveDataAssetCommand.class, name = "data-assets remove"),
+      @JsonSubTypes.Type(value = UpdateCustomDataAssetPropertiesCommand.class, name = "data-assets update-custom"),
+      @JsonSubTypes.Type(value = UpdateDataAssetCommand.class, name = "data-assets update"),
+
+      @JsonSubTypes.Type(value = GrantDataAssetMemberCommand.class, name = "data-assets members grant"),
+      @JsonSubTypes.Type(value = RevokeDataAssetMemberCommand.class, name = "data-assets members revoke"),
+
+      @JsonSubTypes.Type(value = CreateAccessRequestCommand.class, name = "data-assets access-requests create"),
+      @JsonSubTypes.Type(value = GetAccessRequestCommand.class, name = "data-assets access-requests get"),
+      @JsonSubTypes.Type(value = GrantAccessRequestCommand.class, name = "data-assets access-requests grant"),
+      @JsonSubTypes.Type(value = RejectAccessRequestCommand.class, name = "data-assets access-requests reject"),
+      @JsonSubTypes.Type(value = UpdateAccessRequestCommand.class, name = "data-assets access-requests update"),
+      @JsonSubTypes.Type(value = WithdrawAccessRequestCommand.class, name = "data-assets access-requests withdraw"),
 
       // Collections
       @JsonSubTypes.Type(value = CreateCollectionCommand.class, name = "collections create"),

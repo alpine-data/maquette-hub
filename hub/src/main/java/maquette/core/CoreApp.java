@@ -6,9 +6,11 @@ import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.data.assets_v2.DataAssetEntities;
 import maquette.core.entities.data.collections.CollectionEntities;
 import maquette.core.entities.data.datasets.DatasetEntities;
 import maquette.core.entities.data.datasources.DataSourceEntities;
@@ -79,6 +81,7 @@ public final class CoreApp {
         var processManager = ProcessManager.apply();
         var projects = ProjectEntities.apply(projectsRepository, modelsRepository, applicationsRepository);
 
+
         var collections = CollectionEntities.apply(collectionsRepository);
         var datasets = DatasetEntities.apply(datasetsRepository, recordsStore, dataExplorer);
         var dataSources = DataSourceEntities.apply(dataSourceRepository, jdbcPort, recordsStore, dataExplorer);
@@ -89,8 +92,12 @@ public final class CoreApp {
         var dependencies = Dependencies.apply();
         var logs = Logs.apply();
 
+        /**
+         *  TODO
+         */
+
         var runtime = RuntimeConfiguration.apply(
-           app, system, om, collections, datasets, dataSources, streams, infrastructureManager,
+           app, system, om, null, null, collections, datasets, dataSources, streams, infrastructureManager,
            processManager, projects, sandboxes, users, dependencies, logs);
 
         var services = ApplicationServices.apply(runtime);

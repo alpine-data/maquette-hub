@@ -154,4 +154,10 @@ public final class DataAssetEntity {
          .thenCompose(repository::insertOrUpdateEntity);
    }
 
+   public CompletionStage<Done> updated(User executor) {
+      return repository
+         .getEntityById(id)
+         .thenCompose(properties -> repository.insertOrUpdateEntity(properties.withUpdated(executor)));
+   }
+
 }

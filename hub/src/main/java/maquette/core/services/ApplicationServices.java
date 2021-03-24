@@ -5,6 +5,8 @@ import lombok.Getter;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.services.configuration.ConfigurationServices;
 import maquette.core.services.configuration.ConfigurationServicesFactory;
+import maquette.core.services.data.assets.DataAssetServices;
+import maquette.core.services.data.assets.DataAssetServicesFactory;
 import maquette.core.services.data.collections.CollectionServices;
 import maquette.core.services.data.collections.CollectionServicesFactory;
 import maquette.core.services.data.datasets.DatasetServices;
@@ -29,6 +31,8 @@ public final class ApplicationServices {
     DependencyServices dependencyServices;
 
     ConfigurationServices configurationServices;
+
+    DataAssetServices dataAssetServices;
 
     ProcessServices processServices;
 
@@ -64,12 +68,14 @@ public final class ApplicationServices {
         var streamServices = StreamServicesFactory.apply(runtime);
         var configurationServices = ConfigurationServicesFactory.apply(runtime.getUsers());
 
+        var dataAssetServices = DataAssetServicesFactory.apply(runtime);
+
         var dependencyServices = DependencyServicesFactory.apply(
            runtime.getDependencies(), runtime.getProjects(), runtime.getDatasets(),
            runtime.getCollections(), runtime.getDataSources(), runtime.getStreams(), runtime.getUsers());
 
         return apply(
-           dependencyServices, configurationServices, processServices, projectServices, collectionServices,
+           dependencyServices, configurationServices, dataAssetServices, processServices, projectServices, collectionServices,
            datasetServices, dataSourceServices, streamServices, sandboxServices, userServices);
     }
 

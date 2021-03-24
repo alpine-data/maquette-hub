@@ -9,4 +9,6 @@ public interface DataExplorer {
 
    CompletionStage<JsonNode> analyze(String dataset, DatasetVersion version);
 
+   CompletionStage<JsonNode> analyze(String dataset, String version);
+
 }
