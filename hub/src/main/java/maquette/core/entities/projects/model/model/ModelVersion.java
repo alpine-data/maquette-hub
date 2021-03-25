@@ -298,7 +298,7 @@ public class ModelVersion {
          return dataDependencies
             .getAssets()
             .stream()
-            .anyMatch(asset -> asset.getPersonalInformation().equals(PersonalInformation.PERSONAL_INFORMATION));
+            .anyMatch(asset -> asset.getMetadata().getPersonalInformation().equals(PersonalInformation.PERSONAL_INFORMATION));
       }
    }
 
@@ -310,7 +310,7 @@ public class ModelVersion {
          return dataDependencies
             .getAssets()
             .stream()
-            .anyMatch(asset -> asset.getZone().equals(DataZone.RAW));
+            .anyMatch(asset -> asset.getMetadata().getZone().equals(DataZone.RAW));
       }
    }
 
@@ -322,7 +322,7 @@ public class ModelVersion {
          return dataDependencies
             .getAssets()
             .stream()
-            .anyMatch(asset -> asset.getPersonalInformation().equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION));
+            .anyMatch(asset -> asset.getMetadata().getPersonalInformation().equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION));
       }
    }
 

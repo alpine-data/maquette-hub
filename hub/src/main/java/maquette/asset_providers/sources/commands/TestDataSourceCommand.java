@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.asset_providers.sources.DataSources;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.datasources.model.DataSourceDriver;
+import maquette.asset_providers.sources.model.DataSourceDriver;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;

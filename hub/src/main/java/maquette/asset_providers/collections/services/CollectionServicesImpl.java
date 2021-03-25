@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.asset_providers.collections.CollectionEntity;
 import maquette.asset_providers.collections.Collections;
 import maquette.asset_providers.collections.CollectionsRepository;
-import maquette.core.entities.data.assets_v2.DataAssetEntities;
+import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;
 

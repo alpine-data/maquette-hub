@@ -4,117 +4,46 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.adapters.companions.AccessLogsFileSystemCompanion;
-import maquette.adapters.companions.DataAccessRequestsFileSystemCompanion;
-import maquette.adapters.companions.FileSystemDataAssetRepository;
-import maquette.adapters.companions.MembersFileSystemCompanion;
+import maquette.asset_providers.collections.CollectionsRepository;
+import maquette.asset_providers.collections.model.CollectionTag;
+import maquette.asset_providers.collections.model.FileEntry;
+import maquette.common.Operators;
 import maquette.config.FileSystemRepositoryConfiguration;
-import maquette.core.entities.data.collections.model.CollectionProperties;
-import maquette.core.entities.data.collections.model.CollectionTag;
-import maquette.core.ports.CollectionsRepository;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.authorization.Authorization;
-import maquette.core.values.authorization.GrantedAuthorization;
-import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.binary.BinaryObject;
-import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileSystemCollectionsRepository implements CollectionsRepository {
 
-   private final FileSystemDataAssetRepository<CollectionProperties> assetsCompanion;
+   private static final String FILES = "files.json";
 
-   private final DataAccessRequestsFileSystemCompanion requestsCompanion;
+   private final Path directory;
 
-   private final MembersFileSystemCompanion<DataAssetMemberRole> membersCompanion;
+   private final ObjectMapper om;
 
    private final FileSystemCollectionTagsCompanion tagsCompanion;
 
    private final FileSystemObjectsStore objectsStore;
 
-   private final AccessLogsFileSystemCompanion accessLogsCompanion;
-
    public static FileSystemCollectionsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
-      var directory = config.getDirectory().resolve("shop").resolve("collections");
-      var assetsCompanion = FileSystemDataAssetRepository.apply(CollectionProperties.class, directory, om);
-      var requestsCompanion = DataAccessRequestsFileSystemCompanion.apply(directory, om);
-      var membersCompanion = MembersFileSystemCompanion.apply(directory, om, DataAssetMemberRole.class);
+      var directory = config.getDirectory().resolve("shop");
       var tagsCompanion = FileSystemCollectionTagsCompanion.apply(directory, om);
       var objectsStore = FileSystemObjectsStore.apply(directory.resolve("_objects"));
-      var accessLogsCompanion = AccessLogsFileSystemCompanion.apply(directory, om);
 
-      return new FileSystemCollectionsRepository(
-         assetsCompanion, requestsCompanion, membersCompanion, tagsCompanion, objectsStore, accessLogsCompanion);
+      return new FileSystemCollectionsRepository(directory, om, tagsCompanion, objectsStore);
    }
 
-   @Override
-   public CompletionStage<List<CollectionProperties>> findAllAssets() {
-      return assetsCompanion.findAllAssets();
-   }
-
-   @Override
-   public CompletionStage<Optional<CollectionProperties>> findAssetById(UID asset) {
-      return assetsCompanion.findAssetById(asset);
-   }
-
-   @Override
-   public CompletionStage<Optional<CollectionProperties>> findAssetByName(String name) {
-      return assetsCompanion.findAssetByName(name);
-   }
-
-   @Override
-   public CompletionStage<Done> insertOrUpdateAsset(CollectionProperties asset) {
-      return assetsCompanion.insertOrUpdateAsset(asset);
-   }
-
-   @Override
-   public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID asset, UID request) {
-      return requestsCompanion.findDataAccessRequestById(asset, request);
-   }
-
-   @Override
-   public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequestProperties request) {
-      return requestsCompanion.insertOrUpdateDataAccessRequest(request);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByProject(UID project) {
-      return requestsCompanion.findDataAccessRequestsByProject(project);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByAsset(UID asset) {
-      return requestsCompanion.findDataAccessRequestsByAsset(asset);
-   }
-
-   @Override
-   public CompletionStage<Done> removeDataAccessRequest(UID asset, UID id) {
-      return requestsCompanion.removeDataAccessRequest(asset, id);
-   }
-
-   @Override
-   public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findAllMembers(UID parent) {
-      return membersCompanion.findAllMembers(parent);
-   }
-
-   @Override
-   public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findMembersByRole(UID parent, DataAssetMemberRole role) {
-      return membersCompanion.findMembersByRole(parent, role);
-   }
-
-   @Override
-   public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<DataAssetMemberRole> member) {
-      return membersCompanion.insertOrUpdateMember(parent, member);
-   }
-
-   @Override
-   public CompletionStage<Done> removeMember(UID parent, Authorization member) {
-      return membersCompanion.removeMember(parent, member);
+   private Path getAssetDirectory(UID dataset) {
+      var dir = directory.resolve(dataset.getValue());
+      Operators.suppressExceptions(() -> Files.createDirectories(dir));
+      return dir;
    }
 
    @Override
@@ -133,6 +62,25 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
    }
 
    @Override
+   public CompletionStage<Done> saveFiles(UID collection, FileEntry.Directory files) {
+      var file = getAssetDirectory(collection).resolve(FILES);
+      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), files));
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<FileEntry.Directory> getFiles(UID collection) {
+      var file = getAssetDirectory(collection).resolve(FILES);
+
+      if (Files.exists(file)) {
+         var result = Operators.suppressExceptions(() -> om.readValue(file.toFile(), FileEntry.Directory.class));
+         return CompletableFuture.completedFuture(result);
+      } else {
+         return CompletableFuture.completedFuture(FileEntry.Directory.apply());
+      }
+   }
+
+   @Override
    public CompletionStage<Done> saveObject(String key, BinaryObject binary) {
       return objectsStore.saveObject(key, binary);
    }
@@ -145,31 +93,6 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
    @Override
    public CompletionStage<Optional<BinaryObject>> readObject(String key) {
       return objectsStore.readObject(key);
-   }
-
-   @Override
-   public CompletionStage<Done> appendAccessLogEntry(DataAccessLogEntryProperties entry) {
-      return accessLogsCompanion.appendAccessLogEntry(entry);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByAsset(UID asset) {
-      return accessLogsCompanion.findAccessLogsByAsset(asset);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByUser(String userId) {
-      return accessLogsCompanion.findAccessLogsByUser(userId);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessLogEntryProperties>> findAccessLogsByProject(UID project) {
-      return accessLogsCompanion.findAccessLogsByProject(project);
-   }
-
-   @Override
-   public CompletionStage<List<DataAccessLogEntryProperties>> findAllAccessLogs() {
-      return accessLogsCompanion.findAllAccessLogs();
    }
 
 }

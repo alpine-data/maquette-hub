@@ -11,7 +11,7 @@ import maquette.core.values.UID;
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 public class DataAssetNode implements DependencyNode {
 
-   DataAssetType type;
+   String type;
 
    UID id;
 

@@ -5,12 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.core.entities.data.assets_v2.DataAssetEntities;
-import maquette.core.entities.data.assets_v2.DataAssetProviders;
-import maquette.core.entities.data.collections.CollectionEntities;
-import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasources.DataSourceEntities;
-import maquette.core.entities.data.streams.StreamEntities;
+import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.DataAssetProviders;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.logs.Logs;
@@ -32,16 +28,6 @@ public final class RuntimeConfiguration {
     private final DataAssetProviders dataAssetProviders;
 
     private final DataAssetEntities dataAssets;
-
-    private final DataAssetProviders providers;
-
-    private final CollectionEntities collections;
-
-    private final DatasetEntities datasets;
-
-    private final DataSourceEntities dataSources;
-
-    private final StreamEntities streams;
 
     private final InfrastructureManager infrastructureManager;
 

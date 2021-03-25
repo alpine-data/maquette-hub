@@ -9,7 +9,7 @@ import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.OpenRevision;
 import maquette.asset_providers.datasets.model.Revision;
 import maquette.common.Operators;
-import maquette.core.entities.data.assets_v2.DataAssetEntity;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
@@ -45,7 +45,7 @@ public final class DatasetEntity {
          .compose(
             revisionCS, datasetCS,
             (revision, dataset) -> explorer
-               .analyze(dataset.getMetadata().getName(), revision.getVersion().toString())
+               .analyze(dataset.getMetadata().getName(), revision.getVersion())
                .thenApply(revision::withStatistics)
                .thenCompose(r -> repository.insertOrUpdateRevision(entity.getId(), r)))
          .thenCompose(done -> done);

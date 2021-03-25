@@ -1,7 +1,7 @@
 package maquette.asset_providers.streams;
 
-import maquette.core.entities.data.assets_v2.AbstractDataAssetProvider;
-import maquette.core.entities.data.assets_v2.model.DataAssetProperties;
+import maquette.core.entities.data.AbstractDataAssetProvider;
+import maquette.core.entities.data.model.DataAssetProperties;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

@@ -8,7 +8,7 @@ import maquette.asset_providers.datasets.DatasetsRepository;
 import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.Revision;
-import maquette.core.entities.data.assets_v2.DataAssetEntities;
+import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.RecordsStore;
 import maquette.core.values.UID;

@@ -2,7 +2,7 @@ package maquette.asset_providers.collections.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.services.data.assets.DataAssetCompanion;
+import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.binary.BinaryObject;
 import maquette.core.values.user.User;

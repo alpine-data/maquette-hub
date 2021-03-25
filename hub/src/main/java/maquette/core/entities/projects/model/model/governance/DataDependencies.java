@@ -2,7 +2,7 @@ package maquette.core.entities.projects.model.model.governance;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.values.data.DataAssetProperties;
+import maquette.core.entities.data.model.DataAssetProperties;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,6 +13,6 @@ public class DataDependencies {
 
    Instant checked;
 
-   List<DataAssetProperties<?>> assets;
+   List<DataAssetProperties> assets;
 
 }

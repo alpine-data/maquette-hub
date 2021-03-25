@@ -3,6 +3,7 @@ package maquette.core.entities.projects.model;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
+import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.infrastructure.model.DeploymentProperties;
 import maquette.core.entities.sandboxes.model.Sandbox;
 import maquette.core.entities.sandboxes.model.stacks.StackProperties;
@@ -10,7 +11,6 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.GrantedAuthorization;
-import maquette.core.values.data.DataAsset;
 import maquette.core.values.user.User;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class Project {
 
     List<GrantedAuthorization<ProjectMemberRole>> members;
 
-    List<DataAsset<?>> assets;
+    List<DataAsset> assets;
 
     List<Sandbox> sandboxes;
 

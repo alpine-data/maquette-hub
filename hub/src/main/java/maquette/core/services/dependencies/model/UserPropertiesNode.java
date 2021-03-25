@@ -2,7 +2,6 @@ package maquette.core.services.dependencies.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.dependencies.model.DependencyNode;
 import maquette.core.entities.users.model.UserProfile;
 
 @Value

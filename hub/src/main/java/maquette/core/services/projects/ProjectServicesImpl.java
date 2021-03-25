@@ -6,12 +6,7 @@ import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasets.DatasetEntity;
-import maquette.core.entities.data.datasets.model.Dataset;
-import maquette.core.entities.data.datasets.model.DatasetProperties;
-import maquette.core.entities.data.datasources.DataSourceEntities;
-import maquette.core.entities.data.datasources.model.DataSourceProperties;
+import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
@@ -38,14 +33,12 @@ import maquette.core.entities.projects.model.model.governance.CodeQuality;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.sandboxes.model.stacks.Stack;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
-import maquette.core.services.data.datasets.DatasetCompanion;
-import maquette.core.services.data.datasources.DataSourceCompanion;
+import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.services.sandboxes.SandboxCompanion;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
-import maquette.core.values.data.DataAsset;
 import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,31 +61,26 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    ProjectEntities projects;
 
-   DatasetEntities datasets;
-
-   DataSourceEntities dataSources;
-
    SandboxEntities sandboxes;
 
    InfrastructureManager infrastructure;
 
+   DataAssetEntities assets;
+
+   DataAssetCompanion assetCompanion;
+
    ProjectCompanion companion;
-
-   DatasetCompanion datasetCompanion;
-
-   DataSourceCompanion dataSourceCompanion;
 
    SandboxCompanion sandboxCompanion;
 
    public static ProjectServicesImpl apply(
-      ProcessManager processes, ProjectEntities projects, DatasetEntities datasets, DataSourceEntities dataSources,
-      SandboxEntities sandboxes, InfrastructureManager infrastructure, ProjectCompanion companion,
-      DatasetCompanion datasetCompanion, DataSourceCompanion dataSourceCompanion, SandboxCompanion sandboxCompanion) {
+      ProcessManager processes, ProjectEntities projects, SandboxEntities sandboxes,
+      InfrastructureManager infrastructure, DataAssetEntities entities, DataAssetCompanion assetCompanion,
+      ProjectCompanion companion, SandboxCompanion sandboxCompanion) {
 
       var impl = new ProjectServicesImpl(
-         processes, projects, datasets, dataSources, sandboxes,
-         infrastructure, companion, datasetCompanion, dataSourceCompanion, sandboxCompanion);
-
+         processes, projects, sandboxes, infrastructure,
+         entities, assetCompanion, companion, sandboxCompanion);
       impl.initialize();
 
       return impl;
@@ -146,30 +134,20 @@ public final class ProjectServicesImpl implements ProjectServices {
 
             var accessRequestsCS = Operators
                .compose(
-                  datasets.findAccessRequestsByProject(project.getId()), propertiesCS,
+                  assets.findAccessRequestsByProject(project.getId()), propertiesCS,
                   (requests, properties) -> requests
                      .stream()
                      .map(request -> companion.enrichDataAccessRequest(
                         properties, request,
-                        id -> datasets.getById(id).thenCompose(DatasetEntity::getProperties).thenApply(p -> p))))
+                        id -> assets.getById(id).getProperties().thenApply(p -> p))))
                .thenCompose(Operators::allOf);
 
             var linkedDataAssetsCS = accessRequestsCS.thenApply(requests -> requests
                .stream()
                .map(r -> {
-                  if (r.getAsset() instanceof DatasetProperties) {
-                     return datasets
-                        .getById(r.getAsset().getId())
-                        .thenCompose(datasetCompanion::mapEntityToDataset);
-                  } else if (r.getAsset() instanceof DataSourceProperties) {
-                     return dataSources
-                        .getById(r.getAsset().getId())
-                        .thenCompose(dataSourceCompanion::mapEntityToDataSource);
-                  } else {
-                     return CompletableFuture.<Dataset>failedFuture(new IllegalArgumentException("Unknown data asset type."));
-                  }
-               })
-               .map(cs -> cs.thenApply(as -> (DataAsset<?>) as)))
+                  var assetEntity = assets.getById(r.getAsset().getId());
+                  return assetCompanion.enrichDataAsset(assetEntity);
+               }))
                .thenCompose(Operators::allOf);
 
             var stacks = Stacks.apply()
@@ -195,8 +173,7 @@ public final class ProjectServicesImpl implements ProjectServices {
                   return Project.apply(
                      project.getId(), properties.getName(), properties.getTitle(), properties.getSummary(),
                      mlflowBaseUrl, properties.getCreated(), properties.getModified(), accessRequests, members,
-                     linkedDataAssets.stream().map(as -> (DataAsset<?>) as).collect(Collectors.toList()),
-                     sandboxes, stacks, mlflow.orElse(null));
+                     linkedDataAssets, sandboxes, stacks, mlflow.orElse(null));
                });
          });
    }

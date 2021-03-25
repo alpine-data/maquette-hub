@@ -3,7 +3,8 @@ package maquette.core.services.dependencies;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.assets.DataAssetEntity;
+import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.dependencies.model.*;
 import maquette.core.entities.dependencies.neo4j.Graph;
@@ -29,18 +30,20 @@ public final class DependencyServicesImpl implements DependencyServices {
 
    private final Dependencies dependencies;
 
+   private final DataAssetEntities assets;
+
    private final ProjectEntities projects;
 
    private final UserEntities users;
 
    @Override
-   public CompletionStage<Graph<DependencyPropertiesNode>> getDependencyGraph(
-      User executor, DataAssetType type, String assetName) {
+   public CompletionStage<Graph<DependencyPropertiesNode>> getDependencyGraph(User executor, String assetName) {
 
-      return comp.getDataAssetEntitiesForType(type)
+      return assets
          .getByName(assetName)
+         .thenCompose(DataAssetEntity::getProperties)
          .thenCompose(asset -> {
-            var node = DataAssetNode.apply(type, asset.getId());
+            var node = DataAssetNode.apply(asset.getType(), asset.getId());
             return dependencies.getDependencyGraph(node);
          })
          .thenCompose(graph -> {
@@ -63,9 +66,9 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof DataAssetNode) {
                      var n = (DataAssetNode) node.getProperties();
-                     return comp.getDataAssetEntitiesForType(n.getType())
+                     return assets
                         .getById(n.getId())
-                        .thenCompose(DataAssetEntity::getProperties)
+                        .getProperties()
                         .thenApply(p -> (DependencyPropertiesNode) DataAssetPropertiesNode.apply(n.getType(), n.getId(), p))
                         .exceptionally(ex -> {
                            LOG.warn("Issue collecting node information for data asset {}/{}", n.getType(), n.getId(), ex);
@@ -118,44 +121,44 @@ public final class DependencyServicesImpl implements DependencyServices {
 
    @Override
    public CompletionStage<Done> trackConsumptionByApplication(
-      User executor, DataAssetType type, String assetName, String projectName, String applicationName) {
+      User executor, String assetName, String projectName, String applicationName) {
 
-      return comp.trackConsumptionByApplication(executor, type, assetName, projectName, applicationName);
+      return comp.trackConsumptionByApplication(executor, assetName, projectName, applicationName);
    }
 
    @Override
    public CompletionStage<Done> trackConsumptionByModel(
-      User executor, DataAssetType type, String assetName, String projectName, String modelName) {
+      User executor, String assetName, String projectName, String modelName) {
 
-      return comp.trackConsumptionByModel(executor, type, assetName, projectName, modelName);
+      return comp.trackConsumptionByModel(executor, assetName, projectName, modelName);
    }
 
    @Override
    public CompletionStage<Done> trackConsumptionByProject(
-      User executor, DataAssetType type, String assetName, String projectName) {
+      User executor, String assetName, String projectName) {
 
-      return comp.trackConsumptionByProject(executor, type, assetName, projectName);
+      return comp.trackConsumptionByProject(executor, assetName, projectName);
    }
 
    @Override
    public CompletionStage<Done> trackProductionByApplication(
-      User executor, DataAssetType type, String assetName, String projectName, String applicationName) {
+      User executor, String assetName, String projectName, String applicationName) {
 
-      return comp.trackProductionByApplication(executor, type, assetName, projectName, applicationName);
+      return comp.trackProductionByApplication(executor, assetName, projectName, applicationName);
    }
 
    @Override
    public CompletionStage<Done> trackProductionByUser(
-      User executor, DataAssetType type, String assetName, String userId) {
+      User executor, String assetName, String userId) {
 
-      return comp.trackProductionByUser(executor, type, assetName, userId);
+      return comp.trackProductionByUser(executor, assetName, userId);
    }
 
    @Override
    public CompletionStage<Done> trackProductionByProject(
-      User executor, DataAssetType type, String assetName, String projectName) {
+      User executor, String assetName, String projectName) {
 
-      return comp.trackProductionByProject(executor, type, assetName, projectName);
+      return comp.trackProductionByProject(executor, assetName, projectName);
    }
 
    @Override

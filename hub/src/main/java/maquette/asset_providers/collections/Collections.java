@@ -7,8 +7,8 @@ import maquette.asset_providers.collections.services.CollectionServices;
 import maquette.asset_providers.collections.services.CollectionServicesFactory;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.assets_v2.AbstractDataAssetProvider;
-import maquette.core.entities.data.assets_v2.model.DataAssetProperties;
+import maquette.core.entities.data.AbstractDataAssetProvider;
+import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.services.ApplicationServices;
 
 import java.util.concurrent.CompletionStage;

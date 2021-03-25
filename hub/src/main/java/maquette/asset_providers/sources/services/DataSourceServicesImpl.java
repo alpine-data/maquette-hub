@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import maquette.asset_providers.sources.DataSourceEntities;
 import maquette.asset_providers.sources.DataSources;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.datasources.model.ConnectionTestResult;
-import maquette.core.entities.data.datasources.model.DataSourceDriver;
+import maquette.asset_providers.sources.model.ConnectionTestResult;
+import maquette.asset_providers.sources.model.DataSourceDriver;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 

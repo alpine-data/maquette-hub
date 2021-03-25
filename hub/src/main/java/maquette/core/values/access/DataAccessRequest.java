@@ -6,10 +6,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
+import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.data.DataAssetProperties;
 
 import java.util.Comparator;
 import java.util.List;
@@ -38,7 +38,7 @@ public class DataAccessRequest {
    ActionMetadata created;
 
    @JsonProperty(ASSET)
-   DataAssetProperties<?> asset;
+   DataAssetProperties asset;
 
    @JsonProperty(PROJECT)
    ProjectProperties project;
@@ -56,7 +56,7 @@ public class DataAccessRequest {
    public static DataAccessRequest apply(
       @JsonProperty(ID) UID id,
       @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(ASSET) DataAssetProperties<?> asset,
+      @JsonProperty(ASSET) DataAssetProperties asset,
       @JsonProperty(PROJECT) ProjectProperties project,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 

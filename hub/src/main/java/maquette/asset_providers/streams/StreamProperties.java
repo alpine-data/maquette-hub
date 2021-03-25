@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
-import maquette.core.entities.data.streams.model.DurationUnit;
 import org.apache.avro.Schema;
 
 @Value

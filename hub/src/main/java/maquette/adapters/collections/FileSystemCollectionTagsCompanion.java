@@ -3,11 +3,8 @@ package maquette.adapters.collections;
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import maquette.asset_providers.collections.model.CollectionTag;
 import maquette.common.Operators;
-import maquette.core.entities.data.collections.model.CollectionTag;
-import maquette.core.entities.data.datasets.model.DatasetVersion;
-import maquette.core.entities.data.datasets.model.revisions.CommittedRevision;
-import maquette.core.entities.data.datasets.model.revisions.Revision;
 import maquette.core.values.UID;
 
 import java.nio.file.Files;
@@ -66,4 +63,5 @@ public final class FileSystemCollectionTagsCompanion {
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), tag));
       return CompletableFuture.completedFuture(Done.getInstance());
    }
+
 }

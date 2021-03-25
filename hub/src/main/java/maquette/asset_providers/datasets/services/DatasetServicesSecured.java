@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.Revision;
-import maquette.core.services.data.assets.DataAssetCompanion;
+import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.records.Records;

@@ -1,12 +1,14 @@
 package maquette.core.services.data;
 
 import akka.Done;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
-import maquette.core.entities.data.assets.DataAssetEntities;
-import maquette.core.entities.data.assets.DataAssetEntity;
+import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.DataAssetEntity;
+import maquette.core.entities.data.DataAssetProviders;
+import maquette.core.entities.data.model.DataAsset;
+import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.services.ServiceCompanion;
@@ -15,10 +17,11 @@ import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.authorization.GrantedAuthorization;
-import maquette.core.values.data.*;
+import maquette.core.values.data.DataAssetMemberRole;
+import maquette.core.values.data.DataAssetMembers;
+import maquette.core.values.data.DataAssetPermissions;
+import maquette.core.values.data.DataVisibility;
 import maquette.core.values.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,42 +29,69 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extends DataAssetEntities<P, ?>> extends ServiceCompanion {
+@AllArgsConstructor(staticName = "apply")
+public final class DataAssetCompanion extends ServiceCompanion {
 
-   private static final Logger LOG = LoggerFactory.getLogger(ServiceCompanion.class);
-
-   private final E assets;
+   private final DataAssetEntities entities;
 
    private final ProjectEntities projects;
 
-   public static <P extends DataAssetProperties<P>, E extends DataAssetEntities<P, ?>> DataAssetCompanion<P, E> apply(E assets, ProjectEntities projects) {
-      return new DataAssetCompanion<>(assets, projects);
+   private final DataAssetProviders providers;
+
+   public CompletionStage<DataAsset> enrichDataAsset(DataAssetEntity entity) {
+      var propertiesCS = entity.getProperties();
+      var membersCS = entity.getMembers().getMembers();
+
+      var accessRequestsRawCS = entity
+         .getAccessRequests()
+         .getDataAccessRequests();
+
+      var accessRequestsCS = Operators
+         .compose(propertiesCS, accessRequestsRawCS, (properties, accessRequestsRaw) -> accessRequestsRaw
+            .stream()
+            .map(request -> this.enrichDataAccessRequest(properties, request)))
+         .thenCompose(Operators::allOf);
+
+      var customPropertiesCS = propertiesCS.thenCompose(properties -> {
+         var provider = providers.getByName(properties.getType());
+         return entity.getCustomProperties(provider.getPropertiesType());
+      });
+
+      var customDetailsCS = Operators
+         .compose(propertiesCS, customPropertiesCS, (properties, customProperties) -> providers
+            .getByName(properties.getType())
+            .getDetails(properties, customProperties))
+         .thenCompose(cs -> cs);
+
+      return Operators.compose(
+         propertiesCS, accessRequestsCS, membersCS, customPropertiesCS, customDetailsCS, DataAsset::apply);
    }
 
-   public CompletionStage<DataAccessRequest> enrichDataAccessRequest(P asset, DataAccessRequestProperties request) {
+   public CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties properties, DataAccessRequestProperties request) {
       return projects
          .getProjectById(request.getProject())
          .thenCompose(ProjectEntity::getProperties)
          .thenApply(project -> DataAccessRequest.apply(
             request.getId(),
             request.getCreated(),
-            asset, project, request.getEvents()));
+            properties,
+            project,
+            request.getEvents()));
    }
 
    /**
     * Returns the pass through if the user is member of the origin project and the project is allowed to access the data.
     *
     * @param user        The user who is trying to access the data.
-    * @param asset       The name of the asset.
+    * @param name       The name of the asset.
     * @param project     The project which might have access to the asset.
     * @param passThrough The pass through.
     * @param <T>         The type of the pass through.
     * @return The pass through or Optional.empty()
     */
-   public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String asset, UID project, T passThrough) {
-      var requestsCS = assets
-         .getByName(asset)
+   public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String name, UID project, T passThrough) {
+      var requestsCS = entities
+         .getByName(name)
          .thenCompose(ds -> ds.getAccessRequests().getDataAccessRequests());
 
       var prCS = projects.getProjectById(project);
@@ -87,14 +117,14 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
     * Returns the pass through if the user is member of any project which is allowed to access the data asset.
     *
     * @param user        The user who is trying to access the data.
-    * @param asset       The name of the asset.
+    * @param name       The name of the asset.
     * @param passThrough The pass through.
     * @param <T>         The type of the pass through.
     * @return The pass through or Optional.empty()
     */
-   public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String asset, T passThrough) {
-      var requestsCS = assets
-         .getByName(asset)
+   public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String name, T passThrough) {
+      var requestsCS = entities
+         .getByName(name)
          .thenCompose(ds -> ds.getAccessRequests().getDataAccessRequests());
 
       var projectsCS = projects.getProjectsByMember(user);
@@ -115,8 +145,8 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
       });
    }
 
-   public <T> CompletionStage<Optional<T>> filterPermission(User user, String asset, Function<DataAssetPermissions, Boolean> check, T passThrough) {
-      var entityCS = assets.getByName(asset);
+   public <T> CompletionStage<Optional<T>> filterPermission(User user, String name, Function<DataAssetPermissions, Boolean> check, T passThrough) {
+      var entityCS = entities.getByName(name);
       var propertiesCS = entityCS.thenCompose(DataAssetEntity::getProperties);
       var accessRequestsCS = Operators.compose(entityCS, propertiesCS, (entity, properties) -> entity
          .getAccessRequests()
@@ -139,12 +169,12 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
       });
    }
 
-   public <T> CompletionStage<Optional<T>> filterMember(User user, String asset, T passThrough) {
-      return filterMember(user, asset, null, passThrough);
+   public <T> CompletionStage<Optional<T>> filterMember(User user, String name, T passThrough) {
+      return filterMember(user, name, null, passThrough);
    }
 
    public <T> CompletionStage<Optional<T>> filterMember(User user, String asset, DataAssetMemberRole role, T passThrough) {
-      return assets
+      return entities
          .getByName(asset)
          .thenCompose(d -> d.getMembers().getMembers())
          .thenApply(members -> {
@@ -160,9 +190,9 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
          });
    }
 
-   public <T> CompletionStage<Optional<T>> filterRequester(User user, String asset, UID accessRequest, T passThrough) {
-      return assets
-         .getByName(asset)
+   public <T> CompletionStage<Optional<T>> filterRequester(User user, String name, UID accessRequest, T passThrough) {
+      return entities
+         .getByName(name)
          .thenCompose(d -> d.getAccessRequests().getDataAccessRequestById(accessRequest))
          .thenCompose(r -> projects.getProjectById(r.getProject()))
          .thenCompose(p -> p.isMember(user))
@@ -175,11 +205,11 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
          });
    }
 
-   public <T> CompletionStage<Optional<T>> filterVisible(String asset, T passThrough) {
-      return assets
-         .getByName(asset)
+   public <T> CompletionStage<Optional<T>> filterVisible(String name, T passThrough) {
+      return entities
+         .getByName(name)
          .thenCompose(d -> d.getProperties().thenApply(properties -> {
-            if (properties.getVisibility().equals(DataVisibility.PUBLIC)) {
+            if (properties.getMetadata().getVisibility().equals(DataVisibility.PUBLIC)) {
                return Optional.of(passThrough);
             } else {
                return Optional.empty();
@@ -187,32 +217,32 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
          }));
    }
 
-   public CompletionStage<Boolean> hasPermission(User user, String asset, Function<DataAssetPermissions, Boolean> check) {
-      return filterPermission(user, asset, check, Done.getInstance()).thenApply(Optional::isPresent);
+   public CompletionStage<Boolean> hasPermission(User user, String name, Function<DataAssetPermissions, Boolean> check) {
+      return filterPermission(user, name, check, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
-   public CompletionStage<Boolean> isSubscribedConsumer(User user, String asset, UID project) {
-      return filterSubscribedConsumer(user, asset, project, Done.getInstance()).thenApply(Optional::isPresent);
+   public CompletionStage<Boolean> isSubscribedConsumer(User user, String name, UID project) {
+      return filterSubscribedConsumer(user, name, project, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
-   public CompletionStage<Boolean> isSubscribedConsumer(User user, String asset) {
-      return filterSubscribedConsumer(user, asset, Done.getInstance()).thenApply(Optional::isPresent);
+   public CompletionStage<Boolean> isSubscribedConsumer(User user, String name) {
+      return filterSubscribedConsumer(user, name, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
-   public CompletionStage<Boolean> isMember(User user, String asset) {
-      return isMember(user, asset, null);
+   public CompletionStage<Boolean> isMember(User user, String name) {
+      return isMember(user, name, null);
    }
 
-   public CompletionStage<Boolean> isMember(User user, String asset, DataAssetMemberRole role) {
-      return filterMember(user, asset, role, Done.getInstance()).thenApply(Optional::isPresent);
+   public CompletionStage<Boolean> isMember(User user, String name, DataAssetMemberRole role) {
+      return filterMember(user, name, role, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
-   public CompletionStage<Boolean> isRequester(User user, String asset, UID accessRequest) {
-      return filterRequester(user, asset, accessRequest, Done.getInstance()).thenApply(Optional::isPresent);
+   public CompletionStage<Boolean> isRequester(User user, String name, UID accessRequest) {
+      return filterRequester(user, name, accessRequest, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
-   public CompletionStage<Boolean> isVisible(String asset) {
-      return filterVisible(asset, Done.getInstance()).thenApply(Optional::isPresent);
+   public CompletionStage<Boolean> isVisible(String name) {
+      return filterVisible(name, Done.getInstance()).thenApply(Optional::isPresent);
    }
 
    @Value
@@ -223,6 +253,10 @@ public final class DataAssetCompanion<P extends DataAssetProperties<P>, E extend
 
       List<DataAccessRequest> accessRequests;
 
+      public List<DataAccessRequest> getAccessRequests() {
+         // TODO: Transform
+         return List.of();
+      }
    }
 
 }

@@ -3,14 +3,15 @@ package maquette.asset_providers.sources;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import maquette.asset_providers.sources.commands.TestDataSourceCommand;
+import maquette.asset_providers.sources.model.DataSourceProperties;
 import maquette.asset_providers.sources.services.DataSourceServices;
 import maquette.asset_providers.sources.services.DataSourceServicesFactory;
 import maquette.common.DeleteOnCloseFileInputStream;
 import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.assets_v2.AbstractDataAssetProvider;
-import maquette.core.ports.JdbcPort;
+import maquette.core.entities.data.AbstractDataAssetProvider;
+import maquette.asset_providers.sources.ports.JdbcPort;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
 

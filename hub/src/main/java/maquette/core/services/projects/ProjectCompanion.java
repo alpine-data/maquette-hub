@@ -4,7 +4,7 @@ import akka.Done;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
-import maquette.core.entities.data.datasets.DatasetEntities;
+import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
@@ -17,7 +17,6 @@ import maquette.core.services.ServiceCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.data.DataAssetProperties;
 import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,6 @@ public final class ProjectCompanion extends ServiceCompanion {
    private static final Logger LOG = LoggerFactory.getLogger(ProjectServices.class);
 
    ProjectEntities projects;
-
-   DatasetEntities datasets;
 
    InfrastructureManager infrastructure;
 
@@ -63,7 +60,7 @@ public final class ProjectCompanion extends ServiceCompanion {
          .build();
    }
 
-   public CompletionStage<DataAccessRequest> enrichDataAccessRequest(ProjectProperties project, DataAccessRequestProperties request, Function<UID, CompletionStage<DataAssetProperties<?>>> findAsset) {
+   public CompletionStage<DataAccessRequest> enrichDataAccessRequest(ProjectProperties project, DataAccessRequestProperties request, Function<UID, CompletionStage<DataAssetProperties>> findAsset) {
       return findAsset
          .apply(request.getAsset())
          .thenApply(asset -> DataAccessRequest.apply(request.getId(), request.getCreated(), asset, project, request.getEvents()));

@@ -9,7 +9,7 @@ import maquette.asset_providers.collections.exceptions.TagNotFoundException;
 import maquette.asset_providers.collections.model.CollectionTag;
 import maquette.asset_providers.collections.model.FileEntry;
 import maquette.common.Operators;
-import maquette.core.entities.data.assets_v2.DataAssetEntity;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.binary.BinaryObject;

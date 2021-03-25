@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.dependencies.model.DataAssetType;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
@@ -19,8 +18,6 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class TrackProductionByApplicationCommand implements Command {
 
-   DataAssetType type;
-
    String asset;
 
    String project;
@@ -31,14 +28,13 @@ public class TrackProductionByApplicationCommand implements Command {
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDependencyServices()
-         .trackProductionByApplication(user, type, asset, project, application)
+         .trackProductionByApplication(user, asset, project, application)
          .thenApply(done -> MessageResult.apply("Ok"));
    }
 
    @Override
    public Command example() {
       return TrackProductionByApplicationCommand.apply(
-         DataAssetType.DATASET,
          "some-dataset",
          "some-project",
          "soma-app");

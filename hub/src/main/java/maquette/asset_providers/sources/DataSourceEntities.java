@@ -1,10 +1,11 @@
 package maquette.asset_providers.sources;
 
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.assets_v2.DataAssetEntity;
-import maquette.core.entities.data.datasources.model.ConnectionTestResult;
-import maquette.core.entities.data.datasources.model.DataSourceDriver;
-import maquette.core.ports.JdbcPort;
+import maquette.asset_providers.sources.model.DataSourceProperties;
+import maquette.core.entities.data.DataAssetEntity;
+import maquette.asset_providers.sources.model.ConnectionTestResult;
+import maquette.asset_providers.sources.model.DataSourceDriver;
+import maquette.asset_providers.sources.ports.JdbcPort;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 

@@ -6,15 +6,12 @@ import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.adapters.companions.FileSystemDataAssetRepository;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.data.assets_v2.DataAssetEntities;
-import maquette.core.entities.data.collections.CollectionEntities;
-import maquette.core.entities.data.datasets.DatasetEntities;
-import maquette.core.entities.data.datasources.DataSourceEntities;
-import maquette.core.entities.data.streams.StreamEntities;
+import maquette.core.entities.data.DataAssetEntities;
+import maquette.core.entities.data.DataAssetProviders;
+import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.entities.dependencies.Dependencies;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.logs.Logs;
@@ -54,16 +51,12 @@ public final class CoreApp {
        ProjectsRepository projectsRepository,
        ModelsRepository modelsRepository,
        ApplicationsRepository applicationsRepository,
-       CollectionsRepository collectionsRepository,
-       DatasetsRepository datasetsRepository,
        RecordsStore recordsStore,
-       DataSourcesRepository dataSourceRepository,
-       StreamsRepository streamsRepository,
        SandboxesRepository sandboxesRepository,
        UsersRepository usersRepository,
-       DataExplorer dataExplorer,
+       DataAssetsRepository dataAssetsRepository,
+       DataAssetProviders dataAssetProviders,
        MlflowProxyPort mlflowProxyPort,
-       JdbcPort jdbcPort,
        ObjectMapper om) {
 
         LOG.info("Starting Maquette Hub Server");
@@ -80,24 +73,15 @@ public final class CoreApp {
         var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository, mlflowProxyPort);
         var processManager = ProcessManager.apply();
         var projects = ProjectEntities.apply(projectsRepository, modelsRepository, applicationsRepository);
-
-
-        var collections = CollectionEntities.apply(collectionsRepository);
-        var datasets = DatasetEntities.apply(datasetsRepository, recordsStore, dataExplorer);
-        var dataSources = DataSourceEntities.apply(dataSourceRepository, jdbcPort, recordsStore, dataExplorer);
-        var streams = StreamEntities.apply(streamsRepository);
+        var dataAssets = DataAssetEntities.apply(dataAssetsRepository, dataAssetProviders.toMap());
 
         var sandboxes = SandboxEntities.apply(sandboxesRepository);
         var users = UserEntities.apply(usersRepository, om);
         var dependencies = Dependencies.apply();
         var logs = Logs.apply();
 
-        /**
-         *  TODO
-         */
-
         var runtime = RuntimeConfiguration.apply(
-           app, system, om, null, null, collections, datasets, dataSources, streams, infrastructureManager,
+           app, system, om, dataAssetProviders, dataAssets, infrastructureManager,
            processManager, projects, sandboxes, users, dependencies, logs);
 
         var services = ApplicationServices.apply(runtime);

@@ -1,9 +1,9 @@
 package maquette.asset_providers.sources.services;
 
 import lombok.AllArgsConstructor;
-import maquette.core.entities.data.datasources.model.ConnectionTestResult;
-import maquette.core.entities.data.datasources.model.DataSourceDriver;
-import maquette.core.services.data.assets.DataAssetCompanion;
+import maquette.asset_providers.sources.model.ConnectionTestResult;
+import maquette.asset_providers.sources.model.DataSourceDriver;
+import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;

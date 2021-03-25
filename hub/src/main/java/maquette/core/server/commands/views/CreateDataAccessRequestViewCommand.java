@@ -6,19 +6,18 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
+import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.views.CreateDataAccessRequestView;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.data.DataAsset;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.exceptions.DomainException;
 import maquette.core.values.user.User;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -33,31 +32,9 @@ public class CreateDataAccessRequestViewCommand implements Command {
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-      CompletionStage<DataAsset<?>> assetCS;
-
-      if (assetType != null && assetType.startsWith("dataset")) {
-         assetCS = services
-            .getDatasetServices()
-            .get(user, asset)
-            .thenApply(a -> a);
-      } else if (assetType != null && (assetType.startsWith("source") || assetType.startsWith("datasource"))) {
-         assetCS = services
-            .getDataSourceServices()
-            .get(user, asset)
-            .thenApply(a -> a);
-      } else if (assetType != null && assetType.startsWith("stream")) {
-         assetCS = services
-            .getStreamServices()
-            .get(user, asset)
-            .thenApply(a -> a);
-      } else if (assetType != null && assetType.startsWith("collection")) {
-         assetCS = services
-            .getCollectionServices()
-            .get(user, asset)
-            .thenApply(a -> a);
-      } else {
-         return CompletableFuture.failedFuture(new UnknownAssetTypeException(assetType));
-      }
+      CompletionStage<DataAsset> assetCS = services
+         .getDataAssetServices()
+         .get(user, asset);
 
       var projectsCS = services
          .getUserServices()
@@ -77,7 +54,11 @@ public class CreateDataAccessRequestViewCommand implements Command {
             .collect(Collectors.toList());
 
          var isOwner = asset.isMember(user, DataAssetMemberRole.OWNER);
-         var requiresExplicitApproval = !asset.getClassification().equals(DataClassification.PUBLIC);
+         var requiresExplicitApproval = !asset
+            .getProperties()
+            .getMetadata()
+            .getClassification()
+            .equals(DataClassification.PUBLIC);
 
          return CreateDataAccessRequestView.apply(asset, availableProjects, isOwner, requiresExplicitApproval);
       });

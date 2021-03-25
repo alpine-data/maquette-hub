@@ -1,7 +1,7 @@
 package maquette.asset_providers.sources.services;
 
-import maquette.core.entities.data.datasources.model.ConnectionTestResult;
-import maquette.core.entities.data.datasources.model.DataSourceDriver;
+import maquette.asset_providers.sources.model.ConnectionTestResult;
+import maquette.asset_providers.sources.model.DataSourceDriver;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 

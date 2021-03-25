@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.dependencies.model.DataAssetType;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.MessageResult;
@@ -19,21 +18,18 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetDataAssetDependencyGraph implements Command {
 
-   DataAssetType type;
-
    String asset;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDependencyServices()
-         .getDependencyGraph(user, type, asset)
+         .getDependencyGraph(user, asset)
          .thenApply(done -> MessageResult.apply("Ok"));
    }
 
    @Override
    public Command example() {
-      return GetDataAssetDependencyGraph.apply(
-         DataAssetType.DATASET, "some-dataset");
+      return GetDataAssetDependencyGraph.apply("some-dataset");
    }
 }
