@@ -1,16 +1,19 @@
+import fnmatch
+import pipes
+import os
+import shutil
+
 import click
 import pandas as pd
-import os
-import maquette
-import shutil
 import yaml
 import chevron
-import fnmatch
 
 from git import Repo
 
+import maquette
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import EnvironmentConfiguration
+
 
 config = EnvironmentConfiguration()
 client = Client.from_config(config)
@@ -38,22 +41,18 @@ def projects():
 @click.argument('summary')
 def projects_init(name, title, summary):
     """
-    Initialize a project
-
-    Args:
-        name : name of the project
-
+    Initialize a project with it's NAME, a TITLE and a SUMMARY.
     """
     maquette.project(name,title,summary).create()
     print('# Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
-               '# \n'                                                 
-              '# To activate the project type: mq project activate ' + name)
+            '# \n'                                                 
+            '# To activate the project type: mq project activate ' + name)
 
 
 @projects.command("ls")
 def projects_list():
     """
-    Print the list of projects.
+    Print a list of projects.
 
     """
     pd.set_option('display.max_colwidth', None)
@@ -63,16 +62,12 @@ def projects_list():
 
 @projects.command("activate")
 @click.argument('name')
-def activate(name):
+def projects_activate(name):
     """
-    Activate project.
-
-    Args:
-        name : name of the project
-
+    Activate a previously created project by referencing its NAME
     """
     project = maquette.project(name).activate()
-    config.activate_project(project_name=project.name, project_id=project.id)
+    config.activate_project(project_name=project.name, project_id=project.project_id)
 
     status, response = client.command(cmd='projects environment', args={'name': name})
     if status == 200:
@@ -80,9 +75,9 @@ def activate(name):
         for (env_key, env_value) in env_variables.items():
             config.add_process_env(env_key, env_value)
         if os.name == 'posix':
-            print('# You are on a Unix based  system  c[○┬●]כ \n'
+            print('# You are on a Unix based  system, so you are not done yet c[○┬●]כ \n'
                   '# Please copy and run the command: \n'
-                  'eval $(unix_env)')
+                  'eval $(mq projects env)')
         else:
             for (env_key, env_value) in config.mq_yaml_list['environment'].items():
                 os.system("SETX {0} {1}".format(env_key, env_value))
@@ -94,11 +89,27 @@ def activate(name):
         raise RuntimeError('# Ups! Something went wrong (ⓧ_ⓧ)\n'
                            '# status code: ' + str(status) + ', content:\n' + response)
 
+@projects.command("env")
+def projects_env():
+    """
+    ATTENTION USEAGE: eval $(mq projects env)
+        This command is needed on unix based systems after activating the project to updated the environment variables
+    """
+    envs = config.get_process_env()
+    if envs:
+        for (key, value) in envs:
+            print('export ' + key + '=' + pipes.quote(value)+'\n')
+    else:
+        print('# We could not find an activate project \n'
+              '# Please run: mq projects activate <my_awesome_project> \n'
+              '# Or create one if you do not have one yet with: mq projects create <my_awesome_project>')
+
 
 @projects.command("deactivate")
-def deactivate():
+def projects_deactivate():
     """
-    Currently only removes the currently activate environment variables from the config, no default env needed or available
+    Currently only removes the currently activate environment variables from the config, no default env needed or
+    available
     """
     config.remove_process_envs()
     print('Removed Environment from Config')
@@ -108,20 +119,28 @@ def deactivate():
 @click.argument('name')
 def projects_remove(name):
     """
-    remove a project
-
-    Args:
-        name : name of the project
+    Remove a project referenced by NAME
 
     """
     maquette.project(name).delete()
     print("# You successfully killed the project " + name + " and removed all evidences (╯°□°)--︻╦╤─ ")
 
 @projects.command("report-cq")
-def projects_report_cq():
+@click.argument("pytest_log")
+@click.argument("files", nargs=-1)
+def projects_report_cq(files):
+    """
+    You can report the code quality for the FILES in this project. This can be a list of individual .py files,
+    packages or a mix of both.
+    It is generated using pylint and send to the Maquette Hub.
+
+    If you have generated a pytest log file with the following command, the test coverage is reported as well:
+    $ mq projects report-cq [packge_names, script.py, ...]
+
+    """
     name = config.get_project_name()
     project = maquette.project(name)
-    project.report_code_quality()
+    project.report_code_quality(files)
 
 
 @mq.group()
@@ -142,6 +161,10 @@ def code_repositorys_list():
 @click.argument('template')
 @click.argument('target')
 def code_repositorys_clone(template, target):
+    """
+    With this command, a coede repository is cloned from the Git location with the TEMPLATE as address. It is saved
+    in the TARGET folder (which is generated in this process, no worries)
+    """
     Repo.clone_from(template, target)
     print("# Repository cloned from git")
     shutil.rmtree(os.path.join(target,".git"))
@@ -168,8 +191,8 @@ def code_repositorys_clone(template, target):
                 print("Nothing to filter, you get the full mustache treatment ( °┏＿┓°) ")
 
             # reduce fname by filter list
-            for filter in filter_list:
-                fnames = [x for x in fnames if x not in fnmatch.filter(fnames, filter)]
+            for file_filter in filter_list:
+                fnames = [x for x in fnames if x not in fnmatch.filter(fnames, file_filter)]
 
             print("---------- List of files to be mustached ----------")
             print(fnames)

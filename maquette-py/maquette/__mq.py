@@ -1,5 +1,6 @@
 import json
 import os
+
 from enum import Enum
 from io import BytesIO
 
@@ -7,10 +8,11 @@ import pandas as pd
 import pandavro
 import git
 
+from pylint.lint.run import Run
+
 from maquette_lib.__client import Client
 from maquette_lib.__user_config import EnvironmentConfiguration
 from maquette_lib.__code_repository_config import CodeRepositoryConfiguration
-from pylint.lint.run import Run
 
 code_repository = CodeRepositoryConfiguration()
 config = EnvironmentConfiguration()
@@ -75,17 +77,15 @@ class EPersonalInformation(str, Enum):
     SENSITIVE_PERSONAL_INFORMATION = "spi"
 
 
-# TODO Doku (of course)
-
 class DataAsset:
     """
     Base class for all Data Assets
     """
     project: str = None
     project_name: str = None
-    #TODO: IMPORTANT - project id needs to be either initialized here, read from the ENV variable, config file or not in the header!!!
     data_asset_name: str = None
     header = None
+
 
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
@@ -128,7 +128,8 @@ class DataAsset:
 
     def update(self, to_update: str):
         """
-        BASE FUNCTION FOR INHERITANCE: Updates the Data Asset with the "top_update" name, with the calling object's arguments
+        BASE FUNCTION FOR INHERITANCE: Updates the Data Asset with the "top_update" name, with the calling object's
+        arguments
         Args:
             to_update: the name of the Data Asset to update
 
@@ -190,7 +191,7 @@ class Collection(DataAsset):
         else:
             headers = {'Accept': 'application/octet-stream'}
 
-        resp = client.post('data/collections/' + self.data_asset_name, files={
+        client.post('data/collections/' + self.data_asset_name, files={
             'file': (os.path.basename(data.name), data, 'avro/binary', {'Content-Type': 'avro/binary'})
         }, headers=headers, json={
             'name': os.path.basename(data.name),
@@ -209,7 +210,8 @@ class Collection(DataAsset):
 
         """
         if tag:
-            resp = client.get('data/collections/' + self.data_asset_name + '/tags/' + tag + '/' + filename, headers=self.header)
+            resp = client.get('data/collections/' + self.data_asset_name + '/tags/' + tag + '/' + filename,
+                              headers=self.header)
         else:
             resp = client.get('data/collections/' + self.data_asset_name + '/latest/' + filename, headers=self.header)
         return BytesIO(resp.content)
@@ -269,9 +271,6 @@ class Source(DataAsset):
                              'personalInformation': self.personal_information},
                        headers=self.header)
         return self
-
-    #TODO: def update_db...
-    # for convenience
 
     def get(self) -> pd.DataFrame:
         """
@@ -402,7 +401,7 @@ class Project:
     name: str = None
     title: str = None
     summary: str = None
-    id: str = None
+    project_id: str = None
 
     __header = None
 
@@ -414,12 +413,12 @@ class Project:
         else:
             self.title = name
         if id:
-            self.id = id
-            self.__header = {'x-project': self.id}
+            self.project_id = id
+            self.__header = {'x-project': self.project_id}
         else:
             if config.get_project():
-                self.id = config.get_project()
-                self.__header = {'x-project': self.id}
+                self.project_id = config.get_project()
+                self.__header = {'x-project': self.project_id}
 
     def create(self) -> 'Project':
         """
@@ -468,8 +467,7 @@ class Project:
         Returns:
 
         """
-        resp = client.command(cmd='projects remove',
-                              args={'name': self.name})
+        client.command(cmd='projects remove', args={'name': self.name})
 
     def delete(self):
         """
@@ -516,10 +514,12 @@ class Project:
                 arg]
         return Dataset(project_name=self.name, *args)
 
-    def source (self, source_name: str = None, source_title: str = None, summary: str = None, visibility: str = None, classification: str = None, personal_information:str = None,
+    def source (self, source_name: str = None, source_title: str = None, summary: str = None, visibility: str = None,
+            classification: str = None, personal_information:str = None,
                 access_type: str = None, db_properties = None) -> 'Source':
         args = [arg for arg in
-                [source_name, source_title, summary, visibility, classification, personal_information, access_type] if arg]
+                [source_name, source_title, summary, visibility, classification, personal_information, access_type]
+                if arg]
         return Source(project_name=self.name, db_properties=db_properties, *args)
 
 
@@ -543,10 +543,15 @@ class Project:
                 arg]
         return Collection(project_name=self.name, *args, )
 
-    def report_code_quality(self):
+    def report_code_quality(self, packages = None, test_report = None):
         # get pylint code reports
-        train_script = code_repository.get_train_script()
-        report = Run([train_script, '--output-format=json'], do_exit=False)
+        default = ["--max-line-length=120", "--output-format=json"]
+        if packages:
+            file_param = packages.extend(default)
+        else:
+            file_param = [code_repository.get_train_script()]
+            file_param.extend(default)
+        report = Run(file_param, do_exit=False)
         score = report.linter.stats['global_note']
         issues = []
         for stat in report.linter.reporter.messages:
@@ -561,12 +566,27 @@ class Project:
         repo = git.Repo(search_parent_directories=True)
         sha = repo.head.object.hexsha
 
+        # get Pytest coverage if test-report exist
+        coverage = 0
+        if test_report:
+            report_file = test_report
+        else:
+            report_file = "./test/test-report.log"
+        if os.path.exists(report_file):
+            # parse log file and get total coverage
+            with open(report_file, "r") as log:
+                log_content = log.readlines()
+                for line in log_content:
+                    x = line.find("TOTAL")
+                    if x > -1:
+                        coverage_string = line[-4:-2]
+                        coverage = int(coverage_string)
+
         args = {
             "project": self.name,
             "commit": sha,
             "score": score,
-            #TODO: attach coveragePy results
-            "coverage": 35,
+            "coverage": coverage,
             "issues": issues
         }
 
@@ -579,7 +599,6 @@ class Project:
                        headers=headers)
         return self
 
-#TODO: Read project_id via config!
 def project(name: str, title: str = None, summary: str = None) -> Project:
     """
     A project factory.
@@ -689,7 +708,6 @@ def stream(stream_name: str = None, stream_title: str = None, summary: str = Non
 
 
 # TODO list functions for collections, streams and sources
-
 
 def datasets(to_csv=False):
     """

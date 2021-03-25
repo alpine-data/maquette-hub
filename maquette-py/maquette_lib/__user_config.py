@@ -1,10 +1,10 @@
+import pathlib
 import os
 import yaml
-import pathlib
 
 class EnvironmentConfiguration:
 
-#TODO authentication only implemented for stupid(s), implement the other 2
+    #TODO authentication only implemented for stupid(s), implement the other 2
     mq_config: str = None
     mq_yaml_list = []
 
@@ -37,10 +37,11 @@ class EnvironmentConfiguration:
 
     def get_roles(self):
         if 'authentication' in self.mq_yaml_list:
-            roles = self.mq_yaml_list['authentication'].get('roles', 'a-team, b-team')
+            roles = self.mq_yaml_list['authentication'].get('roles', ['a-team', 'b-team'])
+            roles = ','.join(roles)
         else:
             roles = 'a-team, b-team'
-        return os.environ.get('MQ_ROLES', 'a-team, b-team').split(", ")
+        return os.environ.get('MQ_ROLES', roles).split(",")
 
     def get_project(self) -> str:
         if 'project' in self.mq_yaml_list:
@@ -55,6 +56,12 @@ class EnvironmentConfiguration:
         else:
             project_name = None
         return os.environ.get('MQ_PROJECT_NAME', project_name)
+
+    def get_process_env(self):
+        if 'environment' in self.mq_yaml_list:
+            return self.mq_yaml_list['environment'].items()
+        else:
+            return None
 
     def activate_project(self, project_name, project_id):
         if self.mq_config:
