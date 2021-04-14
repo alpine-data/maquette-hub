@@ -4,6 +4,7 @@
  *
  */
 
+import _ from 'lodash';
 import React from 'react';
 import { FlexboxGrid, Icon, Tag, Tooltip, Whisper } from 'rsuite';
 import PropTypes from 'prop-types';
@@ -93,17 +94,17 @@ function ReviewBadge({ state }) {
 }
 
 function DataAssetProperties({ resource }) {
-  const visibility = resource.visibility || 'unknown';
-  const classification = resource.classification || 'unknown';
-  const pi = resource.personalInformation || 'unknown';
-  const zone = resource.zone || 'unknown';
+  const visibility = _.get(resource, 'properties.metadata.visibility') || 'unknown';
+  const classification = _.get(resource, 'properties.metadata.classification') || 'unknown';
+  const pi = _.get(resource, 'properties.metadata.personalInformation') || 'unknown';
+  const zone = _.get(resource, 'properties.metadata.zone') || 'unknown';
 
   return <FlexboxGrid justify="space-between" style={{ marginBottom: '20px' }}>
     <Field label="Visibility" value={ _.capitalize(visibility) } tooltip={ visibilityAlt[visibility] } />
     <Field label="Classification" value={ _.capitalize(classification) } tooltip={ classificationAlt[classification] } />
     <Field label="Personal Data" value={ piLabels[pi] } tooltip={ piAlt[pi] } />
     <Field label="Stage" value={ _.capitalize(zone) } tooltip={ zoneAlt[zone] } />
-    <ReviewBadge state={ resource.state } />
+    <ReviewBadge state={ _.get(resource, 'properties.state') } />
   </FlexboxGrid>
 }
 

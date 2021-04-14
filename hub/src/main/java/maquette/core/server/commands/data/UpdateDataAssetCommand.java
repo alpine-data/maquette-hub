@@ -40,8 +40,7 @@ public final class UpdateDataAssetCommand implements Command {
          "some-dataset", "title", Operators.lorem(),
          DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
 
-      return apply(
-         "some-dataset", meta);
+      return apply("some-dataset", meta);
    }
 
 }

@@ -23,36 +23,25 @@ export const createSaga = saga;
 export const createSelector = selector;
 
 export const initialState = {
-  properties: {
-    driver: 'postgresql',
-    connection: '',
-    username: '',
-    password: '',
-    query: ''
-  },
+  driver: 'postgresql',
+  connection: '',
+  username: '',
+  password: '',
+  query: '',
   accessType: 'direct',
   schedule: 'daily'
 }
 
 export const validate = (state) => {
-  const properties = state.properties;
-  return !(_.isEmpty(properties.connection) || _.isEmpty(properties.query) || _.isEmpty(properties.username) || _.isEmpty(properties.password));
+  return !(_.isEmpty(state.connection) || _.isEmpty(state.query) || _.isEmpty(state.username) || _.isEmpty(state.password));
 }
 
 function SourcePropertiesForm({ container, drivers, state, onChange, reducer, saga, ...props }) {
-  const properties = state.properties;
   const isTesting = _.get(props, `${container}.isTesting`);
   const testResult = _.get(props, `${container}.testResult`) || {};
   const testConnectionDisabled = !validate(state);
 
   const { testConnection } = actions(container);
-
-  const onChangeProperty = field => value => {
-    onChange('properties')(produce(state.properties, draft => {
-      draft[field] = value;
-      return draft;
-    }));
-  }
 
   return <FlexboxGrid justify="space-between">
     <FlexboxGrid.Item colspan={ 11 }>
@@ -62,7 +51,7 @@ function SourcePropertiesForm({ container, drivers, state, onChange, reducer, sa
           name="driver"
           data={ drivers } 
           style={{ width: '100%' }} 
-          onChange={ onChangeProperty('driver') } 
+          onChange={ onChange('driver') } 
           value={ _.get(state, 'properties.driver') } />
         <HelpBlock>Select the database type of your source.</HelpBlock>
       </FormGroup>
@@ -73,8 +62,8 @@ function SourcePropertiesForm({ container, drivers, state, onChange, reducer, sa
         <ControlLabel>Connection String</ControlLabel>
         <FormControl 
           name="connection" 
-          value={ _.get(state, 'properties.connection') } 
-          onChange={ onChangeProperty('connection') }
+          value={ _.get(state, 'connection') } 
+          onChange={ onChange('connection') }
           placeholder="//host:port/database" />
         <HelpBlock>A JDBC connection string to connect to the database, including username and password.</HelpBlock>
       </FormGroup>
@@ -85,8 +74,8 @@ function SourcePropertiesForm({ container, drivers, state, onChange, reducer, sa
         <ControlLabel>Username</ControlLabel>
         <FormControl 
           name="username" 
-          value={ _.get(state, 'properties.username') } 
-          onChange={ onChangeProperty('username') } />
+          value={ _.get(state, 'username') } 
+          onChange={ onChange('username') } />
       </FormGroup>
     </FlexboxGrid.Item>
       
@@ -96,8 +85,8 @@ function SourcePropertiesForm({ container, drivers, state, onChange, reducer, sa
         <ControlLabel>Password</ControlLabel>
         <FormControl 
           name="password" 
-          value={ _.get(state, 'properties.password') } 
-          onChange={ onChangeProperty('password') }
+          value={ _.get(state, 'password') } 
+          onChange={ onChange('password') }
           type="password" />
       </FormGroup>
     </FlexboxGrid.Item>
@@ -107,8 +96,8 @@ function SourcePropertiesForm({ container, drivers, state, onChange, reducer, sa
         <ControlLabel>Query</ControlLabel>
         <FormControl 
           name="connection" 
-          value={ _.get(state, 'properties.query') } 
-          onChange={ onChangeProperty('query') }
+          value={ _.get(state, 'query') } 
+          onChange={ onChange('query') }
           placeholder="SELECT * FROM <DATABASE>.<TABLE_NAME>" />
         <HelpBlock>The query to execute to fetch the data from the database.</HelpBlock>
       </FormGroup>
@@ -119,7 +108,7 @@ function SourcePropertiesForm({ container, drivers, state, onChange, reducer, sa
             disabled={ testConnectionDisabled }
             color="green"
             loading={ isTesting }
-            onClick={ () => props.dispatch(testConnection(properties)) }>
+            onClick={ () => props.dispatch(testConnection(_.pick(state, 'driver', 'connection', 'query', 'username', 'password'))) }>
               Test connection and query.
           </Button>
         </ButtonToolbar>

@@ -86,7 +86,11 @@ const schema = {
 };
 
 function StreamOverview(props) {
-  const name = props.stream.view.stream.name;
+  console.log(props);
+  const name = _.get(props, 'stream.view.asset.properties.metadata.name');
+  const schema = _.get(props, 'stream.view.asset.customProperties.schema');
+
+  console.log(name, schema);
 
   return <Container fluid className="mq--main-content">
     <FlexboxGrid justify="space-between">
@@ -95,7 +99,7 @@ function StreamOverview(props) {
 
         <ResponsiveContainer width='100%' aspect={3.0/1.0}>
           <LineChart
-            data={data[props.stream.view.stream.name] || data['default']}
+            data={data[name] || data['default']}
             >
 
             <CartesianGrid strokeDasharray="3 3" />
@@ -110,7 +114,7 @@ function StreamOverview(props) {
         <h4>Message Schema</h4>
         <SyntaxHighlighter showLineNumbers language="json" style={docco}>
           { 
-            JSON.stringify(props.stream.view.stream.schema, null, 2)
+            JSON.stringify(schema, null, 2)
           }
         </SyntaxHighlighter>
       </FlexboxGrid.Item>

@@ -48,14 +48,6 @@ export function Source(props) {
           component: () => <>
                 <SourceOverview { ...props } />
             </>
-        },
-        {
-          order: 16,
-          label: 'Browse Data',
-          key: 'browse',
-          link: '/browse',
-          visible: canConsume,
-          component: () => <>TODO</>
         }
       ]
     }

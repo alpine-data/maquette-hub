@@ -109,7 +109,7 @@ public final class DataAssetServicesLogged implements DataAssetServices {
    public CompletionStage<Done> update(User executor, String name, DataAssetMetadata metadata) {
       var ridCS = entities.getByName(name).thenCompose(DataAssetEntity::getResourceId);
       var previousCS = entities.getByName(name).thenCompose(DataAssetEntity::getProperties);
-      var resultCS = delegate.approve(executor, name);
+      var resultCS = delegate.update(executor, name, metadata);
 
       return Operators.compose(ridCS, previousCS, resultCS, (rid, previous, result) -> {
          var changed = Lists.<String>newArrayList();

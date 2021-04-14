@@ -1,5 +1,6 @@
 package maquette.core.server;
 
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
 import io.javalin.plugin.json.JavalinJackson;
@@ -31,7 +32,14 @@ public final class MaquetteServer {
       RuntimeConfiguration runtime,
       ApplicationServices services) {
 
-      JavalinJackson.configure(runtime.getObjectMapper());
+      var om = runtime.getObjectMapper();
+      runtime.getDataAssetProviders().toMap().values().forEach(provider -> {
+         provider.getCustomCommands().forEach((key, command) -> {
+            var type = new NamedType(command, String.format("%s %s", provider.getTypePluralized(), key));
+            om.registerSubtypes(type);
+         });
+      });
+      JavalinJackson.configure(om);
 
       var adminResource = new AdminResource(config);
       var commandResource = new CommandResource(runtime, services);

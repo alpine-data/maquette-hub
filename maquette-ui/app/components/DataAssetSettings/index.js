@@ -33,15 +33,15 @@ function DangerZone({ view, container }) {
         <Button 
           appearance="primary" 
           color="red"
-          disabled={ state.name !== view[container].name }
-          type="submit">Delete `{ view[container].title }`</Button>
+          disabled={ state.name !== _.get(view, 'asset.properties.metadata.name') }
+          type="submit">Delete `{ _.get(view, 'asset.properties.metadata.title') }`</Button>
       </ButtonToolbar>
     </Form>
   </>
 }
 
 function GeneralSettings({ view, container, onUpdateSettings }) {
-  const initialState = _.pick(_.get(view, container), 'title', 'name', 'summary', 'visibility', 'classification', 'personalInformation', 'zone');
+  const initialState = _.pick(_.get(view, 'asset.properties.metadata'), 'title', 'name', 'summary', 'visibility', 'classification', 'personalInformation', 'zone');
   const [state, , onChange, onChangeValues] = useFormState(_.assign({}, initialState));
   const isUpdateDisabled = !validateDataAssetProperties(state) || _.isEqual(state, initialState);
 
@@ -74,8 +74,8 @@ function AdditionalSettings({
   settingsComponentInitialState, settingsComponentValidate,
   onUpdateSettings, ...props }) {
 
-  const initialState = _.assign({}, settingsComponentInitialState, _.pick(_.get(view, container), _.keys(settingsComponentInitialState)));
-  const [state, , onChange, onChangeValues] = useFormState(_.assign({}, initialState));
+  const initialState = _.assign({}, initialState, _.get(view, 'asset.customProperties'));
+  const [state, , onChange, onChangeValues] = useFormState(initialState);
   const isUpdateDisabled = !settingsComponentValidate(state) || _.isEqual(state, initialState);
 
   const Component = settingsComponentClass;
@@ -95,7 +95,7 @@ function AdditionalSettings({
         <Button 
           appearance="primary" 
           disabled={ isUpdateDisabled } 
-          onClick={ () => onUpdateSettings(state, 'update properties', false) }>
+          onClick={ () => onUpdateSettings({ customProperties: state }, 'update-custom', false) }>
 
           Update { container }
         </Button>
@@ -149,7 +149,7 @@ function DataAssetSettings({
         visible: true,
         component: () => <Members
           title="Manage members"
-          members={ _.get(view, `${container}.members`) }
+          members={ _.get(view, `asset.members`) }
           roles={ [ 
             { value: "consumer", label: "Consumer" },
             { value: "producer", label: "Producer" },

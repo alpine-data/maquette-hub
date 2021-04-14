@@ -1,5 +1,6 @@
 package maquette.core.server.commands.data;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.common.Operators;
@@ -43,7 +44,7 @@ public class CreateDataAssetCommand implements Command {
 
    String steward;
 
-   Object customProperties;
+   JsonNode customProperties;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -61,6 +62,10 @@ public class CreateDataAssetCommand implements Command {
       var metadata = DataAssetMetadata
          .apply(title, name, summary, visibility, classification, personalInformation, zone);
 
+      var dataAssetProvider = runtime.getDataAssetProviders().getByName(type);
+      var customProperties = Operators.suppressExceptions(() ->
+         runtime.getObjectMapper().treeToValue(this.customProperties, dataAssetProvider.getPropertiesType()));
+
       return services
          .getDataAssetServices()
          .create(user, type, metadata, ownerAuth, stewardAuth, customProperties)
@@ -71,7 +76,7 @@ public class CreateDataAssetCommand implements Command {
    public Command example() {
       return apply(
          "dataset", "Some Dataset", "some-dataset", Operators.lorem(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob", new Object());
+         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob", null);
    }
 
 }

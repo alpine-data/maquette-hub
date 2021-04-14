@@ -30,8 +30,8 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
     },
     [{ to: treePrefix, label: collection }])
 
-  const tag_data = _.get(props, 'collection.view.collection.tags')
-  const root_data = _.isEqual(tag, 'main') && _.get(props, 'collection.view.collection.files') || _.get(_.find(tag_data, t => _.isEqual(t.name, tag)), 'content');
+  const tag_data = _.get(props, 'collection.view.asset.customDetails.tags')
+  const root_data = _.isEqual(tag, 'main') && _.get(props, 'collection.view.asset.customDetails.files') || _.get(_.find(tag_data, t => _.isEqual(t.name, tag)), 'content');
   const data = _.reduce(
       pathElements, 
       (acc, element) => _.get(acc, `children.${element}`) || {},
@@ -40,7 +40,7 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
   return <Container xlg className="mq--main-content">
     <CollectionTimeline 
       activeTag={ tag }
-      collection={ _.get(props, 'collection.view.collection') }
+      collection={ _.get(props, 'collection.view.asset') }
       onSelect={ tag => props.history.push(`/shop/collections/${collection}/tree/${tag}`) } />
     
     <hr />
@@ -76,21 +76,6 @@ function Files({ path, tag, blobPrefix, treePrefix, ...props}) {
               { _.size(pathElementLinks) > 1 && <> / { _.last(pathElementLinks).label }</> }
             </>
           } />
-      </>
-    }
-
-    <hr />
-    
-    <h4>Related data assets <span className="mq--sub">(alpha)</span></h4>
-    {
-      _.includes(['swiss-agency-clients'], _.get(props, 'dataSource.data.source.name')) && <>
-        <img 
-          width="100%"
-          src="https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBiMmJbRGF0YXNldDxiciAvPkJpc25vZGUgUmlzayBTY29yZSAtIENvbXBhbmllc11cbiAgICBjbGllbnRzW0RhdGEgU291cmNlPGJyIC8-U3dpc3MgQWdlbmN5IENsaWVudHNdXG4gICAgbmV3c1tTdHJlYW08YnIgLz5Eb3cgSm9uZXMgTmV3c11cbiAgICBldmVudHNbU3RyZWFtPGJyIC8-Q29tbWVyY2lhbCBDbGllbnQgTmV3c11cbiAgICBzdWdnZXN0ZWRbXCJTdHJlYW08YnIgLz5OZXh0IEJlc3QgQWN0aW9ucyAoQ29tbWVyY2lhbClcIl1cblxuICAgIGNsaWVudHMgLS0-IGV2ZW50c1xuICAgIGIyYiAtLT4gZXZlbnRzXG4gICAgbmV3cyAtLT4gZXZlbnRzXG4gICAgZXZlbnRzIC0tPiBzdWdnZXN0ZWRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJuZXV0cmFsIn0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9" 
-          alt="Stream dependencies" />
-        <p className="mq--sub">Last Analysis: 26.01.2020 10:31</p>
-      </> || <>
-        <p>No dependencies to other assets found.</p>
       </>
     }
   </Container>;

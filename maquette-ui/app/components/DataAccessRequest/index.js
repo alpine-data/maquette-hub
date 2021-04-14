@@ -29,7 +29,7 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
 
   const grant_onClick = () => {
     const args = {
-      asset: request.asset.name,
+      name: _.get(request, 'asset.metadata.name'),
       id: request.id,
       until: state.decision == "grant-limited" && state.validity_date.toJSON() || null,
       message: state.message
@@ -40,7 +40,7 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
 
   const reject_onClick = () => {
     const args = {
-      asset: request.asset.name,
+      name: _.get(request, 'asset.metadata.name'),
       id: request.id,
       reason: state.message
     }
@@ -148,7 +148,7 @@ function Withdraw({ updating, request, onWithdraw = console.log, ...props }) {
 
   const withdraw_onClick = () => {
     const args = {
-      asset: request.asset.name,
+      name: _.get(request, 'asset.metadata.name'),
       id: request.id,
       message: state.message
     }
@@ -201,7 +201,7 @@ function Request({ updating, request, onRequest = console.log, ...props }) {
 
   const request_onClick = () => {
     const args = {
-      asset: request.asset.name,
+      name: _.get(request, 'asset.metadata.name'),
       id: request.id,
       message: state.message
     }
@@ -276,7 +276,7 @@ function DataAccessRequest({ request, updating, onGrant, onReject, onRequest, on
         <FlexboxGridItem colspan={ 20 } style={{ marginTop: "30px" }}>
           <FormGroup style={{ marginBottom: 0 }}>
             <HelpBlock>Requested asset</HelpBlock>
-            <h3 style={{ marginBottom: "10px" }}>{ request.asset.title }</h3>
+            <h3 style={{ marginBottom: "10px" }}>{ _.get(request, 'asset.metadata.title') }</h3>
           </FormGroup>
         </FlexboxGridItem>
         <FlexboxGridItem colspan={ 4 } style={{ marginTop: "30px" }}>

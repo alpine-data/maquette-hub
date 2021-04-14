@@ -10,7 +10,7 @@ import { pluralizeWord } from '../../utils/helpers';
 import Summary from '../Summary';
 
 function DataAccessRequestSummary({ request }) {
-  return <Summary to={ `/shop/${pluralizeWord(request.asset.type)}/${request.asset.name}/access-requests/${request.id}` }>
+  return <Summary to={ `/shop/${pluralizeWord(request.asset.type)}/${request.asset.metadata.name}/access-requests/${request.id}` }>
     <Summary.Header>{ request.project.title } <span className="mq--sub">#{ request.id }</span></Summary.Header>
     <Summary.Body>
       { _.last(request.events).reason }

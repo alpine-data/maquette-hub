@@ -20,9 +20,9 @@ export function* onInit(action) {
 
 export function* onSubmit(action) {
   try {
-    const name = _.get(action, `request.asset`);
+    const name = _.get(action, `request.name`);
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, `${action.assetType}s access-requests create`, action.request, user);
+    const data = yield call(command, `data-assets access-requests create`, action.request, user);
 
     yield put(submit_success(data));
     yield put(push(`/shop/${action.assetType}s/${name}/access-requests`));

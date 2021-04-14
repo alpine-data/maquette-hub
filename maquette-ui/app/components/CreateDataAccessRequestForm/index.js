@@ -10,7 +10,7 @@ import { ControlLabel, FlexboxGrid, Form, FormGroup, Input, InputPicker, HelpBlo
 
 function CreateDataAccessRequestForm(props) {
   const [state, setState] = useState({
-    asset: props.asset,
+    name: props.asset,
     project: props.projects[0].value,
     reason: ""
   });
@@ -84,7 +84,7 @@ function CreateDataAccessRequestForm(props) {
             type="submit" 
             disabled={ !isValid }
             loading={ isSubmitting }
-            onClick={ () => props.onSubmit(state) }>{ submitText }</Button>
+            onClick={ () => props.onSubmit(sta8te) }>{ submitText }</Button>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </FlexboxGrid>

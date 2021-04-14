@@ -3,7 +3,9 @@ package maquette.asset_providers.sources;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import maquette.asset_providers.sources.commands.TestDataSourceCommand;
+import maquette.asset_providers.sources.model.DataSourceDetails;
 import maquette.asset_providers.sources.model.DataSourceProperties;
+import maquette.asset_providers.sources.ports.JdbcPort;
 import maquette.asset_providers.sources.services.DataSourceServices;
 import maquette.asset_providers.sources.services.DataSourceServicesFactory;
 import maquette.common.DeleteOnCloseFileInputStream;
@@ -11,12 +13,14 @@ import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.AbstractDataAssetProvider;
-import maquette.asset_providers.sources.ports.JdbcPort;
+import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.services.ApplicationServices;
+import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 
 import java.nio.file.Files;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 
 public final class DataSources extends AbstractDataAssetProvider {
 
@@ -67,6 +71,20 @@ public final class DataSources extends AbstractDataAssetProvider {
          ctx.header("Content-Type", "application/octet-stream");
          ctx.result(result);
       }));
+   }
+
+   @Override
+   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
+      if (customProperties instanceof DataSourceProperties) {
+         var props = (DataSourceProperties) customProperties;
+
+         return entities
+            .download(props)
+            .exceptionally(e -> Records.empty())
+            .thenApply(records -> DataSourceDetails.apply(records.size(), records.getSchema()));
+      } else {
+         return super.getDetails(properties, customProperties);
+      }
    }
 
    public DataSourceServices getServices(RuntimeConfiguration runtime) {

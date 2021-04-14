@@ -29,7 +29,7 @@ export const createReducer = reducer;
 export const createSaga = saga;
 
 function CreateDataAsset({ 
-  assetType, componentClass, componentAdditionalProps, container, description, createCommand, fetchCommand, fetchRequest, initialState, validate, reducer, saga, ...props }) {
+  assetType, componentClass, componentAdditionalProps, container, description, initialState, validate, reducer, saga, ...props }) {
 
   useInjectReducer({ key: container, reducer });
   useInjectSaga({ key: container, saga });
@@ -45,7 +45,7 @@ function CreateDataAsset({
 
   useEffect(() => {
     if (!initialized) {
-      props.dispatch(fetch(fetchCommand, fetchRequest));
+      props.dispatch(fetch("views data-asset create", {}));
       setInitialized(true);
     }
   }, []);
@@ -120,7 +120,6 @@ CreateDataAsset.propTypes = {
   componentAdditionalProps: PropTypes.object,
   container: PropTypes.string.isRequired,
   description: PropTypes.node.isRequired,
-  fetchCommand: PropTypes.string.isRequired,
   fetchRequest: PropTypes.object.isRequired,
 
   initialState: PropTypes.object.isRequired,

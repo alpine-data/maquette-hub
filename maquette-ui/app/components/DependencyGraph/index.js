@@ -52,7 +52,7 @@ const DataSourceNode = ({ data }) => {
     <Handle type="target" position="left" style={{ borderRadius: 0 }} />
     <TextMetric
       label={ _.capitalize(data.label) }
-      value={ <>{ data.title } <a href="#"><Icon icon="link" style={{ marginLeft: '10px' }} /></a></> }
+      value={ <>{ data.title } <a href={  data.link }><Icon icon="link" style={{ marginLeft: '10px' }} /></a></> }
     />
     <Handle
       type="source"

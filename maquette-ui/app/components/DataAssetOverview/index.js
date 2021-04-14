@@ -16,6 +16,7 @@ import DataAssetProperties from '../DataAssetProperties';
 import UserCard from '../UserCard';
 import CodeExamples from '../CodeExamples';
 import DependencyGraph from '../DependencyGraph';
+import { pluralizeWord } from '../../utils/helpers';
 
 const Review = styled.div`
   display: inline-block;
@@ -24,7 +25,7 @@ const Review = styled.div`
 `;
 
 function transformDependencies(view, container) {
-  const assetId = view[container].id;
+  const assetId = view.asset.id;
 
   var nodes = _.map(_.get(view, 'dependencies.nodes') || [], node => {
     const type = _.get(node, 'properties.nodeType');
@@ -33,7 +34,7 @@ function transformDependencies(view, container) {
 
     let typeLabel = type;
     if (_.isEqual(type, 'data-asset')) {
-      typeLabel = view[container].type;
+      typeLabel = view.asset.type;
     }
 
     return {
@@ -42,9 +43,9 @@ function transformDependencies(view, container) {
       data: {
         type,
         label: typeLabel,
-        title: _.get(node, 'properties.properties.title') || _.get(node, 'properties.properties.name'),
+        title: _.get(node, 'properties.properties.metadata.title') || _.get(node, 'properties.properties.metadata.name'),
         primary,
-        link: '/foo/bar/todo'
+        link: `/shop/${pluralizeWord(_.get(node, 'properties.properties.type'))}/${_.get(node, 'properties.properties.metadata.name')}`
       }
     }
   });
@@ -65,11 +66,11 @@ function transformDependencies(view, container) {
 }
 
 function DataAssetOverview({ view, container, codeExamples }) {
-  var dependencies = useMemo(() => transformDependencies(view, container), [view.dependencies]);
+  const dependencies = useMemo(() => transformDependencies(view, container), [view.dependencies]);
 
   return <Container>
     <h5>Properties</h5>
-    <DataAssetProperties resource={ view[container] } />
+    <DataAssetProperties resource={ _.get(view, 'asset') } />
 
     <h5>Key Contacts</h5>
     <FlexboxGrid justify="space-between">
@@ -86,6 +87,7 @@ function DataAssetOverview({ view, container, codeExamples }) {
       </FlexboxGrid.Item>
     </FlexboxGrid>
 
+
     <>
       <hr />
       <h5>Related data assets</h5>
@@ -95,14 +97,14 @@ function DataAssetOverview({ view, container, codeExamples }) {
     <>
       <hr />
       <h5>Projects using this { container }</h5>
-      <DataAssetProjects asset={ view[container] } />
+      <DataAssetProjects asset={ _.get(view, 'asset') } />
     </>
 
     {
       !_.isEmpty(codeExamples) && <>
         <hr />
         <h5>Code Examples</h5>
-        <CodeExamples samples={ codeExamples } asset={ view[container].name } />
+        <CodeExamples samples={ codeExamples } asset={ _.get(view, 'asset.metadata') } />
       </>
     }
   </Container>;

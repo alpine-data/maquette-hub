@@ -11,7 +11,7 @@ export default [
     {
         language: 'python',
         title: 'Python SDK',
-        footnote: <>Find more details about Maquette Python SDK <Link>here</Link>.</>,
+        footnote: <>Find more details about Maquette Python SDK <Link to="/">here</Link>.</>,
         samples: [
             {
                 title: 'Publish data',
@@ -26,7 +26,7 @@ export default [
     {
         language: 'java',
         title: 'Java SDK',
-        footnote: <>Find more details about Maquette Java SDK <Link>here</Link>.</>,
+        footnote: <>Find more details about Maquette Java SDK <Link to="/">here</Link>.</>,
         samples: [
             {
                 title: 'Publish data',

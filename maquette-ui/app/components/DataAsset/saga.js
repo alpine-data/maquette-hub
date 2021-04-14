@@ -40,8 +40,8 @@ export default function createSaga(container) {
             const response = yield call(command, action.command, action.request, user);
             yield put(updateSuccess(response));
 
-            const oldName = _.get(action, `request.${container}`);
-            const newName = _.get(action, `request.name`) || oldName;
+            const oldName = _.get(action, `request.name`);
+            const newName = _.get(action, `request.metadata.name`) || oldName;
             const fetchAction = yield select(state => _.get(state, `${container}.fetchAction`))
 
             if (oldName !== newName) {

@@ -3,8 +3,10 @@ package maquette.asset_providers.collections;
 import io.javalin.Javalin;
 import maquette.asset_providers.collections.commands.CreateCollectionTagCommand;
 import maquette.asset_providers.collections.commands.ListCollectionFilesCommand;
+import maquette.asset_providers.collections.model.CollectionDetails;
 import maquette.asset_providers.collections.services.CollectionServices;
 import maquette.asset_providers.collections.services.CollectionServicesFactory;
+import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.AbstractDataAssetProvider;
@@ -49,7 +51,10 @@ public final class Collections extends AbstractDataAssetProvider {
 
    @Override
    public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
-      return repository.getFiles(properties.getId());
+      var filesCS = repository.getFiles(properties.getId());
+      var tagsCS = repository.findAllTags(properties.getId());
+
+      return Operators.compose(filesCS, tagsCS, CollectionDetails::apply);
    }
 
    public CollectionServices getServices(RuntimeConfiguration runtime) {

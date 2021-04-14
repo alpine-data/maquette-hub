@@ -14,17 +14,17 @@ import { pluralize, timeAgo } from '../../utils/helpers';
 function CollectionTimeline({ activeTag, collection, onSelect }) {
   const items = []
 
-  if (collection.files.files > 0) {
+  if (collection.customDetails.files.files > 0) {
     items.push({
       key: 'main',
       content: <>
         <b>main</b>
-        <p><b>{ collection.files.lastModified.added.by }</b> updated collection { timeAgo(collection.files.lastModified.added.at) }.</p>
+        <p><b>{ collection.customDetails.files.lastModified.added.by }</b> updated collection { timeAgo(collection.customDetails.files.lastModified.added.at) }.</p>
       </>
     })
   }
 
-  _.forEach(collection.tags, tag => {
+  _.forEach(collection.customDetails.tags, tag => {
     items.push({
       key: tag.name,
       content: <>
@@ -40,8 +40,8 @@ function CollectionTimeline({ activeTag, collection, onSelect }) {
     moreLabel='tag' 
     items={ items } 
     root={ <>
-      <b className="mq--sub">{ new Date(collection.created.at).toLocaleString() }</b>
-      <p><b>{ collection.created.by } </b> created the collection</p>
+      <b className="mq--sub">{ new Date(collection.properties.created.at).toLocaleString() }</b>
+      <p><b>{ collection.properties.created.by } </b> created the collection</p>
     </>}
     onSelect={ onSelect } />;
 }

@@ -52,9 +52,9 @@ const piAlt = {
 }
 
 function DataBadges({ resource, ...props }) {
-  const visibility = resource.visibility || 'unknown';
-  const classification = resource.classification || 'unknown';
-  const pi = resource.personalInformation || 'unknown';
+  const visibility = _.get(resource, 'metadata.visibility') || 'unknown';
+  const classification = _.get(resource, 'metadata.classification') || 'unknown';
+  const pi = _.get(resource, 'metadata.personalInformation') || 'unknown';
 
   return <p className="mq--p-badges" { ...props }>
     <Whisper

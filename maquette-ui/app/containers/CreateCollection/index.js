@@ -24,9 +24,6 @@ export function CreateCollection(props) {
     assetType="collection"
     container="createCollection" 
     description="A collection stores versioned file sets. Each set contains a immutable set of files for further processing."
-    createCommand="collections create"
-    fetchCommand="views data-asset create"
-    fetchRequest={ {} }
     reducer={ reducer }
     saga={ saga }
     { ...props } />

@@ -25,9 +25,6 @@ export function CreateStream(props) {
     assetType="stream"
     container="createStream" 
     description="A stream publishes data as a stream of events/ updates. Existing data is retained for a specified duration. A consumer can `listen` to the data."
-    createCommand="streams create"
-    fetchCommand="views data-asset create"
-    fetchRequest={ {} }
     reducer={ reducer }
     saga={ saga }
 

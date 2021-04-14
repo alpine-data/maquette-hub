@@ -46,7 +46,7 @@ function DataAsset({
   const view = _.get(props, `${container}.view`);
 
   useEffect(() => {
-    props.dispatch(fetch(`views ${container}`, { name: assetName }, true));
+    props.dispatch(fetch(`views asset`, { name: assetName }, true));
     setInitialized(true);
   }, []);
 
@@ -71,7 +71,7 @@ function DataAsset({
         },
         {
           link: getBasePath(),
-          label: _.get(view, `${container}.title`)
+          label: _.get(view, `asset.properties.metadata.title`)
         }
       ]
     } else if (view) {
@@ -82,7 +82,7 @@ function DataAsset({
         },
         {
           link: getBasePath(),
-          label: _.get(view, `${container}.title`)
+          label: _.get(view, `asset.properties.metadata.title`)
         }
       ]
     } else {
@@ -92,29 +92,29 @@ function DataAsset({
 
   function onUpdate(updatedProperties, optionalCommand, merge = true) {
     const currentDefaultProperties = _.pick(
-      _.get(view, container), 
+      _.get(view, 'asset.properties.metadata'), 
       'name', 'title', 'summary', 'visibility', 'classification', 'personalInformation', 'zone');
 
-    const mergedProperties = _.assign(currentDefaultProperties, updatedProperties);
-    const request = _.assign({ [container]: assetName }, merge && mergedProperties || updatedProperties);
+    const mergedProperties = { metadata: _.assign(currentDefaultProperties, updatedProperties) };
+    const request = _.assign({ name: assetName }, merge && mergedProperties || updatedProperties);
 
     const command = optionalCommand || 'update';
 
-    props.dispatch(update(`${pluralizeWord(container)} ${command}`, request));
+    props.dispatch(update(`data-assets ${command}`, request));
   }
 
   function onLike(liked) {
-    props.dispatch(update(`${pluralizeWord(container)} like`, { liked }))
+    props.dispatch(update(`data-assets like`, { liked }))
   }
 
   const onGrant = (value) => {
-    const request = _.assign(value, { [container]: assetName });
-    props.dispatch(update(`${pluralizeWord(container)} grant`, request));
+    const request = _.assign(value, { name: assetName });
+    props.dispatch(update(`data-assets members grant`, request));
   }
 
   const onRevoke = (value) => {
-    const request = _.assign(value, { [container]: assetName });
-    props.dispatch(update(`${pluralizeWord(container)} revoke`, request));
+    const request = _.assign(value, { name: assetName });
+    props.dispatch(update(`data-assets members revoke`, request));
   }
 
   function getTabs() {
@@ -128,10 +128,12 @@ function DataAsset({
         link: basePath,
         visible: true,
         component: () => view && <>
+          {
             <DataAssetOverview 
               view={ view } 
               container={ container }
               codeExamples={ codeExamples } />
+          }
           </> || <></>
       },
       {
@@ -143,12 +145,12 @@ function DataAsset({
         component: () => view && <>
             <DataAccessRequests 
               { ...props }
-              asset={ _.get(view, container) }
+              asset={ _.get(view, 'asset') }
               view={ view }
-              onGrant={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests grant`, request)) }
-              onReject={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests reject`, request)) }
-              onRequest={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests update`, request)) }
-              onWithdraw={ request => props.dispatch(update(`${pluralizeWord(container)} access-requests withdraw`, request)) } />
+              onGrant={ request => props.dispatch(update(`data-assets access-requests grant`, request)) }
+              onReject={ request => props.dispatch(update(`data-assets access-requests reject`, request)) }
+              onRequest={ request => props.dispatch(update(`data-assets access-requests update`, request)) }
+              onWithdraw={ request => props.dispatch(update(`data-assets access-requests withdraw`, request)) } />
           </>
       },
       {
@@ -161,7 +163,7 @@ function DataAsset({
             <DataAccessLogs
               { ...props }
               logs={ _.get(view, 'logs') }
-              asset={ _.get(view, container) } />
+              asset={ _.get(view, 'asset') } />
           </> || <></>
       },
       {
@@ -197,17 +199,17 @@ function DataAsset({
 
   return <ViewContainer
     background='data'
-    loading={ _.get(props, `${container}.loading`) || !initialized }
+    loading={ _.get(props, `asset.properties.metadata.loading`) || !initialized }
     
-    likes={ _.get(view, `${container}.likes`) || 0 }
-    liked={ _.get(view, `${container}.liked`) }
+    likes={ _.get(view, `asset.properties.metadata.likes`) || 0 }
+    liked={ _.get(view, `asset.properties.metadata.liked`) }
     onChangeLike={ onLike }
     
     error={ _.get(props, `${container}.error`) }
     onCloseError={ () => props.dispatch(dismissError()) }
     
     canChangeSummary={ _.get(view, 'permissions.canChangeSettings') }
-    summary={ _.get(view, `${container}.summary`) } 
+    summary={ _.get(view, `asset.properties.metadata.summary`) } 
     onChangeSummary={ summary => onUpdate({ summary }) }
     
     titles={ getTitles() }

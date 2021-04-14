@@ -19,9 +19,9 @@ const NavTag = styled(Tag)`
 
 export function Asset({ asset }) {
   const type = _.get(asset, 'type');
-  const name = _.get(asset, 'name');
-  const title = _.get(asset, 'title');
-  const summary = _.get(asset, 'summary');
+  const name = _.get(asset, 'metadata.name');
+  const title = _.get(asset, 'metadata.title');
+  const summary = _.get(asset, 'metadata.summary');
   const updatedAt = new Date(_.get(asset, 'updated.at')).toLocaleString();
 
   return <Summary to={ `/shop/${type}s/${name}` }>
@@ -55,7 +55,10 @@ function DataAssetBrowser(props) {
     .chain(assets)
     .filter(a => {
       if (_.size(query) > 0) {
-        const searchstring = a.name + " " + a.title + " " + a.summary;
+        const name = _.get(a, 'metadata.name');
+        const title = _.get(a, 'metadata.title');
+        const summary = _.get(a, 'metadata.summary');
+        const searchstring = name + " " + title + " " + summary;
         return _.lowerCase(searchstring).indexOf(_.lowerCase(query)) >= 0;
       } else {
         return true;
@@ -104,7 +107,7 @@ function DataAssetBrowser(props) {
           _.size(lists[tab]) > 0 &&  <>
             <Summary.Summaries style={{ marginTop: 0 }}>
               {
-                _.map(_.slice(lists[tab], 0, maxCount), asset => <Asset asset={ asset } key={ asset.name } />)
+                _.map(_.slice(lists[tab], 0, maxCount), asset => <Asset asset={ asset } key={ _.get(asset, 'metadata.name') } />)
               }
             </Summary.Summaries>
 

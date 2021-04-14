@@ -68,8 +68,8 @@ function VersionsTimeline({ dataset, versions, activeVersion, onSelectVersion })
     }
     
     <Timeline.Item>
-      <b className="mq--sub">{ new Date(_.get(dataset, 'created.at')).toLocaleString() }</b>
-      <p><b>{ _.get(dataset, "created.by") } </b> created the dataset</p>
+      <b className="mq--sub">{ new Date(_.get(dataset, 'properties.created.at')).toLocaleString() }</b>
+      <p><b>{ _.get(dataset, "properties.created.by") } </b> created the dataset</p>
     </Timeline.Item>
   </Timeline>;
 }

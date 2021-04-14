@@ -25,7 +25,7 @@ public class DataAssetPermissions {
       return owner || steward;
    }
 
-   @JsonProperty("canConsumer")
+   @JsonProperty("canConsume")
    public boolean canConsume() {
       return owner || steward || consumer || member || subscriber;
    }

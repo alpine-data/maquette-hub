@@ -24,9 +24,6 @@ export function CreateDataset(props) {
     assetType="dataset"
     container="createDataset" 
     description="A dataset contains structured data records with a consistent schema, just like a data frame. A single data set may contain multiple versions of the dataset with a varying schema."
-    createCommand="datasets create"
-    fetchCommand="views data-asset create"
-    fetchRequest={ {} }
     reducer={ reducer }
     saga={ saga }
     { ...props } />

@@ -28,7 +28,7 @@ const createDataAccessRequestReducer = (state = initialState, action) =>
 
       case FAILED:
         draft.loading = false;
-        draft.error = _.get(action, 'error.response.message') || '¯\_(ツ)_/¯ unknown error occurred, sorry.';
+        draft.error = _.get(action, 'error.response.message') || '¯\\_(ツ)_/¯ unknown error occurred, sorry.';
         break;
 
       case FETCHED:
@@ -43,7 +43,7 @@ const createDataAccessRequestReducer = (state = initialState, action) =>
 
       case SUBMIT_FAILED:
         draft.submitting = false;
-        draft.submitError = _.get(action, 'error.response.message') || '¯\_(ツ)_/¯ unknown error occurred, sorry.';
+        draft.submitError = _.get(action, 'error.response.message') || '¯\\_(ツ)_/¯ unknown error occurred, sorry.';
         break;
 
       case SUBMIT_SUCCESS:

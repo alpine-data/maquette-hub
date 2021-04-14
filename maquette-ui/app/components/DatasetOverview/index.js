@@ -20,8 +20,8 @@ SyntaxHighlighter.registerLanguage('json', json);
 import { FlexboxGrid } from 'rsuite';
 
 function Browse(props) {
-  const dataset = _.get(props, 'dataset.view.dataset');
-  const versions = _.get(props, 'dataset.view.dataset.versions') || [];
+  const dataset = _.get(props, 'dataset.view.asset');
+  const versions = _.get(dataset, 'versions') || [];
   const version = _.get(props, 'dataset.version') || _.first(versions).version;
 
   const schema = _.get(_.find(versions, v => v.version == version), 'schema') || {};
@@ -66,14 +66,13 @@ function GetStarted(props) {
 
     <DatasetCodeExamples 
       canConsume={ false }
-      dataset={ _.get(props, 'dataset.view.dataset.name') } 
+      dataset={ _.get(props, 'dataset.view.asset.properties.metadata.name') } 
       version={ '1.0' } />
   </Container>
 }
 
 function DatasetOverview(props) {
-  console.log(props);
-  if (_.isEmpty(_.get(props, 'dataset.view.dataset.versions'))) {
+  if (_.isEmpty(_.get(props, 'dataset.view.asset.versions'))) {
     return <GetStarted { ...props } />;
   } else {
     return <Browse { ...props } />

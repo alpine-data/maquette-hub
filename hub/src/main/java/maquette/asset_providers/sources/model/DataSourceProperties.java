@@ -17,6 +17,8 @@ public class DataSourceProperties {
 
    String password;
 
+   String schedule;
+
    DataSourceAccessType accessType;
 
 }

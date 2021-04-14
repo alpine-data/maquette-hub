@@ -19,15 +19,23 @@ public final class DataSourceEntities {
    public CompletionStage<Records> download(DataAssetEntity entity, User executor) {
       return entity
          .getCustomProperties(DataSourceProperties.class)
-         .thenCompose(properties -> jdbcPort.read(
-            properties.getDriver(), properties.getConnection(),
-            properties.getUsername(), properties.getPassword(), properties.getQuery()));
+         .thenCompose(this::download);
+   }
+
+   public CompletionStage<Records> download(DataSourceProperties properties) {
+      return jdbcPort.read(
+         properties.getDriver(), properties.getConnection(),
+         properties.getUsername(), properties.getPassword(), properties.getQuery());
    }
 
    public CompletionStage<ConnectionTestResult> test(
       DataSourceDriver driver, String connection, String username, String password, String query) {
 
       return jdbcPort.test(driver, connection, username, password, query);
+   }
+
+   public CompletionStage<ConnectionTestResult> test(DataSourceProperties properties) {
+      return jdbcPort.test(properties.getDriver(), properties.getConnection(), properties.getUsername(), properties.getPassword(), properties.getQuery());
    }
 
 }
