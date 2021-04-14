@@ -18,9 +18,9 @@ import { FlexboxGrid } from 'rsuite';
 
 function SourceOverview(props) {
   const view = _.get(props, 'source.view');
-  const schema = _.get(view, 'asset.customDetails.schema');
-  const records = _.get(view, 'asset.customDetails.records');
-  const statistics = _.get(view, 'asset.customDetails.columns') || [];
+  const schema = _.get(view, 'asset.customProperties.schema');
+  const records = _.get(view, 'asset.customProperties.records');
+  const statistics = _.get(view, 'asset.customProperties.columns') || [];
 
   if (!view) {
     return <></>;

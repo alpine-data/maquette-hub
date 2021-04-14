@@ -17,6 +17,8 @@ import maquette.core.values.UID;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetEntity {
+
+   private static final Logger LOG = LoggerFactory.getLogger(DatasetEntity.class);
 
    private final DatasetsRepository repository;
 
@@ -48,7 +52,11 @@ public final class DatasetEntity {
                .analyze(dataset.getMetadata().getName(), revision.getVersion())
                .thenApply(revision::withStatistics)
                .thenCompose(r -> repository.insertOrUpdateRevision(entity.getId(), r)))
-         .thenCompose(done -> done);
+         .thenCompose(done -> done)
+         .thenApply(done -> {
+            LOG.info("Successfully analyzed dataset version {}", version);
+            return done;
+         });
    }
 
    public CompletionStage<CommittedRevision> commit(User executor, UID revisionId, String message) {
@@ -98,6 +106,10 @@ public final class DatasetEntity {
       return getVersions()
          .thenApply(versions -> versions.stream().map(CommittedRevision::getVersion).findFirst().orElse(DatasetVersion.apply("1.0.0")))
          .thenCompose(version -> download(executor, version));
+   }
+
+   public DataAssetEntity getEntity() {
+      return entity;
    }
 
    public CompletionStage<List<CommittedRevision>> getVersions() {

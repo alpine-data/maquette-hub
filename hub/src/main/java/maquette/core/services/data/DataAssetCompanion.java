@@ -63,8 +63,14 @@ public final class DataAssetCompanion extends ServiceCompanion {
             .getDetails(properties, customSettings))
          .thenCompose(cs -> cs);
 
+      var customPropertiesCS = propertiesCS.thenCompose(properties -> {
+         var provider = providers.getByName(properties.getType());
+         return entity.getCustomProperties(provider.getPropertiesType());
+      });
+
       return Operators.compose(
-         propertiesCS, accessRequestsCS, membersCS, customSettingsCS, customDetailsCS, DataAsset::apply);
+         propertiesCS, accessRequestsCS, membersCS,
+         customSettingsCS, customPropertiesCS, customDetailsCS, DataAsset::apply);
    }
 
    public CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties properties, DataAccessRequestProperties request) {

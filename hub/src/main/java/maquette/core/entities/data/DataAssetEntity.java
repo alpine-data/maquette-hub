@@ -2,6 +2,7 @@ package maquette.core.entities.data;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.entities.data.exceptions.InvalidCustomPropertiesException;
 import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.entities.companions.MembersCompanion;
@@ -39,6 +40,14 @@ public final class DataAssetEntity {
 
    public <T> CompletionStage<T> getCustomSettings(Class<T> expectedType) {
       return repository.fetchCustomSettings(id, expectedType).thenApply(Optional::orElseThrow);
+   }
+
+   public <T> CompletionStage<Optional<T>> fetchCustomProperties(Class<T> expectedType) {
+      return repository.fetchCustomProperties(id, expectedType);
+   }
+
+   public <T> CompletionStage<T> getCustomProperties(Class<T> expectedType) {
+      return repository.fetchCustomProperties(id, expectedType).thenApply(Optional::orElseThrow);
    }
 
    public CompletionStage<UID> getResourceId() {
@@ -151,7 +160,22 @@ public final class DataAssetEntity {
          .thenCompose(done -> repository.insertOrUpdateCustomSettings(id, customSettings))
          .thenCompose(done -> repository.getEntityById(id))
          .thenApply(entity -> entity.withUpdated(executor))
-         .thenCompose(repository::insertOrUpdateEntity);
+         .thenCompose(properties -> repository.insertOrUpdateEntity(properties).thenApply(d -> properties))
+         .thenCompose(properties -> providers.get(properties.getType()).onUpdatedCustomSettings(this));
+   }
+
+   public CompletionStage<Done> updateCustomProperties(Object customProperties) {
+      return repository
+         .getEntityById(id)
+         .thenCompose(properties -> {
+            if (!providers.get(properties.getType()).getPropertiesType().isInstance(customProperties)) {
+               return CompletableFuture.failedFuture(InvalidCustomPropertiesException.apply(
+                  properties.getType(), customProperties.getClass(), providers.get(properties.getType()).getPropertiesType()));
+            } else {
+               return CompletableFuture.completedFuture(Done.getInstance());
+            }
+         })
+         .thenCompose(done -> repository.insertOrUpdateCustomProperties(id, customProperties));
    }
 
    public CompletionStage<Done> updated(User executor) {

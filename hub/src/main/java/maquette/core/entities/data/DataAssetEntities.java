@@ -2,6 +2,7 @@ package maquette.core.entities.data;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.entities.data.exceptions.DataAssetAlreadyExistsException;
 import maquette.core.entities.data.exceptions.InvalidCustomSettingsException;
 import maquette.core.entities.data.exceptions.UnknownDataAssetTypeException;
@@ -65,14 +66,18 @@ public final class DataAssetEntities {
                .thenCompose(entity -> entity.getMembers().addMember(executor, steward, DataAssetMemberRole.STEWARD).thenApply(d -> entity))
                .thenCompose(entity -> {
                   if (customSettings != null) {
-                     return entity.updateCustomSettings(executor, customSettings).thenApply(i -> entity);
+                     var insertPropertiesCS = entity.updateCustomProperties(providers.get(type).getDefaultProperties());
+                     var insertSettingsCS = entity.updateCustomSettings(executor, customSettings);
+                     return Operators.compose(
+                        insertPropertiesCS, insertSettingsCS,
+                        (insertProperties, insertSettings) -> entity);
                   } else {
                      return CompletableFuture.completedFuture(entity);
                   }
                })
                .thenCompose(entity -> {
                   var provider = providers.get(type);
-                  return provider.onCreated(entity);
+                  return provider.onCreated(entity, customSettings);
                })
                .thenApply(d -> properties);
          });

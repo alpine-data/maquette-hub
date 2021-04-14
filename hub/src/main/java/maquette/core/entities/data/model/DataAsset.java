@@ -3,8 +3,8 @@ package maquette.core.entities.data.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.With;
-import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.access.DataAccessRequest;
+import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetPermissions;
@@ -28,6 +28,9 @@ public final class DataAsset {
 
    @Nullable
    private final Object customSettings;
+
+   @Nullable
+   private final Object customProperties;
 
    @Nullable
    private final Object customDetails;

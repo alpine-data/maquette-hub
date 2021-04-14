@@ -1,7 +1,7 @@
 package maquette.asset_providers.sources;
 
 import lombok.AllArgsConstructor;
-import maquette.asset_providers.sources.model.DataSourceProperties;
+import maquette.asset_providers.sources.model.DataSourceSettings;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.asset_providers.sources.model.ConnectionTestResult;
 import maquette.asset_providers.sources.model.DataSourceDriver;
@@ -18,11 +18,11 @@ public final class DataSourceEntities {
 
    public CompletionStage<Records> download(DataAssetEntity entity, User executor) {
       return entity
-         .getCustomSettings(DataSourceProperties.class)
+         .getCustomSettings(DataSourceSettings.class)
          .thenCompose(this::download);
    }
 
-   public CompletionStage<Records> download(DataSourceProperties properties) {
+   public CompletionStage<Records> download(DataSourceSettings properties) {
       return jdbcPort.read(
          properties.getDriver(), properties.getConnection(),
          properties.getUsername(), properties.getPassword(), properties.getQuery());
@@ -34,7 +34,7 @@ public final class DataSourceEntities {
       return jdbcPort.test(driver, connection, username, password, query);
    }
 
-   public CompletionStage<ConnectionTestResult> test(DataSourceProperties properties) {
+   public CompletionStage<ConnectionTestResult> test(DataSourceSettings properties) {
       return jdbcPort.test(properties.getDriver(), properties.getConnection(), properties.getUsername(), properties.getPassword(), properties.getQuery());
    }
 

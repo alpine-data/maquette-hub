@@ -8,6 +8,7 @@ import maquette.asset_providers.datasets.DatasetsRepository;
 import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.Revision;
+import maquette.common.Operators;
 import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.ports.DataExplorer;
 import maquette.core.ports.RecordsStore;
@@ -31,7 +32,14 @@ public final class DatasetServicesImpl implements DatasetServices {
 
    @Override
    public CompletionStage<CommittedRevision> commit(User executor, String dataset, UID revision, String message) {
-      return getEntity(dataset).thenCompose(entity -> entity.commit(executor, revision, message));
+      var entityCS = getEntity(dataset);
+
+      return entityCS
+         .thenCompose(entity -> entity.commit(executor, revision, message))
+         .thenApply(rev -> {
+            entityCS.thenApply(entity -> entity.analyze(rev.getVersion()));
+            return rev;
+         });
    }
 
    @Override

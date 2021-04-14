@@ -17,18 +17,28 @@ public abstract class AbstractDataAssetProvider implements DataAssetProvider {
 
    private final String type;
 
+   private final Class<?> settingsType;
+
    private final Class<?> propertiesType;
+
+   private final Object defaultProperties;
 
    private final Map<String, Class<? extends Command>> commands;
 
-   public AbstractDataAssetProvider(String type, Class<?> propertiesType, Map<String, Class<? extends Command>> commands) {
+   public AbstractDataAssetProvider(String type, Class<?> settingsType, Class<?> propertiesType, Object defaultProperties, Map<String, Class<? extends Command>> commands) {
       this.type = type;
+      this.settingsType = settingsType;
       this.propertiesType = propertiesType;
+      this.defaultProperties = defaultProperties;
       this.commands = commands;
    }
 
-   public AbstractDataAssetProvider(String type, Class<?> propertiesType) {
-      this(type, propertiesType, Maps.newHashMap());
+   public AbstractDataAssetProvider(String type, Class<?> settingsType, Class<?> propertiesType, Object defaultProperties) {
+      this(type, settingsType, propertiesType, defaultProperties, Maps.newHashMap());
+   }
+
+   public AbstractDataAssetProvider(String type, Class<?> settingsType) {
+      this(type, settingsType, Object.class, new Object());
    }
 
    public AbstractDataAssetProvider(String type) {
@@ -45,7 +55,17 @@ public abstract class AbstractDataAssetProvider implements DataAssetProvider {
    }
 
    @Override
+   public Object getDefaultProperties() {
+      return defaultProperties;
+   }
+
+   @Override
    public Class<?> getSettingsType() {
+      return settingsType;
+   }
+
+   @Override
+   public Class<?> getPropertiesType() {
       return propertiesType;
    }
 
@@ -70,8 +90,12 @@ public abstract class AbstractDataAssetProvider implements DataAssetProvider {
    }
 
    @Override
-   public CompletionStage<Done> onCreated(DataAssetEntity entity) {
+   public CompletionStage<Done> onCreated(DataAssetEntity entity, Object customSettings) {
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
+   @Override
+   public CompletionStage<Done> onUpdatedCustomSettings(DataAssetEntity entity) {
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
 }

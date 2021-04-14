@@ -2,23 +2,14 @@ package maquette.asset_providers.sources.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.apache.avro.Schema;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
 public class DataSourceProperties {
 
-   DataSourceDriver driver;
+   long records;
 
-   String connection;
-
-   String query;
-
-   String username;
-
-   String password;
-
-   String schedule;
-
-   DataSourceAccessType accessType;
+   Schema schema;
 
 }

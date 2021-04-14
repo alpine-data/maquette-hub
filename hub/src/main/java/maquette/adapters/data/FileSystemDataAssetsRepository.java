@@ -32,6 +32,8 @@ public final class FileSystemDataAssetsRepository implements DataAssetsRepositor
 
    private static final String CUSTOM_SETTINGS_FILE = "settings.json";
 
+   private static final String CUSTOM_PROPERTIES_FILE = "properties.json";
+
    private final Path directory;
 
    private final ObjectMapper om;
@@ -90,6 +92,18 @@ public final class FileSystemDataAssetsRepository implements DataAssetsRepositor
    }
 
    @Override
+   public <T> CompletionStage<Optional<T>> fetchCustomProperties(UID id, Class<T> expectedType) {
+      var file = getAssetDirectory(id).resolve(CUSTOM_PROPERTIES_FILE);
+
+      if (Files.exists(file)) {
+         var result = Operators.suppressExceptions(() -> om.readValue(file.toFile(), expectedType));
+         return CompletableFuture.completedFuture(Optional.of(result));
+      } else {
+         return CompletableFuture.completedFuture(Optional.empty());
+      }
+   }
+
+   @Override
    public CompletionStage<Done> insertOrUpdateEntity(DataAssetProperties updated) {
       var file = getAssetDirectory(updated.getId()).resolve(PROPERTIES_FILE);
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), updated));
@@ -101,6 +115,16 @@ public final class FileSystemDataAssetsRepository implements DataAssetsRepositor
       if (customSettings != null) {
          var file = getAssetDirectory(id).resolve(CUSTOM_SETTINGS_FILE);
          Operators.suppressExceptions(() -> om.writeValue(file.toFile(), customSettings));
+      }
+
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<Done> insertOrUpdateCustomProperties(UID id, Object customProperties) {
+      if (customProperties != null) {
+         var file = getAssetDirectory(id).resolve(CUSTOM_PROPERTIES_FILE);
+         Operators.suppressExceptions(() -> om.writeValue(file.toFile(), customProperties));
       }
 
       return CompletableFuture.completedFuture(Done.getInstance());
