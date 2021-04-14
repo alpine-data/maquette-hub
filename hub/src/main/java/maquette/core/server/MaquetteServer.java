@@ -56,8 +56,16 @@ public final class MaquetteServer {
          .get("/api/commands/examples", commandResource.getCommandExamples())
 
          .get("/api/about", adminResource.getAbout())
-         .get("/api/about/user", adminResource.getUserInfo())
+         .get("/api/about/user", adminResource.getUserInfo());
 
+      runtime
+         .getDataAssetProviders()
+         .toMap()
+         .values()
+         .forEach(provider -> provider.configure(runtime.getApp(), config, runtime, services));
+
+      runtime
+         .getApp()
          .exception(Exception.class, (e, ctx) -> {
             var maybeDomainException = Operators.hasCause(e, DomainException.class);
 

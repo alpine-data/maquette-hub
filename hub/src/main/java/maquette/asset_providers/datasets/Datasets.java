@@ -48,6 +48,7 @@ public final class Datasets extends AbstractDataAssetProvider {
       app
          .post("/api/data/datasets/:dataset", handlers.uploadDatasetFile())
          .post("/api/data/datasets/:dataset/:revision", handlers.upload())
+         .get("/api/data/datasets/:dataset", handlers.downloadLatestDatasetVersion())
          .get("/api/data/datasets/:dataset/:version", handlers.downloadDatasetVersion());
    }
 

@@ -7,6 +7,7 @@ export function pluralize(count, label) {
 }
 
 export function pluralizeWord(word) {
+    if (_.isUndefined(word)) { return '' }
     return plural(word);
 }
 

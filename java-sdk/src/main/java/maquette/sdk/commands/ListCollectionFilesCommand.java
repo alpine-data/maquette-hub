@@ -18,7 +18,7 @@ public class ListCollectionFilesCommand implements Command {
 
    @JsonProperty
    public String getCommand() {
-      return "collections files list";
+      return "collections list";
    }
 
 }

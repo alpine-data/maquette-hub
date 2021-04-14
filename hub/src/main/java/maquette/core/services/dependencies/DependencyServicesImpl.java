@@ -19,7 +19,9 @@ import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DependencyServicesImpl implements DependencyServices {
@@ -61,7 +63,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(p -> (DependencyPropertiesNode) ApplicationPropertiesNode.apply(n.getProject(), n.getId(), p))
                         .exceptionally(ex -> {
                            LOG.warn("Issue collecting node information for application {}/{}", n.getProject(), n.getId(), ex);
-                           return ApplicationPropertiesNode.apply(n.getProject(), n.getId(), null);
+                           return null;
                         })
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof DataAssetNode) {
@@ -72,7 +74,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(p -> (DependencyPropertiesNode) DataAssetPropertiesNode.apply(n.getType(), n.getId(), p))
                         .exceptionally(ex -> {
                            LOG.warn("Issue collecting node information for data asset {}/{}", n.getType(), n.getId(), ex);
-                           return DataAssetPropertiesNode.apply(n.getType(), n.getId(), null);
+                           return null;
                         })
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof ModelNode) {
@@ -85,7 +87,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(p -> (DependencyPropertiesNode) ModelPropertiesNode.apply(n.getProject(), n.getName(), p))
                         .exceptionally(ex -> {
                            LOG.warn("Issue collecting node information for model {}/{}", n.getProject(), n.getName(), ex);
-                           return ModelPropertiesNode.apply(n.getProject(), n.getName(), null);
+                           return null;
                         })
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof ProjectNode) {
@@ -96,7 +98,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(p -> (DependencyPropertiesNode) ProjectPropertiesNode.apply(n.getProject(), p))
                         .exceptionally(ex -> {
                            LOG.warn("Issue collecting node information for project {}", n.getProject(), ex);
-                           return ProjectPropertiesNode.apply(n.getProject(), null);
+                           return null;
                         })
                         .thenApply(node::withProperties);
                   } else if (node.getProperties() instanceof UserNode) {
@@ -107,7 +109,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenApply(p -> (DependencyPropertiesNode) UserPropertiesNode.apply(n.getId(), p))
                         .exceptionally(ex -> {
                            LOG.warn("Issue collecting node information for user {}", n.getId(), ex);
-                           return UserPropertiesNode.apply(n.getId(), null);
+                           return null;
                         })
                         .thenApply(node::withProperties);
                   } else {
@@ -115,7 +117,12 @@ public final class DependencyServicesImpl implements DependencyServices {
                   }
                }));
 
-            return nodesMappedCS.thenApply(graph::withNodes);
+            return nodesMappedCS
+               .thenApply(nodes -> nodes
+                  .stream()
+                  .filter(node -> node.getProperties() != null)
+                  .collect(Collectors.toList()))
+               .thenApply(graph::withNodes);
          });
    }
 
@@ -167,7 +174,6 @@ public final class DependencyServicesImpl implements DependencyServices {
 
       return comp.trackModelUsageByApplication(executor, projectName, modelName, applicationProjectName, applicationName);
    }
-
 
 
 }

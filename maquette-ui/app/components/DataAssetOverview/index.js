@@ -33,19 +33,31 @@ function transformDependencies(view, container) {
     const primary = _.isEqual(type, 'data-asset') && _.isEqual(assetId, id)
 
     let typeLabel = type;
+
     if (_.isEqual(type, 'data-asset')) {
       typeLabel = view.asset.type;
-    }
-
-    return {
-      id: `node-${node.id}`,
-      type,
-      data: {
+      return {
+        id: `node-${node.id}`,
         type,
-        label: typeLabel,
-        title: _.get(node, 'properties.properties.metadata.title') || _.get(node, 'properties.properties.metadata.name'),
-        primary,
-        link: `/shop/${pluralizeWord(_.get(node, 'properties.properties.type'))}/${_.get(node, 'properties.properties.metadata.name')}`
+        data: {
+          type,
+          label: typeLabel,
+          title: _.get(node, 'properties.properties.metadata.title'),
+          primary,
+          link: `/shop/${pluralizeWord(_.get(node, 'properties.properties.type'))}/${_.get(node, 'properties.properties.metadata.name')}`
+        }
+      }
+    } else {
+      return {
+        id: `node-${node.id}`,
+        type,
+        data: {
+          type,
+          label: typeLabel,
+          title: _.get(node, 'properties.properties.name'),
+          primary,
+          link: `#`
+        }
       }
     }
   });
