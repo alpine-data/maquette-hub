@@ -74,7 +74,7 @@ function AdditionalSettings({
   settingsComponentInitialState, settingsComponentValidate,
   onUpdateSettings, ...props }) {
 
-  const initialState = _.assign({}, initialState, _.get(view, 'asset.customProperties'));
+  const initialState = _.assign({}, initialState, _.get(view, 'asset.customSettings'));
   const [state, , onChange, onChangeValues] = useFormState(initialState);
   const isUpdateDisabled = !settingsComponentValidate(state) || _.isEqual(state, initialState);
 
@@ -95,7 +95,7 @@ function AdditionalSettings({
         <Button 
           appearance="primary" 
           disabled={ isUpdateDisabled } 
-          onClick={ () => onUpdateSettings({ customProperties: state }, 'update-custom', false) }>
+          onClick={ () => onUpdateSettings({ customSettings: state }, 'update-custom', false) }>
 
           Update { container }
         </Button>

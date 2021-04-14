@@ -27,7 +27,7 @@ public final class DataAsset {
    private final List<GrantedAuthorization<DataAssetMemberRole>> members;
 
    @Nullable
-   private final Object customProperties;
+   private final Object customSettings;
 
    @Nullable
    private final Object customDetails;

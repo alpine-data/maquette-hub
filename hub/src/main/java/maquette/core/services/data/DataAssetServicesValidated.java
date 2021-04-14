@@ -43,7 +43,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
       .required();
 
    @Override
-   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customProperties) {
+   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings) {
       return FluentValidation
          .apply()
          .validate("executor", executor, NotNullValidator.apply())
@@ -68,7 +68,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
                oSteward = steward;
             }
 
-            return delegate.create(executor, type, metadata, oOwner, oSteward, customProperties);
+            return delegate.create(executor, type, metadata, oOwner, oSteward, customSettings);
          });
    }
 
@@ -119,13 +119,13 @@ public final class DataAssetServicesValidated implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> updateCustomProperties(User executor, String name, Object customProperties) {
+   public CompletionStage<Done> updateCustomSettings(User executor, String name, Object customSettings) {
       return FluentValidation
          .apply()
          .validate("executor", executor, NotNullValidator.apply())
          .validate("name", name, NotNullValidator.apply())
          .checkAndFail()
-         .thenCompose(done -> delegate.updateCustomProperties(executor, name, customProperties));
+         .thenCompose(done -> delegate.updateCustomSettings(executor, name, customSettings));
    }
 
    @Override

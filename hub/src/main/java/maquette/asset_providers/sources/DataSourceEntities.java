@@ -18,7 +18,7 @@ public final class DataSourceEntities {
 
    public CompletionStage<Records> download(DataAssetEntity entity, User executor) {
       return entity
-         .getCustomProperties(DataSourceProperties.class)
+         .getCustomSettings(DataSourceProperties.class)
          .thenCompose(this::download);
    }
 

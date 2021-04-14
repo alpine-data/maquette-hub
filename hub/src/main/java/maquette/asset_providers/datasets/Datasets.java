@@ -52,7 +52,7 @@ public final class Datasets extends AbstractDataAssetProvider {
    }
 
    @Override
-   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
+   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
       return repository.findAllVersions(properties.getId());
    }
 

@@ -44,7 +44,7 @@ public class CreateDataAssetCommand implements Command {
 
    String steward;
 
-   JsonNode customProperties;
+   JsonNode customSettings;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -63,12 +63,12 @@ public class CreateDataAssetCommand implements Command {
          .apply(title, name, summary, visibility, classification, personalInformation, zone);
 
       var dataAssetProvider = runtime.getDataAssetProviders().getByName(type);
-      var customProperties = Operators.suppressExceptions(() ->
-         runtime.getObjectMapper().treeToValue(this.customProperties, dataAssetProvider.getPropertiesType()));
+      var customSettings = Operators.suppressExceptions(() ->
+         runtime.getObjectMapper().treeToValue(this.customSettings, dataAssetProvider.getSettingsType()));
 
       return services
          .getDataAssetServices()
-         .create(user, type, metadata, ownerAuth, stewardAuth, customProperties)
+         .create(user, type, metadata, ownerAuth, stewardAuth, customSettings)
          .thenApply(pid -> MessageResult.apply("Successfully created data asset `%s`", name));
    }
 

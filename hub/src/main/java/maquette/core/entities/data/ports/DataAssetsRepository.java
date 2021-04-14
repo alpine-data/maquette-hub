@@ -33,7 +33,7 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
 
    CompletionStage<Optional<DataAssetProperties>> findEntitiesById(UID id);
 
-   <T> CompletionStage<Optional<T>> fetchCustomProperties(UID id, Class<T> expectedType);
+   <T> CompletionStage<Optional<T>> fetchCustomSettings(UID id, Class<T> expectedType);
 
    default CompletionStage<DataAssetProperties> getEntityByName(String name) {
       return findEntityByName(name).thenCompose(opt -> opt
@@ -55,7 +55,7 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
 
    CompletionStage<Done> insertOrUpdateEntity(DataAssetProperties updated);
 
-   CompletionStage<Done> insertOrUpdateCustomProperties(UID id, Object customProperties);
+   CompletionStage<Done> insertOrUpdateCustomSettings(UID id, Object customSettings);
 
    CompletionStage<List<DataAssetProperties>> listEntities();
 

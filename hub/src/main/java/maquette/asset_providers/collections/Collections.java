@@ -50,7 +50,7 @@ public final class Collections extends AbstractDataAssetProvider {
    }
 
    @Override
-   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
+   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
       var filesCS = repository.getFiles(properties.getId());
       var tagsCS = repository.findAllTags(properties.getId());
 

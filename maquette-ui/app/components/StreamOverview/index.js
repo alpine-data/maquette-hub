@@ -88,7 +88,7 @@ const schema = {
 function StreamOverview(props) {
   console.log(props);
   const name = _.get(props, 'stream.view.asset.properties.metadata.name');
-  const schema = _.get(props, 'stream.view.asset.customProperties.schema');
+  const schema = _.get(props, 'stream.view.asset.customSettings.schema');
 
   console.log(name, schema);
 

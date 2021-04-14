@@ -47,7 +47,7 @@ import java.util.concurrent.CompletionStage;
       @JsonSubTypes.Type(value = GetDataAssetCommand.class, name = "data-assets get"),
       @JsonSubTypes.Type(value = ListDataAssetsCommand.class, name = "data-assets list"),
       @JsonSubTypes.Type(value = RemoveDataAssetCommand.class, name = "data-assets remove"),
-      @JsonSubTypes.Type(value = UpdateCustomDataAssetPropertiesCommand.class, name = "data-assets update-custom"),
+      @JsonSubTypes.Type(value = UpdateCustomDataAssetSettingsCommand.class, name = "data-assets update-custom"),
       @JsonSubTypes.Type(value = UpdateDataAssetCommand.class, name = "data-assets update"),
 
       @JsonSubTypes.Type(value = GrantDataAssetMemberCommand.class, name = "data-assets members grant"),

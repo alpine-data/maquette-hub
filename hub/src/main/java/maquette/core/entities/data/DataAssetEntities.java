@@ -3,7 +3,7 @@ package maquette.core.entities.data;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.data.exceptions.DataAssetAlreadyExistsException;
-import maquette.core.entities.data.exceptions.InvalidCustomPropertiesException;
+import maquette.core.entities.data.exceptions.InvalidCustomSettingsException;
 import maquette.core.entities.data.exceptions.UnknownDataAssetTypeException;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
@@ -32,7 +32,7 @@ public final class DataAssetEntities {
    private final Map<String, DataAssetProvider> providers;
 
    public CompletionStage<DataAssetProperties> create(
-      User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customProperties) {
+      User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings) {
 
       return repository
          .findEntityByName(metadata.getName())
@@ -41,9 +41,9 @@ public final class DataAssetEntities {
                return CompletableFuture.failedFuture(DataAssetAlreadyExistsException.withName(metadata.getName()));
             } else if (!providers.containsKey(type)) {
                return CompletableFuture.failedFuture(UnknownDataAssetTypeException.apply(type));
-            } else if (customProperties != null && !providers.get(type).getPropertiesType().isInstance(customProperties)) {
-               return CompletableFuture.failedFuture(InvalidCustomPropertiesException.apply(
-                  type, customProperties.getClass(), providers.get(type).getPropertiesType()));
+            } else if (customSettings != null && !providers.get(type).getSettingsType().isInstance(customSettings)) {
+               return CompletableFuture.failedFuture(InvalidCustomSettingsException.apply(
+                  type, customSettings.getClass(), providers.get(type).getSettingsType()));
             } else {
                return CompletableFuture.completedFuture(Done.getInstance());
             }
@@ -64,11 +64,15 @@ public final class DataAssetEntities {
                .thenCompose(entity -> entity.getMembers().addMember(executor, owner, DataAssetMemberRole.OWNER).thenApply(d -> entity))
                .thenCompose(entity -> entity.getMembers().addMember(executor, steward, DataAssetMemberRole.STEWARD).thenApply(d -> entity))
                .thenCompose(entity -> {
-                  if (customProperties != null) {
-                     return entity.updateCustomProperties(executor, customProperties);
+                  if (customSettings != null) {
+                     return entity.updateCustomSettings(executor, customSettings).thenApply(i -> entity);
                   } else {
-                     return CompletableFuture.completedFuture(Done.getInstance());
+                     return CompletableFuture.completedFuture(entity);
                   }
+               })
+               .thenCompose(entity -> {
+                  var provider = providers.get(type);
+                  return provider.onCreated(entity);
                })
                .thenApply(d -> properties);
          });

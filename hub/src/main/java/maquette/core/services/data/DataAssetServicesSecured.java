@@ -32,10 +32,10 @@ public final class DataAssetServicesSecured implements DataAssetServices {
    private final DataAssetCompanion comp;
 
    @Override
-   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customProperties) {
+   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings) {
       return comp
          .withAuthorization(() -> comp.isAuthenticatedUser(executor))
-         .thenCompose(ok -> delegate.create(executor, type, metadata, owner, steward, customProperties));
+         .thenCompose(ok -> delegate.create(executor, type, metadata, owner, steward, customSettings));
    }
 
    @Override
@@ -131,11 +131,11 @@ public final class DataAssetServicesSecured implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> updateCustomProperties(User executor, String name, Object customProperties) {
+   public CompletionStage<Done> updateCustomSettings(User executor, String name, Object customSettings) {
       return comp
          .withAuthorization(
             () -> comp.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
-         .thenCompose(ok -> delegate.updateCustomProperties(executor, name, customProperties));
+         .thenCompose(ok -> delegate.updateCustomSettings(executor, name, customSettings));
    }
 
    @Override

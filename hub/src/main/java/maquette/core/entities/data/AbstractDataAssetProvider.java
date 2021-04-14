@@ -1,5 +1,6 @@
 package maquette.core.entities.data;
 
+import akka.Done;
 import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import maquette.core.config.ApplicationConfiguration;
@@ -44,7 +45,7 @@ public abstract class AbstractDataAssetProvider implements DataAssetProvider {
    }
 
    @Override
-   public Class<?> getPropertiesType() {
+   public Class<?> getSettingsType() {
       return propertiesType;
    }
 
@@ -59,13 +60,18 @@ public abstract class AbstractDataAssetProvider implements DataAssetProvider {
    }
 
    @Override
-   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
+   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
       return CompletableFuture.completedFuture(null);
    }
 
    @Override
    public Map<String, Class<? extends Command>> getCustomCommands() {
       return Map.copyOf(commands);
+   }
+
+   @Override
+   public CompletionStage<Done> onCreated(DataAssetEntity entity) {
+      return CompletableFuture.completedFuture(Done.getInstance());
    }
 
 }

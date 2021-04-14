@@ -52,19 +52,19 @@ public final class DataAssetCompanion extends ServiceCompanion {
             .map(request -> this.enrichDataAccessRequest(properties, request)))
          .thenCompose(Operators::allOf);
 
-      var customPropertiesCS = propertiesCS.thenCompose(properties -> {
+      var customSettingsCS = propertiesCS.thenCompose(properties -> {
          var provider = providers.getByName(properties.getType());
-         return entity.getCustomProperties(provider.getPropertiesType());
+         return entity.getCustomSettings(provider.getSettingsType());
       });
 
       var customDetailsCS = Operators
-         .compose(propertiesCS, customPropertiesCS, (properties, customProperties) -> providers
+         .compose(propertiesCS, customSettingsCS, (properties, customSettings) -> providers
             .getByName(properties.getType())
-            .getDetails(properties, customProperties))
+            .getDetails(properties, customSettings))
          .thenCompose(cs -> cs);
 
       return Operators.compose(
-         propertiesCS, accessRequestsCS, membersCS, customPropertiesCS, customDetailsCS, DataAsset::apply);
+         propertiesCS, accessRequestsCS, membersCS, customSettingsCS, customDetailsCS, DataAsset::apply);
    }
 
    public CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties properties, DataAccessRequestProperties request) {

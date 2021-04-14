@@ -38,7 +38,7 @@ function CreateDataAsset({
   const [initialized, setInitialized] = useState(false);
   const [stateInitialized, setStateInitialized] = useState(false);
   const [state, , onChange, onChangeValues] = useFormState(_.assign({}, initialDataAssetProperties, { type: assetType }));
-  const [customPropertiesState, , onCustomPropertiesStateChange, onCustomPropertiesStateChangeValues] = useFormState(initialState)
+  const [customSettingsState, , onCustomPropertiesStateChange, onCustomPropertiesStateChangeValues] = useFormState(initialState)
   const data = _.get(props, `${container}.data`);
   const Component = componentClass;
   const componentAdditionalPropsMerged = _.assign({}, props, componentAdditionalProps);
@@ -57,7 +57,7 @@ function CreateDataAsset({
     }
   }, [ data ]);
 
-  const isCreateDisabled = !validateDataAssetProperties(state) || !validateDataAssetTeam(state) || !validate(customPropertiesState);
+  const isCreateDisabled = !validateDataAssetProperties(state) || !validateDataAssetTeam(state) || !validate(customSettingsState);
 
   return <ViewContainer
     background="data"
@@ -90,7 +90,7 @@ function CreateDataAsset({
                         { ...componentAdditionalPropsMerged } 
                         onChange={ onCustomPropertiesStateChange } 
                         onChangeValues={ onCustomPropertiesStateChangeValues } 
-                        state={ customPropertiesState } />
+                        state={ customSettingsState } />
                     </>
                   }
 
@@ -99,7 +99,7 @@ function CreateDataAsset({
                       appearance="primary"
                       disabled={ isCreateDisabled }
                       onClick={ () => {
-                        props.dispatch(create('data-assets create', _.assign({}, state, { customProperties: customPropertiesState })))
+                        props.dispatch(create('data-assets create', _.assign({}, state, { customSettings: customSettingsState })))
                       } }>
 
                       Create { assetType }

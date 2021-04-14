@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.entities.companions.MembersCompanion;
-import maquette.core.entities.data.exceptions.InvalidCustomPropertiesException;
+import maquette.core.entities.data.exceptions.InvalidCustomSettingsException;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.*;
@@ -33,12 +33,12 @@ public final class DataAssetEntity {
       return this.id;
    }
 
-   public <T> CompletionStage<Optional<T>> fetchCustomProperties(Class<T> expectedType) {
-      return repository.fetchCustomProperties(id, expectedType);
+   public <T> CompletionStage<Optional<T>> fetchCustomSettings(Class<T> expectedType) {
+      return repository.fetchCustomSettings(id, expectedType);
    }
 
-   public <T> CompletionStage<T> getCustomProperties(Class<T> expectedType) {
-      return repository.fetchCustomProperties(id, expectedType).thenApply(Optional::orElseThrow);
+   public <T> CompletionStage<T> getCustomSettings(Class<T> expectedType) {
+      return repository.fetchCustomSettings(id, expectedType).thenApply(Optional::orElseThrow);
    }
 
    public CompletionStage<UID> getResourceId() {
@@ -137,18 +137,18 @@ public final class DataAssetEntity {
          });
    }
 
-   public CompletionStage<Done> updateCustomProperties(User executor, Object customProperties) {
+   public CompletionStage<Done> updateCustomSettings(User executor, Object customSettings) {
       return repository
          .getEntityById(id)
          .thenCompose(properties -> {
-            if (!providers.get(properties.getType()).getPropertiesType().isInstance(customProperties)) {
-               return CompletableFuture.failedFuture(InvalidCustomPropertiesException.apply(
-                  properties.getType(), customProperties.getClass(), providers.get(properties.getType()).getPropertiesType()));
+            if (!providers.get(properties.getType()).getSettingsType().isInstance(customSettings)) {
+               return CompletableFuture.failedFuture(InvalidCustomSettingsException.apply(
+                  properties.getType(), customSettings.getClass(), providers.get(properties.getType()).getSettingsType()));
             } else {
                return CompletableFuture.completedFuture(Done.getInstance());
             }
          })
-         .thenCompose(done -> repository.insertOrUpdateCustomProperties(id, customProperties))
+         .thenCompose(done -> repository.insertOrUpdateCustomSettings(id, customSettings))
          .thenCompose(done -> repository.getEntityById(id))
          .thenApply(entity -> entity.withUpdated(executor))
          .thenCompose(repository::insertOrUpdateEntity);

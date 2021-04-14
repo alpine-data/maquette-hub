@@ -19,8 +19,8 @@ public final class Streams extends AbstractDataAssetProvider {
    }
 
    @Override
-   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
-      return CompletableFuture.completedFuture(customProperties);
+   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
+      return CompletableFuture.completedFuture(customSettings);
    }
 
 }

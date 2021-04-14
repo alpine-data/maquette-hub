@@ -258,7 +258,7 @@ public final class CollectionEntity {
                if (existingTag.isPresent()) {
                   return CompletableFuture.<Done>failedFuture(TagAlreadyExistsException.withName(name));
                } else {
-                  entity.getCustomProperties(FileEntry.Directory.class);
+                  entity.getCustomSettings(FileEntry.Directory.class);
                   var tag = CollectionTag.apply(ActionMetadata.apply(executor), name, message, files);
                   var insert = repository.insertOrUpdateTag(id, tag);
                   var updated = entity.updated(executor);

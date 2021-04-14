@@ -36,8 +36,8 @@ public final class DataAssetServicesImpl implements DataAssetServices {
    private final LogsCompanion logs;
 
    @Override
-   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customProperties) {
-      return entities.create(executor, type, metadata, owner, steward, customProperties);
+   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings) {
+      return entities.create(executor, type, metadata, owner, steward, customSettings);
    }
 
    @Override
@@ -68,8 +68,8 @@ public final class DataAssetServicesImpl implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> updateCustomProperties(User executor, String name, Object customProperties) {
-      return entities.getByName(name).thenCompose(entity -> entity.updateCustomProperties(executor, customProperties));
+   public CompletionStage<Done> updateCustomSettings(User executor, String name, Object customSettings) {
+      return entities.getByName(name).thenCompose(entity -> entity.updateCustomSettings(executor, customSettings));
    }
 
    @Override

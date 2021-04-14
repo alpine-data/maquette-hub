@@ -24,7 +24,7 @@ public interface DataAssetServices {
     * Manage data asset
     */
    CompletionStage<DataAssetProperties> create(
-      User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customProperties);
+      User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings);
 
    CompletionStage<DataAsset> get(User executor, String name);
 
@@ -36,7 +36,7 @@ public interface DataAssetServices {
 
    CompletionStage<Done> update(User executor, String name, DataAssetMetadata metadata);
 
-   CompletionStage<Done> updateCustomProperties(User executor, String name, Object customProperties);
+   CompletionStage<Done> updateCustomSettings(User executor, String name, Object customSettings);
 
    CompletionStage<Done> remove(User executor, String name);
 

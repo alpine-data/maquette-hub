@@ -17,11 +17,11 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public final class UpdateCustomDataAssetPropertiesCommand implements Command {
+public final class UpdateCustomDataAssetSettingsCommand implements Command {
 
    String name;
 
-   JsonNode customProperties;
+   JsonNode customSettings;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
@@ -31,12 +31,12 @@ public final class UpdateCustomDataAssetPropertiesCommand implements Command {
          .thenApply(DataAsset::getProperties)
          .thenApply(properties -> runtime.getDataAssetProviders().getByName(properties.getType()))
          .thenCompose(assetProvider -> {
-            var customProperties = Operators.suppressExceptions(() ->
-               runtime.getObjectMapper().treeToValue(this.customProperties, assetProvider.getPropertiesType()));
+            var customSettings = Operators.suppressExceptions(() ->
+               runtime.getObjectMapper().treeToValue(this.customSettings, assetProvider.getSettingsType()));
 
             return services
                .getDataAssetServices()
-               .updateCustomProperties(user, name, customProperties)
+               .updateCustomSettings(user, name, customSettings)
                .thenApply(done -> MessageResult.apply("Successfully updated data asset."));
          });
    }

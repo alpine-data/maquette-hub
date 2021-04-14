@@ -1,5 +1,6 @@
 package maquette.core.entities.data;
 
+import akka.Done;
 import io.javalin.Javalin;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
@@ -15,13 +16,15 @@ public interface DataAssetProvider {
    void configure(
       Javalin app, ApplicationConfiguration config, RuntimeConfiguration runtime, ApplicationServices services);
 
-   Class<?> getPropertiesType();
+   Class<?> getSettingsType();
 
    String getType();
 
    String getTypePluralized();
 
-   CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties);
+   CompletionStage<Done> onCreated(DataAssetEntity entity);
+
+   CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings);
 
    Map<String, Class<? extends Command>> getCustomCommands();
 

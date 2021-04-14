@@ -1,5 +1,6 @@
 package maquette.asset_providers.sources;
 
+import akka.Done;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import maquette.asset_providers.sources.commands.TestDataSourceCommand;
@@ -13,6 +14,7 @@ import maquette.common.Operators;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.AbstractDataAssetProvider;
+import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.data.records.Records;
@@ -74,16 +76,16 @@ public final class DataSources extends AbstractDataAssetProvider {
    }
 
    @Override
-   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customProperties) {
-      if (customProperties instanceof DataSourceProperties) {
-         var props = (DataSourceProperties) customProperties;
+   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
+      if (customSettings instanceof DataSourceProperties) {
+         var props = (DataSourceProperties) customSettings;
 
          return entities
             .download(props)
             .exceptionally(e -> Records.empty())
             .thenApply(records -> DataSourceDetails.apply(records.size(), records.getSchema()));
       } else {
-         return super.getDetails(properties, customProperties);
+         return super.getDetails(properties, customSettings);
       }
    }
 
@@ -91,4 +93,9 @@ public final class DataSources extends AbstractDataAssetProvider {
       return DataSourceServicesFactory.create(runtime, entities);
    }
 
+   @Override
+   public CompletionStage<Done> onCreated(DataAssetEntity entity) {
+      // entity.getProperties().thenCompose();
+      return super.onCreated(entity);
+   }
 }

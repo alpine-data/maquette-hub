@@ -36,9 +36,9 @@ public final class DataAssetServicesLogged implements DataAssetServices {
    private final Logs logs;
 
    @Override
-   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customProperties) {
+   public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings) {
       return delegate
-         .create(executor, type, metadata, owner, steward, customProperties)
+         .create(executor, type, metadata, owner, steward, customSettings)
          .thenCompose(properties -> entities
             .getById(properties.getId())
             .getResourceId()
@@ -152,9 +152,9 @@ public final class DataAssetServicesLogged implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> updateCustomProperties(User executor, String name, Object customProperties) {
+   public CompletionStage<Done> updateCustomSettings(User executor, String name, Object customSettings) {
       var ridCS = entities.getByName(name).thenCompose(DataAssetEntity::getResourceId);
-      var resultCS = delegate.updateCustomProperties(executor, name, customProperties);
+      var resultCS = delegate.updateCustomSettings(executor, name, customSettings);
 
       return Operators.compose(ridCS, resultCS, (rid, result) -> {
          logs.log(
