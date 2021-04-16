@@ -17,16 +17,16 @@ import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 SyntaxHighlighter.registerLanguage('json', json);
 
-import { FlexboxGrid } from 'rsuite';
+import { Button, FlexboxGrid } from 'rsuite';
+import _ from 'lodash';
 
 function Browse(props) {
   const dataset = _.get(props, 'dataset.view.asset');
-  const versions = _.get(dataset, 'versions') || [];
+  const versions = _.get(dataset, 'customDetails') || [];
   const version = _.get(props, 'dataset.version') || _.first(versions).version;
 
   const schema = _.get(_.find(versions, v => v.version == version), 'schema') || {};
   const statistics = _.get(_.find(versions, v => v.version == version), 'statistics.columns') || [];
-
 
   return <Container fluid className="mq--main-content">
     <FlexboxGrid justify="space-between">
@@ -43,14 +43,20 @@ function Browse(props) {
 
         <h4>Schema <span className="mq--sub">v{ version }</span></h4>
         <SyntaxHighlighter showLineNumbers language="json" style={docco}>
-          { 
+          {
             JSON.stringify(schema, null, 2)
           }
         </SyntaxHighlighter>
       </FlexboxGrid.Item>
       <FlexboxGrid.Item colspan={ 15 }>
         <h4>Fields <span className="mq--sub">v{ version }</span></h4>
-        <DataExplorer stats={ statistics } />
+        {
+          _.size(statistics) > 0 ? <>
+            <DataExplorer stats={ statistics } />
+          </> : <>
+            <Button onClick={ () => props.dispatch(props.onAnalyze(version)) }>Request Analysis</Button>
+          </>
+        }
       </FlexboxGrid.Item>
     </FlexboxGrid>
   </Container>;
@@ -72,7 +78,9 @@ function GetStarted(props) {
 }
 
 function DatasetOverview(props) {
-  if (_.isEmpty(_.get(props, 'dataset.view.asset.versions'))) {
+  if (!_.get(props, 'dataset.view')) {
+    return <></>;
+  } else if (_.isEmpty(_.get(props, 'dataset.view.asset.customDetails'))) {
     return <GetStarted { ...props } />;
   } else {
     return <Browse { ...props } />

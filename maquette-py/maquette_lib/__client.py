@@ -51,6 +51,7 @@ class Client:
             headers = {**self.__headers, **headers}
         else:
             headers = self.__headers
+
         response = requests.post(self.__base_url + 'commands', json=request_body, headers=headers)
         if response.status_code < 200 or response.status_code > 299:
 

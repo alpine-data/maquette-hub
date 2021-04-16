@@ -116,14 +116,19 @@ public final class MaquetteServer {
 
                if (headers.containsKey(projectContextHeaderName)) {
                   var projectId = UID.apply(headers.get(projectContextHeaderName));
-                  var projectProperties = runtime
-                     .getProjects()
-                     .getProjectById(projectId)
-                     .thenCompose(ProjectEntity::getProperties)
-                     .toCompletableFuture()
-                     .get();
 
-                  user = user.withProjectContext(ProjectContext.apply(projectId, projectProperties));
+                  try {
+                     var projectProperties = runtime
+                        .getProjects()
+                        .getProjectById(projectId)
+                        .thenCompose(ProjectEntity::getProperties)
+                        .toCompletableFuture()
+                        .get();
+
+                     user = user.withProjectContext(ProjectContext.apply(projectId, projectProperties));
+                  } catch (Exception e) {
+                     // Do nothing
+                  }
                }
 
                if (headers.containsKey(environmentContextHeaderName)) {

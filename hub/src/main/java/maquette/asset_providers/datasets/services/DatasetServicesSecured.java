@@ -12,6 +12,7 @@ import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -20,6 +21,13 @@ public final class DatasetServicesSecured implements DatasetServices {
    private final DatasetServices delegate;
 
    private final DataAssetCompanion comp;
+
+   @Override
+   public CompletionStage<Done> analyze(User executor, String dataset, DatasetVersion version) {
+      return comp
+         .withAuthorization(() -> comp.hasPermission(executor, dataset, DataAssetPermissions::canChangeSettings))
+         .thenCompose(ok -> delegate.analyze(executor, dataset, version));
+   }
 
    @Override
    public CompletionStage<CommittedRevision> commit(User executor, String dataset, UID revision, String message) {
@@ -38,7 +46,9 @@ public final class DatasetServicesSecured implements DatasetServices {
    @Override
    public CompletionStage<Records> download(User executor, String dataset, DatasetVersion version) {
       return comp
-         .withAuthorization(() -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume))
+         .withAuthorization(
+            () -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume),
+            () -> CompletableFuture.completedFuture(executor.isSystemUser()))
          .thenCompose(ok -> delegate.download(executor, dataset, version));
    }
 

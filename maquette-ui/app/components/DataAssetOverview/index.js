@@ -35,13 +35,14 @@ function transformDependencies(view, container) {
     let typeLabel = type;
 
     if (_.isEqual(type, 'data-asset')) {
+      console.log(node);
       typeLabel = view.asset.type;
       return {
         id: `node-${node.id}`,
         type,
         data: {
           type,
-          label: typeLabel,
+          label: _.get(node, 'properties.properties.type'),
           title: _.get(node, 'properties.properties.metadata.title'),
           primary,
           link: `/shop/${pluralizeWord(_.get(node, 'properties.properties.type'))}/${_.get(node, 'properties.properties.metadata.name')}`
@@ -70,7 +71,7 @@ function transformDependencies(view, container) {
       type: 'smoothstep',
       animated: false,
       arrowHeadType: 'arrow',
-      style: { stroke: '#333', 'stroke-width': 2 }
+      style: { stroke: '#333', strokeWidth: 2 }
     }
   })
 

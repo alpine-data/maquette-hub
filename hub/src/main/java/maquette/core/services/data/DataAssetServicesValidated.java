@@ -57,13 +57,13 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             Authorization oSteward;
 
             if (Objects.isNull(owner)) {
-               oOwner = executor.toAuthorization();
+               oOwner = UserAuthorization.apply("alice"); // TODO read from config
             } else {
                oOwner = owner;
             }
 
             if (Objects.isNull(steward)) {
-               oSteward = oOwner;
+               oSteward = executor.toAuthorization();
             } else {
                oSteward = steward;
             }

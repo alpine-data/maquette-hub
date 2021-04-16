@@ -77,6 +77,12 @@ class EPersonalInformation(str, Enum):
     SENSITIVE_PERSONAL_INFORMATION = "spi"
 
 
+class EDataZone(str, Enum):
+    RAW = "raw"
+    PREPARED = "prepared"
+    GOLD = "gold"
+
+
 class DataAsset:
     """
     Base class for all Data Assets
@@ -91,6 +97,7 @@ class DataAsset:
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
+                 zone: str = EDataZone.RAW,
                  project_name: str = None, project_id: str = None, data_asset_type: EDataAssetType = None):
 
         self.data_asset_name = data_asset_name
@@ -103,6 +110,7 @@ class DataAsset:
         self.visibility = visibility
         self.classification = classification
         self.personal_information = personal_information
+        self.zone = zone
         self.project_name = project_name
         if project_id:
             self.project = project_id
@@ -113,16 +121,23 @@ class DataAsset:
                 self.header = {'x-project': self.project}
         self.data_asset_type = data_asset_type
 
-    def create(self):
+    def create(self, customSettings: dict = {}):
         """
         BASE FUNCTION FOR INHERITANCE: Creates the Data Asset via API in the Maquette Hub
         Returns: the instantiated Data Asset
-
         """
-        client.command(cmd='{}s create'.format(self.data_asset_type),
-                       args={'name': self.data_asset_name, 'title': self.title, 'summary': self.summary,
-                             'visibility': self.visibility, 'classification': self.classification,
-                             'personalInformation': self.personal_information},
+        client.command(cmd='data-assets create',
+                       args={
+                            'type': self.data_asset_type, 
+                            'name': self.data_asset_name, 
+                            'title': self.title, 
+                            'summary': self.summary,
+                            'visibility': self.visibility, 
+                            'classification': self.classification,
+                            'personalInformation': self.personal_information,
+                            'zone': self.zone,
+                            'customSettings': customSettings
+                       },
                        headers=self.header)
         return self
 
@@ -134,13 +149,20 @@ class DataAsset:
             to_update: the name of the Data Asset to update
 
         Returns: the updated Data Asset
-
         """
-        client.command(cmd='{}s update'.format(self.data_asset_type),
-                       args={self.data_asset_type: to_update, 'name': self.data_asset_name, 'title': self.title,
-                             'summary': self.summary,
-                             'visibility': self.visibility, 'classification': self.classification,
-                             'personalInformation': self.personal_information},
+        client.command(cmd='data-assets update',
+                       args={
+                            'name': to_update, 
+                            'metadata': {
+                                'name': self.data_asset_name, 
+                                'title': self.title,
+                                'summary': self.summary,
+                                'visibility': self.visibility, 
+                                'classification': self.classification,
+                                'personalInformation': self.personal_information,
+                                'zone': self.zone
+                            }
+                        },
                        headers=self.header)
         return self
 
@@ -148,8 +170,8 @@ class DataAsset:
         """
         Removes the Data Asset from the Maquette Hub
         """
-        client.command(cmd='{}s remove'.format(self.data_asset_type),
-                       args={'{}'.format(self.data_asset_type): self.data_asset_name},
+        client.command(cmd='data-assets remove',
+                       args={'name': self.data_asset_name},
                        headers=self.header)
 
     def delete(self):
@@ -167,8 +189,9 @@ class Collection(DataAsset):
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
+                 zone: str = EDataZone.RAW,
                  project_name: str = None, project_id: str = None):
-        super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
+        super().__init__(data_asset_name, title, summary, visibility, classification, personal_information, zone,
                          project_name, project_id,
                          EDataAssetType.COLLECTION)
 
@@ -232,8 +255,11 @@ class Source(DataAsset):
     def __init__(self, data_asset_name: str, title: str = None, summary: str = "Lorem Impsum",
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
-                 personal_information: str = EPersonalInformation.NONE, access_type: EAccessType = EAccessType.DIRECT,
-                 db_properties: dict = None, project_name: str = None, project_id: str = None):
+                 personal_information: str = EPersonalInformation.NONE, 
+                 access_type: EAccessType = EAccessType.DIRECT,
+                 db_properties: dict = None, 
+                 project_name: str = None, 
+                 project_id: str = None):
         self.access_type = access_type
         self.db_properties = db_properties
         super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
@@ -241,11 +267,10 @@ class Source(DataAsset):
                          EDataAssetType.SOURCE)
 
     def create(self):
-        """
-        Create the Data Source via API on the Maquette Hub. Properties for the Database to access have to be provieded
-        Returns: the initiated Data Source object
+        # TODO mw: Adopt to new interface add required database properties to Source constructore (as required properties)
+        super().create({
 
-        """
+        })
         client.command(cmd='sources create'.format(self.data_asset_type),
                        args={'name': self.data_asset_name, 'title': self.title, 'summary': self.summary,
                              'visibility': self.visibility, 'classification': self.classification,
@@ -292,10 +317,11 @@ class Dataset(DataAsset):
                  visibility: str = EDataVisibility.PUBLIC,
                  classification: str = EDataClassification.PUBLIC,
                  personal_information: str = EPersonalInformation.NONE,
+                 zone: str = EDataZone.RAW,
                  project_name: str = None, project_id: str = None, version: str = None):
         if version:
             self.version = version
-        super().__init__(data_asset_name, title, summary, visibility, classification, personal_information,
+        super().__init__(data_asset_name, title, summary, visibility, classification, personal_information, zone,
                          project_name, project_id,
                          EDataAssetType.DATASET)
 

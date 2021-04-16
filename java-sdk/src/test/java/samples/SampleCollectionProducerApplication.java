@@ -19,7 +19,7 @@ public class SampleCollectionProducerApplication {
          .create()
          .collection("some-collection")
          .saveFiles(new File("/Users/michaelwellner/Downloads/minst-collection").toPath());
-       */
+      */
    }
 
 }

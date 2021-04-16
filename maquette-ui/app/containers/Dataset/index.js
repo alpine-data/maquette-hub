@@ -13,12 +13,14 @@ import { compose } from 'redux';
 import makeSelectDataset from './selectors';
 
 import DatasetOverview from 'components/DatasetOverview';
-import DataAsset, { createSaga, createReducer } from '../../components/DataAsset';
+import DataAsset, { createActions, createSaga, createReducer } from '../../components/DataAsset';
 import codeExamples from './samples'
+import _ from 'lodash';
 
 const container = 'dataset';
 const saga = createSaga(container);
 const reducer = createReducer(container);
+const { update } = createActions(container);
 
 export function Dataset(props) {
   const canConsume = _.get(props, 'dataset.view.permissions.canConsume');
@@ -34,7 +36,7 @@ export function Dataset(props) {
           link: '/data',
           visible: true,
           component: () => <>
-                <DatasetOverview { ...props } />
+              <DatasetOverview { ...props } onAnalyze={ version => update('datasets versions analyze', { name: _.get(props, 'dataset.view.asset.properties.metadata.name'), version: version }) } />
             </>
         },
         {

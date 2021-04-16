@@ -13,6 +13,8 @@ import java.util.concurrent.CompletionStage;
 
 public interface DatasetServices {
 
+   CompletionStage<Done> analyze(User executor, String dataset, DatasetVersion version);
+
    CompletionStage<CommittedRevision> commit(User executor, String dataset, UID revision, String message);
 
    CompletionStage<Revision> create(User executor, String dataset, Schema schema);

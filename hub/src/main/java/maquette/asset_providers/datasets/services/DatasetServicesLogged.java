@@ -32,6 +32,11 @@ public final class DatasetServicesLogged implements DatasetServices {
    private final DependencyCompanion dependencies;
 
    @Override
+   public CompletionStage<Done> analyze(User executor, String dataset, DatasetVersion version) {
+      return delegate.analyze(executor, dataset, version);
+   }
+
+   @Override
    public CompletionStage<CommittedRevision> commit(User executor, String dataset, UID revision, String message) {
       var ridCS = entities.getByName(dataset).thenCompose(DataAssetEntity::getResourceId);
       var resultCS = delegate.commit(executor, dataset, revision, message);

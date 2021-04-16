@@ -1,6 +1,7 @@
 package maquette.asset_providers.datasets;
 
 import io.javalin.Javalin;
+import maquette.asset_providers.datasets.commands.AnalyzeVersionCommand;
 import maquette.asset_providers.datasets.commands.CommitRevisionCommand;
 import maquette.asset_providers.datasets.commands.CreateRevisionCommand;
 import maquette.asset_providers.datasets.services.DatasetServices;
@@ -37,6 +38,7 @@ public final class Datasets extends AbstractDataAssetProvider {
       var ds = new Datasets(repository, recordsStore, dataExplorer);
       ds.addCommand("revisions commit", CommitRevisionCommand.class);
       ds.addCommand("revisions create", CreateRevisionCommand.class);
+      ds.addCommand("versions analyze", AnalyzeVersionCommand.class);
       return ds;
    }
 

@@ -5,57 +5,8 @@
  */
 import _ from 'lodash';
 import React from 'react';
-import { Divider, FlexboxGrid, Icon, Tag } from 'rsuite';
+import { Divider, FlexboxGrid, Icon } from 'rsuite';
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
-// import PropTypes from 'prop-types';
-// import styled from 'styled-components';
-
-import SampleImage from './sample-statistic.png';
-
-const sample = [
-  {
-    "name": "city",
-    "type": "text",
-    "stats": {
-      "valid": [312, 82],
-      "mismatched": [12, 8],
-      "missing": [65, 10],
-      
-      details: [
-        [
-          ["Unique", "42", ""],
-          ["Most Common", "London", ""]
-        ],
-        [
-          ["Foo", "Bar", "Bla"]
-        ]
-      ]
-    }
-  },
-  {
-    "name": "population",
-    "type": "numeric",
-    "stats": {
-      "valid": [312, 90],
-      "mismatched": [12, 10],
-      "missing": [0, 0],
-      
-      details: [
-        [
-          ["Mean", "30.3", ""],
-          ["Std. Deviation", "14.2", ""]
-        ],
-        [
-          ["Quantiles", "0.17", "Min"],
-          ["", 21, "25%"],
-          ["", 27, "50%"],
-          ["", 39, "75%"],
-          ["", 76, "Max"]
-        ]
-      ]
-    }
-  }
-]
 
 function StatisticGroup({ group }) {
   return <>
@@ -119,8 +70,6 @@ function Field({ field }) {
         {
           image && <>
             <img src={ "data:image/png;base64," + image } className="mq--explorer--field--image"  />
-          </> || <>
-            <img src={ SampleImage } className="mq--explorer--field--image" />
           </>
         }
       </FlexboxGrid.Item>
@@ -144,7 +93,7 @@ function FieldContainer({ children }) {
 function DataExplorer({ stats }) {
   return <FlexboxGrid justify="space-between">
     { 
-      _.map(stats, f => <FieldContainer><Field field={ f } key={ f.name } /></FieldContainer>) 
+      _.map(stats, f => <FieldContainer key={ f.name }><Field field={ f } /></FieldContainer>) 
     }
   </FlexboxGrid>;
 }
