@@ -12,12 +12,12 @@ import maquette.core.services.dependencies.DependencyCompanion;
 public final class DatasetServicesFactory {
 
    public static DatasetServices apply(RuntimeConfiguration runtime, DatasetsRepository repository, DatasetDataExplorer dataExplorer) {
-      var comp = DataAssetCompanion.apply(runtime.getDataAssets(), runtime.getProjects(), runtime.getDataAssetProviders());
       var dependencies = DependencyCompanion.apply(runtime);
+      var comp = DataAssetCompanion.apply(runtime.getDataAssets(), runtime.getProjects(), runtime.getDataAssetProviders(), dependencies);
       var impl = DatasetServicesImpl.apply(repository, dataExplorer, runtime.getDataAssets());
       var secured = DatasetServicesSecured.apply(impl, comp);
 
-      return DatasetServicesLogged.apply(secured, runtime.getDataAssets(), runtime.getLogs(), dependencies);
+      return DatasetServicesLogged.apply(secured, runtime.getDataAssets(), runtime.getLogs(), comp);
    }
 
 }

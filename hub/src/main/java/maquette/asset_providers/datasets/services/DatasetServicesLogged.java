@@ -11,10 +11,9 @@ import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.logs.Action;
 import maquette.core.entities.logs.ActionCategory;
 import maquette.core.entities.logs.Logs;
-import maquette.core.services.dependencies.DependencyCompanion;
+import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.data.records.Records;
-import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.avro.Schema;
 
@@ -29,7 +28,7 @@ public final class DatasetServicesLogged implements DatasetServices {
 
    private final Logs logs;
 
-   private final DependencyCompanion dependencies;
+   private final DataAssetCompanion assets;
 
    @Override
    public CompletionStage<Done> analyze(User executor, String dataset, DatasetVersion version) {
@@ -48,18 +47,7 @@ public final class DatasetServicesLogged implements DatasetServices {
             dataset);
 
          logs.log(executor, action, rid);
-
-         if (executor.getProjectContext().isPresent()) {
-            var ctx = executor.getProjectContext().get();
-            dependencies.trackProductionByProject(executor, dataset, ctx.getProperties().getName());
-         }
-
-         // TODO mw: Add dependency tracking for apps
-         // Better else for dependency tracking?
-
-         if (executor instanceof AuthenticatedUser) {
-            dependencies.trackProductionByUser(executor, dataset, ((AuthenticatedUser) executor).getId());
-         }
+         assets.trackProduction(executor, dataset);
 
          return result;
       });
@@ -92,14 +80,7 @@ public final class DatasetServicesLogged implements DatasetServices {
       return Operators.compose(ridCS, resultCS, (rid, result) -> {
          var action = Action.apply(ActionCategory.READ, "Downloaded version `%s` from dataset `%s`", version, dataset);
          logs.log(executor, action, rid);
-
-         if (executor.getProjectContext().isPresent()) {
-            var ctx = executor.getProjectContext().get();
-            dependencies.trackConsumptionByProject(executor, dataset, ctx.getProperties().getName());
-         }
-
-         // TODO mw: Add dependency tracking for apps
-
+         assets.trackConsumption(executor, dataset);
          return result;
       });
    }
@@ -112,13 +93,7 @@ public final class DatasetServicesLogged implements DatasetServices {
       return Operators.compose(ridCS, resultCS, (rid, result) -> {
          var action = Action.apply(ActionCategory.READ, "Downloaded latest version from dataset `%s`", dataset);
          logs.log(executor, action, rid);
-
-         if (executor.getProjectContext().isPresent()) {
-            var ctx = executor.getProjectContext().get();
-            dependencies.trackConsumptionByProject(executor, dataset, ctx.getProperties().getName());
-         }
-
-         // TODO mw: Add dependency tracking for apps
+         assets.trackConsumption(executor, dataset);
 
          return result;
       });

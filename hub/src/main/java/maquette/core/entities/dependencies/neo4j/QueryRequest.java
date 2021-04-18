@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor(staticName = "apply")
@@ -16,6 +18,10 @@ public final class QueryRequest {
 
    public static QueryRequest apply(String statement) {
       return apply(List.of(Statement.apply(statement)));
+   }
+
+   public static QueryRequest apply(String ...statement) {
+      return apply(Arrays.stream(statement).map(Statement::apply).collect(Collectors.toList()));
    }
 
 }

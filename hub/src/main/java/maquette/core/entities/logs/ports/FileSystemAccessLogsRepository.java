@@ -76,7 +76,7 @@ public final class FileSystemAccessLogsRepository implements AccessLogsRepositor
    @Override
    public CompletionStage<List<LogEntryProperties>> getByProject(UID project) {
       return CompletableFuture.completedFuture(readAll()
-         .filter(e -> e.getProject() != null && e.getProject().equals(project))
+         .filter(e -> e.getProject().isPresent() && e.getProject().get().equals(project))
          .collect(Collectors.toList()));
    }
 

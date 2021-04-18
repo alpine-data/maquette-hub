@@ -49,7 +49,7 @@ def init_house_prices_test():
 
     print("Uploaded House Prices Test Dataset")
 
-init_weather()
+#init_weather()
 #init_fraud()
-#init_house_prices_training()
-#init_house_prices_test()
+init_house_prices_training()
+init_house_prices_test()

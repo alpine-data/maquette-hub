@@ -13,7 +13,7 @@ public final class ProjectServicesFactory {
    public static ProjectServices apply(RuntimeConfiguration runtime) {
       var comp = ProjectCompanion.apply(runtime.getProjects(), runtime.getInfrastructureManager());
       var sandboxCompanion = SandboxCompanion.apply(runtime.getProcessManager(), runtime.getInfrastructureManager());
-      var assetCompanion = DataAssetCompanion.apply(runtime.getDataAssets(), runtime.getProjects(), runtime.getDataAssetProviders());
+      var assetCompanion = DataAssetCompanion.apply(runtime);
       var projectCompanion = ProjectCompanion.apply(runtime.getProjects(), runtime.getInfrastructureManager());
 
       var impl = ProjectServicesImpl.apply(

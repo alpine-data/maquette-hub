@@ -3,7 +3,9 @@ package maquette.core.services.data;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.common.Operators;
+import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.DataAssetProviders;
@@ -12,6 +14,7 @@ import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.services.ServiceCompanion;
+import maquette.core.services.dependencies.DependencyCompanion;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.access.DataAccessRequestProperties;
@@ -21,11 +24,13 @@ import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetMembers;
 import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.DataVisibility;
+import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -37,6 +42,13 @@ public final class DataAssetCompanion extends ServiceCompanion {
    private final ProjectEntities projects;
 
    private final DataAssetProviders providers;
+
+   private final DependencyCompanion dependencies;
+
+   public static DataAssetCompanion apply(RuntimeConfiguration runtime) {
+      var dependencies = DependencyCompanion.apply(runtime);
+      return apply(runtime.getDataAssets(), runtime.getProjects(), runtime.getDataAssetProviders(), dependencies);
+   }
 
    public CompletionStage<DataAsset> enrichDataAsset(DataAssetEntity entity) {
       var propertiesCS = entity.getProperties();
@@ -249,6 +261,37 @@ public final class DataAssetCompanion extends ServiceCompanion {
 
    public CompletionStage<Boolean> isVisible(String name) {
       return filterVisible(name, Done.getInstance()).thenApply(Optional::isPresent);
+   }
+
+   public CompletionStage<Done> trackConsumption(User executor, String asset) {
+      var done = CompletableFuture.completedFuture(Done.getInstance());
+
+      if (executor.getProjectContext().isPresent()) {
+         var ctx = executor.getProjectContext().get();
+         done = done.thenCompose(i -> dependencies.trackConsumptionByProject(executor, asset, ctx.getProperties().getName()));
+      }
+
+      // TODO mw: Add dependency tracking for apps
+
+      return done;
+   }
+
+   public CompletionStage<Done> trackProduction(User executor, String asset) {
+      var done = CompletableFuture.completedFuture(Done.getInstance());
+
+      if (executor.getProjectContext().isPresent()) {
+         var ctx = executor.getProjectContext().get();
+         done = done.thenCompose(i -> dependencies.trackProductionByProject(executor, asset, ctx.getProperties().getName()));
+      }
+
+      // TODO mw: Add dependency tracking for apps
+      // Better else for dependency tracking?
+
+      if (executor instanceof AuthenticatedUser) {
+         done = done.thenCompose(i -> dependencies.trackProductionByUser(executor, asset, ((AuthenticatedUser) executor).getId()));
+      }
+
+      return done;
    }
 
    @Value

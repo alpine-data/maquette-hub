@@ -82,8 +82,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
       return entities
          .getByName(name)
          .thenCompose(DataAssetEntity::getProperties)
-         .thenApply(DataAssetProperties::getType)
-         .thenApply(UID::apply)
+         .thenApply(properties -> UID.apply(properties.getType()).withChildren(properties.getId()))
          .thenCompose(logs::getLogsByResourcePrefix);
    }
 

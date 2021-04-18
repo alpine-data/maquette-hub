@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class FileSystemUsersRepository implements UsersRepository {
 
-   private static final Logger LOG = LoggerFactory.getLogger(FileSystemUsersRepository.class);
-
    private final FileSystemUsersRepositoryConfiguration config;
 
    private final ObjectMapper om;
@@ -121,7 +119,7 @@ public final class FileSystemUsersRepository implements UsersRepository {
                var result = om.readValue(file.toFile(), UserProfile.class);
                return CompletableFuture.completedFuture(Optional.of(result));
             },
-            CompletableFuture.completedFuture(Optional.empty()), LOG);
+            CompletableFuture.completedFuture(Optional.empty()));
       } else {
          return CompletableFuture.completedFuture(Optional.empty());
       }

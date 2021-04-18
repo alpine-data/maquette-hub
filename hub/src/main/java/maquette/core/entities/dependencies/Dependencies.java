@@ -174,7 +174,7 @@ public final class Dependencies {
 
    @SuppressWarnings("unchecked")
    private Graph<DependencyNode> query(String query) {
-      var requestJson = Operators.suppressExceptions(() -> httpOM.writeValueAsString(QueryRequest.apply(query)));
+      var requestJson = Operators.suppressExceptions(() -> httpOM.writeValueAsString(QueryRequest.apply(query.split(";"))));
 
       var request = new Request.Builder()
          .url("http://localhost:7474/db/neo4j/tx/commit")
@@ -200,15 +200,11 @@ public final class Dependencies {
          return result
             .getResults()
             .stream()
-            .findFirst()
-            .map(Result::getData)
-            .map(r -> r
-               .stream()
-               .reduce(
-                  Graph.<DependencyNode>apply(),
-                  (g, rs) -> g.combine(rs.getGraph()),
-                  Graph::combine))
-            .orElse(Graph.apply());
+            .flatMap(node -> node.getData().stream())
+            .reduce(
+               Graph.<DependencyNode>apply(),
+               (g, rs) -> g.combine(rs.getGraph()),
+               Graph::combine);
       }
    }
 

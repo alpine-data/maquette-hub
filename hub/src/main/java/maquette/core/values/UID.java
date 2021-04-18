@@ -50,8 +50,16 @@ public class UID {
       return UID.apply(value + "/" + other);
    }
 
+   public UID withChildren(UID other) {
+      return withChildren(other.getValue());
+   }
+
    public UID withParent(String other) {
       return UID.apply(other + "/" + value);
+   }
+
+   public UID withParent(UID other) {
+      return withChildren(other.getValue());
    }
 
    public static class Serializer extends StdSerializer<UID> {

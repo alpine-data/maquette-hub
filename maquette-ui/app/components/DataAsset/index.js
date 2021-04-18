@@ -160,10 +160,10 @@ function DataAsset({
         link: `${basePath}/logs`,
         visible: _.get(view, 'permissions.canReviewLogs'),
         component: () => view && <>
-            <DataAccessLogs
-              { ...props }
-              logs={ _.get(view, 'logs') }
-              asset={ _.get(view, 'asset') } />
+          <DataAccessLogs
+            { ...props }
+            logs={ _.get(view, 'logs') }
+            asset={ _.get(view, 'asset') } />
           </> || <></>
       },
       {
@@ -203,6 +203,7 @@ function DataAsset({
     
     likes={ _.get(view, `asset.properties.metadata.likes`) || 0 }
     liked={ _.get(view, `asset.properties.metadata.liked`) }
+    id={ _.get(view, 'asset.properties.id') }
     onChangeLike={ onLike }
     
     error={ _.get(props, `${container}.error`) }

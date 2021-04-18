@@ -62,7 +62,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenCompose(ApplicationEntity::getProperties)
                         .thenApply(p -> (DependencyPropertiesNode) ApplicationPropertiesNode.apply(n.getProject(), n.getId(), p))
                         .exceptionally(ex -> {
-                           LOG.warn("Issue collecting node information for application {}/{}", n.getProject(), n.getId(), ex);
+                           LOG.trace("Issue collecting node information for application {}/{}", n.getProject(), n.getId(), ex);
                            return null;
                         })
                         .thenApply(node::withProperties);
@@ -73,7 +73,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .getProperties()
                         .thenApply(p -> (DependencyPropertiesNode) DataAssetPropertiesNode.apply(n.getType(), n.getId(), p))
                         .exceptionally(ex -> {
-                           LOG.warn("Issue collecting node information for data asset {}/{}", n.getType(), n.getId(), ex);
+                           LOG.trace("Issue collecting node information for data asset {}/{}", n.getType(), n.getId(), ex);
                            return null;
                         })
                         .thenApply(node::withProperties);
@@ -86,7 +86,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenCompose(ModelEntity::getProperties)
                         .thenApply(p -> (DependencyPropertiesNode) ModelPropertiesNode.apply(n.getProject(), n.getName(), p))
                         .exceptionally(ex -> {
-                           LOG.warn("Issue collecting node information for model {}/{}", n.getProject(), n.getName(), ex);
+                           LOG.trace("Issue collecting node information for model {}/{}", n.getProject(), n.getName(), ex);
                            return null;
                         })
                         .thenApply(node::withProperties);
@@ -97,7 +97,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenCompose(ProjectEntity::getProperties)
                         .thenApply(p -> (DependencyPropertiesNode) ProjectPropertiesNode.apply(n.getProject(), p))
                         .exceptionally(ex -> {
-                           LOG.warn("Issue collecting node information for project {}", n.getProject(), ex);
+                           LOG.trace("Issue collecting node information for project {}", n.getProject(), ex);
                            return null;
                         })
                         .thenApply(node::withProperties);
@@ -108,7 +108,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                         .thenCompose(UserEntity::getProfile)
                         .thenApply(p -> (DependencyPropertiesNode) UserPropertiesNode.apply(n.getId(), p))
                         .exceptionally(ex -> {
-                           LOG.warn("Issue collecting node information for user {}", n.getId(), ex);
+                           LOG.trace("Issue collecting node information for user {}", n.getId(), ex);
                            return null;
                         })
                         .thenApply(node::withProperties);

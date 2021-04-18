@@ -11,8 +11,7 @@ public final class UserServicesFactory {
 
    public static UserServices apply(RuntimeConfiguration runtime) {
       var comp = UserCompanion.apply(runtime.getUsers());
-      var dataAssetCompanion = DataAssetCompanion.apply(
-         runtime.getDataAssets(), runtime.getProjects(), runtime.getDataAssetProviders());
+      var dataAssetCompanion = DataAssetCompanion.apply(runtime);
 
       return UserServicesImpl.apply(
          runtime.getDataAssets(), runtime.getProjects(), runtime.getUsers(), comp, dataAssetCompanion);

@@ -34,7 +34,7 @@ function NoContent() {
 }
 
 function ViewContainer({ 
-  background, changeSummaryLabel, canChangeSummary, loading,
+  background, changeSummaryLabel, canChangeSummary, id, loading,
   likes, liked, likeText, likedText, 
   titles, summary, error, tabs, 
   onChangeLike, onChangeSummary, onCloseError, ...props }) {
@@ -94,9 +94,19 @@ function ViewContainer({
               }
             </FlexboxGrid.Item>
             <FlexboxGrid.Item colspan={ 4 } className="mq--buttons">
+              {
+                
+              }
               { 
                 !_.isUndefined(likes) && <>
                   <ButtonToolbar>
+                    {
+                      id && <>
+                        <div className="mq--sub" style={{ display: 'inline-block', marginRight: '20px' }}>
+                          #{ id }
+                        </div>
+                      </>
+                    }
                     {
                       liked && <>
                           <Whisper
@@ -194,6 +204,7 @@ ViewContainer.propTypes = {
   liked: PropTypes.bool,
   likedText: PropTypes.string,
   likeText: PropTypes.string,
+  id: PropTypes.string,
   onLike: PropTypes.func,
 
   titles: PropTypes.arrayOf(PropTypes.shape({

@@ -10,7 +10,7 @@ public final class DataAssetServicesFactory {
    }
 
    public static DataAssetServices apply(RuntimeConfiguration runtime) {
-      var companion = DataAssetCompanion.apply(runtime.getDataAssets(), runtime.getProjects(), runtime.getDataAssetProviders());
+      var companion = DataAssetCompanion.apply(runtime);
       var logCompanion = LogsCompanion.apply(runtime.getLogs(), runtime);
 
       var impl = DataAssetServicesImpl.apply(runtime.getDataAssets(), runtime.getProjects(), companion, logCompanion);
