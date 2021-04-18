@@ -2,6 +2,7 @@ package maquette.asset_providers.datasets.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.asset_providers.datasets.DatasetDataExplorer;
 import maquette.asset_providers.datasets.DatasetEntity;
 import maquette.asset_providers.datasets.Datasets;
 import maquette.asset_providers.datasets.DatasetsRepository;
@@ -9,8 +10,6 @@ import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.Revision;
 import maquette.core.entities.data.DataAssetEntities;
-import maquette.core.ports.DataExplorer;
-import maquette.core.ports.RecordsStore;
 import maquette.core.values.UID;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
@@ -23,9 +22,7 @@ public final class DatasetServicesImpl implements DatasetServices {
 
    private final DatasetsRepository repository;
 
-   private final RecordsStore store;
-
-   private final DataExplorer explorer;
+   private final DatasetDataExplorer explorer;
 
    private final DataAssetEntities assets;
 
@@ -69,7 +66,7 @@ public final class DatasetServicesImpl implements DatasetServices {
    private CompletionStage<DatasetEntity> getEntity(String dataset) {
       return assets
          .getByName(dataset, Datasets.TYPE_NAME)
-         .thenApply(entity -> DatasetEntity.apply(repository, store, explorer, entity));
+         .thenApply(entity -> DatasetEntity.apply(repository, explorer, entity));
    }
 
 }

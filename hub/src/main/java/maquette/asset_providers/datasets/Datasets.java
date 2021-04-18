@@ -10,8 +10,6 @@ import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.AbstractDataAssetProvider;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.ports.DataExplorer;
-import maquette.core.ports.RecordsStore;
 import maquette.core.services.ApplicationServices;
 
 import java.util.concurrent.CompletionStage;
@@ -22,20 +20,17 @@ public final class Datasets extends AbstractDataAssetProvider {
 
    private final DatasetsRepository repository;
 
-   private final RecordsStore recordsStore;
+   private final DatasetDataExplorer dataExplorer;
 
-   private final DataExplorer dataExplorer;
-
-   private Datasets(DatasetsRepository repository, RecordsStore recordsStore, DataExplorer dataExplorer) {
+   private Datasets(DatasetsRepository repository, DatasetDataExplorer dataExplorer) {
       super(TYPE_NAME);
       this.repository = repository;
-      this.recordsStore = recordsStore;
       this.dataExplorer = dataExplorer;
    }
 
 
-   public static Datasets apply(DatasetsRepository repository, RecordsStore recordsStore, DataExplorer dataExplorer) {
-      var ds = new Datasets(repository, recordsStore, dataExplorer);
+   public static Datasets apply(DatasetsRepository repository, DatasetDataExplorer dataExplorer) {
+      var ds = new Datasets(repository, dataExplorer);
       ds.addCommand("revisions commit", CommitRevisionCommand.class);
       ds.addCommand("revisions create", CreateRevisionCommand.class);
       ds.addCommand("versions analyze", AnalyzeVersionCommand.class);
@@ -60,7 +55,7 @@ public final class Datasets extends AbstractDataAssetProvider {
    }
 
    public DatasetServices getServices(RuntimeConfiguration runtime) {
-      return DatasetServicesFactory.apply(runtime, repository, recordsStore, dataExplorer);
+      return DatasetServicesFactory.apply(runtime, repository, dataExplorer);
    }
 
 }

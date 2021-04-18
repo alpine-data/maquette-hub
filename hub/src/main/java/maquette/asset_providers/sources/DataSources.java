@@ -3,9 +3,11 @@ package maquette.asset_providers.sources;
 import akka.Done;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
+import maquette.asset_providers.sources.commands.AnalyzeDataSourceCommand;
 import maquette.asset_providers.sources.commands.TestDataSourceCommand;
 import maquette.asset_providers.sources.model.DataSourceProperties;
 import maquette.asset_providers.sources.model.DataSourceSettings;
+import maquette.asset_providers.sources.ports.DataSourceDataExplorer;
 import maquette.asset_providers.sources.ports.JdbcPort;
 import maquette.asset_providers.sources.services.DataSourceServices;
 import maquette.asset_providers.sources.services.DataSourceServicesFactory;
@@ -29,14 +31,15 @@ public final class DataSources extends AbstractDataAssetProvider {
 
    private final DataSourceEntities entities;
 
-   private DataSources(JdbcPort jdbcPort) {
+   private DataSources(JdbcPort jdbcPort, DataSourceDataExplorer dataExplorer) {
       super(TYPE_NAME, DataSourceSettings.class, DataSourceProperties.class, DataSourceProperties.apply(0, Records.empty().getSchema()));
-      this.entities = DataSourceEntities.apply(jdbcPort);
+      this.entities = DataSourceEntities.apply(jdbcPort, dataExplorer);
    }
 
-   public static DataSources apply(JdbcPort jdbcPort) {
-      var ds = new DataSources(jdbcPort);
+   public static DataSources apply(JdbcPort jdbcPort, DataSourceDataExplorer dataExplorer) {
+      var ds = new DataSources(jdbcPort, dataExplorer);
       ds.addCommand("test", TestDataSourceCommand.class);
+      ds.addCommand("analyze", AnalyzeDataSourceCommand.class);
       return ds;
    }
 
@@ -80,16 +83,7 @@ public final class DataSources extends AbstractDataAssetProvider {
 
    @Override
    public CompletionStage<Done> onCreated(DataAssetEntity entity, Object customSettings) {
-      if (customSettings instanceof DataSourceSettings) {
-         var settings = (DataSourceSettings) customSettings;
-         return entities
-            .download(settings)
-            .exceptionally(e -> Records.empty())
-            .thenApply(records -> DataSourceProperties.apply(records.size(), records.getSchema()))
-            .thenCompose(entity::updateCustomProperties);
-      } else {
-         return super.onCreated(entity, customSettings);
-      }
+      return entities.analyze(entity);
    }
 
    @Override

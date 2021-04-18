@@ -1,5 +1,6 @@
 package maquette.asset_providers.sources.services;
 
+import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.asset_providers.sources.DataSourceEntities;
 import maquette.asset_providers.sources.DataSources;
@@ -17,6 +18,14 @@ public final class DataSourceServicesImpl implements DataSourceServices {
    private final RuntimeConfiguration configuration;
 
    private final DataSourceEntities entities;
+
+   @Override
+   public CompletionStage<Done> analyze(User executor, String source) {
+      return configuration
+         .getDataAssets()
+         .getByName(source, DataSources.TYPE_NAME)
+         .thenCompose(entities::analyze);
+   }
 
    @Override
    public CompletionStage<Records> download(User executor, String source) {

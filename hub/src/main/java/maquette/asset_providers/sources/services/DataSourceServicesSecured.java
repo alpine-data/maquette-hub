@@ -1,5 +1,6 @@
 package maquette.asset_providers.sources.services;
 
+import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.asset_providers.sources.model.ConnectionTestResult;
 import maquette.asset_providers.sources.model.DataSourceDriver;
@@ -16,6 +17,13 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    private final DataSourceServices delegate;
 
    private final DataAssetCompanion companion;
+
+   @Override
+   public CompletionStage<Done> analyze(User executor, String source) {
+      return companion
+         .withAuthorization(() -> companion.hasPermission(executor, source, DataAssetPermissions::canChangeSettings))
+         .thenCompose(ok -> delegate.analyze(executor, source));
+   }
 
    @Override
    public CompletionStage<Records> download(User executor, String source) {

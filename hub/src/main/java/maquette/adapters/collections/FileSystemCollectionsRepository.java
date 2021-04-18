@@ -9,6 +9,7 @@ import maquette.asset_providers.collections.model.CollectionTag;
 import maquette.asset_providers.collections.model.FileEntry;
 import maquette.common.Operators;
 import maquette.config.FileSystemRepositoryConfiguration;
+import maquette.core.ports.ObjectStore;
 import maquette.core.values.UID;
 import maquette.core.values.data.binary.BinaryObject;
 
@@ -30,20 +31,23 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
 
    private final FileSystemCollectionTagsCompanion tagsCompanion;
 
-   private final FileSystemObjectsStore objectsStore;
-
    public static FileSystemCollectionsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
       var directory = config.getDirectory().resolve("shop");
       var tagsCompanion = FileSystemCollectionTagsCompanion.apply(directory, om);
-      var objectsStore = FileSystemObjectsStore.apply(directory.resolve("_objects"));
 
-      return new FileSystemCollectionsRepository(directory, om, tagsCompanion, objectsStore);
+      return new FileSystemCollectionsRepository(directory, om, tagsCompanion);
    }
 
-   private Path getAssetDirectory(UID dataset) {
-      var dir = directory.resolve(dataset.getValue());
+   private Path getAssetDirectory(UID collection) {
+      var dir = directory.resolve(collection.getValue());
       Operators.suppressExceptions(() -> Files.createDirectories(dir));
       return dir;
+   }
+
+   private ObjectStore getObjectStore(UID collection) {
+      var dir = getAssetDirectory(collection).resolve("objects");
+      Operators.suppressExceptions(() -> Files.createDirectories(dir));
+      return FileSystemObjectsStore.apply(dir);
    }
 
    @Override
@@ -81,18 +85,18 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
    }
 
    @Override
-   public CompletionStage<Done> saveObject(String key, BinaryObject binary) {
-      return objectsStore.saveObject(key, binary);
+   public CompletionStage<Done> saveObject(UID collection, String key, BinaryObject binary) {
+      return getObjectStore(collection).saveObject(key, binary);
    }
 
    @Override
-   public CompletionStage<Done> deleteObject(String key) {
-      return objectsStore.deleteObject(key);
+   public CompletionStage<Done> deleteObject(UID collection, String key) {
+      return getObjectStore(collection).deleteObject(key);
    }
 
    @Override
-   public CompletionStage<Optional<BinaryObject>> readObject(String key) {
-      return objectsStore.readObject(key);
+   public CompletionStage<Optional<BinaryObject>> readObject(UID collection, String key) {
+      return getObjectStore(collection).readObject(key);
    }
 
 }

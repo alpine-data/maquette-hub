@@ -51,7 +51,6 @@ public final class CoreApp {
        ProjectsRepository projectsRepository,
        ModelsRepository modelsRepository,
        ApplicationsRepository applicationsRepository,
-       RecordsStore recordsStore,
        SandboxesRepository sandboxesRepository,
        UsersRepository usersRepository,
        DataAssetsRepository dataAssetsRepository,

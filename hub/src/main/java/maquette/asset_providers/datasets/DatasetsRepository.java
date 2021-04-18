@@ -4,6 +4,7 @@ import akka.Done;
 import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.Revision;
+import maquette.core.ports.RecordsStore;
 import maquette.core.values.UID;
 
 import java.util.List;
@@ -21,5 +22,7 @@ public interface DatasetsRepository {
    CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(UID dataset, DatasetVersion version);
 
    CompletionStage<Done> insertOrUpdateRevision(UID dataset, Revision revision);
+
+   RecordsStore getRecordsStore(UID dataset);
 
 }

@@ -1,7 +1,9 @@
 package maquette.core.entities.data;
 
 import akka.Done;
+import akka.japi.Function;
 import lombok.AllArgsConstructor;
+import maquette.common.Operators;
 import maquette.core.entities.data.exceptions.InvalidCustomPropertiesException;
 import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.data.ports.DataAssetsRepository;
@@ -176,6 +178,12 @@ public final class DataAssetEntity {
             }
          })
          .thenCompose(done -> repository.insertOrUpdateCustomProperties(id, customProperties));
+   }
+
+   public <T> CompletionStage<Done> readAndUpdateCustomProperties(Class<T> expectedType, Function<T, T> updater) {
+      return getCustomProperties(expectedType)
+         .thenApply(properties -> Operators.suppressExceptions(() -> updater.apply(properties)))
+         .thenCompose(this::updateCustomProperties);
    }
 
    public CompletionStage<Done> updated(User executor) {

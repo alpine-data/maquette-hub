@@ -4,20 +4,14 @@ import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.adapters.companions.*;
-import maquette.adapters.data.FileSystemDataAssetsRepository;
 import maquette.asset_providers.datasets.DatasetsRepository;
 import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.asset_providers.datasets.model.DatasetVersion;
 import maquette.asset_providers.datasets.model.Revision;
 import maquette.common.Operators;
 import maquette.config.FileSystemRepositoryConfiguration;
+import maquette.core.ports.RecordsStore;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.authorization.Authorization;
-import maquette.core.values.authorization.GrantedAuthorization;
-import maquette.core.values.data.DataAssetMemberRole;
-import maquette.core.values.data.logs.DataAccessLogEntryProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,5 +100,12 @@ public final class FileSystemDatasetsRepository implements DatasetsRepository {
       var file = getRevisionFile(dataset, revision.getId());
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), revision));
       return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public RecordsStore getRecordsStore(UID dataset) {
+      var dir = directory.resolve(dataset.getValue()).resolve("records");
+      Operators.suppressExceptions(() -> Files.createDirectories(dir));
+      return FileSystemRecordsStore.apply(FileSystemRepositoryConfiguration.apply(dir));
    }
 }

@@ -68,12 +68,11 @@ public final class CollectionEntity {
    public CompletionStage<Done> put(User executor, BinaryObject data, String file, String message) {
       return remove(executor, file).thenCompose(done -> {
          var hash = Operators.randomHash();
-         var key = String.format("collections/%s/%s", id.getValue(), hash);
+         var insertCS = repository.saveObject(id, hash, data);
 
-         var insertCS = repository.saveObject(key, data);
          var updateFilesCS = repository
             .getFiles(id)
-            .thenApply(f -> f.withFile(file, FileEntry.RegularFile.apply(key, data.getSize(), mapFilenameToFileType(file), message, ActionMetadata.apply(executor))))
+            .thenApply(f -> f.withFile(file, FileEntry.RegularFile.apply(hash, data.getSize(), mapFilenameToFileType(file), message, ActionMetadata.apply(executor))))
             .thenCompose(files -> repository.saveFiles(id, files))
             .thenCompose(d -> entity.updated(executor));
 
@@ -130,7 +129,7 @@ public final class CollectionEntity {
             .files()
             .stream()
             .map(file -> repository
-               .readObject(file.getFile().getKey())
+               .readObject(id, file.getFile().getKey())
                .thenApply(obj -> Pair.apply(file, obj))))
          .thenCompose(Operators::allOf)
          .thenApply(objects -> objects
@@ -153,7 +152,7 @@ public final class CollectionEntity {
                .files()
                .stream()
                .map(file -> repository
-                  .readObject(file.getFile().getKey())
+                  .readObject(id, file.getFile().getKey())
                   .thenApply(obj -> Pair.apply(file, obj))))
             .thenCompose(Operators::allOf)
             .thenApply(objects -> objects
@@ -197,7 +196,7 @@ public final class CollectionEntity {
          .getFiles(id)
          .thenApply(files -> files.getFile(file))
          .thenApply(maybeFile -> maybeFile.orElseThrow(() -> FileNotFoundException.withName(file)).getKey())
-         .thenCompose(repository::readObject)
+         .thenCompose(key -> repository.readObject(id, key))
          .thenApply(maybeObject -> maybeObject.orElseThrow(() -> FileNotFoundException.withName(file)));
    }
 
@@ -210,7 +209,7 @@ public final class CollectionEntity {
             .thenApply(maybeTag -> maybeTag.orElseThrow(() -> TagNotFoundException.withName(tag)))
             .thenApply(t -> t.getContent().getFile(file))
             .thenApply(maybeFile -> maybeFile.orElseThrow(() -> FileNotFoundException.withName(file)))
-            .thenCompose(f -> repository.readObject(f.getKey()))
+            .thenCompose(f -> repository.readObject(id, f.getKey()))
             .thenApply(maybeObject -> maybeObject.orElseThrow(() -> FileNotFoundException.withName(file)));
       }
    }
@@ -236,7 +235,7 @@ public final class CollectionEntity {
                      if (isTaggedFile) {
                         return CompletableFuture.completedFuture(Done.getInstance());
                      } else {
-                        return repository.deleteObject(maybeFile.get().getKey());
+                        return repository.deleteObject(id, maybeFile.get().getKey());
                      }
                   })
                   .thenCompose(done -> repository.saveFiles(id, nextFiles))

@@ -4,6 +4,7 @@
  *
  */
 
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -15,7 +16,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectSource from './selectors';
 
 import SourceOverview from 'components/SourceOverview';
-import DataAsset, { createSaga, createReducer } from '../../components/DataAsset';
+import DataAsset, { createActions, createSaga, createReducer } from '../../components/DataAsset';
 import codeExamples from './samples'
 import SourcePropertiesForm, { validate as sourceValidate, initialState as sourceInitialState, createSaga as createSourceSaga, createReducer as createSourceReducer, createSelector as createSourceSelector } from '../../components/SourcePropertiesForm';
 
@@ -24,6 +25,7 @@ const propertiesContainer = 'sourceProperties';
 
 const saga = createSaga(container);
 const reducer = createReducer(container);
+const { update } = createActions(container);
 
 const propertiesSaga = createSourceSaga(propertiesContainer);
 const propertiesReducer = createSourceReducer(propertiesContainer);
@@ -46,7 +48,9 @@ export function Source(props) {
           link: '/data',
           visible: true,
           component: () => <>
-                <SourceOverview { ...props } />
+                <SourceOverview 
+                  onAnalyze={ () => update('sources analyze', { name: _.get(props, 'source.view.asset.properties.metadata.name') }) }
+                  { ...props } />
             </>
         }
       ]

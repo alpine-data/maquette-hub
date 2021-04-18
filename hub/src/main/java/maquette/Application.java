@@ -4,7 +4,6 @@ import maquette.adapters.MaquetteDataExplorer;
 import maquette.adapters.collections.CollectionsRepositories;
 import maquette.adapters.data.DataAssetsRepositories;
 import maquette.adapters.datasets.DatasetsRepositories;
-import maquette.adapters.datasets.RecordsStores;
 import maquette.adapters.infrastructure.InfrastructureProviders;
 import maquette.adapters.infrastructure.InfrastructureRepositories;
 import maquette.adapters.infrastructure.MaquetteMlflowProxyService;
@@ -36,7 +35,6 @@ public class Application {
       var applicationsRepository = ApplicationsRepositories.create(om);
       var dataAssetsRepository = DataAssetsRepositories.create(om);
 
-      var recordsStore = RecordsStores.create();
       var sandboxesRepository = SandboxesRepositories.create(om);
       var usersRepository = UsersRepositories.create(om);
 
@@ -44,13 +42,13 @@ public class Application {
       var mlflowProxyPort = MaquetteMlflowProxyService.apply(om);
 
       var datasetsRepository = DatasetsRepositories.create(om);
-      var datasets = Datasets.apply(datasetsRepository, recordsStore, dataExplorer);
+      var datasets = Datasets.apply(datasetsRepository, dataExplorer);
 
       var collectionsRepository = CollectionsRepositories.create(om);
       var collections = Collections.apply(collectionsRepository);
 
       var jdbcPort = JdbcJdbiImpl.apply();
-      var sources = DataSources.apply(jdbcPort);
+      var sources = DataSources.apply(jdbcPort, dataExplorer);
 
       var streams = Streams.apply();
 
@@ -63,7 +61,6 @@ public class Application {
          projectsRepository,
          modelsRepository,
          applicationsRepository,
-         recordsStore,
          sandboxesRepository,
          usersRepository,
          dataAssetsRepository,

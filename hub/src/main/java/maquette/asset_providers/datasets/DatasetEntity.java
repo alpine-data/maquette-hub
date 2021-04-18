@@ -10,8 +10,6 @@ import maquette.asset_providers.datasets.model.OpenRevision;
 import maquette.asset_providers.datasets.model.Revision;
 import maquette.common.Operators;
 import maquette.core.entities.data.DataAssetEntity;
-import maquette.core.ports.DataExplorer;
-import maquette.core.ports.RecordsStore;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.data.records.Records;
@@ -32,9 +30,7 @@ public final class DatasetEntity {
 
    private final DatasetsRepository repository;
 
-   private final RecordsStore store;
-
-   private final DataExplorer explorer;
+   private final DatasetDataExplorer explorer;
 
    private final DataAssetEntity entity;
 
@@ -95,7 +91,7 @@ public final class DatasetEntity {
          .thenCompose(maybeRevision -> {
             if (maybeRevision.isPresent()) {
                var revision = maybeRevision.get();
-               return store.get(getRevisionKey(revision.getId()));
+               return repository.getRecordsStore(entity.getId()).get(revision.getId().getValue());
             } else {
                throw VersionNotFoundException.apply(version.toString());
             }
@@ -130,8 +126,9 @@ public final class DatasetEntity {
             if (maybeRevision.isPresent()) {
                var revision = maybeRevision.get();
 
-               return store
-                  .append(getRevisionKey(revision.getId()), records)
+               return repository
+                  .getRecordsStore(entity.getId())
+                  .append(revision.getId().getValue(), records)
                   .thenCompose(d -> {
                      var revisionUpdated = revision
                         .withRecords(revision.getRecords() + records.size())
@@ -169,10 +166,6 @@ public final class DatasetEntity {
                }
             }
          });
-   }
-
-   private String getRevisionKey(UID revisionId) {
-      return String.format("%s_%s", entity.getId().getValue(), revisionId.getValue());
    }
 
 }
