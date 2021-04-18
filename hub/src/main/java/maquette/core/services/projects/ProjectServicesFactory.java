@@ -18,9 +18,11 @@ public final class ProjectServicesFactory {
 
       var impl = ProjectServicesImpl.apply(
          runtime.getProcessManager(), runtime.getProjects(), runtime.getSandboxes(), runtime.getInfrastructureManager(),
-         runtime.getDataAssets(), assetCompanion, projectCompanion, sandboxCompanion);
+         runtime.getDataAssets(), assetCompanion, projectCompanion, sandboxCompanion, runtime.getGitClient());
 
-      return ProjectServicesSecured.apply(impl, comp);
+      var cached = ProjectServicesCached.apply(impl);
+
+      return ProjectServicesSecured.apply(cached, comp);
    }
 
 }

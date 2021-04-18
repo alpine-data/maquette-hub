@@ -11,6 +11,7 @@ public class GraphDbTest {
 
    @Test
    public void test() {
+      /*
       var d = Dependencies.apply();
       var datasetA = DataAssetNode.apply(DataAssetType.DATASET, UID.apply("da7db777"));
       var datasetB = DataAssetNode.apply(DataAssetType.SOURCE, UID.apply("c213bf5d"));
@@ -38,6 +39,7 @@ public class GraphDbTest {
             var om = ObjectMapperFactory.apply().create(true);
             System.out.println(Operators.suppressExceptions(() -> om.writeValueAsString(s)));
          });
+       */
    }
 
 }

@@ -30,6 +30,7 @@ import maquette.core.entities.projects.model.model.events.Rejected;
 import maquette.core.entities.projects.model.model.events.ReviewRequested;
 import maquette.core.entities.projects.model.model.governance.CodeIssue;
 import maquette.core.entities.projects.model.model.governance.CodeQuality;
+import maquette.core.entities.projects.model.settings.WorkspaceGenerator;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.sandboxes.model.stacks.Stack;
 import maquette.core.entities.sandboxes.model.stacks.Stacks;
@@ -40,6 +41,7 @@ import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
+import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,14 +75,16 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    SandboxCompanion sandboxCompanion;
 
+   GitHub github;
+
    public static ProjectServicesImpl apply(
       ProcessManager processes, ProjectEntities projects, SandboxEntities sandboxes,
       InfrastructureManager infrastructure, DataAssetEntities entities, DataAssetCompanion assetCompanion,
-      ProjectCompanion companion, SandboxCompanion sandboxCompanion) {
+      ProjectCompanion companion, SandboxCompanion sandboxCompanion, GitHub gh) {
 
       var impl = new ProjectServicesImpl(
          processes, projects, sandboxes, infrastructure,
-         entities, assetCompanion, companion, sandboxCompanion);
+         entities, assetCompanion, companion, sandboxCompanion, gh);
       impl.initialize();
 
       return impl;
@@ -420,6 +424,23 @@ public final class ProjectServicesImpl implements ProjectServices {
       return projects
          .getProjectByName(name)
          .thenCompose(project -> project.members().removeMember(user, authorization));
+   }
+
+   /*
+    * Workspaces
+    */
+
+   @Override
+   public CompletionStage<List<WorkspaceGenerator>> listWorkspaceGenerators(User user) {
+      var result = Operators.suppressExceptions(() -> github
+         .getOrganization("AiBlues")
+         .getRepositories()
+         .values()
+         .stream()
+         .map(repo -> WorkspaceGenerator.apply(repo.getName(), repo.getGitTransportUrl(), repo.getDescription()))
+         .collect(Collectors.toList()));
+
+      return CompletableFuture.completedFuture(result);
    }
 
    private void initialize() {

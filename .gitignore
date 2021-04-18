@@ -89,6 +89,8 @@ gradle-app.setting
 /hub/data.demo
 /hub/data.tmp
 
+*.local.conf
+
 ### Python ###
 .ipynb_checkpoints
 env

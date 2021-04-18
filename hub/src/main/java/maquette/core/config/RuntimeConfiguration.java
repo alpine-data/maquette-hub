@@ -14,6 +14,7 @@ import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.sandboxes.SandboxEntities;
 import maquette.core.entities.users.UserEntities;
+import org.kohsuke.github.GitHub;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
@@ -42,5 +43,7 @@ public final class RuntimeConfiguration {
     private final Dependencies dependencies;
 
     private final Logs logs;
+
+    private final GitHub gitClient;
 
 }

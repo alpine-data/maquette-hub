@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import requests
 
@@ -31,7 +31,7 @@ class Client:
         """
         return Client(config.get_url(), config.get_user(), config.get_roles())
 
-    def command(self, cmd: str, args: dict = None, headers: dict = None) -> Tuple[int, dict]:
+    def command(self, cmd: str, args: dict = None, headers: dict = None) -> Tuple[int, Union[dict, str]]:
         """
             main communication function between client and Maquette Hub API for sending commands
 
@@ -53,13 +53,14 @@ class Client:
             headers = self.__headers
 
         response = requests.post(self.__base_url + 'commands', json=request_body, headers=headers)
+
         if response.status_code < 200 or response.status_code > 299:
 
             raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
                                "status code: " + str(response.status_code) + ", content:\n" + response.text)
 
         if (("Accept", "application/csv") in headers.items()) or (("Accept", "text/plain") in headers.items()):
-            result = response.content
+            result = response.content.decode("utf-8")
         else:
             result = response.json()
         return response.status_code, result

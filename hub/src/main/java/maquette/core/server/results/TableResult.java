@@ -11,7 +11,6 @@ import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.CommandResult;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvWriteOptions;
-import tech.tablesaw.io.json.JsonWriteOptions;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -32,7 +31,7 @@ public class TableResult<T> implements CommandResult {
 
     @Override
     public String toPlainText(RuntimeConfiguration runtime) {
-        return table.printAll();
+        return TablePrinter.print(table);
     }
 
     public Optional<String> toCSV(RuntimeConfiguration runtime) {

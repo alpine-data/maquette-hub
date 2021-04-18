@@ -9,6 +9,7 @@ import yaml
 import chevron
 
 from git import Repo
+from typing import Optional
 
 import maquette
 from maquette_lib.__client import Client
@@ -144,6 +145,31 @@ def projects_report_cq(files):
 
 
 @mq.group()
+def workspaces():
+    """
+    Commands for managing workspaces
+    """
+    pass
+
+@workspaces.command('generators')
+def workspaces_generators() -> None:
+    """
+    List available generators
+    """
+    maquette.Workspaces.apply().generators()
+
+
+@workspaces.command('create')
+@click.argument('generator')
+@click.argument('directory', required=False)
+def workspaces_create(generator: str, directory: Optional[str]) -> None:
+    """
+    Creates a new workspace using a specified generator.
+    """
+    maquette.Workspaces.apply().create(generator, directory)
+
+
+@mq.group()
 def code():
     """
     Commands for managing code repositorys
@@ -155,7 +181,7 @@ def code_repositorys_list():
     """
     TODO: as soon as backend supplys list of code repository templates
     """
-    print("nothing to see here. Please move on")
+    maquette.Workspaces.create().templates()
 
 @code.command("cl")
 @click.argument('template')

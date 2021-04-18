@@ -17,6 +17,8 @@ public class ApplicationConfiguration {
 
     ServicesConfiguration services;
 
+    MaquetteSettings settings;
+
     public static ApplicationConfiguration apply() {
         return apply(ConfigFactory.load());
     }
@@ -27,7 +29,9 @@ public class ApplicationConfiguration {
         ServerConfiguration server = ServerConfiguration.apply(config.getConfig("maquette.server"));
         ServicesConfiguration services = ServicesConfiguration.apply(config.getConfig("maquette.services"));
 
-        return apply(version, environment, server, services);
+        var settings = maquette.common.config.Configs.mapToConfigClass(MaquetteSettings.class, "maquette.settings");
+
+        return apply(version, environment, server, services, settings);
     }
 
 }

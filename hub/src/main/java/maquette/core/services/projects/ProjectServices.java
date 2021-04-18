@@ -10,6 +10,7 @@ import maquette.core.entities.projects.model.model.Model;
 import maquette.core.entities.projects.model.model.ModelMemberRole;
 import maquette.core.entities.projects.model.model.ModelProperties;
 import maquette.core.entities.projects.model.model.governance.CodeIssue;
+import maquette.core.entities.projects.model.settings.WorkspaceGenerator;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -86,5 +87,10 @@ public interface ProjectServices {
    CompletionStage<Done> grant(User user, String name, Authorization authorization, ProjectMemberRole role);
 
    CompletionStage<Done> revoke(User user, String name, Authorization authorization);
+
+   /*
+    * Workspaces
+    */
+   CompletionStage<List<WorkspaceGenerator>> listWorkspaceGenerators(User user);
 
 }

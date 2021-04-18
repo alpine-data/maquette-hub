@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import maquette.common.Operators;
 import maquette.common.Templates;
 import maquette.core.config.ApplicationConfiguration;
 import maquette.core.config.RuntimeConfiguration;
@@ -25,6 +26,7 @@ import maquette.core.ports.*;
 import maquette.core.server.MaquetteServer;
 import maquette.core.server.OpenApiResource;
 import maquette.core.services.ApplicationServices;
+import org.kohsuke.github.GitHubBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,68 +34,74 @@ import org.slf4j.LoggerFactory;
 @AllArgsConstructor(staticName = "apply")
 public final class CoreApp {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CoreApp.class);
+   private static final Logger LOG = LoggerFactory.getLogger(CoreApp.class);
 
-    private final RuntimeConfiguration runtime;
+   private final RuntimeConfiguration runtime;
 
-    private final ApplicationServices services;
+   private final ApplicationServices services;
 
-    private final MaquetteServer server;
+   private final MaquetteServer server;
 
-    public void stop() {
-        server.stop();
-    }
+   public void stop() {
+      server.stop();
+   }
 
-    public static CoreApp apply(
-       ApplicationConfiguration configuration,
-       InfrastructureProvider infrastructureProvider,
-       InfrastructureRepository infrastructureRepository,
-       ProjectsRepository projectsRepository,
-       ModelsRepository modelsRepository,
-       ApplicationsRepository applicationsRepository,
-       SandboxesRepository sandboxesRepository,
-       UsersRepository usersRepository,
-       DataAssetsRepository dataAssetsRepository,
-       DataAssetProviders dataAssetProviders,
-       MlflowProxyPort mlflowProxyPort,
-       ObjectMapper om) {
+   public static CoreApp apply(
+      ApplicationConfiguration configuration,
+      InfrastructureProvider infrastructureProvider,
+      InfrastructureRepository infrastructureRepository,
+      ProjectsRepository projectsRepository,
+      ModelsRepository modelsRepository,
+      ApplicationsRepository applicationsRepository,
+      SandboxesRepository sandboxesRepository,
+      UsersRepository usersRepository,
+      DataAssetsRepository dataAssetsRepository,
+      DataAssetProviders dataAssetProviders,
+      MlflowProxyPort mlflowProxyPort,
+      ObjectMapper om) {
 
-        LOG.info("Starting Maquette Hub Server");
+      LOG.info("Starting Maquette Hub Server");
 
-        var system = ActorSystem.apply("maquette");
+      var system = ActorSystem.apply("maquette");
 
-        var app = Javalin
-                .create(config -> {
-                    config.showJavalinBanner = false;
-                    config.registerPlugin(OpenApiResource.apply(configuration));
-                })
-                .start(configuration.getServer().getHost(), configuration.getServer().getPort());
+      var app = Javalin
+         .create(config -> {
+            config.showJavalinBanner = false;
+            config.registerPlugin(OpenApiResource.apply(configuration));
+         })
+         .start(configuration.getServer().getHost(), configuration.getServer().getPort());
 
-        var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository, mlflowProxyPort);
-        var processManager = ProcessManager.apply();
-        var projects = ProjectEntities.apply(projectsRepository, modelsRepository, applicationsRepository);
-        var dataAssets = DataAssetEntities.apply(dataAssetsRepository, dataAssetProviders.toMap());
+      var infrastructureManager = InfrastructureManager.apply(infrastructureProvider, infrastructureRepository, mlflowProxyPort);
+      var processManager = ProcessManager.apply();
+      var projects = ProjectEntities.apply(projectsRepository, modelsRepository, applicationsRepository);
+      var dataAssets = DataAssetEntities.apply(dataAssetsRepository, dataAssetProviders.toMap());
 
-        var sandboxes = SandboxEntities.apply(sandboxesRepository);
-        var users = UserEntities.apply(usersRepository, om);
-        var dependencies = Dependencies.apply();
-        var logs = Logs.apply();
+      var sandboxes = SandboxEntities.apply(sandboxesRepository);
+      var users = UserEntities.apply(usersRepository, om);
+      var dependencies = Dependencies.apply();
+      var logs = Logs.apply();
 
-        var runtime = RuntimeConfiguration.apply(
-           app, system, om, dataAssetProviders, dataAssets, infrastructureManager,
-           processManager, projects, sandboxes, users, dependencies, logs);
+      var gitClient = Operators.suppressExceptions(() -> new GitHubBuilder()
+         .withPassword(
+            configuration.getSettings().getGit().getUsername(),
+            configuration.getSettings().getGit().getToken())
+         .build());
 
-        var services = ApplicationServices.apply(runtime);
+      var runtime = RuntimeConfiguration.apply(
+         app, system, om, dataAssetProviders, dataAssets, infrastructureManager,
+         processManager, projects, sandboxes, users, dependencies, logs, gitClient);
 
-        var server = MaquetteServer.apply(configuration, runtime, services);
+      var services = ApplicationServices.apply(runtime);
 
-        var map = Maps.<String, Object>newHashMap();
-        map.put("version", configuration.getVersion());
-        map.put("environment", configuration.getEnvironment());
-        var banner = Templates.renderTemplateFromResources("banner.twig", map);
-        LOG.info("Started Maquette Hub Server {}", banner);
+      var server = MaquetteServer.apply(configuration, runtime, services);
 
-        return CoreApp.apply(runtime, services, server);
-    }
+      var map = Maps.<String, Object>newHashMap();
+      map.put("version", configuration.getVersion());
+      map.put("environment", configuration.getEnvironment());
+      var banner = Templates.renderTemplateFromResources("banner.twig", map);
+      LOG.info("Started Maquette Hub Server {}", banner);
+
+      return CoreApp.apply(runtime, services, server);
+   }
 
 }
