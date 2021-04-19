@@ -27,7 +27,7 @@ class Workspaces():
 
         return Workspaces(Client.from_config(config))
 
-    def create(self, generator_name: str, directory: Optional[os.PathLike] = None) -> None:
+    def create(self, generator_name: Optional[str], directory: Optional[os.PathLike] = None) -> None:
         """
         Creates a new local workspace based on a generator.
 
@@ -36,6 +36,18 @@ class Workspaces():
         """
 
         generator_config_file = 'mq.generator.yml'
+        generators = self._client.command(cmd='workspaces generators list')[1]
+
+        while generator_name is None:
+            for i in range(0, len(generators)):
+                print(f"[{i}] {generators[i]['name']}")
+
+            selected = click.prompt('Select workspace generator (enter number)', type=int)
+
+            if selected < 0 or selected >= len(generators):
+                print(f"Invalid index {selected}, try again.")
+            else:
+                generator_name = generators[selected]['name']
 
         #
         # validate input
@@ -44,8 +56,7 @@ class Workspaces():
         if directory is None:
             directory = f"./{generator_name}"
 
-        generator = self._client.command(cmd='workspaces generators list')[1]
-        generator = list(filter(lambda g: g['name'] == generator_name, generator))
+        generator = list(filter(lambda g: g['name'] == generator_name, generators))
 
         if len(generator) == 0:
             print(f"No generator found with name `{generator_name}`")
@@ -102,17 +113,6 @@ class Workspaces():
             print('No generator configuration found... skipping')
 
         #
-        # run custom scripts
-        #
-        generator_scripts = generator_config.get('scripts', [])
-        for script in generator_scripts:
-            print(f"Running `{script['name']}` ...")
-            cmd = chevron.render(template=script['cmd'], data=template_data)
-            p = subprocess.Popen(cmd, cwd=tmp_dir, shell=True)
-            p.wait()
-            print(f"Executed `{script['name']}`, return code: {p.returncode} ...")
-
-        #
         # Cleanup and copy to target.
         #
         shutil.rmtree(Path(os.path.join(tmp_dir, '.git')))
@@ -127,6 +127,23 @@ class Workspaces():
             os.rename(file, target_path)
         
         shutil.rmtree(tmp_dir)
+
+        #
+        # run custom scripts
+        #
+        generator_scripts = generator_config.get('scripts', [])
+        for script in generator_scripts:
+            print(f"Running `{script['name']}` ...")
+            cmd = chevron.render(template=script['cmd'], data=template_data)
+            p = subprocess.Popen(cmd, cwd=directory, shell=True)
+            p.wait()
+            print(f"Executed `{script['name']}`, return code: {p.returncode} ...")
+
+        #
+        # show success message
+        #
+        if generator_config.get('message') is not None:
+            print(chevron.render(template=generator_config['message'], data=template_data))
 
     def generators(self) -> dict:
         result = self._client.command(cmd ='workspaces generators list', args ={}, headers={ 'Accept': 'text/plain' })

@@ -432,16 +432,22 @@ public final class ProjectServicesImpl implements ProjectServices {
 
    @Override
    public CompletionStage<List<WorkspaceGenerator>> listWorkspaceGenerators(User user) {
+      var generatorPrefix = "mqgx--";
       var result = Operators.suppressExceptions(() -> github
          .getOrganization("AiBlues")
          .getRepositories()
          .values()
          .stream()
-         .map(repo -> WorkspaceGenerator.apply(repo.getName(), repo.getGitTransportUrl(), repo.getDescription()))
+         .filter(repo -> repo.getName().startsWith(generatorPrefix))
+         .map(repo -> WorkspaceGenerator.apply(repo.getName().substring(generatorPrefix.length()), repo.getGitTransportUrl(), repo.getDescription()))
          .collect(Collectors.toList()));
 
       return CompletableFuture.completedFuture(result);
    }
+
+   /*
+    * Helper methods
+    */
 
    private void initialize() {
       projects

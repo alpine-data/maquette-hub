@@ -160,9 +160,9 @@ def workspaces_generators() -> None:
 
 
 @workspaces.command('create')
-@click.argument('generator')
+@click.argument('generator', required=False)
 @click.argument('directory', required=False)
-def workspaces_create(generator: str, directory: Optional[str]) -> None:
+def workspaces_create(generator: Optional[str], directory: Optional[str]) -> None:
     """
     Creates a new workspace using a specified generator.
     """
