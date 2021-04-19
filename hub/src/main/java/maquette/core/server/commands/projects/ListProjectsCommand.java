@@ -26,17 +26,17 @@ public final class ListProjectsCommand implements Command {
          .thenApply(projects -> {
             var table = Table
                .create()
-               .addColumns(StringColumn.create("id"))
-               .addColumns(StringColumn.create("title"))
                .addColumns(StringColumn.create("name"))
-               .addColumns(DateTimeColumn.create("modified"));
+               .addColumns(StringColumn.create("title"))
+               .addColumns(DateTimeColumn.create("modified"))
+               .addColumns(StringColumn.create("summary"));
 
             projects.forEach(p -> {
                var row = table.appendRow();
-               row.setString("id", p.getId().getValue());
-               row.setString("title", p.getTitle());
                row.setString("name", p.getName());
+               row.setString("title", p.getTitle());
                row.setDateTime("modified", LocalDateTime.ofInstant(p.getModified().getAt(), ZoneId.systemDefault()));
+               row.setString("summary", p.getSummary());
             });
 
             return TableResult.apply(table.sortOn("name"), projects);

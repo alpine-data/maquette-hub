@@ -7,13 +7,13 @@ import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.results.DataResult;
+import maquette.core.server.results.TableResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.services.projects.EnvironmentType;
 import maquette.core.values.user.User;
+import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.api.Table;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -21,23 +21,36 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetProjectEnvironmentCommand implements Command {
 
-    String name;
+   String name;
 
-    EnvironmentType type;
+   EnvironmentType type;
 
-    @Override
-    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
-        var environmentType = type != null ? type : EnvironmentType.EXTERNAL;
+   @Override
+   public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
+      var environmentType = type != null ? type : EnvironmentType.EXTERNAL;
 
-        return services
-                .getProjectServices()
-                .environment(user, name, environmentType)
-                .thenApply(DataResult::apply);
-    }
+      return services
+         .getProjectServices()
+         .environment(user, name, environmentType)
+         .thenApply(properties -> {
+             var table = Table
+                .create()
+                .addColumns(StringColumn.create("key"))
+                .addColumns(StringColumn.create("value"));
 
-    @Override
-    public Command example() {
-        return apply("some-project", EnvironmentType.EXTERNAL);
-    }
+             properties.keySet().forEach(p -> {
+                 var row = table.appendRow();
+                 row.setString("key", p);
+                 row.setString("value", properties.get(p));
+             });
+
+             return TableResult.apply(table.sortOn("key"), properties);
+         });
+   }
+
+   @Override
+   public Command example() {
+      return apply("some-project", EnvironmentType.EXTERNAL);
+   }
 
 }

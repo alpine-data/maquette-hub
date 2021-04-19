@@ -56,9 +56,8 @@ def projects_list():
     Print a list of projects.
 
     """
-    pd.set_option('display.max_colwidth', None)
-    table_df = pd.json_normalize(maquette.projects(to_csv=False))
-    print(table_df)
+    result = client.command(cmd='projects list', headers={ 'Accept': 'text/plain' })
+    print(result[1])
 
 
 @projects.command("activate")
@@ -70,11 +69,12 @@ def projects_activate(name):
     project = maquette.project(name).activate()
     config.activate_project(project_name=project.name, project_id=project.project_id)
 
-    status, response = client.command(cmd='projects environment', args={'name': name})
+    status, env_variables = client.command(cmd='projects environment', args={'name': name})
+    print(type(env_variables))
     if status == 200:
-        env_variables = response['data']
         for (env_key, env_value) in env_variables.items():
             config.add_process_env(env_key, env_value)
+        
         if os.name == 'posix':
             print('# You are on a Unix based  system, so you are not done yet c[○┬●]כ \n'
                   '# Please copy and run the command: \n'
@@ -99,7 +99,7 @@ def projects_env():
     envs = config.get_process_env()
     if envs:
         for (key, value) in envs:
-            print('export ' + key + '=' + pipes.quote(value)+'\n')
+            print('export ' + key + '=' + pipes.quote(value))
     else:
         print('# We could not find an activate project \n'
               '# Please run: mq projects activate <my_awesome_project> \n'
