@@ -79,7 +79,8 @@ class Workspaces():
             files = [ f for pattern_files in files for f in pattern_files ]
 
             template_data = { 
-                'USER': repo.config_reader().get_value('user', 'name'),
+                'USER_NAME': repo.config_reader().get_value('user', 'name'),
+                'USER_EMAIL': repo.config_reader().get_value('user', 'email'),
                 'DIRECTORY': Path(directory).name
             }
 
