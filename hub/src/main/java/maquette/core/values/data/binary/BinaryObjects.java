@@ -8,6 +8,10 @@ import java.nio.file.Path;
 
 public final class BinaryObjects {
 
+   public static CompressedBinaryObject compress(Path file) {
+      return CompressedBinaryObject.fromFile(file);
+   }
+
    public static BinaryObject fromBytes(byte[] bytes) {
       return ByteArrayBinaryObject.apply(bytes);
    }

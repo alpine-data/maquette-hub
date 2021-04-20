@@ -16,24 +16,21 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.Deployment;
-import maquette.core.entities.infrastructure.model.ContainerConfig;
-import maquette.core.entities.infrastructure.model.ContainerProperties;
-import maquette.core.entities.infrastructure.model.ContainerStatus;
-import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.infrastructure.model.DataVolume;
+import maquette.core.entities.infrastructure.model.*;
 import maquette.core.entities.infrastructure.ports.InfrastructureProvider;
 import maquette.core.values.UID;
 import maquette.core.values.data.binary.CompressedBinaryObject;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -45,9 +42,7 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
 
    private final DockerClient client;
 
-   private final Path data;
-
-   private final ObjectMapper om;
+   private final DockerVolumeCompanion volumes;
 
    public static DockerInfrastructureProvider apply(Path volumes, ObjectMapper om) {
       DockerClientConfig config = DefaultDockerClientConfig
@@ -59,12 +54,14 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
          .sslConfig(config.getSSLConfig())
          .build();
 
-      return apply(DockerClientImpl.getInstance(config, httpClient), volumes, om);
+      var volumesCompanion = DockerVolumeCompanion.apply(volumes, om);
+
+      return apply(DockerClientImpl.getInstance(config, httpClient), volumesCompanion);
    }
 
    @Override
    public CompletionStage<Deployment> runDeployment(DeploymentConfig config) {
-      var ops = DockerOperations.apply(client, LOG);
+      var ops = DockerOperations.apply(client, volumes, LOG);
       var networkId = ops.createNetwork(config.getName());
 
       return Operators
@@ -85,72 +82,33 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
     * Volumes
     */
 
-   private Path getVolumesDirectory() {
-      var file = data.resolve("infrastructure").resolve("volumes");
-      Operators.suppressExceptions(() -> Files.createDirectories(file));
-      return file;
-   }
-
-   private Path getVolumeDirectory(UID volume) {
-      var file = getVolumesDirectory().resolve(volume.getValue());
-      Operators.suppressExceptions(() -> Files.createDirectories(file));
-      return file;
-   }
-
-   private Path getVolumeFile(UID volume) {
-      return getVolumesDirectory().resolve(String.format("%s.volume.json", volume.getValue()));
-   }
-
    @Override
    public CompletionStage<Done> createVolume(DataVolume volume) {
-      var file = getVolumeFile(volume.getId());
-      getVolumeDirectory(volume.getId());
-      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), volume));
-      return CompletableFuture.completedFuture(Done.getInstance());
+      return volumes.createVolume(volume);
    }
 
    @Override
    public CompletionStage<Done> createVolume(DataVolume volume, CompressedBinaryObject initialData) {
-      createVolume(volume);
-      initialData.toFile(getVolumeDirectory(volume.getId()));
-      return CompletableFuture.completedFuture(Done.getInstance());
+      return volumes.createVolume(volume, initialData);
    }
 
    @Override
    public CompletionStage<List<DataVolume>> getVolumes() {
-      var result = Operators
-         .suppressExceptions(() -> Files.walk(getVolumesDirectory()))
-         .filter(p -> p.getFileName().toString().endsWith("volume.json"))
-         .map(file -> Operators.ignoreExceptionsWithDefault(
-            () -> om.readValue(file.toFile(), DataVolume.class),
-            null
-         ))
-         .filter(Objects::nonNull)
-         .collect(Collectors.toList());
-
-      return CompletableFuture.completedFuture(result);
+      return volumes.getVolumes();
    }
 
    @Override
    public CompletionStage<Optional<DataVolume>> findVolumeById(UID volume) {
-      return getVolumes().thenApply(volumes -> volumes
-         .stream()
-         .filter(v -> v.getId().equals(volume))
-         .findFirst());
+      return volumes.findVolumeById(volume);
    }
 
    @Override
    public CompletionStage<Done> removeVolume(UID volume) {
-      Operators.suppressExceptions(() -> {
-         FileUtils.deleteDirectory(getVolumeDirectory(volume).toFile());
-         Files.delete(getVolumeFile(volume));
-      });
-
-      return CompletableFuture.completedFuture(Done.getInstance());
+      return volumes.removeVolume(volume);
    }
 
    private CompletionStage<Container> runContainer(ContainerConfig config, String networkId) {
-      var ops = DockerOperations.apply(client, LOG);
+      var ops = DockerOperations.apply(client, volumes, LOG);
 
       CompletionStage<Done> pulled = CompletableFuture.completedFuture(Done.getInstance());
 
@@ -173,6 +131,8 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
       private final Logger LOG = LoggerFactory.getLogger(DockerContainer.class);
 
       private final DockerClient client;
+
+      private final DockerVolumeCompanion volumes;
 
       private final ContainerConfig config;
 
@@ -261,7 +221,7 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
       @Override
       public CompletionStage<Done> start() {
          DockerOperations
-            .apply(client, LOG)
+            .apply(client, volumes, LOG)
             .startContainer(config, containerId);
 
          return CompletableFuture.completedFuture(Done.getInstance());
@@ -270,7 +230,7 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
       @Override
       public CompletionStage<Done> stop() {
          DockerOperations
-            .apply(client, LOG)
+            .apply(client, volumes, LOG)
             .stopContainer(containerId);
 
          return CompletableFuture.completedFuture(Done.getInstance());
@@ -279,7 +239,7 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
       @Override
       public CompletionStage<Done> remove() {
          DockerOperations
-            .apply(client, LOG)
+            .apply(client, volumes, LOG)
             .removeContainer(containerId);
 
          return CompletableFuture.completedFuture(Done.getInstance());

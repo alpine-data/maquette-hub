@@ -34,8 +34,14 @@ public final class FileSystemInfrastructureRepository implements InfrastructureR
       return new FileSystemInfrastructureRepository(directory, om);
    }
 
+   private Path getDeploymentsDirectory() {
+      var dir = directory.resolve("deployments");
+      Operators.suppressExceptions(() -> Files.createDirectories(dir));
+      return dir;
+   }
+
    private Path getFile(String deploymentName) {
-      return directory.resolve("deployments").resolve(deploymentName + ".json");
+      return getDeploymentsDirectory().resolve(deploymentName + ".json");
    }
 
    @Override
@@ -61,8 +67,9 @@ public final class FileSystemInfrastructureRepository implements InfrastructureR
 
    @Override
    public CompletionStage<List<DeploymentMemento>> getDeployments() {
+
       var result = Operators.suppressExceptions(() -> Files
-         .list(directory.resolve("deployments"))
+         .list(getDeploymentsDirectory())
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DeploymentMemento.class)),

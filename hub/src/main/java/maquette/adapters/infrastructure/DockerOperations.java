@@ -4,7 +4,6 @@ import akka.Done;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.*;
 import lombok.AllArgsConstructor;
-import maquette.adapters.infrastructure.DockerInfrastructureProvider;
 import maquette.common.CompletionStageResultCallback;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,6 +18,8 @@ import java.util.stream.Collectors;
 public final class DockerOperations {
 
    DockerClient client;
+
+   DockerVolumeCompanion volumes;
 
    Logger log;
 
@@ -73,7 +74,7 @@ public final class DockerOperations {
                .getVolumes()
                .stream()
                .map(v -> new Mount()
-                  .withSource(v.getSource().toString())
+                  .withSource(volumes.getVolumeDirectory(v.getVolume().getId()).toAbsolutePath().toString())
                   .withTarget(v.getPath())
                   .withType(MountType.BIND))
                .collect(Collectors.toList());
@@ -166,14 +167,14 @@ public final class DockerOperations {
          .stream()
          .filter(container -> container.getId().equals(containerId))
          .findFirst()
-         .map(container -> DockerInfrastructureProvider.DockerContainer.apply(client, config, containerId))
+         .map(container -> DockerInfrastructureProvider.DockerContainer.apply(client, volumes, config, containerId))
          .orElseGet(() -> {
             client.startContainerCmd(containerId).exec();
             log.info("`docker start {}` - Container started", containerId);
 
             System.out.println(client.inspectContainerCmd(containerId).exec().getHostConfig());
 
-            return DockerInfrastructureProvider.DockerContainer.apply(client, config, containerId);
+            return DockerInfrastructureProvider.DockerContainer.apply(client, volumes, config, containerId);
          });
    }
 

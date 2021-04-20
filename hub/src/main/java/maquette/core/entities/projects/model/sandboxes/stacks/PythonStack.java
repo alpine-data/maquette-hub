@@ -9,10 +9,7 @@ import maquette.common.Operators;
 import maquette.common.forms.Form;
 import maquette.common.forms.FormControl;
 import maquette.common.forms.inputs.InputPicker;
-import maquette.core.entities.infrastructure.model.ContainerConfig;
-import maquette.core.entities.infrastructure.model.DataVolume;
-import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.infrastructure.model.DeploymentProperties;
+import maquette.core.entities.infrastructure.model.*;
 import maquette.core.entities.projects.model.ProjectProperties;
 import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
 
@@ -83,6 +80,7 @@ public class PythonStack implements Stack<PythonStack.Configuration> {
          .withNetwork(project.getMlflowConfiguration().map(c -> c.getSandboxNetworkName(project.getId())).orElse("sandboxes"))
          .withPort(8888)
          .withPort(9085)
+         .withVolume(MountedVolume.apply(volume, "/opt/data"))
          .build();
 
       return DeploymentConfig

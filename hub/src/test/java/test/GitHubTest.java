@@ -16,29 +16,8 @@ public class GitHubTest {
 
       var login = Operators.suppressExceptions(() -> gh.getMyself().getLogin());
 
-      var orgs = gh
-         .getMyself()
-         .getAllOrganizations()
-         .stream()
-         .flatMap(org -> {
-            System.out.println(org);
-            return Operators.suppressExceptions(org::getRepositories)
-               .values()
-               .stream()
-               .map(repo -> Operators.suppressExceptions(() -> org.getLogin() + "/" + repo.getName()));
-         });
-
-      var own = gh
-         .getMyself()
-         .getRepositories()
-         .values()
-         .stream()
-         .map(repo -> login + "/" + repo.getName());
-
-      Streams
-         .concat(orgs, own)
-         .sorted()
-         .forEach(System.out::println);
+      var repo = gh.getRepository("rsuite/rsuite");
+      System.out.println(repo.getSshUrl());
 
       /*
       StreamSupport

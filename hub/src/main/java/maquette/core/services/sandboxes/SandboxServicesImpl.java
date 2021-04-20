@@ -185,8 +185,9 @@ public final class SandboxServicesImpl implements SandboxServices {
                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(gitSettings.getUsername(), gitSettings.getPassword()))
                .setDirectory(workingDir.toFile())
                .call();
+
             git.remoteRemove().setRemoteName("origin").call();
-            git.remoteAdd().setName("origin").setUri(new URIish(repo.getGitTransportUrl()));
+            git.remoteAdd().setName("origin").setUri(new URIish(repo.getSshUrl())).call();
 
             var compressed = BinaryObjects.fromDirectory(workingDir);
             Operators.ignoreExceptions(() -> FileUtils.deleteDirectory(workingDir.toFile()));

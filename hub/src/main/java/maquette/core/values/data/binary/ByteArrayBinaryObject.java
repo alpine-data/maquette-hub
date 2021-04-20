@@ -16,6 +16,10 @@ final class ByteArrayBinaryObject implements BinaryObject {
 
    private final byte[] bytes;
 
+   public static ByteArrayBinaryObject fromFile(Path file) {
+      return apply(Operators.suppressExceptions(() -> Files.readAllBytes(file)));
+   }
+
    @Override
    public FileSize getSize() {
       return FileSize.apply(bytes.length, FileSize.Unit.BYTES);

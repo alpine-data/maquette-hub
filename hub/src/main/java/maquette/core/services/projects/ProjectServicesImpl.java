@@ -10,10 +10,7 @@ import maquette.core.entities.data.DataAssetEntities;
 import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.Deployment;
 import maquette.core.entities.infrastructure.InfrastructureManager;
-import maquette.core.entities.infrastructure.model.ContainerConfig;
-import maquette.core.entities.infrastructure.model.ContainerProperties;
-import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.infrastructure.model.MountedVolume;
+import maquette.core.entities.infrastructure.model.*;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.*;
 import maquette.core.entities.projects.model.MlflowConfiguration;
@@ -30,22 +27,21 @@ import maquette.core.entities.projects.model.model.events.Rejected;
 import maquette.core.entities.projects.model.model.events.ReviewRequested;
 import maquette.core.entities.projects.model.model.governance.CodeIssue;
 import maquette.core.entities.projects.model.model.governance.CodeQuality;
-import maquette.core.entities.projects.model.settings.WorkspaceGenerator;
-import maquette.core.entities.projects.SandboxEntities;
 import maquette.core.entities.projects.model.sandboxes.stacks.Stack;
 import maquette.core.entities.projects.model.sandboxes.stacks.Stacks;
+import maquette.core.entities.projects.model.settings.WorkspaceGenerator;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.services.sandboxes.SandboxCompanion;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.data.binary.BinaryObjects;
 import maquette.core.values.user.User;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -332,18 +328,28 @@ public final class ProjectServicesImpl implements ProjectServices {
             .getVersion(version)
             .getExplainer()
             .map(explainer -> {
-               var cfg = createExplainerDeploymentConfig(projectEntity.getId(), explainer.getFile());
-               return infrastructure
-                  .applyConfig(cfg)
-                  .thenCompose(done -> infrastructure.getDeployment(cfg.getName()).getContainers().get(0).getMappedPortUrls())
-                  .thenCompose(mappedPorts -> {
-                     LOG.info("Started explainer runtime {} for {}/{}/{}", cfg.getName(), project, model, version);
+               var volumeCS = infrastructure
+                  .getDataVolumes()
+                  .create(
+                     user,
+                     String.format("mq--%s--xpl-%s", projectEntity.getId().getValue(), UID.apply(8)),
+                     BinaryObjects.compress(explainer.getFile()));
 
-                     return modelEntity.updateModelVersion(user, version, mdl -> {
-                        var explainerUpdated = explainer.withExternalUrl(mappedPorts.get(8050).toString());
-                        return mdl.withExplainer(explainerUpdated);
-                     });
-                  });
+               var cfgCS = volumeCS
+                  .thenApply(volume -> createExplainerDeploymentConfig(projectEntity.getId(), volume));
+
+               return cfgCS
+                  .thenCompose(cfg -> infrastructure
+                     .applyConfig(cfg)
+                     .thenCompose(done -> infrastructure.getDeployment(cfg.getName()).getContainers().get(0).getMappedPortUrls())
+                     .thenCompose(mappedPorts -> {
+                        LOG.info("Started explainer runtime {} for {}/{}/{}", cfg.getName(), project, model, version);
+
+                        return modelEntity.updateModelVersion(user, version, mdl -> {
+                           var explainerUpdated = explainer.withExternalUrl(mappedPorts.get(8050).toString());
+                           return mdl.withExplainer(explainerUpdated);
+                        });
+                     }));
             }))
          .thenCompose(Operators::optCS)
          .thenApply(opt -> opt.orElse(Done.getInstance()));
@@ -543,12 +549,13 @@ public final class ProjectServicesImpl implements ProjectServices {
          .build();
    }
 
-   private static DeploymentConfig createExplainerDeploymentConfig(UID project, Path explainerFile) {
+   private static DeploymentConfig createExplainerDeploymentConfig(UID project, DataVolume volume) {
       var name = String.format("mq--%s--xpl-%s", project.getValue(), UID.apply(8));
+
       var containerCfg = ContainerConfig
          .builder(name, "mq-services--shapash:0.0.1")
          .withEnvironmentVariable("MQ_XPL_PATH", "/opt/xpl/xpl.pkl")
-         .withVolume(MountedVolume.apply(explainerFile.getParent().toAbsolutePath(), "/opt/xpl"))
+         .withVolume(MountedVolume.apply(volume, "/opt/xpl"))
          .withPort(8050)
          .build();
 

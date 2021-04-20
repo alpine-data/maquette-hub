@@ -3,48 +3,53 @@ package maquette.core.values.data.binary;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
+import net.lingala.zip4j.ZipFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 @AllArgsConstructor(staticName = "apply")
 public final class CompressedBinaryObject implements BinaryObject {
 
    private final BinaryObject object;
 
+   static CompressedBinaryObject fromFile(Path file) {
+      return Operators.suppressExceptions(() -> {
+         var zipFile = Files.createTempFile("mq", ".zip");
+         Files.delete(zipFile);
+
+         var zip = new ZipFile(zipFile.toFile());
+         zip.addFile(file.toFile());
+
+         var object = ByteArrayBinaryObject.fromFile(zipFile);
+         Files.delete(zipFile);
+
+         return CompressedBinaryObject.apply(object);
+      });
+   }
+
    static CompressedBinaryObject fromDirectory(Path directory) {
       return Operators.suppressExceptions(() -> {
-         var baos = new ByteArrayOutputStream();
+         var zipFile = Files.createTempFile("mq", ".zip");
+         Files.delete(zipFile);
 
-         try (var zos = new ZipOutputStream(baos)) {
+         var zip = new ZipFile(zipFile.toFile());
+         Files
+            .list(directory)
+            .forEach(path -> Operators.suppressExceptions(() -> {
+               if (Files.isDirectory(path)) {
+                  zip.addFolder(path.toFile());
+               } else {
+                  zip.addFile(path.toFile());
+               }
+            }));
 
-            Files.walk(directory)
-               .filter(Files::isRegularFile)
-               .forEach(path -> Operators.suppressExceptions(() -> {
-                  var name = directory.relativize(path).toString();
-                  var entry = new ZipEntry(name);
+         var object = ByteArrayBinaryObject.fromFile(zipFile);
+         Files.delete(zipFile);
 
-                  try (var fis = Files.newInputStream(path)) {
-                     zos.putNextEntry(entry);
-                     byte[] bytes = new byte[1024];
-                     while (fis.read(bytes) >= 0) {
-                        zos.write(bytes);
-                     }
-                  }
-               }));
-         }
-
-         var zipped = ByteArrayBinaryObject.apply(baos.toByteArray());
-         return CompressedBinaryObject.apply(zipped);
+         return CompressedBinaryObject.apply(object);
       });
    }
 
@@ -56,26 +61,21 @@ public final class CompressedBinaryObject implements BinaryObject {
    @Override
    public CompletionStage<Done> toFile(Path file) {
       return Operators.suppressExceptions(() -> {
-         var result = CompletableFuture.completedFuture(Done.getInstance());
+         var zipFile = Files.createTempFile("mq", ".zip");
+         Files.delete(zipFile);
 
-         try (var zis = new ZipInputStream(object.toInputStream())) {
-            var zipEntry = zis.getNextEntry();
+         return object
+            .toFile(zipFile)
+            .thenApply(done -> {
+               var zip = new ZipFile(zipFile.toFile());
 
-            while (zipEntry != null) {
-               if (!zipEntry.isDirectory()) {
-                  var bin = BinaryObjects.fromInputStream(zis);
-                  var name = zipEntry.getName();
+               Operators.suppressExceptions(() -> {
+                  zip.extractAll(file.toFile().getAbsolutePath());
+                  Files.deleteIfExists(zipFile);
+               });
 
-                  var target = file.resolve(name);
-                  Operators.suppressExceptions(() -> Files.createDirectories(target.getParent()));
-                  bin.toFile(target);
-               }
-
-               zipEntry = zis.getNextEntry();
-            }
-         }
-
-         return result;
+               return Done.getInstance();
+            });
       });
    }
 
