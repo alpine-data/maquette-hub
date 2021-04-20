@@ -10,14 +10,11 @@ import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.entities.projects.SandboxEntities;
 import maquette.core.entities.projects.SandboxEntity;
+import maquette.core.entities.projects.model.sandboxes.volumes.*;
 import maquette.core.entities.users.exceptions.MissingGitSettings;
 import maquette.core.entities.projects.model.sandboxes.Sandbox;
 import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
 import maquette.core.entities.projects.model.sandboxes.stacks.*;
-import maquette.core.entities.projects.model.sandboxes.volumes.ExistingVolume;
-import maquette.core.entities.projects.model.sandboxes.volumes.GitVolume;
-import maquette.core.entities.projects.model.sandboxes.volumes.PlainVolume;
-import maquette.core.entities.projects.model.sandboxes.volumes.VolumeDefinition;
 import maquette.core.entities.users.UserEntities;
 import maquette.core.entities.users.UserEntity;
 import maquette.core.entities.users.model.UserSettings;
@@ -34,6 +31,7 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import scala.Tuple3;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
@@ -153,31 +151,34 @@ public final class SandboxServicesImpl implements SandboxServices {
 
    private CompletionStage<DataVolume> createVolume(User user, VolumeDefinition definition) {
       if (definition instanceof ExistingVolume) {
-         // TODO: Check that volume belongs to project?
+         // TODO: Check that volume belongs to project (and to same user?)
          return infrastructure.getDataVolumes().getById(((ExistingVolume) definition).getId());
-      } else if (definition instanceof PlainVolume) {
-         return infrastructure.getDataVolumes().create(user, ((PlainVolume) definition).getName());
-      } else if (definition instanceof GitVolume) {
-         var settingsCS = Operators
-            .flatOptCS(Optional
-               .of(user)
-               .flatMap(usr -> {
-                  if (usr instanceof AuthenticatedUser) {
-                     return Optional.of((AuthenticatedUser) usr);
-                  } else {
-                     return Optional.empty();
-                  }
-               })
-               .map(usr -> users
-                  .getUserById(usr.getId())
-                  .thenCompose(UserEntity::getSettings)
-                  .thenApply(UserSettings::getGit)))
-            .thenApply(settings -> settings.orElseThrow(() -> MissingGitSettings.apply(user)));
+      } else if (!(definition instanceof NewVolume)) {
+         throw new IllegalArgumentException("unknown volume definition");
+      }
 
-         return settingsCS.thenCompose(gitSettings -> Operators.suppressExceptions(() -> {
+      var settingsCS = Operators
+         .flatOptCS(Optional
+            .of(user)
+            .flatMap(usr -> {
+               if (usr instanceof AuthenticatedUser) {
+                  return Optional.of((AuthenticatedUser) usr);
+               } else {
+                  return Optional.empty();
+               }
+            })
+            .map(usr -> users
+               .getUserById(usr.getId())
+               .thenCompose(UserEntity::getSettings)
+               .thenApply(UserSettings::getGit)))
+         .thenApply(settings -> settings.orElseThrow(() -> MissingGitSettings.apply(user)));
+
+      return settingsCS.thenCompose(gitSettings -> Operators.suppressExceptions(() -> {
+         var workingDir = Files.createTempDirectory("mq-");
+
+         if (definition instanceof GitVolume) {
             var gitClient = new GitHubBuilder().withPassword(gitSettings.getUsername(), gitSettings.getPassword()).build();
             var repo = gitClient.getRepository(((GitVolume) definition).getRepository());
-            var workingDir = Files.createTempDirectory("mq-");
 
             var git = Git
                .cloneRepository()
@@ -188,14 +189,21 @@ public final class SandboxServicesImpl implements SandboxServices {
 
             git.remoteRemove().setRemoteName("origin").call();
             git.remoteAdd().setName("origin").setUri(new URIish(repo.getSshUrl())).call();
+         }
 
-            var compressed = BinaryObjects.fromDirectory(workingDir);
-            Operators.ignoreExceptions(() -> FileUtils.deleteDirectory(workingDir.toFile()));
-            return infrastructure.getDataVolumes().create(user, ((GitVolume) definition).getName(), compressed);
-         }));
-      } else {
-         throw new IllegalArgumentException("unknown volume definition");
-      }
+         // Append SSH configuration files for Git
+         if (gitSettings.getPublicKey() != null && gitSettings.getPrivateKey() != null) {
+            var sshDir = workingDir.resolve(".mq").resolve(".ssh");
+            Files.createDirectories(sshDir);
+
+            FileUtils.writeStringToFile(sshDir.resolve("id_rsa").toFile(), gitSettings.getPrivateKey(), StandardCharsets.UTF_8);
+            FileUtils.writeStringToFile(sshDir.resolve("id_rsa.pub").toFile(), gitSettings.getPublicKey(), StandardCharsets.UTF_8);
+         }
+
+         var compressed = BinaryObjects.fromDirectory(workingDir);
+         Operators.ignoreExceptions(() -> FileUtils.deleteDirectory(workingDir.toFile()));
+         return infrastructure.getDataVolumes().create(user, ((NewVolume) definition).getName(), compressed);
+      }));
    }
 
 }

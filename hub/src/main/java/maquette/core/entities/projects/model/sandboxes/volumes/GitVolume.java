@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class GitVolume implements VolumeDefinition {
+public class GitVolume implements NewVolume {
 
    String name;
 

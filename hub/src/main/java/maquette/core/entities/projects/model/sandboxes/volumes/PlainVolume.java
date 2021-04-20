@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class PlainVolume implements VolumeDefinition {
+public class PlainVolume implements NewVolume {
 
    String name;
 
