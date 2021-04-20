@@ -10,13 +10,16 @@ import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.entities.projects.SandboxEntities;
 import maquette.core.entities.projects.SandboxEntity;
-import maquette.core.entities.projects.model.sandboxes.volumes.*;
-import maquette.core.entities.users.exceptions.MissingGitSettings;
 import maquette.core.entities.projects.model.sandboxes.Sandbox;
 import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
 import maquette.core.entities.projects.model.sandboxes.stacks.*;
+import maquette.core.entities.projects.model.sandboxes.volumes.ExistingVolume;
+import maquette.core.entities.projects.model.sandboxes.volumes.GitVolume;
+import maquette.core.entities.projects.model.sandboxes.volumes.NewVolume;
+import maquette.core.entities.projects.model.sandboxes.volumes.VolumeDefinition;
 import maquette.core.entities.users.UserEntities;
 import maquette.core.entities.users.UserEntity;
+import maquette.core.entities.users.exceptions.MissingGitSettings;
 import maquette.core.entities.users.model.UserSettings;
 import maquette.core.services.projects.EnvironmentType;
 import maquette.core.services.projects.ProjectCompanion;
@@ -27,7 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import scala.Tuple3;
 
@@ -169,7 +171,7 @@ public final class SandboxServicesImpl implements SandboxServices {
             })
             .map(usr -> users
                .getUserById(usr.getId())
-               .thenCompose(UserEntity::getSettings)
+               .thenCompose(entity -> entity.getSettings(false))
                .thenApply(UserSettings::getGit)))
          .thenApply(settings -> settings.orElseThrow(() -> MissingGitSettings.apply(user)));
 
