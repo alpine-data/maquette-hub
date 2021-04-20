@@ -1,10 +1,12 @@
 package test;
 
-import com.google.common.eventbus.EventBus;
+import com.google.common.collect.Streams;
+import maquette.common.Operators;
 import org.junit.Test;
 import org.kohsuke.github.GitHubBuilder;
 
 import java.io.IOException;
+import java.util.stream.StreamSupport;
 
 public class GitHubTest {
 
@@ -12,6 +14,39 @@ public class GitHubTest {
    public void test() throws IOException {
       var gh = new GitHubBuilder().withPassword("cokeSchlumpf", "8df20dcf7da191e3454384d647fc7a38b8fc5396").build();
 
+      var login = Operators.suppressExceptions(() -> gh.getMyself().getLogin());
+
+      var orgs = gh
+         .getMyself()
+         .getAllOrganizations()
+         .stream()
+         .flatMap(org -> {
+            System.out.println(org);
+            return Operators.suppressExceptions(org::getRepositories)
+               .values()
+               .stream()
+               .map(repo -> Operators.suppressExceptions(() -> org.getLogin() + "/" + repo.getName()));
+         });
+
+      var own = gh
+         .getMyself()
+         .getRepositories()
+         .values()
+         .stream()
+         .map(repo -> login + "/" + repo.getName());
+
+      Streams
+         .concat(orgs, own)
+         .sorted()
+         .forEach(System.out::println);
+
+      /*
+      StreamSupport
+         .stream(gh.listAllPublicRepositories().spliterator(), false)
+         .limit(3)
+         .forEach(System.out::println);
+*/
+      /*
       var result = gh.getUser("cokeSchlumpf").getRepositories();
       // result.keySet().forEach(System.out::println);
 
@@ -32,7 +67,7 @@ public class GitHubTest {
          } catch (IOException e) {
             return "<ERROR>";
          }
-      }).forEach(System.out::println);
+      }).forEach(System.out::println);*/
    }
 
 }

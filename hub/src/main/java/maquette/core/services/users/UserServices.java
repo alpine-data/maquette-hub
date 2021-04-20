@@ -47,4 +47,8 @@ public interface UserServices {
 
    CompletionStage<List<DataAssetProperties>> getUserDataAssets(User executor, String userId);
 
+   /*
+    * Version control
+    */
+   CompletionStage<List<String>> getGitRepositories(User user);
 }

@@ -4,7 +4,7 @@ import akka.Done;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.entities.infrastructure.model.DeploymentMemento;
-import maquette.core.ports.InfrastructureRepository;
+import maquette.core.entities.infrastructure.ports.InfrastructureRepository;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;

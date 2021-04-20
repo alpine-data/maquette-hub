@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.infrastructure.model.DeploymentMemento;
-import maquette.core.ports.InfrastructureRepository;
+import maquette.core.entities.infrastructure.ports.InfrastructureRepository;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -35,7 +35,7 @@ public final class FileSystemInfrastructureRepository implements InfrastructureR
    }
 
    private Path getFile(String deploymentName) {
-      return directory.resolve(deploymentName + ".json");
+      return directory.resolve("deployments").resolve(deploymentName + ".json");
    }
 
    @Override
@@ -62,7 +62,7 @@ public final class FileSystemInfrastructureRepository implements InfrastructureR
    @Override
    public CompletionStage<List<DeploymentMemento>> getDeployments() {
       var result = Operators.suppressExceptions(() -> Files
-         .list(directory)
+         .list(directory.resolve("deployments"))
          .filter(Files::isRegularFile)
          .map(file -> Operators.ignoreExceptionsWithDefault(
             () -> Optional.of(om.readValue(file.toFile(), DeploymentMemento.class)),

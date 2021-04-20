@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.config.FileSystemRepositoryConfiguration;
-import maquette.core.entities.sandboxes.model.SandboxProperties;
+import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
 import maquette.core.ports.SandboxesRepository;
 import maquette.core.values.UID;
 

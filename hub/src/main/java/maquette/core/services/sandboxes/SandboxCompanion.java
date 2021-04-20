@@ -5,10 +5,10 @@ import maquette.common.Operators;
 import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.processes.model.ProcessSummary;
-import maquette.core.entities.sandboxes.model.Sandbox;
-import maquette.core.entities.sandboxes.model.SandboxProperties;
-import maquette.core.entities.sandboxes.model.stacks.DeployedStackDetails;
-import maquette.core.entities.sandboxes.model.stacks.Stacks;
+import maquette.core.entities.projects.model.sandboxes.Sandbox;
+import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
+import maquette.core.entities.projects.model.sandboxes.stacks.DeployedStackDetails;
+import maquette.core.entities.projects.model.sandboxes.stacks.Stacks;
 import maquette.core.services.ServiceCompanion;
 
 import java.util.Optional;
@@ -48,7 +48,11 @@ public final class SandboxCompanion extends ServiceCompanion {
             .map(processesManager::getDetails)
             .collect(Collectors.toList()));
 
-      return Operators.compose(deployedStacksCS, processesCS, (deployments, processes) -> {
+      var dataVolumeCS = infrastructure
+         .getDataVolumes()
+         .getById(properties.getVolume());
+
+      return Operators.compose(deployedStacksCS, processesCS, dataVolumeCS, (deployments, processes, dataVolume) -> {
          var processesFiltered = processes
             .stream()
             .filter(Optional::isPresent)
@@ -58,6 +62,8 @@ public final class SandboxCompanion extends ServiceCompanion {
 
          return Sandbox.apply(
             properties.getId(),
+            properties.getProject(),
+            dataVolume,
             properties.getName(),
             properties.getCreated(),
             deployments,

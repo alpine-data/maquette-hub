@@ -1,6 +1,7 @@
 package maquette.adapters.infrastructure;
 
 import akka.Done;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.ContainerPort;
@@ -12,7 +13,6 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
-import maquette.common.DockerOperations;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.Container;
 import maquette.core.entities.infrastructure.Deployment;
@@ -20,16 +20,20 @@ import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.ContainerStatus;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.ports.InfrastructureProvider;
+import maquette.core.entities.infrastructure.model.DataVolume;
+import maquette.core.entities.infrastructure.ports.InfrastructureProvider;
+import maquette.core.values.UID;
+import maquette.core.values.data.binary.CompressedBinaryObject;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -41,7 +45,11 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
 
    private final DockerClient client;
 
-   public static DockerInfrastructureProvider apply() {
+   private final Path data;
+
+   private final ObjectMapper om;
+
+   public static DockerInfrastructureProvider apply(Path volumes, ObjectMapper om) {
       DockerClientConfig config = DefaultDockerClientConfig
          .createDefaultConfigBuilder()
          .build();
@@ -51,7 +59,7 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
          .sslConfig(config.getSSLConfig())
          .build();
 
-      return apply(DockerClientImpl.getInstance(config, httpClient));
+      return apply(DockerClientImpl.getInstance(config, httpClient), volumes, om);
    }
 
    @Override
@@ -71,6 +79,74 @@ public final class DockerInfrastructureProvider implements InfrastructureProvide
    @Override
    public CompletionStage<Container> runContainer(ContainerConfig config) {
       return runContainer(config, null);
+   }
+
+   /*
+    * Volumes
+    */
+
+   private Path getVolumesDirectory() {
+      var file = data.resolve("infrastructure").resolve("volumes");
+      Operators.suppressExceptions(() -> Files.createDirectories(file));
+      return file;
+   }
+
+   private Path getVolumeDirectory(UID volume) {
+      var file = getVolumesDirectory().resolve(volume.getValue());
+      Operators.suppressExceptions(() -> Files.createDirectories(file));
+      return file;
+   }
+
+   private Path getVolumeFile(UID volume) {
+      return getVolumesDirectory().resolve(String.format("%s.volume.json", volume.getValue()));
+   }
+
+   @Override
+   public CompletionStage<Done> createVolume(DataVolume volume) {
+      var file = getVolumeFile(volume.getId());
+      getVolumeDirectory(volume.getId());
+      Operators.suppressExceptions(() -> om.writeValue(file.toFile(), volume));
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<Done> createVolume(DataVolume volume, CompressedBinaryObject initialData) {
+      createVolume(volume);
+      initialData.toFile(getVolumeDirectory(volume.getId()));
+      return CompletableFuture.completedFuture(Done.getInstance());
+   }
+
+   @Override
+   public CompletionStage<List<DataVolume>> getVolumes() {
+      var result = Operators
+         .suppressExceptions(() -> Files.walk(getVolumesDirectory()))
+         .filter(p -> p.getFileName().toString().endsWith("volume.json"))
+         .map(file -> Operators.ignoreExceptionsWithDefault(
+            () -> om.readValue(file.toFile(), DataVolume.class),
+            null
+         ))
+         .filter(Objects::nonNull)
+         .collect(Collectors.toList());
+
+      return CompletableFuture.completedFuture(result);
+   }
+
+   @Override
+   public CompletionStage<Optional<DataVolume>> findVolumeById(UID volume) {
+      return getVolumes().thenApply(volumes -> volumes
+         .stream()
+         .filter(v -> v.getId().equals(volume))
+         .findFirst());
+   }
+
+   @Override
+   public CompletionStage<Done> removeVolume(UID volume) {
+      Operators.suppressExceptions(() -> {
+         FileUtils.deleteDirectory(getVolumeDirectory(volume).toFile());
+         Files.delete(getVolumeFile(volume));
+      });
+
+      return CompletableFuture.completedFuture(Done.getInstance());
    }
 
    private CompletionStage<Container> runContainer(ContainerConfig config, String networkId) {

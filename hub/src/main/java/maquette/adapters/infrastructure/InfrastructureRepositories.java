@@ -2,7 +2,7 @@ package maquette.adapters.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import maquette.config.RepositoryConfiguration;
-import maquette.core.ports.InfrastructureRepository;
+import maquette.core.entities.infrastructure.ports.InfrastructureRepository;
 
 public final class InfrastructureRepositories {
 

@@ -14,7 +14,7 @@ public final class SandboxServicesFactory {
       var projectCompanion = ProjectCompanion.apply(runtime.getProjects(), runtime.getInfrastructureManager());
       var impl = SandboxServicesImpl.apply(
          runtime.getProcessManager(), runtime.getInfrastructureManager(), runtime.getProjects(),
-         runtime.getSandboxes(), projectCompanion, sandboxCompanion);
+         runtime.getSandboxes(),  runtime.getUsers(),projectCompanion, sandboxCompanion);
 
       return SandboxServicesSecured.apply(impl, projectCompanion);
    }

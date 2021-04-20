@@ -1,9 +1,13 @@
 package maquette.core.server.views;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.common.Operators;
+import maquette.core.entities.infrastructure.model.DataVolume;
+import maquette.core.entities.projects.model.Project;
 import maquette.core.entities.projects.model.ProjectProperties;
-import maquette.core.entities.sandboxes.model.stacks.StackProperties;
+import maquette.core.entities.projects.model.sandboxes.stacks.StackProperties;
 import maquette.core.server.CommandResult;
 
 import java.util.List;
@@ -12,8 +16,17 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class CreateSandboxView implements CommandResult {
 
-   List<ProjectProperties> projects;
+   Project project;
 
    List<StackProperties> stacks;
+
+   List<String> gitRepositories;
+
+   List<DataVolume> volumes;
+
+   @JsonProperty("randomName")
+   public String getRandomName() {
+      return Operators.random_name();
+   }
 
 }

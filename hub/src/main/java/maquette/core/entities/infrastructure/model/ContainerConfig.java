@@ -26,7 +26,7 @@ public class ContainerConfig {
 
     List<String> networks;
 
-    List<Volume> volumes;
+    List<MountedVolume> volumes;
 
     String memory;
 

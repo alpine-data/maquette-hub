@@ -1,7 +1,7 @@
 package maquette.core.ports;
 
 import akka.Done;
-import maquette.core.entities.sandboxes.model.SandboxProperties;
+import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
 import maquette.core.values.UID;
 
 import java.util.List;

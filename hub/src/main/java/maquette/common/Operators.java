@@ -3,6 +3,7 @@ package maquette.common;
 import akka.japi.function.*;
 import com.github.javafaker.Faker;
 import com.google.common.hash.Hashing;
+import com.oblac.nomen.Nomen;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 
@@ -125,6 +126,14 @@ public final class Operators {
            .orElseGet(() -> CompletableFuture.completedFuture(Optional.empty()));
     }
 
+    public static <T> CompletionStage<Optional<T>> flatOptCS(Optional<CompletionStage<Optional<T>>> opt) {
+        if (opt.isEmpty()) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        } else {
+            return opt.get();
+        }
+    }
+
     public static <T, E extends Exception> CompletionStage<T> completeExceptionally(E with) {
         CompletableFuture<T> result = new CompletableFuture<>();
         result.completeExceptionally(with);
@@ -223,6 +232,10 @@ public final class Operators {
     public static String lorem() {
         var f = new Faker();
         return f.lebowski().quote();
+    }
+
+    public static String random_name() {
+        return Nomen.randomName();
     }
 
     public static void require(boolean condition, String message, Object... args) {

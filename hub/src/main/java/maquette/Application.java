@@ -28,7 +28,7 @@ public class Application {
       var config = ApplicationConfiguration.apply();
       var om = ObjectMapperFactory.apply().create(true);
 
-      var infrastructureProvider = InfrastructureProviders.create();
+      var infrastructureProvider = InfrastructureProviders.create(om);
       var infrastructureRepository = InfrastructureRepositories.create(om);
       var projectsRepository = ProjectsRepositories.create(om);
       var modelsRepository = ModelsRepositories.create(om);

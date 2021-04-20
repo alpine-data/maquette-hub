@@ -6,8 +6,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.ports.InfrastructureProvider;
-import maquette.core.ports.InfrastructureRepository;
+import maquette.core.entities.infrastructure.ports.InfrastructureProvider;
+import maquette.core.entities.infrastructure.ports.InfrastructureRepository;
 import maquette.core.ports.MlflowProxyPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +96,10 @@ public final class InfrastructureManager implements MlflowProxyPort {
 
    public Deployment getDeployment(String name) {
       return findDeployment(name).orElseThrow(() -> new RuntimeException("Deployment not found ...")); // TODO ...
+   }
+
+   public DataVolumesCompanion getDataVolumes() {
+      return DataVolumesCompanion.apply(infrastructureProvider);
    }
 
    public CompletionStage<Done> startDeployment(String name) {

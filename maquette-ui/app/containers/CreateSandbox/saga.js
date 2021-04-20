@@ -11,7 +11,7 @@ import { push } from 'connected-react-router';
 export function* onInit(action) {
   try {
     const user = yield select(makeSelectCurrentUser());
-    const data = yield call(command, 'views create-sandbox', {}, user);
+    const data = yield call(command, 'views create-sandbox', { project: action.project }, user);
 
     yield put(fetched(data));
   } catch (err) {

@@ -25,7 +25,7 @@ public final class ContainerConfigBuilder {
 
    private final List<String> networks;
 
-   private final List<Volume> volumes;
+   private final List<MountedVolume> volumes;
 
    private String memory;
 
@@ -82,7 +82,7 @@ public final class ContainerConfigBuilder {
       return this;
    }
 
-   public ContainerConfigBuilder withVolume(Volume volume) {
+   public ContainerConfigBuilder withVolume(MountedVolume volume) {
       volumes.add(volume);
       return this;
    }

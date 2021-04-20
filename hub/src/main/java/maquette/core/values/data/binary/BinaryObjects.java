@@ -29,6 +29,10 @@ public final class BinaryObjects {
       });
    }
 
+   public static CompressedBinaryObject fromDirectory(Path file) {
+      return CompressedBinaryObject.fromDirectory(file);
+   }
+
    public static BinaryObject fromFile(Path file) {
       return FileBinaryObject.apply(file, false);
    }

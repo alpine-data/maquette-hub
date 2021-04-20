@@ -2,6 +2,8 @@ package maquette.core.entities.users.model;
 
 import lombok.*;
 
+import java.util.Optional;
+
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -11,7 +13,10 @@ public class UserSettings {
    GitSettings git;
 
    public static UserSettings apply() {
-      return apply(GitSettings.apply());
+      return apply(null);
    }
 
+   public Optional<GitSettings> getGit() {
+      return Optional.ofNullable(git);
+   }
 }

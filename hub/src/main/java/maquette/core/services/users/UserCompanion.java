@@ -18,19 +18,19 @@ public final class UserCompanion extends ServiceCompanion  {
 
    public CompletionStage<UserEntity> withUser(User user) {
       if (user instanceof AuthenticatedUser) {
-         return users.findUserById(((AuthenticatedUser) user).getId());
+         return users.getUserById(((AuthenticatedUser) user).getId());
       } else {
          return CompletableFuture.failedFuture(new RuntimeException("Not an authenticated user")); // TODO mw: Better exception?
       }
    }
 
    public CompletionStage<UserEntity> withUser(String userId) {
-      return users.findUserById(userId);
+      return users.getUserById(userId);
    }
 
    public <T> CompletionStage<T> withUserOrDefault(User user, T defaultValue, Function<UserEntity, CompletionStage<T>> action) {
       if (user instanceof AuthenticatedUser) {
-         return users.findUserById(((AuthenticatedUser) user).getId()).thenCompose(action);
+         return users.getUserById(((AuthenticatedUser) user).getId()).thenCompose(action);
       } else {
          return CompletableFuture.completedFuture(defaultValue);
       }

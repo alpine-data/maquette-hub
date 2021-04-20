@@ -13,7 +13,7 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.infrastructure.model.ContainerConfig;
 import maquette.core.entities.infrastructure.model.ContainerProperties;
 import maquette.core.entities.infrastructure.model.DeploymentConfig;
-import maquette.core.entities.infrastructure.model.Volume;
+import maquette.core.entities.infrastructure.model.MountedVolume;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.*;
 import maquette.core.entities.projects.model.MlflowConfiguration;
@@ -31,9 +31,9 @@ import maquette.core.entities.projects.model.model.events.ReviewRequested;
 import maquette.core.entities.projects.model.model.governance.CodeIssue;
 import maquette.core.entities.projects.model.model.governance.CodeQuality;
 import maquette.core.entities.projects.model.settings.WorkspaceGenerator;
-import maquette.core.entities.sandboxes.SandboxEntities;
-import maquette.core.entities.sandboxes.model.stacks.Stack;
-import maquette.core.entities.sandboxes.model.stacks.Stacks;
+import maquette.core.entities.projects.SandboxEntities;
+import maquette.core.entities.projects.model.sandboxes.stacks.Stack;
+import maquette.core.entities.projects.model.sandboxes.stacks.Stacks;
 import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.services.sandboxes.SandboxCompanion;
 import maquette.core.values.ActionMetadata;
@@ -548,7 +548,7 @@ public final class ProjectServicesImpl implements ProjectServices {
       var containerCfg = ContainerConfig
          .builder(name, "mq-services--shapash:0.0.1")
          .withEnvironmentVariable("MQ_XPL_PATH", "/opt/xpl/xpl.pkl")
-         .withVolume(Volume.apply(explainerFile.getParent().toAbsolutePath(), "/opt/xpl"))
+         .withVolume(MountedVolume.apply(explainerFile.getParent().toAbsolutePath(), "/opt/xpl"))
          .withPort(8050)
          .build();
 

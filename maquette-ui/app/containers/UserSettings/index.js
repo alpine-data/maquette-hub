@@ -22,6 +22,7 @@ import ViewContainer from '../../components/ViewContainer';
 import { Button, ButtonToolbar, ControlLabel, FlexboxGrid, Form, FormControl, FormGroup, HelpBlock } from 'rsuite';
 import { Avatar } from '../../components/UserProfileOverview';
 import { load, update } from './actions';
+import _ from 'lodash';
 
 const SECRET = '__secret__';
 
@@ -101,7 +102,7 @@ function SSHConfiguration({ git, onChange = console.log }) {
     </FormGroup>
 
     { 
-      (_.isEmpty(state.privateKey) || _.isEmpty(state.publicKey) || state.privateKey === SECRET) && !editing && <>
+      (_.isEmpty(state.privateKey) || _.isEmpty(state.publicKey)) && !editing && <>
         <ButtonToolbar>
           <Button appearance="ghost" onClick={ () => setEditing(true) }>Setup keys</Button>
         </ButtonToolbar>
@@ -170,12 +171,12 @@ function GitSettings({ git = {}, onChange = console.log }) {
         <FlexboxGrid.Item colspan={ 17 }>
           <FormGroup>
             <ControlLabel>GitHub Username</ControlLabel>
-            <FormControl name="username" value={ state.username } onChange={ onChanged("username") } />
+            <FormControl name="username" value={ _.get(state, 'username') || '' } onChange={ onChanged("username") } />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Access Token</ControlLabel>
-            <FormControl type="password" name="password" placeholder="Enter new password" value={ state.password !== SECRET && state.password || "" } onChange={ onChanged("password") } />
+            <FormControl type="password" name="password" placeholder="Enter new password" value={ _.get(state, 'password') !== SECRET && _.get(state, 'password') || "" } onChange={ onChanged("password") } />
           </FormGroup>
         </FlexboxGrid.Item>
 
@@ -207,6 +208,8 @@ export function UserSettings(props) {
 
   const [initialized, setInitialized] = useState(false);
   const data = _.get(props, 'userSettings.data');
+
+  console.log(data);
 
   useEffect(() => {
     if (!initialized) {
@@ -245,7 +248,7 @@ export function UserSettings(props) {
               label: "Git Settings",
               link: "/user/settings/git",
               visible: true,
-              component: () => <GitSettings { ...data.settings } onChange={ git => onChange('settings')({ git }) } />
+              component: () => <GitSettings git={ _.get(data, 'settings.git') || {} } onChange={ git => onChange('settings')({ git }) } />
             }
           ] } />
         </Container>

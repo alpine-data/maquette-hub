@@ -1,6 +1,7 @@
 package maquette.core.services.users;
 
 import akka.Done;
+import com.google.common.collect.Streams;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.DataAssetEntities;
@@ -16,6 +17,7 @@ import maquette.core.services.data.DataAssetCompanion;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.commons.compress.utils.Lists;
+import org.kohsuke.github.GitHubBuilder;
 
 import java.util.Comparator;
 import java.util.List;
@@ -128,6 +130,41 @@ public final class UserServicesImpl implements UserServices {
    @Override
    public CompletionStage<List<DataAssetProperties>> getUserDataAssets(User executor, String userId) {
       return getDataAssets(AuthenticatedUser.apply(userId));
+   }
+
+   @Override
+   public CompletionStage<List<String>> getGitRepositories(User user) {
+      return companion
+         .withUser(user)
+         .thenCompose(UserEntity::getGitSettings)
+         .thenApply(gitSettings -> Operators.suppressExceptions(() -> {
+            var gh = new GitHubBuilder()
+               .withPassword(gitSettings.getUsername(), gitSettings.getPassword())
+               .build();
+
+            var login = Operators.suppressExceptions(() -> gh.getMyself().getLogin());
+
+            var organizations = gh
+               .getMyself()
+               .getAllOrganizations()
+               .stream()
+               .flatMap(org -> Operators.suppressExceptions(org::getRepositories)
+                  .values()
+                  .stream()
+                  .map(repo -> Operators.suppressExceptions(() -> org.getLogin() + "/" + repo.getName())));
+
+            var own = gh
+               .getMyself()
+               .getRepositories()
+               .values()
+               .stream()
+               .map(repo -> login + "/" + repo.getName());
+
+            return Streams
+               .concat(organizations, own)
+               .sorted()
+               .collect(Collectors.toList());
+         }));
    }
 
 }

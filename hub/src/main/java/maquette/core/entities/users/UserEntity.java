@@ -3,11 +3,8 @@ package maquette.core.entities.users;
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import maquette.core.entities.users.exceptions.UserNotFoundException;
-import maquette.core.entities.users.model.UserDetails;
-import maquette.core.entities.users.model.UserNotification;
-import maquette.core.entities.users.model.UserProfile;
-import maquette.core.entities.users.model.UserSettings;
+import maquette.core.entities.users.exceptions.MissingGitSettings;
+import maquette.core.entities.users.model.*;
 import maquette.core.ports.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,21 +70,32 @@ public final class UserEntity {
             }
          })
          .thenApply(current -> {
-            var updatedSettings = settings;
+            var updatedSettings = current;
 
-            if (settings.getGit().getPassword().equals(SECRET_MASK)) {
-               updatedSettings = updatedSettings
-                  .withGit(updatedSettings.getGit().withPassword(current.getGit().getPassword()));
-            }
+            if (settings.getGit().isPresent()) {
+               var updated = settings.getGit().get();
 
-            if (settings.getGit().getPrivateKey().equals(SECRET_MASK)) {
-               updatedSettings = updatedSettings
-                  .withGit(updatedSettings.getGit().withPrivateKey(current.getGit().getPrivateKey()));
-            }
+               if (updated.getPassword() != null && updated.getPassword().equals(SECRET_MASK)) {
+                  updated = updated
+                     .withPassword(current.getGit().map(GitSettings::getPassword).orElse(""));
+               }
 
-            if (settings.getGit().getPublicKey().equals(SECRET_MASK)) {
-               updatedSettings = updatedSettings
-                  .withGit(updatedSettings.getGit().withPublicKey(current.getGit().getPublicKey()));
+               if (updated.getPrivateKey() != null && updated.getPrivateKey().equals(SECRET_MASK)) {
+                  updated = updated
+                     .withPrivateKey(current.getGit().map(GitSettings::getPrivateKey).orElse(""));
+               }
+
+
+               if (updated.getPublicKey() != null && updated.getPublicKey().equals(SECRET_MASK)) {
+                  updated = updated
+                     .withPrivateKey(current.getGit().map(GitSettings::getPublicKey).orElse(""));
+               }
+
+               if (updated.isEmpty()) {
+                  updatedSettings = updatedSettings.withGit(null);
+               } else {
+                  updatedSettings = updatedSettings.withGit(updated);
+               }
             }
 
             return updatedSettings;
@@ -111,14 +119,24 @@ public final class UserEntity {
          .thenApply(settings -> settings.orElse(UserSettings.apply()))
          .thenApply(settings -> {
             if (masked) {
-               return settings.withGit(settings.getGit()
-                  .withPassword(SECRET_MASK)
-                  .withPrivateKey(SECRET_MASK)
-                  .withPublicKey(SECRET_MASK));
+               return settings.withGit(settings
+                  .getGit()
+                  .map(g -> g
+                     .withPassword(SECRET_MASK)
+                     .withPrivateKey(SECRET_MASK)
+                     .withPublicKey(SECRET_MASK))
+                  .orElse(null));
             } else {
                return settings;
             }
          });
+   }
+
+   public CompletionStage<GitSettings> getGitSettings() {
+      return repository
+         .findSettingsById(id)
+         .thenApply(settings -> settings.flatMap(UserSettings::getGit))
+         .thenApply(optGitSettings -> optGitSettings.orElseThrow(MissingGitSettings::apply));
    }
 
    public CompletionStage<List<UserNotification>> getNotifications() {

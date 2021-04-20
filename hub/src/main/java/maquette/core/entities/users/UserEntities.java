@@ -16,7 +16,7 @@ public final class UserEntities {
 
    private final ObjectMapper objectMapper;
 
-   public CompletionStage<UserEntity> findUserById(String id) {
+   public CompletionStage<UserEntity> getUserById(String id) {
       return CompletableFuture.completedFuture(UserEntity.apply(id, repository, objectMapper));
    }
 

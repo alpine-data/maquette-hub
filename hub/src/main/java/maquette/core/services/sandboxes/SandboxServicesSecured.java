@@ -1,10 +1,11 @@
 package maquette.core.services.sandboxes;
 
 import lombok.AllArgsConstructor;
-import maquette.core.entities.sandboxes.model.Sandbox;
-import maquette.core.entities.sandboxes.model.SandboxProperties;
-import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
-import maquette.core.entities.sandboxes.model.stacks.StackProperties;
+import maquette.core.entities.projects.model.sandboxes.Sandbox;
+import maquette.core.entities.projects.model.sandboxes.SandboxProperties;
+import maquette.core.entities.projects.model.sandboxes.stacks.StackConfiguration;
+import maquette.core.entities.projects.model.sandboxes.stacks.StackProperties;
+import maquette.core.entities.projects.model.sandboxes.volumes.VolumeDefinition;
 import maquette.core.services.projects.ProjectCompanion;
 import maquette.core.values.user.User;
 
@@ -19,10 +20,10 @@ public final class SandboxServicesSecured implements SandboxServices {
    private final ProjectCompanion companion;
 
    @Override
-   public CompletionStage<Sandbox> createSandbox(User user, String project, String name, List<StackConfiguration> stacks) {
+   public CompletionStage<Sandbox> createSandbox(User user, String project, String name, VolumeDefinition volume, List<StackConfiguration> stacks) {
       return companion
          .withAuthorization(() -> companion.isMember(user, project))
-         .thenCompose(ok -> delegate.createSandbox(user, project, name, stacks));
+         .thenCompose(ok -> delegate.createSandbox(user, project, name, volume, stacks));
    }
 
    @Override

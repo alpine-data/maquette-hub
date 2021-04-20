@@ -12,7 +12,7 @@ import maquette.core.entities.infrastructure.InfrastructureManager;
 import maquette.core.entities.logs.Logs;
 import maquette.core.entities.processes.ProcessManager;
 import maquette.core.entities.projects.ProjectEntities;
-import maquette.core.entities.sandboxes.SandboxEntities;
+import maquette.core.entities.projects.SandboxEntities;
 import maquette.core.entities.users.UserEntities;
 import org.kohsuke.github.GitHub;
 

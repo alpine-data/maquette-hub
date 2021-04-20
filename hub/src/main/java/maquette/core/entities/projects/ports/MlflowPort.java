@@ -63,8 +63,9 @@ public final class MlflowPort {
    }
 
    public List<ModelFromRegistry> getModels() {
-      return query("/api/2.0/preview/mlflow/registered-models/list", RegisteredModelsResponse.class)
-         .getRegisteredModels()
+      return Optional
+         .ofNullable(query("/api/2.0/preview/mlflow/registered-models/list", RegisteredModelsResponse.class).getRegisteredModels())
+         .orElse(List.of())
          .stream()
          .map(model -> {
             var versions = query(

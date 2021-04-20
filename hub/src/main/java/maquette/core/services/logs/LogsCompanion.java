@@ -35,7 +35,7 @@ public class LogsCompanion {
    private CompletionStage<LogEntry> enrichLogEntry(LogEntryProperties entry) {
       var userProfileCS = runtime
          .getUsers()
-         .findUserById(entry.getUserId())
+         .getUserById(entry.getUserId())
          .thenCompose(UserEntity::getProfile);
 
       var projectCS = Operators.optCS(entry.getProject().map(project -> runtime

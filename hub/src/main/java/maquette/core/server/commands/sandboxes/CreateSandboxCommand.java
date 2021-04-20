@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
-import maquette.core.entities.sandboxes.model.stacks.PostgreSqlStack;
-import maquette.core.entities.sandboxes.model.stacks.PythonStack;
-import maquette.core.entities.sandboxes.model.stacks.StackConfiguration;
+import maquette.core.entities.projects.model.sandboxes.stacks.PostgreSqlStack;
+import maquette.core.entities.projects.model.sandboxes.stacks.PythonStack;
+import maquette.core.entities.projects.model.sandboxes.stacks.StackConfiguration;
+import maquette.core.entities.projects.model.sandboxes.volumes.PlainVolume;
+import maquette.core.entities.projects.model.sandboxes.volumes.VolumeDefinition;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.results.DataResult;
@@ -26,22 +28,27 @@ public class CreateSandboxCommand implements Command {
 
    String name;
 
+   VolumeDefinition volume;
+
    List<StackConfiguration> stacks;
 
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getSandboxServices()
-         .createSandbox(user, project, name, stacks)
+         .createSandbox(user, project, name, volume, stacks)
          .thenApply(DataResult::apply);
    }
 
    @Override
    public Command example() {
-      return apply("some-project", "some-sandbox", List.of(
-         PythonStack.Configuration.apply("3.8"),
-         PostgreSqlStack.Configuration.apply("user", "password", "admin@maquette.ai", "password")
-      ));
+      return apply(
+         "some-project", "some-sandbox",
+         PlainVolume.apply("some-volume"),
+         List.of(
+            PythonStack.Configuration.apply("3.8"),
+            PostgreSqlStack.Configuration.apply("user", "password", "admin@maquette.ai", "password")
+         ));
    }
 
 }

@@ -19,7 +19,6 @@ import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -104,7 +103,7 @@ public final class DependencyServicesImpl implements DependencyServices {
                   } else if (node.getProperties() instanceof UserNode) {
                      var n = (UserNode) node.getProperties();
                      return users
-                        .findUserById(n.getId())
+                        .getUserById(n.getId())
                         .thenCompose(UserEntity::getProfile)
                         .thenApply(p -> (DependencyPropertiesNode) UserPropertiesNode.apply(n.getId(), p))
                         .exceptionally(ex -> {
