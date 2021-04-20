@@ -29,7 +29,8 @@ public final class ListProjectsCommand implements Command {
                .addColumns(StringColumn.create("name"))
                .addColumns(StringColumn.create("title"))
                .addColumns(DateTimeColumn.create("modified"))
-               .addColumns(StringColumn.create("summary"));
+               .addColumns(StringColumn.create("summary"))
+               .addColumns(StringColumn.create("id"));
 
             projects.forEach(p -> {
                var row = table.appendRow();
@@ -37,6 +38,7 @@ public final class ListProjectsCommand implements Command {
                row.setString("title", p.getTitle());
                row.setDateTime("modified", LocalDateTime.ofInstant(p.getModified().getAt(), ZoneId.systemDefault()));
                row.setString("summary", p.getSummary());
+               row.setString("id", p.getId().getValue());
             });
 
             return TableResult.apply(table.sortOn("name"), projects);

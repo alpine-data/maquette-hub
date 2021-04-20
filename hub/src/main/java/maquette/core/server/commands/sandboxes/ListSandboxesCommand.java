@@ -7,13 +7,17 @@ import lombok.Value;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
-import maquette.core.server.results.DataResult;
+import maquette.core.server.results.TableResult;
 import maquette.core.services.ApplicationServices;
 import maquette.core.values.user.User;
+import tech.tablesaw.api.DateTimeColumn;
+import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.api.Table;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -27,7 +31,26 @@ public class ListSandboxesCommand implements Command {
       return services
          .getSandboxServices()
          .getSandboxes(user, project)
-         .thenApply(DataResult::apply);
+         .thenApply(sandboxes -> {
+            var table = Table
+               .create()
+               .addColumns(StringColumn.create("name"))
+               .addColumns(StringColumn.create("owner"))
+               .addColumns(DateTimeColumn.create("created"))
+               .addColumns(StringColumn.create("stacks"))
+               .addColumns(StringColumn.create("id"));
+
+            sandboxes.forEach(s -> {
+               var row = table.appendRow();
+               row.setString("name", s.getName());
+               row.setString("owner", s.getCreated().getBy());
+               row.setDateTime("created", LocalDateTime.ofInstant(s.getCreated().getAt(), ZoneId.systemDefault()));
+               row.setString("stacks", s.getStacks().stream().map(st -> st.getConfiguration().getStackName()).collect(Collectors.joining(", ")));
+               row.setString("id", s.getId().getValue());
+            });
+
+            return TableResult.apply(table.sortOn("name"), sandboxes);
+         });
    }
 
    @Override

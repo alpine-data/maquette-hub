@@ -13,10 +13,7 @@ import maquette.core.server.commands.projects.applications.CreateApplicationComm
 import maquette.core.server.commands.projects.applications.ListApplicationsCommand;
 import maquette.core.server.commands.projects.applications.RemoveApplicationCommand;
 import maquette.core.server.commands.projects.models.*;
-import maquette.core.server.commands.sandboxes.CreateSandboxCommand;
-import maquette.core.server.commands.sandboxes.GetSandboxCommand;
-import maquette.core.server.commands.sandboxes.GetStacksCommand;
-import maquette.core.server.commands.sandboxes.ListSandboxesCommand;
+import maquette.core.server.commands.sandboxes.*;
 import maquette.core.server.commands.user.UpdateUserCommand;
 import maquette.core.server.commands.views.*;
 import maquette.core.services.ApplicationServices;
@@ -93,6 +90,7 @@ import java.util.concurrent.CompletionStage;
       // Sandboxes
       @JsonSubTypes.Type(value = CreateSandboxCommand.class, name = "sandboxes create"),
       @JsonSubTypes.Type(value = GetSandboxCommand.class, name = "sandboxes get"),
+      @JsonSubTypes.Type(value = GetSandboxConfigurationCommand.class, name = "sandboxes get-config"),
       @JsonSubTypes.Type(value = GetStacksCommand.class, name = "sandboxes stacks"),
       @JsonSubTypes.Type(value = ListSandboxesCommand.class, name = "sandboxes list"),
 

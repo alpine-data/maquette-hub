@@ -1,12 +1,12 @@
-import fnmatch
-import pipes
-import os
-import shutil
-
-import click
-import pandas as pd
-import yaml
 import chevron
+import click
+import fnmatch
+import json
+import os
+import pandas as pd
+import pipes
+import shutil
+import yaml
 
 from git import Repo
 from typing import Optional
@@ -54,7 +54,6 @@ def projects_init(name, title, summary):
 def projects_list():
     """
     Print a list of projects.
-
     """
     result = client.command(cmd='projects list', headers={ 'Accept': 'text/plain' })
     print(result[1])
@@ -142,6 +141,52 @@ def projects_report_cq(files):
     name = config.get_project_name()
     project = maquette.project(name)
     project.report_code_quality(files)
+
+@projects.group("sandboxes")
+def projects_sandboxes():
+    """
+    Work with sandboxes.
+    """
+
+
+@projects_sandboxes.command('ls')
+@click.option('--project', '-p', default=None, help='The parent project. If none is provided the currently active project will be used.')
+def projects_sandboxes_list(project: str = None):
+    """
+    List available sandboxes of a project.
+    """
+    if project is None:
+        project = config.get_project_name()
+
+    result = client.command(cmd='sandboxes list', args={ 'project': project }, headers={ 'Accept': 'text/plain' })
+    print(result[1])
+
+
+@projects_sandboxes.command('config')
+@click.argument('sandbox')
+@click.option('--project', '-p', default=None, help='The parent project. If none is provided the currently active project will be used.')
+def projects_sandboxes_config(sandbox: str, project: str = None):
+    """
+    Get the sandbox configuration.
+    """
+    if project is None:
+        project = config.get_project_name()
+
+    result = client.command(cmd='sandboxes get-config', args={ 'project': project, 'sandbox': sandbox })
+    print(json.dumps(result[1]['data']['stacks'], indent=2))
+
+@projects_sandboxes.command('inspect')
+@click.argument('sandbox')
+@click.option('--project', '-p', default=None, help='The parent project. If none is provided the currently active project will be used.')
+def projects_sandboxes_inspect(sandbox: str, project: str = None):
+    """
+    Get the sandbox details and status.
+    """
+    if project is None:
+        project = config.get_project_name()
+
+    result = client.command(cmd='sandboxes get', args={ 'project': project, 'sandbox': sandbox })
+    print(json.dumps(result[1]['data'], indent=2))
 
 
 @mq.group()
