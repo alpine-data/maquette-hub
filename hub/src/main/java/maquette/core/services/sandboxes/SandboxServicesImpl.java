@@ -18,7 +18,6 @@ import maquette.core.entities.projects.model.sandboxes.volumes.GitVolume;
 import maquette.core.entities.projects.model.sandboxes.volumes.NewVolume;
 import maquette.core.entities.projects.model.sandboxes.volumes.VolumeDefinition;
 import maquette.core.entities.users.UserEntities;
-import maquette.core.entities.users.UserEntity;
 import maquette.core.entities.users.exceptions.MissingGitSettings;
 import maquette.core.entities.users.model.UserSettings;
 import maquette.core.services.projects.EnvironmentType;

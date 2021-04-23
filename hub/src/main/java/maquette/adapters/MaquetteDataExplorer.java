@@ -72,7 +72,7 @@ public final class MaquetteDataExplorer implements DatasetDataExplorer, DataSour
                return Operators.suppressExceptions(() -> om.readValue(content, JsonNode.class));
             }
          } catch (Exception e) {
-            LOG.warn("Exception occurred while calling Maquette Data Explorer.");
+            LOG.warn("Exception occurred while calling Maquette Data Explorer.", e);
             return Operators.suppressExceptions(() -> om.readValue("{}", JsonNode.class));
          }
       });

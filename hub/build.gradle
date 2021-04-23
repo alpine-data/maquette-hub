@@ -40,8 +40,8 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     compile group: 'com.oblac', name: 'nomen-est-omen', version: '2.0.0'
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.0'
-
     compile group: 'io.javalin', name: 'javalin', version: '3.8.0'
+    compile group: 'io.minio', name: 'minio', version: '8.2.1'
     compile group: 'io.pebbletemplates', name: 'pebble', version: '3.1.3'
     compile group: 'net.lingala.zip4j', name: 'zip4j', version: '2.7.0'
     compile group: 'org.apache.avro', name: 'avro', version: '1.10.0'
