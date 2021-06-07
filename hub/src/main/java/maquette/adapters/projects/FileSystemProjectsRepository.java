@@ -41,9 +41,7 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
    }
 
    private Path getProjectFile(UID id) {
-      var file = directory.resolve(id.getValue()).resolve(PROPERTIES_FILE);
-      Operators.suppressExceptions(() -> Files.createDirectories(file.getParent()));
-      return file;
+      return directory.resolve(id.getValue()).resolve(PROPERTIES_FILE);
    }
 
    @Override
@@ -70,6 +68,7 @@ public final class FileSystemProjectsRepository implements ProjectsRepository {
    @Override
    public CompletionStage<Done> insertOrUpdateProject(ProjectProperties project) {
       var file = getProjectFile(project.getId());
+      Operators.suppressExceptions(() -> Files.createDirectories(file.getParent()));
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), project));
       return CompletableFuture.completedFuture(Done.getInstance());
    }

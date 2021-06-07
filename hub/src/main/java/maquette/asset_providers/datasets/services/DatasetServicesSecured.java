@@ -58,6 +58,7 @@ public final class DatasetServicesSecured implements DatasetServices {
       return comp
          .withAuthorization(
             () -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume),
+            () -> CompletableFuture.completedStage(executor.isSystemUser()),
             () -> comp.isSubscribedConsumer(executor, dataset))
          .thenCompose(ok -> delegate.download(executor, dataset));
    }
