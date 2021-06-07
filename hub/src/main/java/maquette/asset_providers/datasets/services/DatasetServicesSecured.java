@@ -48,14 +48,17 @@ public final class DatasetServicesSecured implements DatasetServices {
       return comp
          .withAuthorization(
             () -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume),
-            () -> CompletableFuture.completedFuture(executor.isSystemUser()))
+            () -> CompletableFuture.completedFuture(executor.isSystemUser()),
+            () -> comp.isSubscribedConsumer(executor, dataset))
          .thenCompose(ok -> delegate.download(executor, dataset, version));
    }
 
    @Override
    public CompletionStage<Records> download(User executor, String dataset) {
       return comp
-         .withAuthorization(() -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume))
+         .withAuthorization(
+            () -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume),
+            () -> comp.isSubscribedConsumer(executor, dataset))
          .thenCompose(ok -> delegate.download(executor, dataset));
    }
 

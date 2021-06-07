@@ -36,7 +36,8 @@ function GetStarted(props) {
 }
 
 function Browse(props) {
-  const assets = _.get(props, 'project.data.project.assets');
+  const assets = _.map(_.get(props, 'project.data.project.assets'), a => _.get(a, 'properties'));
+  console.log(assets);
   
   return <Container lg className="mq--main-content" background={ Background }>
     <DataAssetBrowser assets={ assets } />

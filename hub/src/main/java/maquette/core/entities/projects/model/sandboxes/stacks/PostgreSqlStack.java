@@ -109,8 +109,6 @@ public final class PostgreSqlStack implements Stack<PostgreSqlStack.Configuratio
          .withCommand("server /data")
          .build();
 
-      System.out.println();
-
       return DeploymentConfig
          .builder(String.format("mq__%s_%s", project.getId(), sandbox.getId()))
          .withContainerConfig(postgresContainerCfg)

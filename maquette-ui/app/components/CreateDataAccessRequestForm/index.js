@@ -84,7 +84,7 @@ function CreateDataAccessRequestForm(props) {
             type="submit" 
             disabled={ !isValid }
             loading={ isSubmitting }
-            onClick={ () => props.onSubmit(sta8te) }>{ submitText }</Button>
+            onClick={ () => props.onSubmit(state) }>{ submitText }</Button>
         </ButtonToolbar>
       </FlexboxGrid.Item>
     </FlexboxGrid>
