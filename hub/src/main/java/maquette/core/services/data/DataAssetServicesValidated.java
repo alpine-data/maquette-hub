@@ -9,7 +9,7 @@ import maquette.common.validation.validators.ObjectValidator;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.entities.data.model.Task;
+import maquette.core.entities.data.model.tasks.Task;
 import maquette.core.entities.logs.LogEntry;
 import maquette.core.values.UID;
 import maquette.core.values.access.DataAccessRequestProperties;

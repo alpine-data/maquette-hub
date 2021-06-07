@@ -8,7 +8,7 @@ import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.entities.data.model.Task;
+import maquette.core.entities.data.model.tasks.Task;
 import maquette.core.entities.logs.LogEntry;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.services.logs.LogsCompanion;

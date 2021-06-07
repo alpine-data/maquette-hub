@@ -1,4 +1,4 @@
-package maquette.core.entities.data.model;
+package maquette.core.entities.data.model.tasks;
 
 import maquette.core.values.data.DataAssetPermissions;
 
