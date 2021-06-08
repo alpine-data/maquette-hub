@@ -29,16 +29,20 @@ public class GrantAccessRequestCommand implements Command {
 
    String message;
 
+   String environment;
+
+   boolean downstreamApprovalRequired;
+
    @Override
    public CompletionStage<CommandResult> run(User user, RuntimeConfiguration runtime, ApplicationServices services) {
       return services
          .getDataAssetServices()
-         .grantDataAccessRequest(user, name, id, until, message)
+         .grantDataAccessRequest(user, name, id, until, message, environment, downstreamApprovalRequired)
          .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
    }
 
    @Override
    public Command example() {
-      return apply("some-dataset", UID.apply(), Instant.now(), Operators.lorem());
+      return apply("some-dataset", UID.apply(), Instant.now(), Operators.lorem(), "any", true);
    }
 }

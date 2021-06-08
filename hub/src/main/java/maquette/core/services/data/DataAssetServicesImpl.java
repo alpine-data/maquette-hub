@@ -119,10 +119,13 @@ public final class DataAssetServicesImpl implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<Done> grantDataAccessRequest(
+      User executor, String name, UID request, @Nullable Instant until, @Nullable String message,
+      String environment, boolean downstreamApprovalRequired) {
+
       return entities
          .getByName(name)
-         .thenCompose(a -> a.getAccessRequests().grantDataAccessRequest(executor, request, until, message));
+         .thenCompose(a -> a.getAccessRequests().grantDataAccessRequest(executor, request, until, message, environment, downstreamApprovalRequired));
    }
 
    @Override

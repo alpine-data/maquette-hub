@@ -52,7 +52,9 @@ public interface DataAssetServices {
 
    CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String name, UID request);
 
-   CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @javax.annotation.Nullable Instant until, @javax.annotation.Nullable String message);
+   CompletionStage<Done> grantDataAccessRequest(
+      User executor, String name, UID request, @javax.annotation.Nullable Instant until, @javax.annotation.Nullable String message,
+      String environment, boolean downstreamApprovalRequired);
 
    CompletionStage<Done> rejectDataAccessRequest(User executor, String name, UID request, String reason);
 

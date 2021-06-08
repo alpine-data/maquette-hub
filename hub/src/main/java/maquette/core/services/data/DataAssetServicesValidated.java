@@ -193,14 +193,17 @@ public final class DataAssetServicesValidated implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<Done> grantDataAccessRequest(
+      User executor, String name, UID request, @Nullable Instant until, @Nullable String message,
+      String environment, boolean downstreamApprovalRequired) {
+
       return FluentValidation
          .apply()
          .validate("executor", executor, NotNullValidator.apply())
          .validate("name", name, NotNullValidator.apply())
          .validate("request", name, NotNullValidator.apply())
          .checkAndFail()
-         .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message));
+         .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment, downstreamApprovalRequired));
    }
 
    @Override

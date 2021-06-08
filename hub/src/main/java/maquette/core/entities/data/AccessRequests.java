@@ -40,7 +40,7 @@ public final class AccessRequests {
 
             if (properties.getMetadata().getClassification().equals(DataClassification.PUBLIC) &&
                properties.getMetadata().getPersonalInformation().equals(PersonalInformation.NONE)) {
-               request.addEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(), "Automatically approved access to public data asset."));
+               request.addEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(), "Automatically approved access to public data asset.", "any", false));
             }
 
             return repository
@@ -79,9 +79,9 @@ public final class AccessRequests {
       return findDataAccessRequestById(accessRequestId).thenApply(opt -> opt.orElseThrow(() -> AccessRequestNotFoundException.apply(accessRequestId)));
    }
 
-   public CompletionStage<Done> grantDataAccessRequest(User executor, UID accessRequestId, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<Done> grantDataAccessRequest(User executor, UID accessRequestId, @Nullable Instant until, @Nullable String message, String environment, boolean downstreamApprovalRequired) {
       var created = ActionMetadata.apply(executor);
-      var granted = Granted.apply(created, until, message);
+      var granted = Granted.apply(created, until, message, environment, downstreamApprovalRequired);
 
       return withDataAccessRequest(accessRequestId, accessRequest -> {
          accessRequest.addEvent(granted);

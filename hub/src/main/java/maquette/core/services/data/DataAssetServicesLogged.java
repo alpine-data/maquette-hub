@@ -256,9 +256,12 @@ public final class DataAssetServicesLogged implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<Done> grantDataAccessRequest(
+      User executor, String name, UID request, @Nullable Instant until, @Nullable String message,
+      String environment, boolean downstreamApprovalRequired) {
+
       var ridCS = entities.getByName(name).thenCompose(DataAssetEntity::getResourceId);
-      var resultCS = delegate.grantDataAccessRequest(executor, name, request, until, message);
+      var resultCS = delegate.grantDataAccessRequest(executor, name, request, until, message, environment, downstreamApprovalRequired);
 
       return Operators.compose(ridCS, resultCS, (rid, result) -> {
          logs.log(

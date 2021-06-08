@@ -8,15 +8,17 @@ import React, { useState } from 'react';
 
 import produce from 'immer';
 
-import { Button, ButtonToolbar, ControlLabel, DatePicker, FlexboxGrid, Form, FormGroup, HelpBlock, Input, Radio, RadioGroup, Timeline } from 'rsuite';
+import { Button, ButtonToolbar, Checkbox, ControlLabel, DatePicker, FlexboxGrid, Form, FormGroup, HelpBlock, Input, Radio, RadioGroup, Timeline } from 'rsuite';
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
 function Respond({ onGrant = console.log, onReject = console.log, request, updating = false, ...props }) {
   const [state, setState] = useState({
-    decision: "grant",
-    message: "",
+    decision: 'grant',
+    environment: 'any',
+    message: '',
     error: false,
-    validity_date: new Date()
+    validity_date: new Date(),
+    downstreamApprovalRequired: false
   });
 
   const isValid = !_.isEmpty(state.message);
@@ -32,7 +34,9 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
       name: _.get(request, 'asset.metadata.name'),
       id: request.id,
       until: state.decision == "grant-limited" && state.validity_date.toJSON() || null,
-      message: state.message
+      message: state.message,
+      environment: state.environment,
+      downstreamApprovalRequired: state.downstreamApprovalRequired
     } 
 
     onGrant(args);
@@ -52,11 +56,16 @@ function Respond({ onGrant = console.log, onReject = console.log, request, updat
     return <>
       <FormGroup>
         <ControlLabel>Allowed environments</ControlLabel>
-        <RadioGroup value="any">
+        <RadioGroup value={ state.environment } onChange={ onChange('environment') }>
           <Radio value="any">Any environment</Radio>
           <Radio value="sandbox">Any sandbox environment</Radio>
           <Radio value="on-premise">On-premise sandbox environment's only</Radio>
         </RadioGroup>
+      </FormGroup>
+
+      <FormGroup>
+        <ControlLabel>Downstream Usage</ControlLabel>
+        <Checkbox checked={ state.downstreamApprovalRequired } onChange={ (value, selected) => onChange('downstreamApprovalRequired')(selected) }>Require additional approval if data is used in new data assets or models.</Checkbox>
       </FormGroup>
       
       <FormGroup>
@@ -249,9 +258,15 @@ function Action({ action, ...props }) {
 }
 
 function TimelineItem({ event }) {
+  console.log(event);
   return <Timeline.Item>
       <p style={{ fontWeight: "bold" }}>{ _.capitalize(event.event)  } <span className="mq--sub">{ new Date(event.created.at).toLocaleString() } by { event.created.by }</span></p>
       <p>{ event.reason || event.message }</p>
+      {
+        event.event === 'granted' && <>
+          <p><b>Environments allowed:</b> { event.environment } | <b>Requires downstream approval:</b> { event.downstreamApprovalRequired ? <>yes</> : <>no</> }</p>
+        </>
+      }
     </Timeline.Item>;
 }
 

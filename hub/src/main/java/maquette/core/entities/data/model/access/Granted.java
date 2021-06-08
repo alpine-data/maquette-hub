@@ -17,6 +17,10 @@ public class Granted implements DataAccessRequestEvent {
 
    String message;
 
+   String environment;
+
+   boolean downstreamApprovalRequired;
+
    @Override
    public Instant getEventMoment() {
       return created.getAt();
