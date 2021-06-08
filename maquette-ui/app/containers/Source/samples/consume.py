@@ -1,3 +1,3 @@
 import mq
 
-df = mq.datasets('__ASSET__').get('1.0')
+df = mq.source('__ASSET__').get()

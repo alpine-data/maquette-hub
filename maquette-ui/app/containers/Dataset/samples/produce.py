@@ -1,4 +1,4 @@
 import mq
 
 df = pandas.DataFrame(data = {})
-mq.datasets('__ASSET__').put(df)
+mq.dataset('__ASSET__').put(df)

@@ -3,6 +3,7 @@ package samples;
 import akka.actor.ActorSystem;
 import akka.stream.javadsl.Sink;
 import lombok.Data;
+import maquette.sdk.config.MaquetteConfiguration;
 import maquette.sdk.dsl.Maquette;
 
 public class SampleDataSourceConsumer {
@@ -34,8 +35,8 @@ public class SampleDataSourceConsumer {
 
       Maquette
          .create()
-         .source("internal-user-registry")
-         .source(User.class)
+         .source("store-information")
+         .source(Store.class)
          .map(c -> {
             System.out.println(c);
             return c;
