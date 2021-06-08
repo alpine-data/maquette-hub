@@ -40,10 +40,12 @@ import java.util.concurrent.CompletionStage;
       // Data Assets
       @JsonSubTypes.Type(value = ApproveDataAssetCommand.class, name = "data-assets approve"),
       @JsonSubTypes.Type(value = CreateDataAssetCommand.class, name = "data-assets create"),
+      @JsonSubTypes.Type(value = DeclineDataAssetCommand.class, name = "data-assets decline"),
       @JsonSubTypes.Type(value = DeprecateDataAssetCommand.class, name = "data-assets deprecate"),
       @JsonSubTypes.Type(value = GetDataAssetCommand.class, name = "data-assets get"),
       @JsonSubTypes.Type(value = ListDataAssetsCommand.class, name = "data-assets list"),
       @JsonSubTypes.Type(value = RemoveDataAssetCommand.class, name = "data-assets remove"),
+      @JsonSubTypes.Type(value = RequestReviewDataAssetCommand.class, name = "data-assets request-review"),
       @JsonSubTypes.Type(value = UpdateCustomDataAssetSettingsCommand.class, name = "data-assets update-custom"),
       @JsonSubTypes.Type(value = UpdateDataAssetCommand.class, name = "data-assets update"),
 

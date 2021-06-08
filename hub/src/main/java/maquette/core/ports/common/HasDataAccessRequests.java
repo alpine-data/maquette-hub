@@ -2,7 +2,7 @@ package maquette.core.ports.common;
 
 import akka.Done;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 
 import java.util.List;
 import java.util.Optional;

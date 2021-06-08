@@ -88,6 +88,24 @@ public final class Operators {
               f1.join(), f2.join(), f3.join(), f4.join(), f5.join(), f6.join())));
     }
 
+    public static <T1, T2, T3, T4, T5, T6, T7, R> CompletionStage<R> compose(
+       CompletionStage<T1> cs1, CompletionStage<T2> cs2, CompletionStage<T3> cs3, CompletionStage<T4> cs4, CompletionStage<T5> cs5,
+       CompletionStage<T6> cs6, CompletionStage<T7> cs7,
+       Function7<T1, T2, T3, T4, T5, T6, T7, R> combineWith) {
+        CompletableFuture<T1> f1 = cs1.toCompletableFuture();
+        CompletableFuture<T2> f2 = cs2.toCompletableFuture();
+        CompletableFuture<T3> f3 = cs3.toCompletableFuture();
+        CompletableFuture<T4> f4 = cs4.toCompletableFuture();
+        CompletableFuture<T5> f5 = cs5.toCompletableFuture();
+        CompletableFuture<T6> f6 = cs6.toCompletableFuture();
+        CompletableFuture<T7> f7 = cs7.toCompletableFuture();
+
+        return CompletableFuture
+           .allOf(f1, f2, f3, f4, f5, f6)
+           .thenApply(v -> Operators.suppressExceptions(() -> combineWith.apply(
+              f1.join(), f2.join(), f3.join(), f4.join(), f5.join(), f6.join(), f7.join())));
+    }
+
     public static <T> CompletionStage<List<T>> allOf(Stream<CompletionStage<T>> futures) {
         return allOf(futures.collect(Collectors.toList()));
     }

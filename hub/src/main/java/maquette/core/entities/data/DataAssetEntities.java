@@ -11,11 +11,12 @@ import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetState;
 import maquette.core.values.data.DataZone;
+import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,12 @@ public final class DataAssetEntities {
          .thenCompose(checked -> {
             var state = DataAssetState.APPROVED;
 
-            if (metadata.getZone().equals(DataZone.PREPARED)) {
+            if (
+               metadata.getZone().equals(DataZone.PREPARED) ||
+                  metadata.getZone().equals(DataZone.GOLD) ||
+                  metadata.getPersonalInformation().equals(PersonalInformation.PERSONAL_INFORMATION) ||
+                  metadata.getPersonalInformation().equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION)) {
+
                state = DataAssetState.REVIEW_REQUIRED;
             }
 

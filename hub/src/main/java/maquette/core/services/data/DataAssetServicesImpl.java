@@ -8,13 +8,12 @@ import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.entities.data.model.tasks.Task;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.entities.logs.LogEntry;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.services.logs.LogsCompanion;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.user.User;
@@ -58,6 +57,11 @@ public final class DataAssetServicesImpl implements DataAssetServices {
    }
 
    @Override
+   public CompletionStage<Done> decline(User executor, String name, String reason) {
+      return entities.getByName(name).thenCompose(entity -> entity.decline(executor));
+   }
+
+   @Override
    public CompletionStage<Done> deprecate(User executor, String name, boolean deprecate) {
       return entities.getByName(name).thenCompose(entity -> entity.deprecate(executor, deprecate));
    }
@@ -75,6 +79,11 @@ public final class DataAssetServicesImpl implements DataAssetServices {
    @Override
    public CompletionStage<Done> remove(User executor, String name) {
       return entities.removeByName(name);
+   }
+
+   @Override
+   public CompletionStage<Done> requestReview(User executor, String name, String message) {
+      return entities.getByName(name).thenCompose(entity -> entity.requestReview(executor));
    }
 
    @Override
@@ -135,16 +144,6 @@ public final class DataAssetServicesImpl implements DataAssetServices {
       return entities
          .getByName(name)
          .thenCompose(a -> a.getAccessRequests().withdrawDataAccessRequest(executor, request, reason));
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor, String name) {
-      return null; // TODO
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor) {
-      return null; // TODO
    }
 
    @Override

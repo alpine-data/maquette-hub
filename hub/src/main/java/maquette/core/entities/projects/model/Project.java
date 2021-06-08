@@ -9,7 +9,7 @@ import maquette.core.entities.projects.model.sandboxes.Sandbox;
 import maquette.core.entities.projects.model.sandboxes.stacks.StackProperties;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequest;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 

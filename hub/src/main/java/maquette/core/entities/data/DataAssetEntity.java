@@ -6,18 +6,25 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.entities.data.exceptions.InvalidCustomPropertiesException;
 import maquette.core.entities.data.model.DataAssetProperties;
+import maquette.core.entities.data.model.tasks.AnswerAccessRequests;
+import maquette.core.entities.data.model.tasks.ReviewAsset;
+import maquette.core.entities.data.model.tasks.Task;
 import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.entities.companions.MembersCompanion;
 import maquette.core.entities.data.exceptions.InvalidCustomSettingsException;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.values.UID;
+import maquette.core.entities.data.model.access.DataAccessRequestStatus;
 import maquette.core.values.data.*;
 import maquette.core.values.user.User;
+import org.apache.commons.compress.utils.Lists;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DataAssetEntity {
@@ -52,6 +59,31 @@ public final class DataAssetEntity {
       return repository.fetchCustomProperties(id, expectedType).thenApply(Optional::orElseThrow);
    }
 
+   public CompletionStage<List<Task>> getOpenTasks() {
+      var requestsCS = getAccessRequests()
+         .getDataAccessRequests()
+         .thenApply(requests -> requests
+            .stream()
+            .filter(r -> r.getStatus().equals(DataAccessRequestStatus.REQUESTED))
+            .collect(Collectors.toList()));
+
+      var propertiesCS = getProperties();
+
+      return Operators.compose(requestsCS, propertiesCS, (requests, properties) -> {
+         var result = Lists.<Task>newArrayList();
+
+         if (properties.getState().equals(DataAssetState.REVIEW_REQUIRED)) {
+            result.add(ReviewAsset.apply(properties));
+         }
+
+         if (requests.size() > 0) {
+            result.add(AnswerAccessRequests.apply(properties, requests.size()));
+         }
+
+         return result;
+      });
+   }
+
    public CompletionStage<UID> getResourceId() {
       return repository
          .getEntityById(id)
@@ -82,6 +114,15 @@ public final class DataAssetEntity {
          });
    }
 
+   public CompletionStage<Done> decline(User executor) {
+      return repository
+         .getEntityById(id)
+         .thenApply(properties -> properties
+            .withState(DataAssetState.DECLINED)
+            .withUpdated(executor))
+         .thenCompose(repository::insertOrUpdateEntity);
+   }
+
    public CompletionStage<Done> deprecate(User executor, boolean deprecate) {
       return repository
          .getEntityById(id)
@@ -90,9 +131,9 @@ public final class DataAssetEntity {
 
             if (deprecate && properties.getState().equals(DataAssetState.APPROVED)) {
                updated = updated
-                  .withState(DataAssetState.DEPRECATED)
+                  .withState(DataAssetState.DECLINED)
                   .withUpdated(executor);
-            } else if (!deprecate && properties.getState().equals(DataAssetState.DEPRECATED)) {
+            } else if (!deprecate && properties.getState().equals(DataAssetState.DECLINED)) {
                updated = updated
                   .withState(DataAssetState.APPROVED)
                   .withUpdated(executor);
@@ -102,11 +143,25 @@ public final class DataAssetEntity {
          });
    }
 
-   public CompletionStage<Done> update(User executor, DataAssetMetadata newMetadata) {
-
+   public CompletionStage<Done> requestReview(User executor) {
       return repository
          .getEntityById(id)
-         .thenCompose(properties -> {
+         .thenApply(properties -> properties
+            .withState(DataAssetState.REVIEW_REQUIRED)
+            .withUpdated(executor))
+         .thenCompose(repository::insertOrUpdateEntity);
+   }
+
+   public CompletionStage<Done> update(User executor, DataAssetMetadata newMetadata) {
+      var isOwnerCS = getMembers()
+         .getMembers()
+         .thenApply(members -> members
+            .stream()
+            .anyMatch(granted -> granted.getAuthorization().authorizes(executor) && granted.getRole().equals(DataAssetMemberRole.OWNER)));
+
+      var propertiesCS = repository.getEntityById(id);
+
+      return Operators.compose(isOwnerCS, propertiesCS, (isOwner, properties) -> {
             var state = properties.getState();
             var meta = properties.getMetadata();
             boolean reviewRequired = false;
@@ -131,11 +186,17 @@ public final class DataAssetEntity {
                }
             }
 
-            if (!meta.getZone().equals(newMetadata.getZone()) && newMetadata.getZone() == DataZone.GOLD) {
-               reviewRequired = true;
+            if (!meta.getZone().equals(newMetadata.getZone())) {
+               switch (newMetadata.getZone()) {
+                  case PREPARED:
+                  case GOLD:
+                     reviewRequired = true;
+                  default:
+                     // ok
+               }
             }
 
-            if (state.equals(DataAssetState.APPROVED) && reviewRequired) {
+            if (reviewRequired && !isOwner) {
                state = DataAssetState.REVIEW_REQUIRED;
             }
 
@@ -145,7 +206,8 @@ public final class DataAssetEntity {
                .withUpdated(executor);
 
             return repository.insertOrUpdateEntity(updated);
-         });
+         })
+         .thenCompose(cs -> cs);
    }
 
    public CompletionStage<Done> updateCustomSettings(User executor, Object customSettings) {

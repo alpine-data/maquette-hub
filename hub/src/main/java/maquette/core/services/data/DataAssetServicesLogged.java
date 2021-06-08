@@ -8,14 +8,13 @@ import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.entities.data.model.tasks.Task;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.entities.logs.Action;
 import maquette.core.entities.logs.ActionCategory;
 import maquette.core.entities.logs.LogEntry;
 import maquette.core.entities.logs.Logs;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.user.User;
@@ -84,6 +83,21 @@ public final class DataAssetServicesLogged implements DataAssetServices {
          logs.log(
             executor,
             Action.apply(ActionCategory.ADMINISTRATION, "Approved data asset configurations `%s`", name),
+            rid);
+
+         return result;
+      });
+   }
+
+   @Override
+   public CompletionStage<Done> decline(User executor, String name, String reason) {
+      var ridCS = entities.getByName(name).thenCompose(DataAssetEntity::getResourceId);
+      var resultCS = delegate.decline(executor, name, reason);
+
+      return Operators.compose(ridCS, resultCS, (rid, result) -> {
+         logs.log(
+            executor,
+            Action.apply(ActionCategory.ADMINISTRATION, "Declined data asset configurations `%s`. Reason: `%s`", name, reason),
             rid);
 
          return result;
@@ -175,6 +189,21 @@ public final class DataAssetServicesLogged implements DataAssetServices {
          logs.log(
             executor,
             Action.apply(ActionCategory.ADMINISTRATION, "Removed data asset `%s`", name),
+            rid);
+
+         return result;
+      });
+   }
+
+   @Override
+   public CompletionStage<Done> requestReview(User executor, String name, String message) {
+      var ridCS = entities.getByName(name).thenCompose(DataAssetEntity::getResourceId);
+      var resultCS = delegate.requestReview(executor, name, message);
+
+      return Operators.compose(ridCS, resultCS, (rid, result) -> {
+         logs.log(
+            executor,
+            Action.apply(ActionCategory.ADMINISTRATION, "Requested review for data asset `%s`. Message: `%s`", name, message),
             rid);
 
          return result;
@@ -284,16 +313,6 @@ public final class DataAssetServicesLogged implements DataAssetServices {
 
          return result;
       });
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor, String name) {
-      return delegate.getNotifications(executor, name);
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor) {
-      return delegate.getNotifications(executor);
    }
 
    @Override

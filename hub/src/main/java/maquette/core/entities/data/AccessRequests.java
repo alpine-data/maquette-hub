@@ -7,7 +7,7 @@ import maquette.core.entities.data.exceptions.AccessRequestNotFoundException;
 import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.access.*;
+import maquette.core.entities.data.model.access.*;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.data.PersonalInformation;
 import maquette.core.values.user.User;
