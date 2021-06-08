@@ -67,3 +67,7 @@ def append_house_prices_test():
 # init_house_prices_test()
 
 append_house_prices_test()
+init_weather()
+init_fraud()
+init_house_prices_training()
+init_house_prices_test()
