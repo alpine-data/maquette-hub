@@ -3,7 +3,6 @@ package samples;
 import akka.actor.ActorSystem;
 import akka.stream.javadsl.Sink;
 import lombok.Data;
-import maquette.sdk.config.MaquetteConfiguration;
 import maquette.sdk.dsl.Maquette;
 
 public class SampleDataSourceConsumer {
