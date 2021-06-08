@@ -17,7 +17,7 @@ def get_ds_statistics(dataset_name: str, version: str=None, with_images=False) -
     return ResponseBody(columns=generate_df_statistics(__load_df(dataset_name, version), with_images), dataset=dataset_name, version=version)
 
 def get_so_statistics(source_name: str, with_images=False) -> ResponseBody:
-    return ResponseBody(columns=generate_df_statistics(__load_df(source_name), with_images), source=source_name)
+    return ResponseBody(columns=generate_df_statistics(__load_df(source = source_name), with_images), source=source_name)
 
 def get_profile(data_asset_name: str, format: FormatEnum, version: str=None):
     df = __load_df(data_asset_name, version)

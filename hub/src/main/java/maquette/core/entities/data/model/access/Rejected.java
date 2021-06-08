@@ -1,4 +1,4 @@
-package maquette.core.values.access;
+package maquette.core.entities.data.model.access;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Requested implements DataAccessRequestEvent {
+public class Rejected implements DataAccessRequestEvent {
 
    ActionMetadata created;
 
@@ -18,4 +18,5 @@ public class Requested implements DataAccessRequestEvent {
    public Instant getEventMoment() {
       return created.getAt();
    }
+
 }

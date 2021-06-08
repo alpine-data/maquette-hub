@@ -22,7 +22,7 @@ public class GitDetails {
    }
 
    public Optional<String> getTransferUrl() {
-      return Optional.of(transferUrl);
+      return Optional.ofNullable(transferUrl);
    }
 
 }

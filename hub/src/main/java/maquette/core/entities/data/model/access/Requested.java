@@ -1,15 +1,14 @@
-package maquette.core.values.access;
+package maquette.core.entities.data.model.access;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.values.ActionMetadata;
 
 import java.time.Instant;
-import java.util.Optional;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Withdrawn implements DataAccessRequestEvent {
+public class Requested implements DataAccessRequestEvent {
 
    ActionMetadata created;
 
@@ -19,9 +18,4 @@ public class Withdrawn implements DataAccessRequestEvent {
    public Instant getEventMoment() {
       return created.getAt();
    }
-
-   public Optional<String> getReason() {
-      return Optional.ofNullable(reason);
-   }
-
 }

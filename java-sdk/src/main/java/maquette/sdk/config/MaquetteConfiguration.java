@@ -57,7 +57,7 @@ public class MaquetteConfiguration {
 
       try {
          var config = om.writeValueAsString(result);
-         LOG.info("The following configuration will be used:\n" + config);
+         LOG.debug("The following configuration will be used:\n" + config);
       } catch (Exception e) {
          LOG.error("Cannot serialized configuration. This is evil.", e);
       }

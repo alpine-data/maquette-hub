@@ -49,6 +49,24 @@ def init_house_prices_test():
 
     print("Uploaded House Prices Test Dataset")
 
+def append_house_prices_test():
+    test_csv = 'sources/house-prices/test.csv'
+    test_df = pd.read_csv(test_csv, na_values="")
+    filter_columns = ['Alley', 'PoolQC', 'MiscFeature', 'FireplaceQu', 'Fence']
+    test_df.drop(filter_columns, inplace=True, axis=1)
+    test_df.dropna(axis=1, inplace=True)
+    test_df.columns = test_df.columns.str.replace("1", "Fir")
+    test_df.columns = test_df.columns.str.replace("2", "Seco")
+    test_df.columns = test_df.columns.str.replace("3", "Thi")
+    dataset('house-prices-training').put(test_df, "house prices test init")
+
+
+#init_weather()
+#init_fraud()
+#init_house_prices_training()
+# init_house_prices_test()
+
+append_house_prices_test()
 init_weather()
 init_fraud()
 init_house_prices_training()

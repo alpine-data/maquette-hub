@@ -2,7 +2,9 @@ package maquette.core.services.projects;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Maps;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.common.Operators;
@@ -465,21 +467,15 @@ public final class ProjectServicesImpl implements ProjectServices {
          .thenRun(() -> LOG.info("Initialized projects"));
    }
 
-   private CompletionStage<Done> linkToolchainProxy(ProjectProperties projectProperties) {
-      return Operators.optCS(projectProperties
-         .getMlflowConfiguration()
-         .flatMap(mlflowConfig -> infrastructure
-            .findDeployment(mlflowConfig.getDeploymentName())
-            .flatMap(deployment -> deployment.findContainer(mlflowConfig.getMlflowContainerName(projectProperties.getId())))
-            .map(Container::getProperties)))
-         .thenApply(properties -> properties.map(ContainerProperties::getMappedPortUrls))
-         .thenApply(ports -> ports.orElse(Maps.newHashMap()))
-         .thenCompose(mlflowPorts -> {
+   private CompletionStage<Done> configureMlflowProxy(ProjectProperties projectProperties, MlflowConfiguration mlflowConfig, Container container) {
+      return container
+         .getProperties()
+         .thenApply(ContainerProperties::getMappedPortUrls)
+         .thenCompose(ports -> {
             var pid = projectProperties.getId();
 
-            if (mlflowPorts.containsKey(5000) && projectProperties.getMlflowConfiguration().isPresent()) {
-               var mlflowConfig = projectProperties.getMlflowConfiguration().get();
-               var externalPort = mlflowPorts
+            if (ports.containsKey(5000)) {
+               var externalPort = ports
                   .get(5000)
                   .toString();
 
@@ -487,7 +483,7 @@ public final class ProjectServicesImpl implements ProjectServices {
                   .registerRoute(
                      pid.getValue(),
                      mlflowConfig.getMlflowBasePath(pid),
-                     mlflowPorts.get(5000).toString().replace("localhost", "host.docker.internal"))
+                     ports.get(5000).toString().replace("localhost", "host.docker.internal"))
                   .thenApply(done -> {
                      LOG.info("Configure MLFlow proxy for project `{}`", projectProperties.getName());
                      return done;
@@ -499,11 +495,79 @@ public final class ProjectServicesImpl implements ProjectServices {
                LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", projectProperties.getName());
                return CompletableFuture.completedFuture(Done.getInstance());
             }
-         })
-         .exceptionally(e -> {
-            LOG.warn("Unable to register MLflow routes for project `{}` - Missing MLflow port information.", projectProperties.getName());
+         });
+   }
+
+   private CompletionStage<Done> createMinioBucket(ProjectProperties projectProperties, MlflowConfiguration mlflowConfig, Container container) {
+      return container
+         .getProperties()
+         .thenApply(ContainerProperties::getMappedPortUrls)
+         .thenApply(ports -> {
+            if (ports.containsKey(9000)) {
+               var externalPort = ports
+                  .get(9000)
+                  .toString();
+
+               var minioClient = MinioClient.builder()
+                  .endpoint(externalPort)
+                  .credentials(mlflowConfig.getMinioAccessKey(), mlflowConfig.getMinioSecretKey())
+                  .region("mzg")
+                  .build();
+
+               try {
+                  if (!(minioClient.bucketExists(BucketExistsArgs.builder().bucket("mlflow").build()))) {
+                     minioClient.makeBucket(MakeBucketArgs.builder().bucket("mlflow").build());
+                     LOG.info("Created mlflow bucket on minio Object Storage for project {}", projectProperties.getName());
+                  }
+               } catch (Exception e) {
+                  LOG.warn("Exception occurred creating mlflow bucket for project {}", projectProperties.getName(), e);
+               }
+            } else {
+               LOG.warn("No matching port for for minio found in project {}", projectProperties.getName());
+            }
+
             return Done.getInstance();
          });
+   }
+
+   private CompletionStage<Done> linkToolchainProxy(ProjectProperties projectProperties) {
+      if (projectProperties.getMlflowConfiguration().isPresent()) {
+         var mlflowConfig = projectProperties.getMlflowConfiguration().get();
+         var maybeMlflowContainer = infrastructure
+            .findDeployment(mlflowConfig.getDeploymentName())
+            .flatMap(deployment -> deployment.findContainer(mlflowConfig.getMlflowContainerName(projectProperties.getId())));
+         var maybeMinioContainer = infrastructure
+            .findDeployment(mlflowConfig.getDeploymentName())
+            .flatMap(deployment -> deployment.findContainer(mlflowConfig.getMinioContainerName(projectProperties.getId())));
+
+         var proxyConfiguredCS = maybeMlflowContainer
+            .map(c -> configureMlflowProxy(projectProperties, mlflowConfig, c))
+            .orElseGet(() -> {
+               LOG.warn(
+                  "No Mlflow container {} found in project {}",
+                  mlflowConfig.getMlflowContainerName(projectProperties.getId()),
+                  projectProperties.getName());
+
+               return CompletableFuture.completedFuture(Done.getInstance());
+            });
+
+         var minioBucketCreatedCS = maybeMinioContainer
+            .map(c -> createMinioBucket(projectProperties, mlflowConfig, c))
+            .orElseGet(() -> {
+               LOG.warn(
+                  "No Minio container {} found in project {}",
+                  mlflowConfig.getMinioContainerName(projectProperties.getId()),
+                  projectProperties.getName());
+
+               return CompletableFuture.completedFuture(Done.getInstance());
+            });
+
+         return Operators.compose(
+            proxyConfiguredCS, minioBucketCreatedCS,
+            (proxyConfigured, minioBucketCreated) -> Done.getInstance());
+      } else {
+         return CompletableFuture.completedFuture(Done.getInstance());
+      }
    }
 
    private static DeploymentConfig createMlflowDeploymentConfig(UID project, MlflowConfiguration properties) {

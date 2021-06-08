@@ -69,7 +69,6 @@ def projects_activate(name):
     config.activate_project(project_name=project.name, project_id=project.project_id)
 
     status, env_variables = client.command(cmd='projects environment', args={'name': name})
-    print(type(env_variables))
     if status == 200:
         for (env_key, env_value) in env_variables.items():
             config.add_process_env(env_key, env_value)

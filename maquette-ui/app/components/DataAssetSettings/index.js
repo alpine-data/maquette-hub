@@ -12,6 +12,7 @@ import { Button, ButtonToolbar, ControlLabel, Form, FormControl, FormGroup } fro
 
 import Container from '../Container';
 import DataAssetPropertiesForm, { validate as validateDataAssetProperties } from '../DataAssetPropertiesForm';
+import DataAssetReview from '../DataAssetReview';
 
 
 import Error from '../Error';
@@ -104,6 +105,17 @@ function AdditionalSettings({
   </>
 }
 
+function Review({ view, container, onUpdateSettings }) {
+  return <>
+    <h4>Review { _.capitalize(container) }</h4>
+    <DataAssetReview 
+      { ...view } 
+      onApprove={ () => onUpdateSettings({}, 'approve', false) }
+      onDecline={ (reason) => onUpdateSettings({ reason }, 'decline', false) }
+      onRequestReview={ (message) => onUpdateSettings({ message }, 'request-review', false) } />
+  </>
+}
+
 function DataAssetSettings({ 
   additionalTabs, basePath, container, view,
   settingsComponentClass, settingsComponentAdditionalProps, settingsComponentInitialState, settingsComponentValidate,
@@ -118,7 +130,7 @@ function DataAssetSettings({
   function getTabs() {
     const commonTabs = [
       {
-        order: 0,
+        order: 5,
         key: 'properties',
         label: 'Properties',
         link: `${basePath}`,
@@ -167,7 +179,15 @@ function DataAssetSettings({
         link: `${basePath}/danger`,
         visible: true,
         component: () => <DangerZone view={ view } container={ container } />
-      }
+      },
+      {
+        order: 40,
+        key: 'review',
+        label: 'Review',
+        link: `${basePath}/review`,
+        visible: true,
+        component: () => <Review view={ view } container={ container } onUpdateSettings={ onUpdateSettings } />
+      },
     ]
 
     const addedTabs = _.map(additionalTabs, tab => _.assign({}, tab, { 

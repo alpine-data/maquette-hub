@@ -14,13 +14,13 @@ import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 SyntaxHighlighter.registerLanguage('json', json);
 
-import { FlexboxGrid } from 'rsuite';
+import { Button, FlexboxGrid } from 'rsuite';
 
 function SourceOverview(props) {
   const view = _.get(props, 'source.view');
   const schema = _.get(view, 'asset.customProperties.schema');
   const records = _.get(view, 'asset.customProperties.records');
-  const statistics = _.get(view, 'asset.customProperties.columns') || [];
+  const statistics = _.get(view, 'asset.customProperties.explorer.columns') || [];
 
   if (!view) {
     return <></>;
@@ -43,11 +43,11 @@ function SourceOverview(props) {
         <FlexboxGrid.Item colspan={ 15 }>
           <h4>Fields</h4>
 
-          { 
-            _.isEmpty(statistics) && <>
-              <p>Currently, there is no field data available.</p>
-            </> || <>
+          {
+            _.size(statistics) > 0 ? <>
               <DataExplorer stats={ statistics } />
+            </> : <>
+              <Button onClick={ () => props.dispatch(props.onAnalyze()) }>Request Analysis</Button>
             </>
           }
         </FlexboxGrid.Item>

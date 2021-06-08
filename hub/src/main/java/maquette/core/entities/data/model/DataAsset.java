@@ -3,8 +3,9 @@ package maquette.core.entities.data.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.With;
-import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestStatus;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestStatus;
+import maquette.core.entities.data.model.tasks.Task;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetPermissions;
@@ -25,6 +26,8 @@ public final class DataAsset {
    private final List<DataAccessRequest> accessRequests;
 
    private final List<GrantedAuthorization<DataAssetMemberRole>> members;
+
+   private final List<Task> tasks;
 
    @Nullable
    private final Object customSettings;

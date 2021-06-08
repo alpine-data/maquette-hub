@@ -1,7 +1,7 @@
 package maquette.core.values.data;
 
-import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestStatus;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestStatus;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 

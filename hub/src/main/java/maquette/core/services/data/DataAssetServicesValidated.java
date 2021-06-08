@@ -9,11 +9,10 @@ import maquette.common.validation.validators.ObjectValidator;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.entities.data.model.Task;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.entities.logs.LogEntry;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.AuthorizationValidator;
 import maquette.core.values.authorization.UserAuthorization;
@@ -98,6 +97,17 @@ public final class DataAssetServicesValidated implements DataAssetServices {
    }
 
    @Override
+   public CompletionStage<Done> decline(User executor, String name, String reason) {
+      return FluentValidation
+         .apply()
+         .validate("executor", executor, NotNullValidator.apply())
+         .validate("name", name, NotNullValidator.apply())
+         .validate("reason", reason, NonEmptyStringValidator.apply(3))
+         .checkAndFail()
+         .thenCompose(done -> delegate.decline(executor, name, reason));
+   }
+
+   @Override
    public CompletionStage<Done> deprecate(User executor, String name, boolean deprecate) {
       return FluentValidation
          .apply()
@@ -139,6 +149,17 @@ public final class DataAssetServicesValidated implements DataAssetServices {
    }
 
    @Override
+   public CompletionStage<Done> requestReview(User executor, String name, String message) {
+      return FluentValidation
+         .apply()
+         .validate("executor", executor, NotNullValidator.apply())
+         .validate("name", name, NotNullValidator.apply())
+         .validate("message", message, NonEmptyStringValidator.apply(3))
+         .checkAndFail()
+         .thenCompose(done -> delegate.requestReview(executor, name, message));
+   }
+
+   @Override
    public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String name) {
       return FluentValidation
          .apply()
@@ -172,14 +193,17 @@ public final class DataAssetServicesValidated implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<Done> grantDataAccessRequest(
+      User executor, String name, UID request, @Nullable Instant until, @Nullable String message,
+      String environment, boolean downstreamApprovalRequired) {
+
       return FluentValidation
          .apply()
          .validate("executor", executor, NotNullValidator.apply())
          .validate("name", name, NotNullValidator.apply())
          .validate("request", name, NotNullValidator.apply())
          .checkAndFail()
-         .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message));
+         .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment, downstreamApprovalRequired));
    }
 
    @Override
@@ -215,16 +239,6 @@ public final class DataAssetServicesValidated implements DataAssetServices {
          .validate("request", name, NotNullValidator.apply())
          .checkAndFail()
          .thenCompose(done -> delegate.withdrawDataAccessRequest(executor, name, request, reason));
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor, String name) {
-      return null;
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor) {
-      return null;
    }
 
    @Override

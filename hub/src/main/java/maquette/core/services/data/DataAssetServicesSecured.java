@@ -6,11 +6,10 @@ import maquette.common.Operators;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetMetadata;
 import maquette.core.entities.data.model.DataAssetProperties;
-import maquette.core.entities.data.model.Task;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.entities.logs.LogEntry;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.access.DataAccessRequest;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetPermissions;
@@ -52,17 +51,28 @@ public final class DataAssetServicesSecured implements DataAssetServices {
          .thenCompose(ok -> delegate.get(executor, name))
          .thenCompose(entity -> {
             var isOwnerCS = comp.isMember(executor, name, DataAssetMemberRole.OWNER);
+            var isStewardCS = comp.isMember(executor, name, DataAssetMemberRole.STEWARD);
 
             return Operators
-               .compose(isMemberCS, isSubscribedCS, isOwnerCS, (isMember, isSubscribed, isOwner) -> {
-                  if (isOwner) {
+               .compose(isMemberCS, isSubscribedCS, isOwnerCS, isStewardCS, (isMember, isSubscribed, isOwner, isSteward) -> {
+                  var permissions = DataAssetPermissions.apply(isOwner, isSteward, false, false, isMember, isSubscribed);
+
+                  // filter tasks visible by requesting user.
+                  var e = entity.withTasks(entity
+                     .getTasks()
+                     .stream()
+                     .filter(t -> t.canExecuteTask(permissions))
+                     .collect(Collectors.toList()));
+
+                  // adopt permissions for access requests and filter not accessible access requests.
+                  if (permissions.canManageAccessRequests()) {
                      var requests = entity
                         .getAccessRequests()
                         .stream()
                         .map(request -> request.withCanGrant(true))
                         .collect(Collectors.toList());
 
-                     return CompletableFuture.completedFuture(entity.withAccessRequests(requests));
+                     return CompletableFuture.completedFuture(e.withAccessRequests(requests));
                   } else {
                      return Operators
                         .allOf(entity
@@ -79,7 +89,7 @@ public final class DataAssetServicesSecured implements DataAssetServices {
                            .map(Optional::get)
                            .map(request -> request.withCanRequest(true))
                            .collect(Collectors.toList()))
-                        .thenApply(entity::withAccessRequests);
+                        .thenApply(e::withAccessRequests);
                   }
                })
                .thenCompose(cs -> cs);
@@ -112,6 +122,14 @@ public final class DataAssetServicesSecured implements DataAssetServices {
          .withAuthorization(
             () -> comp.hasPermission(executor, name, DataAssetPermissions::canManageState))
          .thenCompose(ok -> delegate.approve(executor, name));
+   }
+
+   @Override
+   public CompletionStage<Done> decline(User executor, String name, String reason) {
+      return comp
+         .withAuthorization(
+            () -> comp.hasPermission(executor, name, DataAssetPermissions::canManageState))
+         .thenCompose(ok -> delegate.decline(executor, name, reason));
    }
 
    @Override
@@ -148,6 +166,14 @@ public final class DataAssetServicesSecured implements DataAssetServices {
    }
 
    @Override
+   public CompletionStage<Done> requestReview(User executor, String name, String message) {
+      return comp
+         .withAuthorization(
+            () -> comp.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
+         .thenCompose(ok -> delegate.requestReview(executor, name, message));
+   }
+
+   @Override
    public CompletionStage<List<LogEntry>> getAccessLogs(User executor, String name) {
       return comp
          .withAuthorization(
@@ -175,11 +201,14 @@ public final class DataAssetServicesSecured implements DataAssetServices {
    }
 
    @Override
-   public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @Nullable Instant until, @Nullable String message) {
+   public CompletionStage<Done> grantDataAccessRequest(
+      User executor, String name, UID request, @Nullable Instant until, @Nullable String message,
+      String environment, boolean downstreamApprovalRequired) {
+
       return comp
          .withAuthorization(
             () -> comp.hasPermission(executor, name, DataAssetPermissions::canManageAccessRequests))
-         .thenCompose(ok -> delegate.grantDataAccessRequest(executor, name, request, until, message));
+         .thenCompose(ok -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment, downstreamApprovalRequired));
    }
 
    @Override
@@ -206,16 +235,6 @@ public final class DataAssetServicesSecured implements DataAssetServices {
             () -> comp.hasPermission(executor, name, DataAssetPermissions::canManageAccessRequests),
             () -> comp.isRequester(executor, name, request))
          .thenCompose(ok -> delegate.withdrawDataAccessRequest(executor, name, request, reason));
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor, String name) {
-      return delegate.getNotifications(executor, name);
-   }
-
-   @Override
-   public CompletionStage<List<Task>> getNotifications(User executor) {
-      return delegate.getNotifications(executor);
    }
 
    @Override

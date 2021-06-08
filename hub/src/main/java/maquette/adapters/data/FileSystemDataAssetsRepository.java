@@ -11,7 +11,7 @@ import maquette.config.FileSystemRepositoryConfiguration;
 import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.entities.data.ports.DataAssetsRepository;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;

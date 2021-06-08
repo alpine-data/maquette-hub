@@ -3,7 +3,6 @@ package maquette.core.services.data;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.asset_providers.datasets.model.CommittedRevision;
 import maquette.common.Operators;
 import maquette.core.config.RuntimeConfiguration;
 import maquette.core.entities.data.DataAssetEntities;
@@ -11,14 +10,14 @@ import maquette.core.entities.data.DataAssetEntity;
 import maquette.core.entities.data.DataAssetProviders;
 import maquette.core.entities.data.model.DataAsset;
 import maquette.core.entities.data.model.DataAssetProperties;
+import maquette.core.entities.data.model.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
+import maquette.core.entities.data.model.access.DataAccessRequestStatus;
 import maquette.core.entities.projects.ProjectEntities;
 import maquette.core.entities.projects.ProjectEntity;
 import maquette.core.services.ServiceCompanion;
 import maquette.core.services.dependencies.DependencyCompanion;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequest;
-import maquette.core.values.access.DataAccessRequestProperties;
-import maquette.core.values.access.DataAccessRequestStatus;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataAssetMembers;
@@ -80,8 +79,10 @@ public final class DataAssetCompanion extends ServiceCompanion {
          return entity.getCustomProperties(provider.getPropertiesType());
       });
 
+      var tasksCS = entity.getOpenTasks();
+
       return Operators.compose(
-         propertiesCS, accessRequestsCS, membersCS,
+         propertiesCS, accessRequestsCS, membersCS, tasksCS,
          customSettingsCS, customPropertiesCS, customDetailsCS, DataAsset::apply);
    }
 

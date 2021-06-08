@@ -12,7 +12,7 @@ import maquette.core.server.Command;
 import maquette.core.server.CommandResult;
 import maquette.core.server.views.CreateDataAccessRequestView;
 import maquette.core.services.ApplicationServices;
-import maquette.core.values.access.DataAccessRequest;
+import maquette.core.entities.data.model.access.DataAccessRequest;
 import maquette.core.values.data.DataAssetMemberRole;
 import maquette.core.values.data.DataClassification;
 import maquette.core.values.exceptions.DomainException;

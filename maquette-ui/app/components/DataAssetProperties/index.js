@@ -57,6 +57,12 @@ const states = {
     color: 'orange',
     colorCode: '#ff9800',
     textColor: '#333'
+  },
+  'declined': {
+    label: 'Declined',
+    color: 'red',
+    colorCode: '#ff0000',
+    textColor: '#333'
   }
 }
 

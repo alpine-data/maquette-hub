@@ -1,4 +1,4 @@
-package maquette.core.values.access;
+package maquette.core.entities.data.model.access;
 
 import com.google.common.collect.Sets;
 

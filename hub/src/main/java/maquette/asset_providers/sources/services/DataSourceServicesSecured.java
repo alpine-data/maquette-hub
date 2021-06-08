@@ -9,6 +9,7 @@ import maquette.core.values.data.DataAssetPermissions;
 import maquette.core.values.data.records.Records;
 import maquette.core.values.user.User;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -29,7 +30,8 @@ public final class DataSourceServicesSecured implements DataSourceServices {
    public CompletionStage<Records> download(User executor, String source) {
       return companion
          .withAuthorization(
-            () -> companion.hasPermission(executor, source, DataAssetPermissions::canConsume))
+            () -> companion.hasPermission(executor, source, DataAssetPermissions::canConsume),
+            () -> CompletableFuture.completedFuture(executor.isSystemUser()))
          .thenCompose(ok -> delegate.download(executor, source));
    }
 

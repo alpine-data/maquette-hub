@@ -5,7 +5,7 @@ import maquette.core.entities.data.exceptions.DataAssetNotFoundException;
 import maquette.core.entities.data.model.DataAssetProperties;
 import maquette.core.ports.common.HasMembers;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 import maquette.core.values.data.DataAssetMemberRole;
 
 import java.util.List;

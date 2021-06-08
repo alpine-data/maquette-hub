@@ -186,6 +186,7 @@ public final class MlflowPort {
             var body = response.body();
             var content = body != null ? Operators.suppressExceptions(body::string) : "";
             content = StringUtils.leftPad(content, 3);
+            if (body != null) body.close();
             throw new RuntimeException("Received non-successful response from MLflow `" + request.url() + "`:\n" + content);
          } else {
             var body = response.body();
@@ -212,6 +213,7 @@ public final class MlflowPort {
             var body = response.body();
             var content = body != null ? Operators.suppressExceptions(body::string) : "";
             content = StringUtils.leftPad(content, 3);
+            if (body != null) body.close();
             throw new RuntimeException("Received non-successful response from MLflow:\n" + content);
          } else {
             var body = response.body();

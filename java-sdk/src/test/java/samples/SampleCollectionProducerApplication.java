@@ -11,7 +11,7 @@ public class SampleCollectionProducerApplication {
 
       Maquette
          .create()
-         .collection("some-collection")
+         .collection("mnist-training-data")
          .writeDirectory(directory, "Extracted from the internet and transformed to PNG.");
 
       /*

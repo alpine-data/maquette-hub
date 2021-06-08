@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.common.Operators;
 import maquette.core.ports.common.HasDataAccessRequests;
 import maquette.core.values.UID;
-import maquette.core.values.access.DataAccessRequestProperties;
+import maquette.core.entities.data.model.access.DataAccessRequestProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

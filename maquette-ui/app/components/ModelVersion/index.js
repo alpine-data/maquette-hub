@@ -18,7 +18,6 @@ import ModernSummary, { TextMetric } from '../ModernSummary';
 import VerticalTabs from '../VerticalTabs';
 import EditableParagraph from '../EditableParagraph';
 import _ from 'lodash';
-import IFrameDisplay from '../IFrameDisplay';
 
 const ActionButton = styled(Button)`
   width: 100%;
@@ -355,6 +354,7 @@ function ReviewModel({ view, model, version, onUpdateModel }) {
   const [state, , onChange] = useFormState(initialState);
   const isValid = !(state.decision === 'reject' && _.isEmpty(state.reason));
   const rejected = _.get(_.first(_.filter(version.events, e => e.event === 'rejected')), 'created');
+  const approved = _.get(_.first(_.filter(version.events, e => e.event === 'approved')), 'created');
 
   return <div>
     <FlexboxGrid justify="space-between">
@@ -370,7 +370,7 @@ function ReviewModel({ view, model, version, onUpdateModel }) {
         }
 
         { 
-          version.state === 'review-requested' && version.state !== 'approved' && <>
+          version.state === 'requested' && version.state !== 'approved' && <>
             <Form fluid>
               <FormGroup>
                 <ControlLabel>Response</ControlLabel>
@@ -380,28 +380,32 @@ function ReviewModel({ view, model, version, onUpdateModel }) {
                 </RadioGroup>
               </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Reason</ControlLabel>
-                <FormControl componentClass="textarea" rows={ 5 } value={ state.reason } onChange={ onChange('reason') } />
-              </FormGroup>
+              {
+                _.isEqual(state.decision, 'reject') && <>
+                  <FormGroup>
+                    <ControlLabel>Reason</ControlLabel>
+                    <FormControl componentClass="textarea" rows={ 5 } value={ state.reason } onChange={ onChange('reason') } />
+                  </FormGroup>
+                </>
+              }
 
               <ButtonGroup>
                 <Button 
                   disabled={ !isValid }
                   appearance="primary"
                   onClick={ () => {
-                    if (state.reason === 'reject') {
-                      onUpdateModel('projects models approve', { 
-                        project: view.project.name,
-                        model: model.name,
-                        version: version.version
-                      });
-                    } else {
+                    if (_.isEqual(state.decision, 'reject')) {
                       onUpdateModel('projects models reject', { 
                         project: view.project.name,
                         model: model.name,
                         version: version.version,
                         reason: state.reason
+                      });
+                    } else {
+                      onUpdateModel('projects models approve', { 
+                        project: view.project.name,
+                        model: model.name,
+                        version: version.version
                       });
                     }
                   } }>
@@ -410,7 +414,19 @@ function ReviewModel({ view, model, version, onUpdateModel }) {
                 </Button>
               </ButtonGroup>
             </Form>
-          </> || <>
+          </>
+        }
+
+        {
+          version.state === 'approved' && <>
+            <Message 
+              type="success"
+              description={ <>Model is approved by { view.users[approved.by].name } at <b>{formatTime(approved.at)}</b>.</> } />
+          </>
+        }
+
+        {
+          version.state !== 'requested' && version.state !== 'approved' && <>
             <Message 
               type="info"
               description={ <>Review has not been requested yet.</> } />

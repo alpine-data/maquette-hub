@@ -1,7 +1,7 @@
 package maquette.core.ports.common;
 
 import akka.Done;
-import maquette.core.values.access.DataAccessToken;
+import maquette.core.entities.data.model.access.DataAccessToken;
 
 import java.util.List;
 import java.util.Optional;

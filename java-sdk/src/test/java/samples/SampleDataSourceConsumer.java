@@ -34,8 +34,8 @@ public class SampleDataSourceConsumer {
 
       Maquette
          .create()
-         .source("internal-user-registry")
-         .source(User.class)
+         .source("store-information")
+         .source(Store.class)
          .map(c -> {
             System.out.println(c);
             return c;

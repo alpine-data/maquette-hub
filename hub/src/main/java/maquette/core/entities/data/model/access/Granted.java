@@ -1,4 +1,4 @@
-package maquette.core.values.access;
+package maquette.core.entities.data.model.access;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -16,6 +16,10 @@ public class Granted implements DataAccessRequestEvent {
    Instant until;
 
    String message;
+
+   String environment;
+
+   boolean downstreamApprovalRequired;
 
    @Override
    public Instant getEventMoment() {

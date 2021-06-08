@@ -40,8 +40,12 @@ public class DataAssetPermissions {
       return owner || producer || steward || member;
    }
 
+   @JsonProperty("canReview")
+   public boolean canReview() { return owner; }
+
    @JsonProperty("canReviewLogs")
    public boolean canReviewLogs() {
       return owner || steward;
    }
+
 }

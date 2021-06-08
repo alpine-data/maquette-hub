@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DataAssetState {
 
-   REVIEW_REQUIRED("review-required"), APPROVED("approved"), DEPRECATED("deprecated");
+   REVIEW_REQUIRED("review-required"), APPROVED("approved"), DECLINED("declined");
 
    private final String value;
 
