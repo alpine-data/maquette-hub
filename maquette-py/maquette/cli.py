@@ -44,7 +44,7 @@ def projects_init(name, title, summary):
     """
     Initialize a project with it's NAME, a TITLE and a SUMMARY.
     """
-    maquette.project(name,title,summary).create()
+    maquette.project(name, title, summary).create()
     print('# Heureka! You created a project called ' + name + '(‘-’)人(ﾟ_ﾟ)\n'
             '# \n'                                                 
             '# To activate the project type: mq project activate ' + name)
