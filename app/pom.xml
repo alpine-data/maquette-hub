@@ -22,14 +22,14 @@
   <dependencies>
     <!-- project dependencies -->
     <dependency>
-      <groupId>${groupId}</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <!-- project dependencies -->
     <dependency>
-      <groupId>${groupId}</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>data-shop-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
