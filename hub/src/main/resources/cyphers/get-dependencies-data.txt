@@ -1,4 +1,0 @@
-MATCH (root:DataAsset {{ dataAsset }}) <-[r:CONSUMED_BY|PRODUCES*1..5]-(d)
-RETURN root, d, r;
-MATCH (root:DataAsset {{ dataAsset }}) -[r:CONSUMED_BY|PRODUCES*1..5]->(d)
-RETURN root, d, r;

@@ -1,4 +1,0 @@
-MERGE (asset:DataAsset {{ dataAsset }})
-MERGE (app:Application {{ application }})
-MERGE (app)-[c:PRODUCES]->(asset)
-SET c.tracked = datetime()

@@ -1,9 +1,0 @@
-README.md
-setup.py
-maquette_cli/__client.py
-maquette_cli/__user_config.py
-maquette_cli.egg-info/PKG-INFO
-maquette_cli.egg-info/SOURCES.txt
-maquette_cli.egg-info/dependency_links.txt
-maquette_cli.egg-info/requires.txt
-maquette_cli.egg-info/top_level.txt

@@ -1,1 +1,0 @@
-{"MINIO_URL": "http://localhost:32801", "MQ_PROJECT_ID": "711ed4f2", "AWS_ACCESS_KEY_ID": "a66fd57c", "MQ_PROJECT": "935d709d", "AWS_SECRET_ACCESS_KEY": "7d5de6e2", "AWS_DEFAULT_REGION": "mzg", "MLFLOW_TRACKING_URI": "http://localhost:55099", "MLFLOW_S3_ENDPOINT_URL": "http://localhost:55097"}

@@ -1,8 +1,0 @@
-README.rst
-setup.py
-maquette_datasets/__init__.py
-maquette_datasets.egg-info/PKG-INFO
-maquette_datasets.egg-info/SOURCES.txt
-maquette_datasets.egg-info/dependency_links.txt
-maquette_datasets.egg-info/requires.txt
-maquette_datasets.egg-info/top_level.txt

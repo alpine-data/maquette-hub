@@ -1,4 +1,0 @@
-MERGE (asset:DataAsset {{dataAsset }})
-MERGE (model:Model {{ model }})
-MERGE (asset)-[c:CONSUMED_BY]->(model)
-SET c.tracked = datetime()
