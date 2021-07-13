@@ -101,7 +101,7 @@ public final class Maquette {
       var map = Maps.<String, Object>newHashMap();
       map.put("version", runtime.getConfig().getVersion());
       map.put("environment", runtime.getConfig().getEnvironment());
-      var banner = Templates.renderTemplateFromResources("banner.twig", map);
+      var banner = Templates.renderTemplateFromResources(runtime.getConfig().getCore().getBanner(), map);
       LOG.info("{} has started {}", runtime.getConfig().getName(), banner);
 
       return this;
