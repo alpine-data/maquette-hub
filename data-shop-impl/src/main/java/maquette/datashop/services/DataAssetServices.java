@@ -18,20 +18,63 @@ import java.util.concurrent.CompletionStage;
 
 public interface DataAssetServices {
 
-   /*
-    * Manage data asset
+   /**
+    * Creates a new data asset.
+    *
+    * @param executor       The user who executes the action.
+    * @param type           The data asset type name. The type must be covered by a registered {@link maquette.datashop.values.DataAssetProvider}.
+    * @param metadata       Basic metadata of the asset.
+    * @param owner          Optional. The initial owner of the data asset.
+    * @param steward        Optional. The initial steward of the data asset.
+    * @param customSettings Optional. Custom settings for the data asset type.
+    * @return The properties of the newly created  data asset.
     */
    CompletionStage<DataAssetProperties> create(
       User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings);
 
+   /**
+    * Get details of a data asset by name.
+    *
+    * @param executor The user who executes the request.
+    * @param name     The name of the asset which is queried.
+    * @return Details of the data asset.
+    */
    CompletionStage<DataAsset> get(User executor, String name);
 
+   /**
+    * Get a list of available data assets (the user is allowed to view).
+    *
+    * @param executor The user who executes the request.
+    * @return The list of data assets.
+    */
    CompletionStage<List<DataAssetProperties>> list(User executor);
 
+   /**
+    * Approve a data asset configuration (usually executed by a data owner)
+    *
+    * @param executor The user who executes the request.
+    * @param name     The name of the data asset to approve.
+    * @return Done.
+    */
    CompletionStage<Done> approve(User executor, String name);
 
+   /**
+    * Decline a data asset configuration (usually executed by a data owner).
+    *
+    * @param executor The user who executes the request.
+    * @param name     The name of teh data asset to decline.
+    * @param reason   The reason why the data asset configuration is declined and actions which would allow approval.
+    * @return Done.
+    */
    CompletionStage<Done> decline(User executor, String name, String reason);
 
+   /**
+    * Deprecate a data asset. This can be executed
+    * @param executor
+    * @param name
+    * @param deprecate
+    * @return
+    */
    CompletionStage<Done> deprecate(User executor, String name, boolean deprecate);
 
    CompletionStage<Done> update(User executor, String name, DataAssetMetadata metadata);

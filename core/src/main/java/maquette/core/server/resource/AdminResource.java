@@ -50,7 +50,7 @@ public final class AdminResource {
                 .json("200", User.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
-            ctx.json(Objects.requireNonNull(ctx.attribute("user")));
+            ctx.json((Object) Objects.requireNonNull(ctx.attribute("user")));
         });
     }
 

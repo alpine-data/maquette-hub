@@ -1,7 +1,9 @@
 package maquette.datashop.commands;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
@@ -18,6 +20,7 @@ import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDataAssetCommand implements Command {
 
    String type;

@@ -51,7 +51,7 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
     * @param id The id of the asset.
     * @return The found data asset.
     */
-   CompletionStage<Optional<DataAssetProperties>> findEntitiesById(UID id);
+   CompletionStage<Optional<DataAssetProperties>> findDataAssetsById(UID id);
 
    /**
     * Retrieve custom settings of a data asset.
@@ -110,7 +110,7 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
     * @throws DataAssetNotFoundException if data asset does not exist.
     */
    default CompletionStage<DataAssetProperties> getDataAssetById(UID id) {
-      return findEntitiesById(id).thenCompose(opt -> opt
+      return findDataAssetsById(id).thenCompose(opt -> opt
          .<CompletionStage<DataAssetProperties>>map(CompletableFuture::completedFuture)
          .orElseGet(() -> CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromId(id))));
    }

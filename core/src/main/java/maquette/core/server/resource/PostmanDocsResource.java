@@ -7,9 +7,12 @@ import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
+import maquette.core.server.MaquetteServer;
 import maquette.core.server.commands.Command;
 import maquette.core.values.apidocs.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor()
 public final class PostmanDocsResource {
+
+   private static final Logger LOG = LoggerFactory.getLogger(MaquetteServer.class);
 
    MaquetteRuntime runtime;
 
@@ -90,6 +95,7 @@ public final class PostmanDocsResource {
                var command = (Command) constructor.newInstance();
                return Optional.of(Pair.of(type.getName(), command));
             } catch (Exception e) {
+               LOG.warn("Unable to instantiate command `{}` for API docs - Does the command have a default constructor?", type.getName(), e);
                return Optional.<Pair<String, Command>>empty();
             }
          })

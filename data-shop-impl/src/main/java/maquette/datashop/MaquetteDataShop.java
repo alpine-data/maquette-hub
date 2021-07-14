@@ -39,7 +39,7 @@ public class MaquetteDataShop implements MaquetteModule {
       commands.put("data-assets grant", GrantDataAssetMemberCommand.class);
       commands.put("data-assets revoke", RevokeDataAssetMemberCommand.class);
 
-      commands.put("data-assets request create", CreateDataAssetCommand.class);
+      commands.put("data-assets request create", CreateAccessRequestCommand.class);
       commands.put("data-assets request get", GetAccessRequestCommand.class);
       commands.put("data-assets request grant", GrantAccessRequestCommand.class);
       commands.put("data-assets request reject", RejectAccessRequestCommand.class);
