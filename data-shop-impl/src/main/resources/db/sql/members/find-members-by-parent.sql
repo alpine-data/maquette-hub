@@ -1,0 +1,1 @@
+SELECT * FROM maquette.mq__members WHERE type = :type AND parent = :parent;

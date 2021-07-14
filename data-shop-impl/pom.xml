@@ -27,6 +27,12 @@
       <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.jdbi</groupId>
+      <artifactId>jdbi3-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>

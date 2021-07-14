@@ -1,0 +1,1 @@
+DELETE FROM maquette.mq__data_access_requests WHERE id = :id;

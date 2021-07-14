@@ -1,0 +1,46 @@
+INSERT INTO maquette.mq__data_assets (
+    id,
+    type,
+    title,
+    name,
+    summary,
+    visibility,
+    classification,
+    personal_information,
+    data_zone,
+    state,
+    created_by,
+    created_at,
+    updated_by,
+    updated_at,
+    custom_properties,
+    custom_settings)
+VALUES(
+    :id,
+    :type,
+    :title,
+    :name,
+    :summary,
+    :visibility,
+    :classification,
+    :personal_information,
+    :data_zone,
+    :state,
+    :created_by,
+    :created_at,
+    :updated_by,
+    :updated_at,
+    :custom_properties,
+    :custom_settings)
+ON CONFLICT
+DO UPDATE SET
+    title = :title,
+    name = :name,
+    summary = :summary,
+    visibility = :visibility,
+    classification = :classification,
+    personal_information = :personal_information,
+    data_zone = :data_zone
+    state = :state,
+    updated_by = :updated_by,
+    updated_at = :updated_at;

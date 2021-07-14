@@ -24,7 +24,7 @@ public final class DataAccessRequestProperties {
    private static final String ORIGIN = "origin";
    private static final String EVENTS = "events";
    private static final String ASSET = "asset";
-   private static final String PROJECT = "project";
+   private static final String WORKSPACE = "workspace";
 
    @JsonProperty(ID)
    private final UID id;
@@ -35,8 +35,8 @@ public final class DataAccessRequestProperties {
    @JsonProperty(ASSET)
    private final UID asset;
 
-   @JsonProperty(PROJECT)
-   private final UID project;
+   @JsonProperty(WORKSPACE)
+   private final UID workspace;
 
    @JsonProperty(EVENTS)
    private final List<DataAccessRequestEvent> events;
@@ -46,7 +46,7 @@ public final class DataAccessRequestProperties {
       @JsonProperty(ID) UID id,
       @JsonProperty(CREATED) ActionMetadata created,
       @JsonProperty(ASSET) UID asset,
-      @JsonProperty(PROJECT) UID project,
+      @JsonProperty(WORKSPACE) UID workspace,
       @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 
       if (events.isEmpty()) {
@@ -58,7 +58,7 @@ public final class DataAccessRequestProperties {
          .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
          .collect(Collectors.toList());
 
-      return new DataAccessRequestProperties(id, created, asset, project, eventsCopy);
+      return new DataAccessRequestProperties(id, created, asset, workspace, eventsCopy);
    }
 
    public static DataAccessRequestProperties apply(

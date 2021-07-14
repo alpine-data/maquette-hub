@@ -47,7 +47,7 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
    }
 
    @Override
-   public CompletionStage<Optional<DataAssetProperties>> findDataAssetsById(UID id) {
+   public CompletionStage<Optional<DataAssetProperties>> findDataAssetById(UID id) {
       return null;
    }
 
@@ -77,7 +77,7 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
    }
 
    @Override
-   public CompletionStage<Stream<DataAssetProperties>> listEntities() {
+   public CompletionStage<Stream<DataAssetProperties>> listDataAssets() {
       return null;
    }
 
