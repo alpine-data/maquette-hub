@@ -10,6 +10,8 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.datashop.configuration.DataShopConfiguration;
+import maquette.datashop.configuration.DatabaseConfiguration;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.DataAssetState;
 import maquette.datashop.values.access.DataAssetMemberRole;
@@ -36,14 +38,17 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
 
    private final JdbcMembersRepository<DataAssetMemberRole> membersRepository;
 
-   public static JdbcDataAssetRepository apply(
-      MaquetteRuntime runtime, String connectionString, String username, String password) {
-      var jdbi = Jdbi.create(connectionString, username, password);
+   public static JdbcDataAssetRepository apply(MaquetteRuntime runtime, DatabaseConfiguration config) {
+      var jdbi = Jdbi.create(config.getConnection(), config.getUsername(), config.getPassword());
       var om = runtime.getObjectMapperFactory().createJsonMapper(true);
       var members = JdbcMembersRepository.apply(
          "data-assets", jdbi, om, DataAssetMemberRole::getValue, DataAssetMemberRole::valueOf);
 
       return apply(jdbi, om, members);
+   }
+
+   public static JdbcDataAssetRepository apply(MaquetteRuntime runtime) {
+      return apply(runtime, DataShopConfiguration.apply().getDatabase());
    }
 
    @Override
