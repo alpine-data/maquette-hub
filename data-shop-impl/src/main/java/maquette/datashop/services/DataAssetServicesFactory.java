@@ -1,6 +1,7 @@
 package maquette.datashop.services;
 
 import maquette.core.MaquetteRuntime;
+import maquette.datashop.api.Workspaces;
 import maquette.datashop.entities.DataAssetEntities;
 
 public final class DataAssetServicesFactory {
@@ -9,8 +10,8 @@ public final class DataAssetServicesFactory {
 
    }
 
-   public static DataAssetServices apply(MaquetteRuntime runtime, DataAssetEntities entities) {
-      return DataAssetServicesImpl.apply(entities);
+   public static DataAssetServices apply(MaquetteRuntime runtime, DataAssetEntities entities, Workspaces workspaces) {
+      return DataAssetServicesImpl.apply(entities, workspaces);
    }
 
 }

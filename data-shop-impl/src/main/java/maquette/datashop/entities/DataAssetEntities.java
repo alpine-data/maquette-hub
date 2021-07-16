@@ -89,8 +89,18 @@ public final class DataAssetEntities {
       return DataAssetEntity.apply(id, repository, providers);
    }
 
+   public CompletionStage<DataAssetEntity> getByName(String name) {
+      return repository
+         .getDataAssetByName(name)
+         .thenApply(properties -> DataAssetEntity.apply(properties.getId(), repository, providers));
+   }
+
    public CompletionStage<List<DataAssetProperties>> list() {
       return repository.listDataAssets().thenApply(s -> s.collect(Collectors.toList()));
+   }
+
+   public CompletionStage<Done> removeByName(String name) {
+      return repository.removeDataAssetByName(name);
    }
 
 }
