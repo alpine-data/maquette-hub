@@ -19,8 +19,10 @@ import maquette.datashop.values.metadata.DataZone;
 import maquette.datashop.values.metadata.PersonalInformation;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DataAssetEntities {
@@ -85,6 +87,10 @@ public final class DataAssetEntities {
 
    public DataAssetEntity getById(UID id) {
       return DataAssetEntity.apply(id, repository, providers);
+   }
+
+   public CompletionStage<List<DataAssetProperties>> list() {
+      return repository.listDataAssets().thenApply(s -> s.collect(Collectors.toList()));
    }
 
 }

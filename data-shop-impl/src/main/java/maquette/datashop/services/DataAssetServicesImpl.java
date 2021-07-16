@@ -35,7 +35,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
    @Override
    public CompletionStage<List<DataAssetProperties>> list(User executor) {
-      return null;
+      return entities.list();
    }
 
    @Override
