@@ -10,6 +10,7 @@ import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
+import maquette.datashop.values.providers.DataAssetProvider;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -22,7 +23,7 @@ public interface DataAssetServices {
     * Creates a new data asset.
     *
     * @param executor       The user who executes the action.
-    * @param type           The data asset type name. The type must be covered by a registered {@link maquette.datashop.values.DataAssetProvider}.
+    * @param type           The data asset type name. The type must be covered by a registered {@link DataAssetProvider}.
     * @param metadata       Basic metadata of the asset.
     * @param owner          Optional. The initial owner of the data asset.
     * @param steward        Optional. The initial steward of the data asset.

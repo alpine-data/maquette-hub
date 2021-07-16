@@ -1,9 +1,10 @@
-package maquette.datashop.values;
+package maquette.datashop.values.providers;
 
 import akka.Done;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.datashop.entities.DataAssetEntity;
+import maquette.datashop.values.DataAssetProperties;
 
 import java.util.Map;
 import java.util.concurrent.CompletionStage;

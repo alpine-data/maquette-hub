@@ -2,29 +2,35 @@ package maquette.datashop;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.server.commands.Command;
 import maquette.datashop.commands.*;
 import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
 import maquette.datashop.commands.members.RevokeDataAssetMemberCommand;
 import maquette.datashop.commands.requests.*;
+import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.services.DataAssetServices;
-import maquette.datashop.values.DataAssetProviders;
+import maquette.datashop.services.DataAssetServicesFactory;
+import maquette.datashop.values.providers.DataAssetProvider;
+import maquette.datashop.values.providers.DataAssetProviders;
 
 import java.util.Map;
 
 @AllArgsConstructor(staticName = "apply")
 public class MaquetteDataShop implements MaquetteModule {
 
-   private final DataAssetsRepository repository;
+   private final DataAssetServices services;
 
    private final DataAssetProviders providers;
 
-   private final DataAssetServices services;
+   public static MaquetteDataShop apply(MaquetteRuntime runtime, DataAssetsRepository repository, DataAssetProvider... dataAssetProviders) {
+      var providers = DataAssetProviders.apply(dataAssetProviders);
+      var entities = DataAssetEntities.apply(repository, providers);
+      var services = DataAssetServicesFactory.apply(runtime, entities);
 
-   public static MaquetteDataShop apply(DataAssetsRepository repository) {
-      return apply(repository, null, null);
+      return apply(services, providers);
    }
 
    @Override
