@@ -62,10 +62,19 @@ public final class DataAccessRequestProperties {
    }
 
    public static DataAccessRequestProperties apply(
-      UID id, ActionMetadata created, UID asset, UID project, String reason) {
+      UID id, ActionMetadata created, UID asset, UID workspace, String reason) {
       var requested = Requested.apply(created, reason);
-      return apply(id, created, asset, project, List.of(requested));
+      return apply(id, created, asset, workspace, List.of(requested));
    }
+
+   public static DataAccessRequestProperties fake(UID asset, UID workspace) {
+      return apply(UID.apply(), ActionMetadata.apply("egon"), asset, workspace, "Fake access request.");
+   }
+
+   public static DataAccessRequestProperties fake(UID asset) {
+      return fake(asset, UID.apply());
+   }
+
 
    public void addEvent(DataAccessRequestEvent event) {
       if (event.getEventMoment().isBefore(events.get(0).getEventMoment())) {

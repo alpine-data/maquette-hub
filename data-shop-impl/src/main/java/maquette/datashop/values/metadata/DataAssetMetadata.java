@@ -1,47 +1,82 @@
 package maquette.datashop.values.metadata;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 
 @With
 @Value
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataAssetMetadata {
+
+   private static final String TITLE = "title";
+   private static final String NAME = "name";
+   private static final String SUMMARY = "summary";
+   private static final String VISIBILITY = "visibility";
+   private static final String CLASSIFICATION = "classification";
+   private static final String PERSONAL_INFORMATION = "personal-information";
+   private static final String ZONE = "zone";
 
    /**
     * A speaking title for the data asset.
     */
+   @JsonProperty(TITLE)
    String title;
 
    /**
     * A technical name for the data asset.
     */
+   @JsonProperty(NAME)
    String name;
 
    /**
     * A short description of the data asset.
     */
+   @JsonProperty(SUMMARY)
    String summary;
 
    /**
     * The visibility of the asset.
     */
+   @JsonProperty(VISIBILITY)
    DataVisibility visibility;
 
    /**
     * Classification if the asset.
     */
+   @JsonProperty(CLASSIFICATION)
    DataClassification classification;
 
    /**
     * Indicator whether personal information is included in the data.
     */
+   @JsonProperty(PERSONAL_INFORMATION)
    PersonalInformation personalInformation;
 
    /**
     * The zone gives an indication how well prepared/ clean the data is.
     */
+   @JsonProperty(ZONE)
    DataZone zone;
+
+   @JsonCreator
+   public static DataAssetMetadata apply(
+      @JsonProperty(TITLE) String title,
+      @JsonProperty(NAME) String name,
+      @JsonProperty(SUMMARY) String summary,
+      @JsonProperty(VISIBILITY) DataVisibility visibility,
+      @JsonProperty(CLASSIFICATION) DataClassification classification,
+      @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
+      @JsonProperty(ZONE) DataZone zone) {
+
+      return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone);
+   }
+
+   public static DataAssetMetadata fake(String name) {
+      return apply(name, name, name, DataVisibility.PUBLIC, DataClassification.INTERNAL, PersonalInformation.SENSITIVE_PERSONAL_INFORMATION, DataZone.RAW);
+   }
 
 }

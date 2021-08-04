@@ -28,7 +28,7 @@ public class MaquetteDataShop implements MaquetteModule {
    public static MaquetteDataShop apply(MaquetteRuntime runtime, DataAssetsRepository repository, DataAssetProvider... dataAssetProviders) {
       var providers = DataAssetProviders.apply(dataAssetProviders);
       var entities = DataAssetEntities.apply(repository, providers);
-      var services = DataAssetServicesFactory.apply(runtime, entities);
+      var services = DataAssetServicesFactory.apply(runtime, entities, null);
 
       return apply(services, providers);
    }

@@ -22,4 +22,8 @@ public class GrantedAuthorization<T extends Enum<T>> {
         return new GrantedAuthorization<>(granted, authorization, role);
     }
 
+    public boolean isEqualTo(GrantedAuthorization<T> other) {
+        return other.authorization.equals(this.authorization) && role.equals(other.getRole());
+    }
+
 }
