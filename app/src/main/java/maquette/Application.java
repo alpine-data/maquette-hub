@@ -21,7 +21,7 @@ public class Application {
       var dataAssetsRepository = InMemoryDataAssetsRepository.apply();
 
       return runtime
-         .withModule(rt -> MaquetteDataShop.apply(dataAssetsRepository));
+         .withModule(rt -> MaquetteDataShop.apply(runtime, dataAssetsRepository));
    }
 
 }
