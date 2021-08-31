@@ -1,4 +1,4 @@
-package maquette.datashop.values;
+package maquette.datashop.api;
 
 public interface WorkspaceProperties {
 }

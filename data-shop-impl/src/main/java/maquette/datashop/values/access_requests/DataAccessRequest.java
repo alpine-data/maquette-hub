@@ -9,7 +9,7 @@ import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.datashop.values.DataAssetProperties;
-import maquette.datashop.values.WorkspaceProperties;
+import maquette.datashop.api.WorkspaceProperties;
 
 import java.util.Comparator;
 import java.util.List;

@@ -19,7 +19,7 @@ import maquette.datashop.values.providers.DataAssetProviders;
 import java.util.Map;
 
 @AllArgsConstructor(staticName = "apply")
-public class MaquetteDataShop implements MaquetteModule {
+public final class MaquetteDataShop implements MaquetteModule {
 
    private final DataAssetServices services;
 

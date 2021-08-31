@@ -6,7 +6,8 @@ import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
-import maquette.datashop.api.Workspaces;
+import maquette.datashop.api.WorkspaceEntity;
+import maquette.datashop.api.WorkspaceEntities;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.values.DataAsset;
@@ -15,6 +16,7 @@ import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
+import maquette.datashop.values.providers.DataAssetProviders;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -26,7 +28,9 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
    private final DataAssetEntities entities;
 
-   private final Workspaces workspaces;
+   private final WorkspaceEntities workspaces;
+
+   private final DataAssetProviders providers;
 
    @Override
    public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata, Authorization owner, Authorization steward, @Nullable Object customSettings) {
@@ -35,7 +39,40 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
    @Override
    public CompletionStage<DataAsset> get(User executor, String name) {
-      return null;
+      return entities.getByName(name).thenCompose(entity -> {
+         var propertiesCS = entity.getProperties();
+         var membersCS = entity.getMembers().getMembers();
+
+         var accessRequestsRawCS = entity
+            .getAccessRequests()
+            .getDataAccessRequests();
+
+         var accessRequestsCS = Operators
+            .compose(propertiesCS, accessRequestsRawCS, (properties, accessRequestsRaw) -> accessRequestsRaw
+               .stream()
+               .map(request -> this.enrichDataAccessRequest(properties, request)))
+            .thenCompose(Operators::allOf);
+
+         var customSettingsCS = propertiesCS.thenCompose(properties -> {
+            var provider = providers.getByName(properties.getType());
+            return entity.getCustomSettings(provider.getSettingsType());
+         });
+
+         var customDetailsCS = Operators
+            .compose(propertiesCS, customSettingsCS, (properties, customSettings) -> providers
+               .getByName(properties.getType())
+               .getDetails(properties, customSettings))
+            .thenCompose(cs -> cs);
+
+         var customPropertiesCS = propertiesCS.thenCompose(properties -> {
+            var provider = providers.getByName(properties.getType());
+            return entity.getCustomProperties(provider.getPropertiesType());
+         });
+
+         return Operators.compose(
+            propertiesCS, accessRequestsCS, membersCS,
+            customSettingsCS, customPropertiesCS, customDetailsCS, DataAsset::apply);
+      });
    }
 
    @Override
@@ -97,8 +134,9 @@ public final class DataAssetServicesImpl implements DataAssetServices {
       var propertiesCS = entityCS.thenCompose(DataAssetEntity::getProperties);
       var accessRequestPropertiesCS = entityCS.thenCompose(a -> a.getAccessRequests().getDataAccessRequestById(request));
 
-      // TODO
-      return null;
+      return Operators
+         .compose(propertiesCS, accessRequestPropertiesCS, this::enrichDataAccessRequest)
+         .thenCompose(cs -> cs);
    }
 
    @Override
@@ -141,6 +179,13 @@ public final class DataAssetServicesImpl implements DataAssetServices {
       return entities
          .getByName(name)
          .thenCompose(e -> e.getMembers().removeMember(executor, member));
+   }
+
+   private CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset, DataAccessRequestProperties req) {
+      return workspaces
+         .getWorkspaceById(req.getWorkspace())
+         .thenCompose(WorkspaceEntity::getProperties)
+         .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace, req.getEvents()));
    }
 
 }
