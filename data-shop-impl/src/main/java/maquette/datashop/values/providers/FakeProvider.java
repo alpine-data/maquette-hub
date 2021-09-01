@@ -18,6 +18,8 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class FakeProvider implements DataAssetProvider {
 
+   public static final String NAME = "fake";
+
    @Override
    public void configure(MaquetteRuntime runtime) {
 
@@ -40,12 +42,12 @@ public final class FakeProvider implements DataAssetProvider {
 
    @Override
    public String getType() {
-      return "fake";
+      return NAME;
    }
 
    @Override
    public String getTypePluralized() {
-      return "fakes";
+      return NAME + "s";
    }
 
    @Override

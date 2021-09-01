@@ -6,6 +6,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
+import maquette.core.common.Operators;
+
+import java.util.Locale;
 
 @With
 @Value
@@ -75,8 +78,29 @@ public class DataAssetMetadata {
       return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone);
    }
 
-   public static DataAssetMetadata fake(String name) {
-      return apply(name, name, name, DataVisibility.PUBLIC, DataClassification.INTERNAL, PersonalInformation.SENSITIVE_PERSONAL_INFORMATION, DataZone.RAW);
+   /**
+    * Creates a sample value object with default values.
+    *
+    * @param title The title for the asset.
+    * @param name The name of the asset.
+    * @return A new instance.
+    */
+   public static DataAssetMetadata sample(String title, String name) {
+      return apply(title, name, Operators.lorem(), DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
+   }
+
+   /**
+    * Creates a sample value object with default values.
+    *
+    * @param title The title for the asset.
+    * @return A new instance.
+    */
+   public static DataAssetMetadata sample(String title) {
+      return sample(title, title.toLowerCase(Locale.ROOT).replace(' ', '-'));
+   }
+
+   public static DataAssetMetadata sample() {
+      return sample("Some Asset");
    }
 
 }

@@ -66,7 +66,7 @@ public class DataAssetProperties {
 
    public static DataAssetProperties fake(String name) {
       var action = ActionMetadata.apply("egon");
-      return apply(UID.apply(), "fake", DataAssetMetadata.fake(name), DataAssetState.APPROVED, action, action);
+      return apply(UID.apply(), "fake", DataAssetMetadata.sample(name), DataAssetState.APPROVED, action, action);
    }
 
    public static DataAssetProperties fake() {

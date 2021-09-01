@@ -1,4 +1,4 @@
-package maquette.datashop.api;
+package maquette.workspaces.api;
 
 import maquette.core.values.UID;
 

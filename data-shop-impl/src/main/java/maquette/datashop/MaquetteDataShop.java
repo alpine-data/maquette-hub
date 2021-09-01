@@ -2,9 +2,9 @@ package maquette.datashop;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
-import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.server.commands.Command;
+import maquette.workspaces.api.WorkspaceEntities;
 import maquette.datashop.commands.*;
 import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
 import maquette.datashop.commands.members.RevokeDataAssetMemberCommand;
@@ -25,10 +25,10 @@ public final class MaquetteDataShop implements MaquetteModule {
 
    private final DataAssetProviders providers;
 
-   public static MaquetteDataShop apply(MaquetteRuntime runtime, DataAssetsRepository repository, DataAssetProvider... dataAssetProviders) {
+   public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspaceEntities workspaces, DataAssetProvider... dataAssetProviders) {
       var providers = DataAssetProviders.apply(dataAssetProviders);
       var entities = DataAssetEntities.apply(repository, providers);
-      var services = DataAssetServicesFactory.apply(runtime, entities, null);
+      var services = DataAssetServicesFactory.apply(entities, workspaces, providers);
 
       return apply(services, providers);
    }

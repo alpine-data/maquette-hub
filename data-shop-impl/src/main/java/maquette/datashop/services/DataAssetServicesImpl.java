@@ -6,8 +6,8 @@ import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
-import maquette.datashop.api.WorkspaceEntity;
-import maquette.datashop.api.WorkspaceEntities;
+import maquette.workspaces.api.WorkspaceEntity;
+import maquette.workspaces.api.WorkspaceEntities;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.values.DataAsset;
@@ -181,6 +181,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
          .thenCompose(e -> e.getMembers().removeMember(executor, member));
    }
 
+   @Deprecated
    private CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset, DataAccessRequestProperties req) {
       return workspaces
          .getWorkspaceById(req.getWorkspace())
