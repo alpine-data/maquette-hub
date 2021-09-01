@@ -3,6 +3,7 @@ package maquette.workspaces.fake;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.core.values.UID;
+import maquette.core.values.user.User;
 import maquette.workspaces.api.WorkspaceEntities;
 import maquette.workspaces.api.WorkspaceEntity;
 import maquette.workspaces.api.WorkspaceProperties;
@@ -44,6 +45,11 @@ public final class FakeWorkspaceEntities implements WorkspaceEntities {
          .orElseThrow();
 
       return CompletableFuture.completedFuture(FakeWorkspaceEntity.apply(result));
+   }
+
+   @Override
+   public CompletionStage<List<WorkspaceEntity>> getWorkspacesByMember(User user) {
+      return CompletableFuture.completedFuture(List.of());
    }
 
 }
