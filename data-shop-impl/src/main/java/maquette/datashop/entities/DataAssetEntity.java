@@ -14,7 +14,7 @@ import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.DataAssetState;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.metadata.DataAssetMetadata;
-import maquette.datashop.values.providers.DataAssetProviders;
+import maquette.datashop.providers.DataAssetProviders;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -276,7 +276,7 @@ public final class DataAssetEntity {
          .thenCompose(done -> repository.getDataAssetById(id))
          .thenApply(entity -> entity.withUpdated(executor))
          .thenCompose(properties -> repository.insertOrUpdateDataAsset(properties).thenApply(d -> properties))
-         .thenCompose(properties -> providers.getByName(properties.getType()).onUpdatedCustomSettings(this));
+         .thenCompose(properties -> providers.getByName(properties.getType()).onUpdatedCustomSettings(this, customSettings));
    }
 
    /**

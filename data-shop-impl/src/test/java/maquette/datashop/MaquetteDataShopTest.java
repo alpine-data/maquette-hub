@@ -1,7 +1,7 @@
 package maquette.datashop;
 
 import maquette.datashop.values.metadata.DataAssetMetadata;
-import maquette.datashop.values.providers.FakeProvider;
+import maquette.datashop.providers.FakeProvider;
 import maquette.testutils.MaquetteContext;
 import org.junit.Before;
 import org.junit.Test;

@@ -2,7 +2,7 @@ package maquette.datashop.services;
 
 import maquette.workspaces.api.WorkspaceEntities;
 import maquette.datashop.entities.DataAssetEntities;
-import maquette.datashop.values.providers.DataAssetProviders;
+import maquette.datashop.providers.DataAssetProviders;
 
 /**
  * Factory class/ method to compose a new DataAssetServices instance.

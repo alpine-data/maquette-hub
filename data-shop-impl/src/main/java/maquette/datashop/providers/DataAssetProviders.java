@@ -1,4 +1,4 @@
-package maquette.datashop.values.providers;
+package maquette.datashop.providers;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;

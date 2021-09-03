@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
 import maquette.datashop.services.DataAssetServicesFactory;
-import maquette.datashop.values.providers.DataAssetProviders;
-import maquette.datashop.values.providers.FakeProvider;
+import maquette.datashop.providers.DataAssetProviders;
+import maquette.datashop.providers.FakeProvider;
 import maquette.workspaces.api.WorkspaceEntities;
 import maquette.workspaces.fake.FakeWorkspaceEntities;
 

@@ -13,8 +13,8 @@ import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.services.DataAssetServices;
 import maquette.datashop.services.DataAssetServicesFactory;
-import maquette.datashop.values.providers.DataAssetProvider;
-import maquette.datashop.values.providers.DataAssetProviders;
+import maquette.datashop.providers.DataAssetProvider;
+import maquette.datashop.providers.DataAssetProviders;
 
 import java.util.Map;
 

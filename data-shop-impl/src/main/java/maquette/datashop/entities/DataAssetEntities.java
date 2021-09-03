@@ -11,7 +11,7 @@ import maquette.datashop.exceptions.DataAssetAlreadyExistsException;
 import maquette.datashop.exceptions.InvalidCustomSettingsException;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.values.DataAssetProperties;
-import maquette.datashop.values.providers.DataAssetProviders;
+import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.values.DataAssetState;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.metadata.DataAssetMetadata;

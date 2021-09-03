@@ -10,7 +10,7 @@ import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
-import maquette.datashop.values.providers.DataAssetProvider;
+import maquette.datashop.providers.DataAssetProvider;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
