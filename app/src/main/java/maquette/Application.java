@@ -4,6 +4,8 @@ import maquette.core.Maquette;
 import maquette.core.MaquetteRuntime;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
+import maquette.datashop.providers.FakeProvider;
+import maquette.workspaces.fake.FakeWorkspaceEntities;
 
 /**
  * This object ensembles Maquette Community Edition.
@@ -21,7 +23,7 @@ public class Application {
       var dataAssetsRepository = InMemoryDataAssetsRepository.apply();
 
       return runtime
-         .withModule(rt -> MaquetteDataShop.apply(runtime, dataAssetsRepository));
+         .withModule(rt -> MaquetteDataShop.apply(dataAssetsRepository, FakeWorkspaceEntities.apply(), FakeProvider.apply()));
    }
 
 }
