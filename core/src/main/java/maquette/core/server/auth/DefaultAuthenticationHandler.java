@@ -10,6 +10,7 @@ import maquette.core.values.user.User;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
@@ -34,6 +35,18 @@ public class DefaultAuthenticationHandler implements AuthenticationHandler {
          return AuthenticatedUser.apply(userId, roles);
       } else {
          return AnonymousUser.apply(roles);
+      }
+   }
+
+   @Override
+   public Optional<String> getUserDetailsFromRequest(Context ctx, MaquetteRuntime runtime) {
+      var headers = ctx.headerMap();
+      var userDetailsHeaderName = runtime.getConfig().getCore().getUserDetailsHeaderName();
+
+      if (headers.containsKey(userDetailsHeaderName)) {
+         return Optional.ofNullable(headers.get(userDetailsHeaderName));
+      } else {
+         return Optional.empty();
       }
    }
 

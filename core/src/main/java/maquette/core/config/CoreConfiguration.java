@@ -43,4 +43,21 @@ public class CoreConfiguration {
    @Value("user-roles-header-name")
    String userRolesHeaderName;
 
+   /**
+    * The HTTP header name which contains the user details.
+    */
+   @Value("user-details-header-name")
+   String userDetailsHeaderName;
+
+   /**
+    * The HTTP header name which may contain the id of the authentication token.
+    */
+   @Value("auth-token-id-header-name")
+   String authTokenIdHeaderName;
+
+   /**
+    * The HTTP header name which may contain the secret for the authentication token.
+    */
+   @Value("auth-token-secret-header-name")
+   String authTokenSecretHeaderName;
 }

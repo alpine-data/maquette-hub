@@ -8,13 +8,19 @@ import lombok.AllArgsConstructor;
 import maquette.core.Maquette;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.exceptions.ApplicationException;
+import maquette.core.modules.users.UserModule;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AdminResource;
 import maquette.core.common.Operators;
 import maquette.core.server.resource.CommandResource;
 import maquette.core.server.resource.PostmanDocsResource;
+import maquette.core.values.user.AnonymousUser;
+import maquette.core.values.user.AuthenticatedUser;
+import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MaquetteServer {
@@ -34,7 +40,7 @@ public final class MaquetteServer {
       var om = runtime.getObjectMapperFactory().createJsonMapper(true);
       JavalinJackson.configure(om);
 
-      var adminResource = new AdminResource(runtime.getConfig());
+      var adminResource = new AdminResource(runtime);
       var docsResource = new PostmanDocsResource(runtime, om);
       var commandResource = new CommandResource(runtime);
       var server = new MaquetteServer(runtime);
@@ -42,12 +48,10 @@ public final class MaquetteServer {
       /*
        * Register commands from modules
        */
-      runtime.getModules().forEach(module -> {
-         module.getCommands().forEach((key, command) -> {
-            var type = new NamedType(command, key);
-            om.registerSubtypes(type);
-         });
-      });
+      runtime.getModules().forEach(module -> module.getCommands().forEach((key, command) -> {
+         var type = new NamedType(command, key);
+         om.registerSubtypes(type);
+      }));
 
       /*
        * Setup routes
@@ -83,7 +87,47 @@ public final class MaquetteServer {
    }
 
    private void handleAuthentication(Context ctx) {
+      /*
+       * use custom authentication handler
+       */
       ctx.attribute("user", runtime.getAuthenticationHandler().handleAuthentication(ctx, runtime));
+
+      /*
+       * handle user details if present in request
+       */
+      var user = (User) ctx.attribute("user");
+      var userDetails = runtime.getAuthenticationHandler().getUserDetailsFromRequest(ctx, runtime);
+
+      if (userDetails.isPresent() && user instanceof AuthenticatedUser) {
+         Operators.ignoreExceptions(() -> runtime
+            .getModule(UserModule.class)
+            .getServices()
+            .updateUserDetails(ctx.attribute("user"), userDetails.get())
+            .toCompletableFuture()
+            .get());
+      }
+
+      /*
+       * handle technical authentication tokens
+       */
+      var headers = ctx.headerMap();
+
+      if (user instanceof AnonymousUser
+         && headers.containsKey(runtime.getConfig().getCore().getAuthTokenSecretHeaderName())
+         && headers.containsKey(runtime.getConfig().getCore().getAuthTokenIdHeaderName())) {
+
+         var tokenId = headers.get(runtime.getConfig().getCore().getAuthTokenIdHeaderName());
+         var tokenSecret = headers.get(runtime.getConfig().getCore().getAuthTokenSecretHeaderName());
+
+         var maybeAuthUser = Operators.<Optional<AuthenticatedUser>>ignoreExceptionsWithDefault(() -> runtime
+            .getModule(UserModule.class)
+            .getServices()
+            .getUserForAuthenticationToken(tokenId, tokenSecret)
+            .toCompletableFuture()
+            .get(), Optional.empty());
+
+         maybeAuthUser.ifPresent(authUser -> ctx.attribute("user", maybeAuthUser.get()));
+      }
    }
 
    public void start() {
