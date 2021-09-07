@@ -3,7 +3,7 @@ package maquette.core.modules.users;
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import maquette.core.modules.exceptions.MissingGitSettings;
+import maquette.core.modules.users.exceptions.MissingGitSettings;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.model.*;
 import org.slf4j.Logger;

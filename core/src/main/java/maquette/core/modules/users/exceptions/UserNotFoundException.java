@@ -1,4 +1,4 @@
-package maquette.core.modules.exceptions;
+package maquette.core.modules.users.exceptions;
 
 import maquette.core.common.exceptions.ApplicationException;
 

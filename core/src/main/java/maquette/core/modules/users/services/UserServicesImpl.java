@@ -41,7 +41,7 @@ public final class UserServicesImpl implements UserServices {
    }
 
    @Override
-   public CompletionStage<Optional<AuthenticatedUser>> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
+   public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
       return users.getUserForAuthenticationToken(tokenId, tokenSecret);
    }
 

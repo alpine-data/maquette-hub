@@ -3,12 +3,12 @@ package maquette.core.modules.users;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import maquette.core.modules.ports.UsersRepository;
+import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.values.user.AuthenticatedUser;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -27,16 +27,20 @@ public final class UserEntities {
       return repository.getUsers();
    }
 
-   public CompletionStage<Optional<AuthenticatedUser>> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
+   public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
       return repository
          .findAuthenticationTokenByTokenId(tokenId)
          .thenCompose(maybeToken -> {
             if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
                return repository
                   .findProfileById(tokenId)
-                  .thenApply(maybeProfile -> maybeProfile.map(userProfile -> AuthenticatedUser.apply(userProfile.getId())));
+                  .thenCompose(maybeProfile -> maybeProfile
+                     .map(userProfile -> CompletableFuture.completedFuture(AuthenticatedUser.apply(userProfile.getId())))
+                     .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId))));
+            } else if (maybeToken.isPresent()) {
+               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createOutdated(tokenId));
             } else {
-               return CompletableFuture.completedFuture(Optional.empty());
+               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId));
             }
          });
    }

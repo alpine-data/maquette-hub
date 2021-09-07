@@ -119,7 +119,8 @@ public final class MaquetteServer {
          var tokenId = headers.get(runtime.getConfig().getCore().getAuthTokenIdHeaderName());
          var tokenSecret = headers.get(runtime.getConfig().getCore().getAuthTokenSecretHeaderName());
 
-         var maybeAuthUser = Operators.<Optional<AuthenticatedUser>>ignoreExceptionsWithDefault(() -> runtime
+
+         var maybeAuthUser = Operators.<AuthenticatedUser>ignoreExceptionsWithDefault(() -> runtime
             .getModule(UserModule.class)
             .getServices()
             .getUserForAuthenticationToken(tokenId, tokenSecret)
