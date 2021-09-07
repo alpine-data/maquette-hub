@@ -7,11 +7,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.core.Maquette;
 import maquette.core.MaquetteRuntime;
+import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.users.UserModule;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AdminResource;
-import maquette.core.common.Operators;
 import maquette.core.server.resource.CommandResource;
 import maquette.core.server.resource.PostmanDocsResource;
 import maquette.core.values.user.AnonymousUser;
@@ -19,8 +19,6 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MaquetteServer {
@@ -120,14 +118,14 @@ public final class MaquetteServer {
          var tokenSecret = headers.get(runtime.getConfig().getCore().getAuthTokenSecretHeaderName());
 
 
-         var maybeAuthUser = Operators.<AuthenticatedUser>ignoreExceptionsWithDefault(() -> runtime
+         var authUser = Operators.suppressExceptions(() -> runtime
             .getModule(UserModule.class)
             .getServices()
             .getUserForAuthenticationToken(tokenId, tokenSecret)
             .toCompletableFuture()
-            .get(), Optional.empty());
+            .get());
 
-         maybeAuthUser.ifPresent(authUser -> ctx.attribute("user", maybeAuthUser.get()));
+         ctx.attribute("user", authUser);
       }
    }
 
