@@ -6,6 +6,7 @@ import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.values.user.AuthenticatedUser;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +31,7 @@ public final class UserEntities {
       return repository
          .findAuthenticationTokenByTokenId(tokenId)
          .thenCompose(maybeToken -> {
-            if (maybeToken.isPresent()) {
+            if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
                return repository
                   .findProfileById(tokenId)
                   .thenApply(maybeProfile -> maybeProfile.map(userProfile -> AuthenticatedUser.apply(userProfile.getId())));
