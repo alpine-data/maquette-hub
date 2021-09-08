@@ -20,7 +20,7 @@ public interface UserServices {
     */
    CompletionStage<UserAuthenticationToken> getAuthenticationToken(User executor);
 
-   CompletionStage<Optional<AuthenticatedUser>> getUserForAuthenticationToken(String tokenId, String tokenSecret);
+   CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret);
 
    /*
     * Profile

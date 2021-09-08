@@ -10,6 +10,8 @@ import maquette.core.config.MaquetteConfiguration;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.databind.ObjectMapperFactory;
 import maquette.core.modules.MaquetteModule;
+import maquette.core.modules.ports.InMemoryUsersRepository;
+import maquette.core.modules.ports.UsersRepository;
 import maquette.core.server.auth.AuthenticationHandler;
 import maquette.core.server.auth.DefaultAuthenticationHandler;
 import org.slf4j.Logger;
@@ -38,6 +40,9 @@ public class MaquetteRuntime {
    @With
    AuthenticationHandler authenticationHandler;
 
+   @With
+   UsersRepository usersRepository;
+
    List<Function<MaquetteRuntime, MaquetteModule>> moduleFactories;
 
    @With
@@ -47,8 +52,9 @@ public class MaquetteRuntime {
       var cfg = MaquetteConfiguration.apply();
       var omf = DefaultObjectMapperFactory.apply();
       var ath = DefaultAuthenticationHandler.apply();
+      var usr = InMemoryUsersRepository.apply();
 
-      return apply(null, cfg, omf, ath, List.of(), List.of());
+      return apply(null, cfg, omf, ath, usr, List.of(), List.of());
    }
 
    @SuppressWarnings("unchecked")
@@ -69,13 +75,13 @@ public class MaquetteRuntime {
       var modulesNext = Lists.newArrayList(moduleFactories);
       modulesNext.add(module);
 
-      return apply(app, config, objectMapperFactory, authenticationHandler, List.copyOf(modulesNext), modules);
+      return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository, List.copyOf(modulesNext), modules);
    }
 
    public MaquetteRuntime withModule(MaquetteModule module) {
       var modulesNext = Lists.newArrayList(moduleFactories);
       modulesNext.add(mr -> module);
-      return apply(app, config, objectMapperFactory, authenticationHandler, List.copyOf(modulesNext), modules);
+      return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository, List.copyOf(modulesNext), modules);
    }
 
    public Javalin getApp() {

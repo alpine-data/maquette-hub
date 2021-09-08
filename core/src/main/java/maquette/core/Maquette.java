@@ -1,15 +1,14 @@
 package maquette.core;
 
 import akka.japi.Function;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
+import maquette.core.common.Operators;
 import maquette.core.common.Templates;
-import maquette.core.modules.MaquetteModule;
+import maquette.core.modules.users.UserModule;
 import maquette.core.server.MaquetteServer;
 import maquette.core.server.resource.OpenApiResource;
-import maquette.core.common.Operators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +75,11 @@ public final class Maquette {
          });
 
       runtime = runtime.withApp(app);
+
+      /*
+       * Initialize core modules.
+       */
+      runtime.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
 
       /*
        * Initialize modules
