@@ -9,6 +9,7 @@ import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
+import maquette.core.values.UID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,11 @@ public final class InMemoryUsersRepository implements UsersRepository {
 
    private final List<StoredUserNotification> notifications;
 
-   private final Map<String, UserProfile> profiles;
+   private final Map<UID, UserProfile> profiles;
 
-   private final Map<String, UserSettings> settings;
+   private final Map<UID, UserSettings> settings;
 
-   private final Map<String, UserAuthenticationToken> tokens;
+   private final Map<UID, UserAuthenticationToken> tokens;
 
    public static InMemoryUsersRepository apply() {
       return apply(Lists.newArrayList(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap());
@@ -40,7 +41,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateNotification(String userId, UserNotification notification) {
+   public CompletionStage<Done> insertOrUpdateNotification(UID userId, UserNotification notification) {
       notifications
          .stream()
          .filter(n -> n.userId.equals(userId) && n.notification.getId().equals(userId))
@@ -52,13 +53,13 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateSettings(String userId, UserSettings settings) {
+   public CompletionStage<Done> insertOrUpdateSettings(UID userId, UserSettings settings) {
       this.settings.put(userId, settings);
       return CompletableFuture.completedFuture(Done.getInstance());
    }
 
    @Override
-   public CompletionStage<Done> insertOrUpdateAuthenticationToken(String userId, UserAuthenticationToken token) {
+   public CompletionStage<Done> insertOrUpdateAuthenticationToken(UID userId, UserAuthenticationToken token) {
       this.tokens.put(userId, token);
       return CompletableFuture.completedFuture(Done.getInstance());
    }
@@ -69,7 +70,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(String userId) {
+   public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(UID userId) {
       if (tokens.containsKey(userId)) {
          return CompletableFuture.completedFuture(Optional.of(tokens.get(userId)));
       } else {
@@ -78,7 +79,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(String tokenId) {
+   public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(UID tokenId) {
       var result = tokens
          .values()
          .stream()
@@ -89,7 +90,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Optional<UserNotification>> findNotificationById(String userId, String notificationId) {
+   public CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, String notificationId) {
       var result = notifications
          .stream()
          .filter(notification -> notification.userId.equals(userId) && notification.notification.getId().equals(notificationId))
@@ -100,7 +101,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Optional<UserProfile>> findProfileById(String userId) {
+   public CompletionStage<Optional<UserProfile>> findProfileById(UID userId) {
       if (profiles.containsKey(userId)) {
          return CompletableFuture.completedFuture(Optional.of(profiles.get(userId)));
       } else {
@@ -109,7 +110,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<Optional<UserSettings>> findSettingsById(String userId) {
+   public CompletionStage<Optional<UserSettings>> findSettingsById(UID userId) {
       if (settings.containsKey(userId)) {
          return CompletableFuture.completedFuture(Optional.of(settings.get(userId)));
       } else {
@@ -118,7 +119,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    }
 
    @Override
-   public CompletionStage<List<UserNotification>> getAllNotifications(String userId) {
+   public CompletionStage<List<UserNotification>> getAllNotifications(UID userId) {
       var result = notifications
          .stream()
          .filter(n -> n.userId.equals(userId))
@@ -132,7 +133,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
    @AllArgsConstructor(staticName = "apply")
    private static class StoredUserNotification {
 
-      String userId;
+      UID userId;
 
       UserNotification notification;
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.model.UserProfile;
+import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public final class UserEntities {
 
    private final ObjectMapper objectMapper;
 
-   public CompletionStage<UserEntity> getUserById(String id) {
+   public CompletionStage<UserEntity> getUserById(UID id) {
       return CompletableFuture.completedFuture(UserEntity.apply(id, repository, objectMapper));
    }
 
@@ -26,7 +27,7 @@ public final class UserEntities {
       return repository.getUsers();
    }
 
-   public CompletionStage<Optional<AuthenticatedUser>> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
+   public CompletionStage<Optional<AuthenticatedUser>> getUserForAuthenticationToken(UID tokenId, String tokenSecret) {
       return repository
          .findAuthenticationTokenByTokenId(tokenId)
          .thenCompose(maybeToken -> {

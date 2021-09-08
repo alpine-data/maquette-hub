@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.modules.ServicesCompanion;
 import maquette.core.modules.users.UserEntities;
 import maquette.core.modules.users.UserEntity;
+import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
@@ -24,7 +25,7 @@ public final class UserCompanion extends ServicesCompanion {
       }
    }
 
-   public CompletionStage<UserEntity> withUser(String userId) {
+   public CompletionStage<UserEntity> withUser(UID userId) {
       return users.getUserById(userId);
    }
 

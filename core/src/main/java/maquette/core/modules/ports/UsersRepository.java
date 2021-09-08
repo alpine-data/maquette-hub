@@ -5,6 +5,7 @@ import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
+import maquette.core.values.UID;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,24 +15,24 @@ public interface UsersRepository {
 
    CompletionStage<Done> insertOrUpdateProfile(UserProfile profile);
 
-   CompletionStage<Done> insertOrUpdateNotification(String userId, UserNotification notification);
+   CompletionStage<Done> insertOrUpdateNotification(UID userId, UserNotification notification);
 
-   CompletionStage<Done> insertOrUpdateSettings(String userId, UserSettings settings);
+   CompletionStage<Done> insertOrUpdateSettings(UID userId, UserSettings settings);
 
-   CompletionStage<Done> insertOrUpdateAuthenticationToken(String userId, UserAuthenticationToken token);
+   CompletionStage<Done> insertOrUpdateAuthenticationToken(UID userId, UserAuthenticationToken token);
 
    CompletionStage<List<UserProfile>> getUsers();
 
-   CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(String userId);
+   CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(UID userId);
 
-   CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(String tokenId);
+   CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(UID tokenId);
 
-   CompletionStage<Optional<UserNotification>> findNotificationById(String userId, String notificationId);
+   CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, String notificationId);
 
-   CompletionStage<Optional<UserProfile>> findProfileById(String userId);
+   CompletionStage<Optional<UserProfile>> findProfileById(UID userId);
 
-   CompletionStage<Optional<UserSettings>> findSettingsById(String userId);
+   CompletionStage<Optional<UserSettings>> findSettingsById(UID userId);
 
-   CompletionStage<List<UserNotification>> getAllNotifications(String userId);
+   CompletionStage<List<UserNotification>> getAllNotifications(UID userId);
 
 }

@@ -9,6 +9,7 @@ import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
+import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
@@ -36,17 +37,17 @@ public final class UserServicesImpl implements UserServices {
             .withUser(executor)
             .thenCompose(UserEntity::getAuthenticationToken);
       } else {
-         return CompletableFuture.completedFuture(UserAuthenticationToken.apply("0815", "0815", Instant.MAX));
+         return CompletableFuture.completedFuture(UserAuthenticationToken.apply(UID.apply("0815"), "0815", Instant.MAX));
       }
    }
 
    @Override
    public CompletionStage<Optional<AuthenticatedUser>> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
-      return users.getUserForAuthenticationToken(tokenId, tokenSecret);
+      return users.getUserForAuthenticationToken(UID.apply(tokenId), tokenSecret);
    }
 
    @Override
-   public CompletionStage<UserProfile> getProfile(User executor, String userId) {
+   public CompletionStage<UserProfile> getProfile(User executor, UID userId) {
       return companion
          .withUser(userId)
          .thenCompose(UserEntity::getProfile);
@@ -60,7 +61,7 @@ public final class UserServicesImpl implements UserServices {
    }
 
    @Override
-   public CompletionStage<UserSettings> getSettings(User executor, String userId) {
+   public CompletionStage<UserSettings> getSettings(User executor, UID userId) {
       return companion
          .withUser(userId)
          .thenCompose(entity -> entity.getSettings(true));
@@ -79,7 +80,7 @@ public final class UserServicesImpl implements UserServices {
    }
 
    @Override
-   public CompletionStage<Done> updateUser(User executor, String userId, UserProfile profile, UserSettings settings) {
+   public CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings) {
       return companion
          .withUser(userId)
          .thenCompose(entity -> entity.updateUserProfile(profile).thenApply(d -> entity))

@@ -5,6 +5,7 @@ import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
+import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
@@ -24,17 +25,17 @@ public interface UserServices {
    /*
     * Profile
     */
-   CompletionStage<UserProfile> getProfile(User executor, String userId);
+   CompletionStage<UserProfile> getProfile(User executor, UID userId);
 
    CompletionStage<UserProfile> getProfile(User executor);
 
-   CompletionStage<UserSettings> getSettings(User executor, String userId);
+   CompletionStage<UserSettings> getSettings(User executor, UID userId);
 
    CompletionStage<List<UserProfile>> getUsers(User executor);
 
    CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
 
-   CompletionStage<Done> updateUser(User executor, String userId, UserProfile profile, UserSettings settings);
+   CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings);
 
    /*
     * Notifications

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.javalin.http.Context;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
+import maquette.core.values.UID;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
@@ -32,7 +33,7 @@ public class DefaultAuthenticationHandler implements AuthenticationHandler {
 
       if (headers.containsKey(userIdHeaderName)) {
          var userId = headers.get(userIdHeaderName);
-         return AuthenticatedUser.apply(userId, roles);
+         return AuthenticatedUser.apply(UID.apply(userId), roles);
       } else {
          return AnonymousUser.apply(roles);
       }

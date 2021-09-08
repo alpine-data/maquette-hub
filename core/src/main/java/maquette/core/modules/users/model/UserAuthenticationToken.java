@@ -2,6 +2,7 @@ package maquette.core.modules.users.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.values.UID;
 
 import java.time.Instant;
 
@@ -12,7 +13,7 @@ public class UserAuthenticationToken {
    /**
     * A unique token id.
     */
-   String id;
+   UID id;
 
    /**
     * A secret string for the token.

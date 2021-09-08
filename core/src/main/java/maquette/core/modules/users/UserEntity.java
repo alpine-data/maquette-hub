@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.modules.exceptions.MissingGitSettings;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.model.*;
+import maquette.core.values.UID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public final class UserEntity {
 
    private static final Logger LOG = LoggerFactory.getLogger(UserEntity.class);
 
-   private final String id;
+   private final UID id;
 
    private final UsersRepository repository;
 
@@ -43,7 +44,7 @@ public final class UserEntity {
 
          return repository
             .findProfileById(id)
-            .thenApply(profile -> profile.orElse(UserProfile.apply(id)))
+            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "")))
             .thenApply(profile -> profile
                .withEmail(update.getEmail())
                .withName(update.getName()))
@@ -110,7 +111,7 @@ public final class UserEntity {
             if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
                return CompletableFuture.completedFuture(maybeToken.get());
             } else {
-               var id = UUID.randomUUID().toString();
+               var id = UID.apply();
                var secret = UUID.randomUUID().toString();
                var auth = UserAuthenticationToken.apply(id, secret, Instant.now().plusSeconds(60 * 60 * 24));
 
@@ -122,7 +123,7 @@ public final class UserEntity {
    public CompletionStage<UserProfile> getProfile() {
       return repository
          .findProfileById(id)
-         .thenApply(profile -> profile.orElse(UserProfile.apply(id)));
+         .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "")));
    }
 
    public CompletionStage<UserSettings> getSettings() {
