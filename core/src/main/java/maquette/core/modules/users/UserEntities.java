@@ -37,11 +37,11 @@ public final class UserEntities {
                   .findProfileById(tokenId)
                   .thenCompose(maybeProfile -> maybeProfile
                      .map(userProfile -> CompletableFuture.completedFuture(AuthenticatedUser.apply(userProfile.getId())))
-                     .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId))));
+                     .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId.getValue()))));
             } else if (maybeToken.isPresent()) {
-               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createOutdated(tokenId));
+               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createOutdated(tokenId.getValue()));
             } else {
-               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId));
+               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId.getValue()));
             }
          });
    }
