@@ -7,10 +7,10 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class GitRepositoryProperties {
 
-   String name;
+    String name;
 
-   String gitTransportUrl;
+    String gitTransportUrl;
 
-   String httpTransportUrl;
+    String httpTransportUrl;
 
 }

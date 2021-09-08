@@ -15,26 +15,28 @@ import java.util.function.Function;
 @AllArgsConstructor(staticName = "apply")
 public final class UserCompanion extends ServicesCompanion {
 
-   private final UserEntities users;
+    private final UserEntities users;
 
-   public CompletionStage<UserEntity> withUser(User user) {
-      if (user instanceof AuthenticatedUser) {
-         return users.getUserById(((AuthenticatedUser) user).getId());
-      } else {
-         return CompletableFuture.failedFuture(new RuntimeException("Not an authenticated user")); // TODO mw: Better exception?
-      }
-   }
+    public CompletionStage<UserEntity> withUser(User user) {
+        if (user instanceof AuthenticatedUser) {
+            return users.getUserById(((AuthenticatedUser) user).getId());
+        } else {
+            return CompletableFuture.failedFuture(new RuntimeException("Not an authenticated user")); // TODO mw:
+            // Better exception?
+        }
+    }
 
-   public CompletionStage<UserEntity> withUser(UID userId) {
-      return users.getUserById(userId);
-   }
+    public CompletionStage<UserEntity> withUser(UID userId) {
+        return users.getUserById(userId);
+    }
 
-   public <T> CompletionStage<T> withUserOrDefault(User user, T defaultValue, Function<UserEntity, CompletionStage<T>> action) {
-      if (user instanceof AuthenticatedUser) {
-         return users.getUserById(((AuthenticatedUser) user).getId()).thenCompose(action);
-      } else {
-         return CompletableFuture.completedFuture(defaultValue);
-      }
-   }
+    public <T> CompletionStage<T> withUserOrDefault(User user, T defaultValue, Function<UserEntity,
+        CompletionStage<T>> action) {
+        if (user instanceof AuthenticatedUser) {
+            return users.getUserById(((AuthenticatedUser) user).getId()).thenCompose(action);
+        } else {
+            return CompletableFuture.completedFuture(defaultValue);
+        }
+    }
 
 }

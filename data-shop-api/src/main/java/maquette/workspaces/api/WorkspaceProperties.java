@@ -6,8 +6,8 @@ import maquette.core.values.UID;
 @Value
 public class WorkspaceProperties {
 
-   UID id;
+    UID id;
 
-   String name;
+    String name;
 
 }

@@ -20,23 +20,23 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class UpdateAccessRequestCommand implements Command {
 
-   String name;
+    String name;
 
-   UID id;
+    UID id;
 
-   String message;
+    String message;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .updateDataAccessRequest(user, name, id, message)
-         .thenApply(done -> MessageResult.apply("Successfully updated data access request."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .updateDataAccessRequest(user, name, id, message)
+            .thenApply(done -> MessageResult.apply("Successfully updated data access request."));
+    }
 
-   @Override
-   public Command example() {
-      return UpdateAccessRequestCommand.apply("some-dataset", UID.apply(), Operators.lorem());
-   }
+    @Override
+    public Command example() {
+        return UpdateAccessRequestCommand.apply("some-dataset", UID.apply(), Operators.lorem());
+    }
 }

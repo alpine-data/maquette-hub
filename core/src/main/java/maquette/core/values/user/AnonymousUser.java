@@ -19,7 +19,7 @@ public class AnonymousUser implements User {
         return new AnonymousUser(List.copyOf(roles));
     }
 
-    public static AnonymousUser apply(String ...roles) {
+    public static AnonymousUser apply(String... roles) {
         return apply(Arrays.asList(roles));
     }
 

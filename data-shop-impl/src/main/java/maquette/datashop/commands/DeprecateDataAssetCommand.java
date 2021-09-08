@@ -18,22 +18,22 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class DeprecateDataAssetCommand implements Command {
 
-   String name;
+    String name;
 
-   boolean deprecate;
+    boolean deprecate;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .deprecate(user, name, deprecate)
-         .thenApply(done -> MessageResult.apply("Successfully deprecated asset"));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .deprecate(user, name, deprecate)
+            .thenApply(done -> MessageResult.apply("Successfully deprecated asset"));
+    }
 
-   @Override
-   public Command example() {
-      return DeprecateDataAssetCommand.apply("some-dataset", true);
-   }
+    @Override
+    public Command example() {
+        return DeprecateDataAssetCommand.apply("some-dataset", true);
+    }
 
 }

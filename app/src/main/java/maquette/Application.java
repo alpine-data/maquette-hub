@@ -12,18 +12,19 @@ import maquette.workspaces.fake.FakeWorkspaceEntities;
  */
 public class Application {
 
-   public static void main(String[] args) {
+    public static void main(String[] args) {
         Maquette
-           .apply()
-           .configure(Application::configure)
-           .start();
-   }
+            .apply()
+            .configure(Application::configure)
+            .start();
+    }
 
-   private static MaquetteRuntime configure(MaquetteRuntime runtime) {
-      var dataAssetsRepository = InMemoryDataAssetsRepository.apply();
+    private static MaquetteRuntime configure(MaquetteRuntime runtime) {
+        var dataAssetsRepository = InMemoryDataAssetsRepository.apply();
 
-      return runtime
-         .withModule(rt -> MaquetteDataShop.apply(dataAssetsRepository, FakeWorkspaceEntities.apply(), FakeProvider.apply()));
-   }
+        return runtime
+            .withModule(rt -> MaquetteDataShop.apply(dataAssetsRepository, FakeWorkspaceEntities.apply(),
+                FakeProvider.apply()));
+    }
 
 }

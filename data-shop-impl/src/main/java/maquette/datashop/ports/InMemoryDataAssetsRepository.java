@@ -31,168 +31,170 @@ import java.util.stream.Stream;
 @AllArgsConstructor(staticName = "apply")
 public final class InMemoryDataAssetsRepository implements DataAssetsRepository {
 
-   private final InMemoryMembersRepository<DataAssetMemberRole> members;
+    private final InMemoryMembersRepository<DataAssetMemberRole> members;
 
-   private final Map<UID, DataAssetPersisted> store;
+    private final Map<UID, DataAssetPersisted> store;
 
-   public static InMemoryDataAssetsRepository apply() {
-      return apply(InMemoryMembersRepository.apply(), Maps.newHashMap());
-   }
+    public static InMemoryDataAssetsRepository apply() {
+        return apply(InMemoryMembersRepository.apply(), Maps.newHashMap());
+    }
 
-   @Override
-   public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findAllMembers(UID parent) {
-      return members.findAllMembers(parent);
-   }
+    @Override
+    public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findAllMembers(UID parent) {
+        return members.findAllMembers(parent);
+    }
 
-   @Override
-   public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findMembersByRole(UID parent, DataAssetMemberRole role) {
-      return members.findMembersByRole(parent, role);
-   }
+    @Override
+    public CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> findMembersByRole(UID parent,
+                                                                                              DataAssetMemberRole role) {
+        return members.findMembersByRole(parent, role);
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<DataAssetMemberRole> member) {
-      return members.insertOrUpdateMember(parent, member);
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<DataAssetMemberRole> member) {
+        return members.insertOrUpdateMember(parent, member);
+    }
 
-   @Override
-   public CompletionStage<Done> removeMember(UID parent, Authorization member) {
-      return members.removeMember(parent, member);
-   }
+    @Override
+    public CompletionStage<Done> removeMember(UID parent, Authorization member) {
+        return members.removeMember(parent, member);
+    }
 
-   @Override
-   public CompletionStage<Optional<DataAssetProperties>> findDataAssetByName(String name) {
-      var result = store
-         .values()
-         .stream()
-         .map(p -> p.properties)
-         .filter(p -> p.getMetadata().getName().equals(name))
-         .findFirst();
+    @Override
+    public CompletionStage<Optional<DataAssetProperties>> findDataAssetByName(String name) {
+        var result = store
+            .values()
+            .stream()
+            .map(p -> p.properties)
+            .filter(p -> p.getMetadata().getName().equals(name))
+            .findFirst();
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Optional<DataAssetProperties>> findDataAssetById(UID id) {
-      var result = Optional.ofNullable(store.get(id)).map(p -> p.properties);
-      return CompletableFuture.completedFuture(result);
-   }
+    @Override
+    public CompletionStage<Optional<DataAssetProperties>> findDataAssetById(UID id) {
+        var result = Optional.ofNullable(store.get(id)).map(p -> p.properties);
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   @SuppressWarnings("unchecked")
-   public <T> CompletionStage<Optional<T>> fetchCustomSettings(UID id, Class<T> expectedType) {
-      var result = Optional.ofNullable(store.get(id)).flatMap(p -> Optional.ofNullable((T) p.customSettings));
-      return CompletableFuture.completedFuture(result);
-   }
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> CompletionStage<Optional<T>> fetchCustomSettings(UID id, Class<T> expectedType) {
+        var result = Optional.ofNullable(store.get(id)).flatMap(p -> Optional.ofNullable((T) p.customSettings));
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   @SuppressWarnings("unchecked")
-   public <T> CompletionStage<Optional<T>> fetchCustomProperties(UID id, Class<T> expectedType) {
-      var result = Optional.ofNullable(store.get(id)).flatMap(p -> Optional.ofNullable((T) p.customProperties));
-      return CompletableFuture.completedFuture(result);
-   }
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> CompletionStage<Optional<T>> fetchCustomProperties(UID id, Class<T> expectedType) {
+        var result = Optional.ofNullable(store.get(id)).flatMap(p -> Optional.ofNullable((T) p.customProperties));
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateDataAsset(DataAssetProperties updated) {
-      if (store.containsKey(updated.getId())) {
-         store.put(updated.getId(), store.get(updated.getId()).withProperties(updated));
-      } else {
-         store.put(updated.getId(), DataAssetPersisted.apply(updated));
-      }
+    @Override
+    public CompletionStage<Done> insertOrUpdateDataAsset(DataAssetProperties updated) {
+        if (store.containsKey(updated.getId())) {
+            store.put(updated.getId(), store.get(updated.getId()).withProperties(updated));
+        } else {
+            store.put(updated.getId(), DataAssetPersisted.apply(updated));
+        }
 
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateCustomSettings(UID id, Object customSettings) {
-      return updateDataAsset(id, asset -> asset.withCustomSettings(customSettings));
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateCustomSettings(UID id, Object customSettings) {
+        return updateDataAsset(id, asset -> asset.withCustomSettings(customSettings));
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateCustomProperties(UID id, Object customProperties) {
-      return updateDataAsset(id, asset -> asset.withCustomProperties(customProperties));
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateCustomProperties(UID id, Object customProperties) {
+        return updateDataAsset(id, asset -> asset.withCustomProperties(customProperties));
+    }
 
-   @Override
-   public CompletionStage<Stream<DataAssetProperties>> listDataAssets() {
-      return CompletableFuture.completedFuture(store.values().stream().map(a -> a.properties));
-   }
+    @Override
+    public CompletionStage<Stream<DataAssetProperties>> listDataAssets() {
+        return CompletableFuture.completedFuture(store.values().stream().map(a -> a.properties));
+    }
 
-   @Override
-   public CompletionStage<Done> removeDataAssetById(UID id) {
-      store.remove(id);
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+    @Override
+    public CompletionStage<Done> removeDataAssetById(UID id) {
+        store.remove(id);
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID asset, UID request) {
-      var result = Optional.ofNullable(store.get(asset)).flatMap(a -> Optional.ofNullable(a.accessRequests.get(request)));
-      return CompletableFuture.completedFuture(result);
-   }
+    @Override
+    public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID asset, UID request) {
+        var result = Optional.ofNullable(store.get(asset))
+            .flatMap(a -> Optional.ofNullable(a.accessRequests.get(request)));
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequestProperties request) {
-      return updateDataAsset(request.getAsset(), asset -> {
-         asset.accessRequests.put(request.getId(), request);
-         return asset;
-      });
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateDataAccessRequest(DataAccessRequestProperties request) {
+        return updateDataAsset(request.getAsset(), asset -> {
+            asset.accessRequests.put(request.getId(), request);
+            return asset;
+        });
+    }
 
-   @Override
-   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByWorkspace(UID workspace) {
-      var result = store
-         .values()
-         .stream()
-         .flatMap(asset -> asset.accessRequests.values().stream())
-         .filter(request -> request.getWorkspace().equals(workspace))
-         .collect(Collectors.toList());
+    @Override
+    public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByWorkspace(UID workspace) {
+        var result = store
+            .values()
+            .stream()
+            .flatMap(asset -> asset.accessRequests.values().stream())
+            .filter(request -> request.getWorkspace().equals(workspace))
+            .collect(Collectors.toList());
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByAsset(UID asset) {
-      var result = Optional
-         .ofNullable(store.get(asset))
-         .map(a -> (List<DataAccessRequestProperties>) Lists.newArrayList(a.accessRequests.values()))
-         .orElse(List.of());
+    @Override
+    public CompletionStage<List<DataAccessRequestProperties>> findDataAccessRequestsByAsset(UID asset) {
+        var result = Optional
+            .ofNullable(store.get(asset))
+            .map(a -> (List<DataAccessRequestProperties>) Lists.newArrayList(a.accessRequests.values()))
+            .orElse(List.of());
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Done> removeDataAccessRequest(UID asset, UID id) {
-      return updateDataAsset(asset, a -> {
-         a.accessRequests.remove(id);
-         return a;
-      });
-   }
+    @Override
+    public CompletionStage<Done> removeDataAccessRequest(UID asset, UID id) {
+        return updateDataAsset(asset, a -> {
+            a.accessRequests.remove(id);
+            return a;
+        });
+    }
 
-   private CompletionStage<Done> updateDataAsset(UID id, Function<DataAssetPersisted, DataAssetPersisted> updater) {
-      if (!store.containsKey(id)) {
-         return CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromId(id));
-      }
+    private CompletionStage<Done> updateDataAsset(UID id, Function<DataAssetPersisted, DataAssetPersisted> updater) {
+        if (!store.containsKey(id)) {
+            return CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromId(id));
+        }
 
-      store.put(id, Operators.suppressExceptions(() -> updater.apply(store.get(id))));
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        store.put(id, Operators.suppressExceptions(() -> updater.apply(store.get(id))));
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @With
-   @Value
-   @AllArgsConstructor(staticName = "apply")
-   private static class DataAssetPersisted {
+    @With
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    private static class DataAssetPersisted {
 
-      DataAssetProperties properties;
+        DataAssetProperties properties;
 
-      Object customSettings;
+        Object customSettings;
 
-      Object customProperties;
+        Object customProperties;
 
-      Map<UID, DataAccessRequestProperties> accessRequests;
+        Map<UID, DataAccessRequestProperties> accessRequests;
 
-      static DataAssetPersisted apply(DataAssetProperties properties) {
-         return apply(properties, null, null, Maps.newHashMap());
-      }
+        static DataAssetPersisted apply(DataAssetProperties properties) {
+            return apply(properties, null, null, Maps.newHashMap());
+        }
 
-   }
+    }
 
 }

@@ -8,23 +8,23 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GitSettings {
 
-   String username;
+    String username;
 
-   String password;
+    String password;
 
-   String privateKey;
+    String privateKey;
 
-   String publicKey;
+    String publicKey;
 
-   public static GitSettings apply() {
-      return new GitSettings();
-   }
+    public static GitSettings apply() {
+        return new GitSettings();
+    }
 
-   public boolean isEmpty() {
-      return (username == null || username.trim().isEmpty())
-         && (password == null || password.trim().isEmpty())
-         && (privateKey == null || privateKey.trim().isEmpty())
-         && (publicKey == null || publicKey.trim().isEmpty());
-   }
+    public boolean isEmpty() {
+        return (username == null || username.trim().isEmpty())
+            && (password == null || password.trim().isEmpty())
+            && (privateKey == null || privateKey.trim().isEmpty())
+            && (publicKey == null || publicKey.trim().isEmpty());
+    }
 
 }

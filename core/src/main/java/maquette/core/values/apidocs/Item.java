@@ -10,12 +10,12 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class Item {
 
-   String name;
+    String name;
 
-   Request request;
+    Request request;
 
-   public List<Object> getResponse() {
-      return Lists.newArrayList();
-   }
+    public List<Object> getResponse() {
+        return Lists.newArrayList();
+    }
 
 }

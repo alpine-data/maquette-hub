@@ -13,13 +13,13 @@ import maquette.core.config.annotations.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DatabaseConfiguration {
 
-   @Value("connection")
-   String connection;
+    @Value("connection")
+    String connection;
 
-   @Value("username")
-   String username;
+    @Value("username")
+    String username;
 
-   @Value("password")
-   String password;
+    @Value("password")
+    String password;
 
 }

@@ -11,12 +11,12 @@ import java.time.Instant;
 @AllArgsConstructor(staticName = "apply")
 public class UserNotification {
 
-   String id;
+    String id;
 
-   Instant sent;
+    Instant sent;
 
-   boolean read;
+    boolean read;
 
-   String message;
+    String message;
 
 }

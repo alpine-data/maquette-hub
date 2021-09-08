@@ -11,14 +11,14 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public final class ValidationContext {
 
-   private final List<String> errors;
+    private final List<String> errors;
 
-   public static ValidationContext apply() {
-      return apply(Lists.newArrayList());
-   }
+    public static ValidationContext apply() {
+        return apply(Lists.newArrayList());
+    }
 
-   public void addErrorMessage(String message, Object ...params) {
-      this.errors.add(String.format(message, params));
-   }
+    public void addErrorMessage(String message, Object... params) {
+        this.errors.add(String.format(message, params));
+    }
 
 }

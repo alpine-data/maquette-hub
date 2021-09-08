@@ -9,38 +9,38 @@ import java.util.Map;
 @AllArgsConstructor(staticName = "apply")
 public final class DataAssetProviders {
 
-   private final Map<String, DataAssetProvider> providers;
+    private final Map<String, DataAssetProvider> providers;
 
-   public static DataAssetProviders apply(DataAssetProvider...providers) {
-      var map = Maps.<String, DataAssetProvider>newHashMap();
+    public static DataAssetProviders apply(DataAssetProvider... providers) {
+        var map = Maps.<String, DataAssetProvider>newHashMap();
 
-      for (var p : providers) {
-         map.put(p.getType(), p);
-      }
+        for (var p : providers) {
+            map.put(p.getType(), p);
+        }
 
-      return apply(map);
-   }
+        return apply(map);
+    }
 
-   public DataAssetProvider getByName(String type) {
-      if (providers.containsKey(type)) {
-         return providers.get(type);
-      } else {
-         throw UnknownDataAssetTypeException.apply(type);
-      }
-   }
+    public DataAssetProvider getByName(String type) {
+        if (providers.containsKey(type)) {
+            return providers.get(type);
+        } else {
+            throw UnknownDataAssetTypeException.apply(type);
+        }
+    }
 
-   @SuppressWarnings("unchecked")
-   public <T extends DataAssetProvider> T getByType(Class<T> type) {
-      return providers
-         .values()
-         .stream()
-         .filter(type::isInstance)
-         .map(p -> (T) p)
-         .findFirst()
-         .orElseThrow();
-   }
+    @SuppressWarnings("unchecked")
+    public <T extends DataAssetProvider> T getByType(Class<T> type) {
+        return providers
+            .values()
+            .stream()
+            .filter(type::isInstance)
+            .map(p -> (T) p)
+            .findFirst()
+            .orElseThrow();
+    }
 
-   public Map<String, DataAssetProvider> toMap() {
-      return Map.copyOf(providers);
-   }
+    public Map<String, DataAssetProvider> toMap() {
+        return Map.copyOf(providers);
+    }
 }

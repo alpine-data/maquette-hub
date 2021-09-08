@@ -10,19 +10,19 @@ import java.time.Instant;
 @AllArgsConstructor(staticName = "apply")
 public class UserAuthenticationToken {
 
-   /**
-    * A unique token id.
-    */
-   UID id;
+    /**
+     * A unique token id.
+     */
+    UID id;
 
-   /**
-    * A secret string for the token.
-    */
-   String secret;
+    /**
+     * A secret string for the token.
+     */
+    String secret;
 
-   /**
-    * A moment until the token should be accepted.
-    */
-   Instant validBefore;
+    /**
+     * A moment until the token should be accepted.
+     */
+    Instant validBefore;
 
 }

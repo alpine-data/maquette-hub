@@ -14,30 +14,30 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Withdrawn implements DataAccessRequestEvent {
 
-   private static final String CREATED = "created";
-   private static final String REASON = "reason";
+    private static final String CREATED = "created";
+    private static final String REASON = "reason";
 
-   @JsonProperty(CREATED)
-   ActionMetadata created;
+    @JsonProperty(CREATED)
+    ActionMetadata created;
 
-   @JsonProperty(REASON)
-   String reason;
+    @JsonProperty(REASON)
+    String reason;
 
-   @JsonCreator
-   public static Withdrawn apply(
-      @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(REASON) String reason) {
+    @JsonCreator
+    public static Withdrawn apply(
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(REASON) String reason) {
 
-      return new Withdrawn(created, reason);
-   }
+        return new Withdrawn(created, reason);
+    }
 
-   @Override
-   public Instant getEventMoment() {
-      return created.getAt();
-   }
+    @Override
+    public Instant getEventMoment() {
+        return created.getAt();
+    }
 
-   public Optional<String> getReason() {
-      return Optional.ofNullable(reason);
-   }
+    public Optional<String> getReason() {
+        return Optional.ofNullable(reason);
+    }
 
 }

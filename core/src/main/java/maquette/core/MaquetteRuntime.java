@@ -25,70 +25,73 @@ import java.util.Objects;
 @AllArgsConstructor(staticName = "apply")
 public class MaquetteRuntime {
 
-   private static final Logger LOG = LoggerFactory.getLogger(Maquette.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Maquette.class);
 
-   @With
-   @Nullable
-   Javalin app;
+    @With
+    @Nullable
+    Javalin app;
 
-   @With
-   MaquetteConfiguration config;
+    @With
+    MaquetteConfiguration config;
 
-   @With
-   ObjectMapperFactory objectMapperFactory;
+    @With
+    ObjectMapperFactory objectMapperFactory;
 
-   @With
-   AuthenticationHandler authenticationHandler;
+    @With
+    AuthenticationHandler authenticationHandler;
 
-   @With
-   UsersRepository usersRepository;
+    @With
+    UsersRepository usersRepository;
 
-   List<Function<MaquetteRuntime, MaquetteModule>> moduleFactories;
+    List<Function<MaquetteRuntime, MaquetteModule>> moduleFactories;
 
-   @With
-   List<MaquetteModule> modules;
+    @With
+    List<MaquetteModule> modules;
 
-   public static MaquetteRuntime apply() {
-      var cfg = MaquetteConfiguration.apply();
-      var omf = DefaultObjectMapperFactory.apply();
-      var ath = DefaultAuthenticationHandler.apply();
-      var usr = InMemoryUsersRepository.apply();
+    public static MaquetteRuntime apply() {
+        var cfg = MaquetteConfiguration.apply();
+        var omf = DefaultObjectMapperFactory.apply();
+        var ath = DefaultAuthenticationHandler.apply();
+        var usr = InMemoryUsersRepository.apply();
 
-      return apply(null, cfg, omf, ath, usr, List.of(), List.of());
-   }
+        return apply(null, cfg, omf, ath, usr, List.of(), List.of());
+    }
 
-   @SuppressWarnings("unchecked")
-   public <T extends MaquetteModule> T getModule(Class<T> type) {
-      if (modules.size() == 0) {
-         LOG.warn("Accessing getModule w/o registered modules. Are you calling the method before runtime is completely initialized?");
-      }
+    @SuppressWarnings("unchecked")
+    public <T extends MaquetteModule> T getModule(Class<T> type) {
+        if (modules.size() == 0) {
+            LOG.warn("Accessing getModule w/o registered modules. Are you calling the method before runtime is " +
+                "completely initialized?");
+        }
 
-      return modules
-         .stream()
-         .filter(type::isInstance)
-         .map(m -> (T) m)
-         .findFirst()
-         .orElseThrow(() -> new IllegalStateException("The module of type {} has not been registered."));
-   }
+        return modules
+            .stream()
+            .filter(type::isInstance)
+            .map(m -> (T) m)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("The module of type {} has not been registered."));
+    }
 
-   public MaquetteRuntime withModule(Function<MaquetteRuntime, MaquetteModule> module) {
-      var modulesNext = Lists.newArrayList(moduleFactories);
-      modulesNext.add(module);
+    public MaquetteRuntime withModule(Function<MaquetteRuntime, MaquetteModule> module) {
+        var modulesNext = Lists.newArrayList(moduleFactories);
+        modulesNext.add(module);
 
-      return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository, List.copyOf(modulesNext), modules);
-   }
+        return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository,
+            List.copyOf(modulesNext), modules);
+    }
 
-   public MaquetteRuntime withModule(MaquetteModule module) {
-      var modulesNext = Lists.newArrayList(moduleFactories);
-      modulesNext.add(mr -> module);
-      return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository, List.copyOf(modulesNext), modules);
-   }
+    public MaquetteRuntime withModule(MaquetteModule module) {
+        var modulesNext = Lists.newArrayList(moduleFactories);
+        modulesNext.add(mr -> module);
+        return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository,
+            List.copyOf(modulesNext), modules);
+    }
 
-   public Javalin getApp() {
-      if (Objects.isNull(app)) {
-         throw new IllegalStateException("The runtime is not properly initialized yet.");
-      }
+    public Javalin getApp() {
+        if (Objects.isNull(app)) {
+            throw new IllegalStateException("The runtime is not properly initialized yet.");
+        }
 
-      return app;
-   }
+        return app;
+    }
 }

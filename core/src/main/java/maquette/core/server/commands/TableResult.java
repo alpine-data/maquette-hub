@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
-import maquette.core.config.MaquetteConfiguration;
 import maquette.core.common.Operators;
+import maquette.core.config.MaquetteConfiguration;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvWriteOptions;
 
@@ -21,35 +21,35 @@ import java.util.Optional;
 @JsonSerialize(using = TableResult.Serializer.class)
 public class TableResult<T> implements CommandResult {
 
-   Table table;
+    Table table;
 
-   T data;
+    T data;
 
-   public static TableResult<Object> apply(Table table) {
-      return apply(table, null);
-   }
+    public static TableResult<Object> apply(Table table) {
+        return apply(table, null);
+    }
 
-   @Override
-   public String toPlainText(MaquetteRuntime runtime) {
-      return TablePrinter.print(table);
-   }
+    @Override
+    public String toPlainText(MaquetteRuntime runtime) {
+        return TablePrinter.print(table);
+    }
 
-   public Optional<String> toCSV(MaquetteConfiguration runtime) {
-      var sw = new StringWriter();
-      Operators.suppressExceptions(() -> table.write().usingOptions(CsvWriteOptions.builder(sw).build()));
-      return Optional.of(sw.toString());
-   }
+    public Optional<String> toCSV(MaquetteConfiguration runtime) {
+        var sw = new StringWriter();
+        Operators.suppressExceptions(() -> table.write().usingOptions(CsvWriteOptions.builder(sw).build()));
+        return Optional.of(sw.toString());
+    }
 
-   public static class Serializer extends StdSerializer<TableResult> {
+    public static class Serializer extends StdSerializer<TableResult> {
 
-      protected Serializer() {
-         super(TableResult.class);
-      }
+        protected Serializer() {
+            super(TableResult.class);
+        }
 
-      @Override
-      public void serialize(TableResult value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-         gen.writeObject(value.data);
-      }
+        @Override
+        public void serialize(TableResult value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeObject(value.data);
+        }
 
-   }
+    }
 }

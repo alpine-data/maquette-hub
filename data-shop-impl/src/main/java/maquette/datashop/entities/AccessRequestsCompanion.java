@@ -23,113 +23,120 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class AccessRequestsCompanion {
 
-   private final UID id;
+    private final UID id;
 
-   private final DataAssetsRepository repository;
+    private final DataAssetsRepository repository;
 
-   public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, UID project, String reason) {
-      var created = ActionMetadata.apply(executor);
+    public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, UID project,
+                                                                                String reason) {
+        var created = ActionMetadata.apply(executor);
 
-      var existingRequestsCS = repository.getDataAccessRequestsCountByParent(id);
-      var propertiesCS = repository.getDataAssetById(id);
+        var existingRequestsCS = repository.getDataAccessRequestsCountByParent(id);
+        var propertiesCS = repository.getDataAssetById(id);
 
-      return Operators
-         .compose(existingRequestsCS, propertiesCS, (existingRequests, properties) -> {
-            var requestId = UID.apply(String.valueOf(existingRequests + 1));
-            var request = DataAccessRequestProperties.apply(requestId, created, id, project, reason);
+        return Operators
+            .compose(existingRequestsCS, propertiesCS, (existingRequests, properties) -> {
+                var requestId = UID.apply(String.valueOf(existingRequests + 1));
+                var request = DataAccessRequestProperties.apply(requestId, created, id, project, reason);
 
-            if (properties.getMetadata().getClassification().equals(DataClassification.PUBLIC) &&
-               properties.getMetadata().getPersonalInformation().equals(PersonalInformation.NONE)) {
-               request.addEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(), "Automatically approved access to public data asset.", "any", false));
-            }
+                if (properties.getMetadata().getClassification().equals(DataClassification.PUBLIC) &&
+                    properties.getMetadata().getPersonalInformation().equals(PersonalInformation.NONE)) {
+                    request.addEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(), "Automatically " +
+                        "approved access to public data asset.", "any", false));
+                }
 
-            return repository
-               .insertOrUpdateDataAccessRequest(request)
-               .thenApply(d -> request);
-         })
-         .thenCompose(r -> r);
-   }
+                return repository
+                    .insertOrUpdateDataAccessRequest(request)
+                    .thenApply(d -> request);
+            })
+            .thenCompose(r -> r);
+    }
 
-   public CompletionStage<Done> expireDataAccessRequest(UID accessRequestId) {
-      var expired = Expired.apply(Instant.now());
-      return withDataAccessRequest(accessRequestId, accessRequest -> {
-         accessRequest.addEvent(expired);
-         return repository.insertOrUpdateDataAccessRequest(accessRequest);
-      });
-   }
+    public CompletionStage<Done> expireDataAccessRequest(UID accessRequestId) {
+        var expired = Expired.apply(Instant.now());
+        return withDataAccessRequest(accessRequestId, accessRequest -> {
+            accessRequest.addEvent(expired);
+            return repository.insertOrUpdateDataAccessRequest(accessRequest);
+        });
+    }
 
-   public CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests() {
-      return repository.findDataAccessRequestsByAsset(id);
-   }
+    public CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests() {
+        return repository.findDataAccessRequestsByAsset(id);
+    }
 
-   public CompletionStage<List<DataAccessRequestProperties>> getOpenDataAccessRequests() {
-      return repository
-         .findDataAccessRequestsByAsset(id)
-         .thenApply(requests -> requests
-            .stream()
-            .filter(r -> r.getStatus().equals(DataAccessRequestStatus.REQUESTED))
-            .collect(Collectors.toList()));
-   }
+    public CompletionStage<List<DataAccessRequestProperties>> getOpenDataAccessRequests() {
+        return repository
+            .findDataAccessRequestsByAsset(id)
+            .thenApply(requests -> requests
+                .stream()
+                .filter(r -> r.getStatus().equals(DataAccessRequestStatus.REQUESTED))
+                .collect(Collectors.toList()));
+    }
 
-   public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID accessRequestId) {
-      return repository.findDataAccessRequestById(id, accessRequestId);
-   }
+    public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID accessRequestId) {
+        return repository.findDataAccessRequestById(id, accessRequestId);
+    }
 
-   public CompletionStage<DataAccessRequestProperties> getDataAccessRequestById(UID accessRequestId) {
-      return findDataAccessRequestById(accessRequestId).thenApply(opt -> opt.orElseThrow(() -> AccessRequestNotFoundException.apply(accessRequestId)));
-   }
+    public CompletionStage<DataAccessRequestProperties> getDataAccessRequestById(UID accessRequestId) {
+        return findDataAccessRequestById(accessRequestId).thenApply(opt -> opt.orElseThrow(() -> AccessRequestNotFoundException
+            .apply(accessRequestId)));
+    }
 
-   public CompletionStage<Done> grantDataAccessRequest(User executor, UID accessRequestId, @Nullable Instant until, @Nullable String message, String environment, boolean downstreamApprovalRequired) {
-      var created = ActionMetadata.apply(executor);
-      var granted = Granted.apply(created, until, message, environment, downstreamApprovalRequired);
+    public CompletionStage<Done> grantDataAccessRequest(User executor, UID accessRequestId, @Nullable Instant until,
+                                                        @Nullable String message, String environment,
+                                                        boolean downstreamApprovalRequired) {
+        var created = ActionMetadata.apply(executor);
+        var granted = Granted.apply(created, until, message, environment, downstreamApprovalRequired);
 
-      return withDataAccessRequest(accessRequestId, accessRequest -> {
-         accessRequest.addEvent(granted);
-         return repository.insertOrUpdateDataAccessRequest(accessRequest);
-      });
-   }
+        return withDataAccessRequest(accessRequestId, accessRequest -> {
+            accessRequest.addEvent(granted);
+            return repository.insertOrUpdateDataAccessRequest(accessRequest);
+        });
+    }
 
-   public CompletionStage<Done> rejectDataAccessRequest(User executor, UID accessRequestId, String reason) {
-      var created = ActionMetadata.apply(executor);
-      var rejected = Rejected.apply(created, reason);
+    public CompletionStage<Done> rejectDataAccessRequest(User executor, UID accessRequestId, String reason) {
+        var created = ActionMetadata.apply(executor);
+        var rejected = Rejected.apply(created, reason);
 
-      return withDataAccessRequest(accessRequestId, accessRequest -> {
-         accessRequest.addEvent(rejected);
-         return repository.insertOrUpdateDataAccessRequest(accessRequest);
-      });
-   }
+        return withDataAccessRequest(accessRequestId, accessRequest -> {
+            accessRequest.addEvent(rejected);
+            return repository.insertOrUpdateDataAccessRequest(accessRequest);
+        });
+    }
 
-   public CompletionStage<Done> updateDataAccessRequest(User executor, UID accessRequestId, String reason) {
-      var created = ActionMetadata.apply(executor);
-      var requested = Requested.apply(created, reason);
+    public CompletionStage<Done> updateDataAccessRequest(User executor, UID accessRequestId, String reason) {
+        var created = ActionMetadata.apply(executor);
+        var requested = Requested.apply(created, reason);
 
-      return withDataAccessRequest(accessRequestId, accessRequest -> {
-         accessRequest.addEvent(requested);
-         return repository.insertOrUpdateDataAccessRequest(accessRequest);
-      });
-   }
+        return withDataAccessRequest(accessRequestId, accessRequest -> {
+            accessRequest.addEvent(requested);
+            return repository.insertOrUpdateDataAccessRequest(accessRequest);
+        });
+    }
 
-   public CompletionStage<Done> withdrawDataAccessRequest(User executor, UID accessRequestId, @Nullable String reason) {
-      var created = ActionMetadata.apply(executor);
-      var withdrawn = Withdrawn.apply(created, reason);
+    public CompletionStage<Done> withdrawDataAccessRequest(User executor, UID accessRequestId,
+                                                           @Nullable String reason) {
+        var created = ActionMetadata.apply(executor);
+        var withdrawn = Withdrawn.apply(created, reason);
 
-      return withDataAccessRequest(accessRequestId, accessRequest -> {
-         accessRequest.addEvent(withdrawn);
-         return repository.insertOrUpdateDataAccessRequest(accessRequest);
-      });
-   }
+        return withDataAccessRequest(accessRequestId, accessRequest -> {
+            accessRequest.addEvent(withdrawn);
+            return repository.insertOrUpdateDataAccessRequest(accessRequest);
+        });
+    }
 
-   private <R> CompletionStage<R> withDataAccessRequest(UID accessRequestId, Function<DataAccessRequestProperties, CompletionStage<R>> func) {
-      return repository
-         .findDataAccessRequestById(id, accessRequestId)
-         .thenCompose(maybeAccessRequest -> {
-            if (maybeAccessRequest.isPresent()) {
-               var accessRequest = maybeAccessRequest.get();
-               return func.apply(accessRequest);
-            } else {
-               throw AccessRequestNotFoundException.apply(accessRequestId);
-            }
-         });
-   }
+    private <R> CompletionStage<R> withDataAccessRequest(UID accessRequestId, Function<DataAccessRequestProperties,
+        CompletionStage<R>> func) {
+        return repository
+            .findDataAccessRequestById(id, accessRequestId)
+            .thenCompose(maybeAccessRequest -> {
+                if (maybeAccessRequest.isPresent()) {
+                    var accessRequest = maybeAccessRequest.get();
+                    return func.apply(accessRequest);
+                } else {
+                    throw AccessRequestNotFoundException.apply(accessRequestId);
+                }
+            });
+    }
 
 }

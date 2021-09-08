@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface User {
 
-   String getDisplayName();
+    String getDisplayName();
 
-   List<String> getRoles();
+    List<String> getRoles();
 
-   Authorization toAuthorization();
+    Authorization toAuthorization();
 
 }

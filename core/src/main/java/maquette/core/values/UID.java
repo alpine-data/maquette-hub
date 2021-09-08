@@ -23,53 +23,53 @@ import java.util.UUID;
 @JsonDeserialize(using = UID.Deserializer.class)
 public class UID {
 
-   String value;
+    String value;
 
-   public static UID apply(String value) {
-      if (value == null || value.length() == 0) {
-         throw ApplicationException.apply("The provided id `%s` is not valid.", value);
-      }
+    public static UID apply(String value) {
+        if (value == null || value.length() == 0) {
+            throw ApplicationException.apply("The provided id `%s` is not valid.", value);
+        }
 
-      return new UID(value);
-   }
+        return new UID(value);
+    }
 
-   public static UID apply() {
-      return apply(Operators.randomHash());
-   }
+    public static UID apply() {
+        return apply(Operators.randomHash());
+    }
 
-   public static UID apply(int length) {
-      String random = UUID.randomUUID().toString().replace("-", "").substring(0, length);
-      return apply(random);
-   }
+    public static UID apply(int length) {
+        String random = UUID.randomUUID().toString().replace("-", "").substring(0, length);
+        return apply(random);
+    }
 
-   public String toString() {
-      return value;
-   }
+    public String toString() {
+        return value;
+    }
 
-   public static class Serializer extends StdSerializer<UID> {
+    public static class Serializer extends StdSerializer<UID> {
 
-      private Serializer() {
-         super(UID.class);
-      }
+        private Serializer() {
+            super(UID.class);
+        }
 
-      @Override
-      public void serialize(UID value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-         gen.writeString(value.getValue());
-      }
+        @Override
+        public void serialize(UID value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeString(value.getValue());
+        }
 
-   }
+    }
 
-   public static class Deserializer extends StdDeserializer<UID> {
+    public static class Deserializer extends StdDeserializer<UID> {
 
-      private Deserializer() {
-         super(UID.class);
-      }
+        private Deserializer() {
+            super(UID.class);
+        }
 
-      @Override
-      public UID deserialize(JsonParser p, DeserializationContext ignore) throws IOException {
-         return UID.apply(p.readValueAs(String.class));
-      }
+        @Override
+        public UID deserialize(JsonParser p, DeserializationContext ignore) throws IOException {
+            return UID.apply(p.readValueAs(String.class));
+        }
 
-   }
+    }
 
 }

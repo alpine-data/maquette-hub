@@ -6,20 +6,20 @@ package maquette.core.common.exceptions;
  */
 public class ApplicationException extends RuntimeException {
 
-   public int getHttpStatus() {
-      return 400;
-   }
+    public int getHttpStatus() {
+        return 400;
+    }
 
-   public ApplicationException(String message) {
-      super(message);
-   }
+    public ApplicationException(String message) {
+        super(message);
+    }
 
-   public ApplicationException(String message, Throwable cause) {
-      super(message, cause);
-   }
+    public ApplicationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-   public static ApplicationException apply(String message, Object...args) {
-      return new ApplicationException(String.format(message, args));
-   }
+    public static ApplicationException apply(String message, Object... args) {
+        return new ApplicationException(String.format(message, args));
+    }
 
 }

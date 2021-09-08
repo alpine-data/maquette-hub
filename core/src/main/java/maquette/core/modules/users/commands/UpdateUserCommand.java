@@ -20,24 +20,25 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class UpdateUserCommand implements Command {
 
-   UserProfile profile;
+    UserProfile profile;
 
-   UserSettings settings;
+    UserSettings settings;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-          .getModule(UserModule.class)
-          .getServices()
-          .updateUser(user, profile.getId(), profile, settings)
-          .thenApply(done -> MessageResult.apply("Successfully updated user."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(UserModule.class)
+            .getServices()
+            .updateUser(user, profile.getId(), profile, settings)
+            .thenApply(done -> MessageResult.apply("Successfully updated user."));
+    }
 
-   @Override
-   public Command example() {
-      return apply(
-         UserProfile.apply(UID.apply("alice"), "Alice Kaye", "Data Scientist", "Lorem ipsum dolor", "alice@mail.con", "+49 12345 281 12", "Entenhausen"),
-         UserSettings.apply(GitSettings.apply("username", "password", "privateSSHKey", "publicSSHKey")));
-   }
+    @Override
+    public Command example() {
+        return apply(
+            UserProfile.apply(UID.apply("alice"), "Alice Kaye", "Data Scientist", "Lorem ipsum dolor", "alice@mail" +
+                ".con", "+49 12345 281 12", "Entenhausen"),
+            UserSettings.apply(GitSettings.apply("username", "password", "privateSSHKey", "publicSSHKey")));
+    }
 
 }

@@ -21,65 +21,65 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataAccessRequest {
 
-   private static final String ID = "id";
-   private static final String CREATED = "created";
-   private static final String WORKSPACE = "workspace";
-   private static final String EVENTS = "events";
-   private static final String STATUS = "status";
-   private static final String TARGET_PROJECT = "target-project";
-   private static final String ASSET = "asset";
-   private static final String CAN_GRANT = "can-grant";
-   private static final String CAN_REQUEST = "can-request";
+    private static final String ID = "id";
+    private static final String CREATED = "created";
+    private static final String WORKSPACE = "workspace";
+    private static final String EVENTS = "events";
+    private static final String STATUS = "status";
+    private static final String TARGET_PROJECT = "target-project";
+    private static final String ASSET = "asset";
+    private static final String CAN_GRANT = "can-grant";
+    private static final String CAN_REQUEST = "can-request";
 
-   @JsonProperty(ID)
-   UID id;
+    @JsonProperty(ID)
+    UID id;
 
-   @JsonProperty(CREATED)
-   ActionMetadata created;
+    @JsonProperty(CREATED)
+    ActionMetadata created;
 
-   @JsonProperty(ASSET)
-   DataAssetProperties asset;
+    @JsonProperty(ASSET)
+    DataAssetProperties asset;
 
-   @JsonProperty(WORKSPACE)
-   WorkspaceProperties workspace;
+    @JsonProperty(WORKSPACE)
+    WorkspaceProperties workspace;
 
-   @JsonProperty(EVENTS)
-   List<DataAccessRequestEvent> events;
+    @JsonProperty(EVENTS)
+    List<DataAccessRequestEvent> events;
 
-   @JsonProperty(CAN_GRANT)
-   boolean canGrant;
+    @JsonProperty(CAN_GRANT)
+    boolean canGrant;
 
-   @JsonProperty(CAN_REQUEST)
-   boolean canRequest;
+    @JsonProperty(CAN_REQUEST)
+    boolean canRequest;
 
-   @JsonCreator
-   public static DataAccessRequest apply(
-      @JsonProperty(ID) UID id,
-      @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(ASSET) DataAssetProperties asset,
-      @JsonProperty(WORKSPACE) WorkspaceProperties workspace,
-      @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
+    @JsonCreator
+    public static DataAccessRequest apply(
+        @JsonProperty(ID) UID id,
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(ASSET) DataAssetProperties asset,
+        @JsonProperty(WORKSPACE) WorkspaceProperties workspace,
+        @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
 
-      if (events.isEmpty()) {
-         throw new IllegalArgumentException("events may not be empty");
-      }
+        if (events.isEmpty()) {
+            throw new IllegalArgumentException("events may not be empty");
+        }
 
-      List<DataAccessRequestEvent> eventsCopy = events
-         .stream()
-         .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
-         .collect(Collectors.toList());
+        List<DataAccessRequestEvent> eventsCopy = events
+            .stream()
+            .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
+            .collect(Collectors.toList());
 
-      return new DataAccessRequest(id, created, asset, workspace, eventsCopy, false, false);
-   }
+        return new DataAccessRequest(id, created, asset, workspace, eventsCopy, false, false);
+    }
 
-   @JsonProperty("actions")
-   public Set<DataAccessRequestAction> getActions() {
-      return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
-   }
+    @JsonProperty("actions")
+    public Set<DataAccessRequestAction> getActions() {
+        return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
+    }
 
-   @JsonProperty("status")
-   public DataAccessRequestStatus getStatus() {
-      return DataAccessRequestCompanion.getStatus(events);
-   }
+    @JsonProperty("status")
+    public DataAccessRequestStatus getStatus() {
+        return DataAccessRequestCompanion.getStatus(events);
+    }
 
 }

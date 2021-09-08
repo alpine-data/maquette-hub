@@ -16,34 +16,36 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class UserEntities {
 
-   private final UsersRepository repository;
+    private final UsersRepository repository;
 
-   private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-   public CompletionStage<UserEntity> getUserById(UID id) {
-      return CompletableFuture.completedFuture(UserEntity.apply(id, repository, objectMapper));
-   }
+    public CompletionStage<UserEntity> getUserById(UID id) {
+        return CompletableFuture.completedFuture(UserEntity.apply(id, repository, objectMapper));
+    }
 
-   public CompletionStage<List<UserProfile>> getUsers() {
-      return repository.getUsers();
-   }
+    public CompletionStage<List<UserProfile>> getUsers() {
+        return repository.getUsers();
+    }
 
-   public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(UID tokenId, String tokenSecret) {
-      return repository
-         .findAuthenticationTokenByTokenId(tokenId)
-         .thenCompose(maybeToken -> {
-            if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
-               return repository
-                  .findProfileById(tokenId)
-                  .thenCompose(maybeProfile -> maybeProfile
-                     .map(userProfile -> CompletableFuture.completedFuture(AuthenticatedUser.apply(userProfile.getId())))
-                     .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId.getValue()))));
-            } else if (maybeToken.isPresent()) {
-               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createOutdated(tokenId.getValue()));
-            } else {
-               return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId.getValue()));
-            }
-         });
-   }
+    public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(UID tokenId, String tokenSecret) {
+        return repository
+            .findAuthenticationTokenByTokenId(tokenId)
+            .thenCompose(maybeToken -> {
+                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
+                    return repository
+                        .findProfileById(tokenId)
+                        .thenCompose(maybeProfile -> maybeProfile
+                            .map(userProfile -> CompletableFuture.completedFuture(AuthenticatedUser.apply(userProfile.getId())))
+                            .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId
+                                .getValue()))));
+                } else if (maybeToken.isPresent()) {
+                    return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createOutdated(tokenId.getValue()));
+                } else {
+                    return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId
+                        .getValue()));
+                }
+            });
+    }
 
 }

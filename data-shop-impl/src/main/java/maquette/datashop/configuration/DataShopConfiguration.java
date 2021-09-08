@@ -14,11 +14,11 @@ import maquette.core.config.annotations.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DataShopConfiguration {
 
-   @Value("database")
-   private DatabaseConfiguration database;
+    @Value("database")
+    private DatabaseConfiguration database;
 
-   public static DataShopConfiguration apply() {
-      return Configs.mapToConfigClass(DataShopConfiguration.class, "maquette.data-shop");
-   }
+    public static DataShopConfiguration apply() {
+        return Configs.mapToConfigClass(DataShopConfiguration.class, "maquette.data-shop");
+    }
 
 }

@@ -14,14 +14,14 @@ import maquette.core.common.Operators;
 @AllArgsConstructor(staticName = "apply")
 public class DataResult<T> implements CommandResult {
 
-   T data;
+    T data;
 
-   @Override
-   public String toPlainText(MaquetteRuntime runtime) {
-      return Operators.suppressExceptions(() -> runtime
-         .getObjectMapperFactory()
-         .createJsonMapper(true)
-         .writeValueAsString(data));
-   }
+    @Override
+    public String toPlainText(MaquetteRuntime runtime) {
+        return Operators.suppressExceptions(() -> runtime
+            .getObjectMapperFactory()
+            .createJsonMapper(true)
+            .writeValueAsString(data));
+    }
 
 }

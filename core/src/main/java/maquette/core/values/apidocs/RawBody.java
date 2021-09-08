@@ -10,13 +10,13 @@ import java.util.Map;
 @AllArgsConstructor(staticName = "apply")
 public class RawBody implements Body {
 
-   String raw;
+    String raw;
 
-   @Override
-   public Map<String, Object> getOptions() {
-      Map<String, Object> map = Maps.newHashMap();
-      map.put("raw", new Object());
-      return map;
-   }
+    @Override
+    public Map<String, Object> getOptions() {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("raw", new Object());
+        return map;
+    }
 
 }

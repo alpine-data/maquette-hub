@@ -7,8 +7,8 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class TextField implements Field {
 
-   String key;
+    String key;
 
-   String value;
+    String value;
 
 }

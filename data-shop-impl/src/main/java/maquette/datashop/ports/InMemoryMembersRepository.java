@@ -20,55 +20,55 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public final class InMemoryMembersRepository<T extends Enum<T>> implements HasMembers<T> {
 
-   private final Map<UID, List<GrantedAuthorization<T>>> store;
+    private final Map<UID, List<GrantedAuthorization<T>>> store;
 
-   public static <T extends Enum<T>> InMemoryMembersRepository<T> apply() {
-      return new InMemoryMembersRepository<>(Maps.newHashMap());
-   }
+    public static <T extends Enum<T>> InMemoryMembersRepository<T> apply() {
+        return new InMemoryMembersRepository<>(Maps.newHashMap());
+    }
 
-   @Override
-   public CompletionStage<List<GrantedAuthorization<T>>> findAllMembers(UID parent) {
-      var result = Optional
-         .ofNullable(store.get(parent))
-         .orElse(List.of());
+    @Override
+    public CompletionStage<List<GrantedAuthorization<T>>> findAllMembers(UID parent) {
+        var result = Optional
+            .ofNullable(store.get(parent))
+            .orElse(List.of());
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<List<GrantedAuthorization<T>>> findMembersByRole(UID parent, T role) {
-      var result = store
-         .getOrDefault(parent, Lists.newArrayList())
-         .stream()
-         .filter(a -> a.getRole().equals(role))
-         .collect(Collectors.toList());
+    @Override
+    public CompletionStage<List<GrantedAuthorization<T>>> findMembersByRole(UID parent, T role) {
+        var result = store
+            .getOrDefault(parent, Lists.newArrayList())
+            .stream()
+            .filter(a -> a.getRole().equals(role))
+            .collect(Collectors.toList());
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<T> member) {
-      var existing = store
-         .getOrDefault(parent, Lists.newArrayList())
-         .stream()
-         .filter(a -> !(a.getAuthorization().equals(member.getAuthorization())));
+    @Override
+    public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<T> member) {
+        var existing = store
+            .getOrDefault(parent, Lists.newArrayList())
+            .stream()
+            .filter(a -> !(a.getAuthorization().equals(member.getAuthorization())));
 
-      var updated = Stream.concat(existing, Stream.of(member)).collect(Collectors.toList());
-      store.put(parent, updated);
+        var updated = Stream.concat(existing, Stream.of(member)).collect(Collectors.toList());
+        store.put(parent, updated);
 
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Done> removeMember(UID parent, Authorization member) {
-      var updated = store
-         .getOrDefault(parent, Lists.newArrayList())
-         .stream()
-         .filter(a -> !(a.getAuthorization().equals(member)))
-         .collect(Collectors.toList());
+    @Override
+    public CompletionStage<Done> removeMember(UID parent, Authorization member) {
+        var updated = store
+            .getOrDefault(parent, Lists.newArrayList())
+            .stream()
+            .filter(a -> !(a.getAuthorization().equals(member)))
+            .collect(Collectors.toList());
 
-      store.put(parent, updated);
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        store.put(parent, updated);
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
 }

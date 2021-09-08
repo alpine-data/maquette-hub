@@ -26,13 +26,13 @@ public final class AdminResource {
 
     public Handler getAbout() {
         var docs = OpenApiBuilder
-                .document()
-                .operation(op -> {
-                    op.summary("Application Info");
-                    op.description("Returns basic meta information of the application.");
-                    op.addTagsItem("Admin");
-                })
-                .json("200", About.class);
+            .document()
+            .operation(op -> {
+                op.summary("Application Info");
+                op.description("Returns basic meta information of the application.");
+                op.addTagsItem("Admin");
+            })
+            .json("200", About.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
             ctx.json(About.apply(runtime.getConfig().getEnvironment(), runtime.getConfig().getVersion()));
@@ -41,24 +41,24 @@ public final class AdminResource {
 
     public Handler getUserInfo() {
         var docs = OpenApiBuilder
-                .document()
-                .operation(op -> {
-                    op.summary("User Info");
-                    op.description("Returns user information from the authenticated user.");
-                    op.addTagsItem("Admin");
-                })
-                .json("200", User.class);
+            .document()
+            .operation(op -> {
+                op.summary("User Info");
+                op.description("Returns user information from the authenticated user.");
+                op.addTagsItem("Admin");
+            })
+            .json("200", User.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
-           var services = runtime.getModule(UserModule.class).getServices();
-           var user = (User) ctx.attribute("user");
+            var services = runtime.getModule(UserModule.class).getServices();
+            var user = (User) ctx.attribute("user");
 
-           var result = services
-              .getAuthenticationToken(user)
-              .thenApply(token -> UserInformation.apply(user, token))
-              .toCompletableFuture();
+            var result = services
+                .getAuthenticationToken(user)
+                .thenApply(token -> UserInformation.apply(user, token))
+                .toCompletableFuture();
 
-           ctx.json(result);
+            ctx.json(result);
         });
     }
 
@@ -66,9 +66,9 @@ public final class AdminResource {
     @AllArgsConstructor(staticName = "apply")
     public static class UserInformation {
 
-       User user;
+        User user;
 
-       UserAuthenticationToken token;
+        UserAuthenticationToken token;
 
     }
 

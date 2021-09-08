@@ -10,38 +10,37 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 public interface UserServices {
 
-   /*
-    * Authentication tokens
-    */
-   CompletionStage<UserAuthenticationToken> getAuthenticationToken(User executor);
+    /*
+     * Authentication tokens
+     */
+    CompletionStage<UserAuthenticationToken> getAuthenticationToken(User executor);
 
-   CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret);
+    CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret);
 
-   /*
-    * Profile
-    */
-   CompletionStage<UserProfile> getProfile(User executor, UID userId);
+    /*
+     * Profile
+     */
+    CompletionStage<UserProfile> getProfile(User executor, UID userId);
 
-   CompletionStage<UserProfile> getProfile(User executor);
+    CompletionStage<UserProfile> getProfile(User executor);
 
-   CompletionStage<UserSettings> getSettings(User executor, UID userId);
+    CompletionStage<UserSettings> getSettings(User executor, UID userId);
 
-   CompletionStage<List<UserProfile>> getUsers(User executor);
+    CompletionStage<List<UserProfile>> getUsers(User executor);
 
-   CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
+    CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
 
-   CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings);
+    CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings);
 
-   /*
-    * Notifications
-    */
-   CompletionStage<List<UserNotification>> getNotifications(User executor);
+    /*
+     * Notifications
+     */
+    CompletionStage<List<UserNotification>> getNotifications(User executor);
 
-   CompletionStage<Done> readNotification(User executor, String notificationId);
+    CompletionStage<Done> readNotification(User executor, String notificationId);
 
 }

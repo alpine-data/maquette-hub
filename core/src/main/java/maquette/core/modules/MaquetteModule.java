@@ -11,31 +11,31 @@ import java.util.Map;
  */
 public interface MaquetteModule {
 
-   /**
-    * Technical name of the module.
-    *
-    * @return The name, obviously.
-    */
-   String getName();
+    /**
+     * Technical name of the module.
+     *
+     * @return The name, obviously.
+     */
+    String getName();
 
-   /**
-    * Will be called during start-up of Maquette.
-    *
-    * @param runtime The initialized Maquette runtime configuration.
-    */
-   default void start(MaquetteRuntime runtime) {
-      // do nothing by default
-   }
+    /**
+     * Will be called during start-up of Maquette.
+     *
+     * @param runtime The initialized Maquette runtime configuration.
+     */
+    default void start(MaquetteRuntime runtime) {
+        // do nothing by default
+    }
 
-   /**
-    * Will be called during shutdown of Maquette.
-    */
-   default void stop() {
-      // do nothing by default
-   }
+    /**
+     * Will be called during shutdown of Maquette.
+     */
+    default void stop() {
+        // do nothing by default
+    }
 
-   default Map<String, Class<? extends Command>> getCommands() {
-      return Maps.newHashMap();
-   }
+    default Map<String, Class<? extends Command>> getCommands() {
+        return Maps.newHashMap();
+    }
 
 }

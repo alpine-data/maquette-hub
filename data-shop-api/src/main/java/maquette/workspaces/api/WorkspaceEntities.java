@@ -8,10 +8,10 @@ import java.util.concurrent.CompletionStage;
 
 public interface WorkspaceEntities {
 
-   CompletionStage<WorkspaceEntity> getWorkspaceByName(String name);
+    CompletionStage<WorkspaceEntity> getWorkspaceByName(String name);
 
-   CompletionStage<WorkspaceEntity> getWorkspaceById(UID id);
+    CompletionStage<WorkspaceEntity> getWorkspaceById(UID id);
 
-   CompletionStage<List<WorkspaceEntity>> getWorkspacesByMember(User user);
+    CompletionStage<List<WorkspaceEntity>> getWorkspacesByMember(User user);
 
 }

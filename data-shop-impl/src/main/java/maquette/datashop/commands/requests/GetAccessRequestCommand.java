@@ -19,22 +19,22 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetAccessRequestCommand implements Command {
 
-   String name;
+    String name;
 
-   UID id;
+    UID id;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .getDataAccessRequest(user, name, id)
-         .thenApply(DataResult::apply);
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .getDataAccessRequest(user, name, id)
+            .thenApply(DataResult::apply);
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", UID.apply("1"));
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", UID.apply("1"));
+    }
 
 }

@@ -21,113 +21,113 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class Maquette {
 
-   private static final Logger LOG = LoggerFactory.getLogger(Maquette.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Maquette.class);
 
-   private MaquetteRuntime runtime;
+    private MaquetteRuntime runtime;
 
-   @Nullable
-   private MaquetteServer server;
+    @Nullable
+    private MaquetteServer server;
 
-   /**
-    * Creates a new Maquette instance.
-    *
-    * @return The new instance.
-    */
-   public static Maquette apply() {
-      var runtime = MaquetteRuntime.apply();
-      return Maquette.apply(runtime, null);
-   }
+    /**
+     * Creates a new Maquette instance.
+     *
+     * @return The new instance.
+     */
+    public static Maquette apply() {
+        var runtime = MaquetteRuntime.apply();
+        return Maquette.apply(runtime, null);
+    }
 
-   /**
-    * Configures the Maquette instance. This method should be called before
-    * starting Maquette. After starting the instance, the function has now effect.
-    *
-    * @param cfg A function which modifies the current configuration.
-    * @return The updated Maquette instance.
-    */
-   public Maquette configure(Function<MaquetteRuntime, MaquetteRuntime> cfg) {
-      if (server != null) {
-         throw new IllegalStateException("This method must be called before starting Maquette");
-      }
+    /**
+     * Configures the Maquette instance. This method should be called before
+     * starting Maquette. After starting the instance, the function has now effect.
+     *
+     * @param cfg A function which modifies the current configuration.
+     * @return The updated Maquette instance.
+     */
+    public Maquette configure(Function<MaquetteRuntime, MaquetteRuntime> cfg) {
+        if (server != null) {
+            throw new IllegalStateException("This method must be called before starting Maquette");
+        }
 
-      runtime = Operators.suppressExceptions(
-         () -> cfg.apply(runtime),
-         "An exception occurred while executing runtime configuration");
+        runtime = Operators.suppressExceptions(
+            () -> cfg.apply(runtime),
+            "An exception occurred while executing runtime configuration");
 
-      return this;
-   }
+        return this;
+    }
 
-   /**
-    * Start Maquette instance. This will start all services and run the webserver.
-    *
-    * @return The Maquette instance itself.
-    */
-   public Maquette start() {
-      LOG.info("Starting Maquette Core ...");
+    /**
+     * Start Maquette instance. This will start all services and run the webserver.
+     *
+     * @return The Maquette instance itself.
+     */
+    public Maquette start() {
+        LOG.info("Starting Maquette Core ...");
 
-      /*
-       * Create server and initialize modules
-       */
-      var app = Javalin
-         .create(config -> {
-            config.showJavalinBanner = false;
-            config.registerPlugin(OpenApiResource.apply(runtime.getConfig()));
-         });
+        /*
+         * Create server and initialize modules
+         */
+        var app = Javalin
+            .create(config -> {
+                config.showJavalinBanner = false;
+                config.registerPlugin(OpenApiResource.apply(runtime.getConfig()));
+            });
 
-      runtime = runtime.withApp(app);
+        runtime = runtime.withApp(app);
 
-      /*
-       * Initialize core modules.
-       */
-      runtime.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
+        /*
+         * Initialize core modules.
+         */
+        runtime.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
 
-      /*
-       * Initialize modules
-       */
-      runtime = runtime.withModules(runtime
-         .getModuleFactories()
-         .stream()
-         .map(mf -> Operators.suppressExceptions(() -> mf.apply(runtime)))
-         .collect(Collectors.toList()));
+        /*
+         * Initialize modules
+         */
+        runtime = runtime.withModules(runtime
+            .getModuleFactories()
+            .stream()
+            .map(mf -> Operators.suppressExceptions(() -> mf.apply(runtime)))
+            .collect(Collectors.toList()));
 
-      runtime.getModules().forEach(module -> {
-         LOG.info("Starting module {}", module.getName());
-         module.start(runtime);
-      });
+        runtime.getModules().forEach(module -> {
+            LOG.info("Starting module {}", module.getName());
+            module.start(runtime);
+        });
 
-      /*
-       * Run server
-       */
-      server = MaquetteServer.apply(runtime);
-      server.start();
-      Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+        /*
+         * Run server
+         */
+        server = MaquetteServer.apply(runtime);
+        server.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
-      var map = Maps.<String, Object>newHashMap();
-      map.put("version", runtime.getConfig().getVersion());
-      map.put("environment", runtime.getConfig().getEnvironment());
-      var banner = Templates.renderTemplateFromResources(runtime.getConfig().getCore().getBanner(), map);
-      LOG.info("{} has started {}", runtime.getConfig().getName(), banner);
+        var map = Maps.<String, Object>newHashMap();
+        map.put("version", runtime.getConfig().getVersion());
+        map.put("environment", runtime.getConfig().getEnvironment());
+        var banner = Templates.renderTemplateFromResources(runtime.getConfig().getCore().getBanner(), map);
+        LOG.info("{} has started {}", runtime.getConfig().getName(), banner);
 
-      return this;
-   }
+        return this;
+    }
 
-   /**
-    * Gracefully stop Maquette.
-    */
-   public void stop() {
-      LOG.info("Stopping Maquette ...");
+    /**
+     * Gracefully stop Maquette.
+     */
+    public void stop() {
+        LOG.info("Stopping Maquette ...");
 
-      if (this.server != null) {
-         this.server.stop();
-         this.server = null;
-      }
+        if (this.server != null) {
+            this.server.stop();
+            this.server = null;
+        }
 
-      runtime.getModules().forEach(module -> {
-         LOG.info("Stopping module {}", module.getName());
-         module.stop();
-      });
+        runtime.getModules().forEach(module -> {
+            LOG.info("Stopping module {}", module.getName());
+            module.stop();
+        });
 
-      LOG.info("Maquette has stopped");
-   }
+        LOG.info("Maquette has stopped");
+    }
 
 }

@@ -15,92 +15,93 @@ import java.util.Locale;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataAssetMetadata {
 
-   private static final String TITLE = "title";
-   private static final String NAME = "name";
-   private static final String SUMMARY = "summary";
-   private static final String VISIBILITY = "visibility";
-   private static final String CLASSIFICATION = "classification";
-   private static final String PERSONAL_INFORMATION = "personal-information";
-   private static final String ZONE = "zone";
+    private static final String TITLE = "title";
+    private static final String NAME = "name";
+    private static final String SUMMARY = "summary";
+    private static final String VISIBILITY = "visibility";
+    private static final String CLASSIFICATION = "classification";
+    private static final String PERSONAL_INFORMATION = "personal-information";
+    private static final String ZONE = "zone";
 
-   /**
-    * A speaking title for the data asset.
-    */
-   @JsonProperty(TITLE)
-   String title;
+    /**
+     * A speaking title for the data asset.
+     */
+    @JsonProperty(TITLE)
+    String title;
 
-   /**
-    * A technical name for the data asset.
-    */
-   @JsonProperty(NAME)
-   String name;
+    /**
+     * A technical name for the data asset.
+     */
+    @JsonProperty(NAME)
+    String name;
 
-   /**
-    * A short description of the data asset.
-    */
-   @JsonProperty(SUMMARY)
-   String summary;
+    /**
+     * A short description of the data asset.
+     */
+    @JsonProperty(SUMMARY)
+    String summary;
 
-   /**
-    * The visibility of the asset.
-    */
-   @JsonProperty(VISIBILITY)
-   DataVisibility visibility;
+    /**
+     * The visibility of the asset.
+     */
+    @JsonProperty(VISIBILITY)
+    DataVisibility visibility;
 
-   /**
-    * Classification if the asset.
-    */
-   @JsonProperty(CLASSIFICATION)
-   DataClassification classification;
+    /**
+     * Classification if the asset.
+     */
+    @JsonProperty(CLASSIFICATION)
+    DataClassification classification;
 
-   /**
-    * Indicator whether personal information is included in the data.
-    */
-   @JsonProperty(PERSONAL_INFORMATION)
-   PersonalInformation personalInformation;
+    /**
+     * Indicator whether personal information is included in the data.
+     */
+    @JsonProperty(PERSONAL_INFORMATION)
+    PersonalInformation personalInformation;
 
-   /**
-    * The zone gives an indication how well prepared/ clean the data is.
-    */
-   @JsonProperty(ZONE)
-   DataZone zone;
+    /**
+     * The zone gives an indication how well prepared/ clean the data is.
+     */
+    @JsonProperty(ZONE)
+    DataZone zone;
 
-   @JsonCreator
-   public static DataAssetMetadata apply(
-      @JsonProperty(TITLE) String title,
-      @JsonProperty(NAME) String name,
-      @JsonProperty(SUMMARY) String summary,
-      @JsonProperty(VISIBILITY) DataVisibility visibility,
-      @JsonProperty(CLASSIFICATION) DataClassification classification,
-      @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
-      @JsonProperty(ZONE) DataZone zone) {
+    @JsonCreator
+    public static DataAssetMetadata apply(
+        @JsonProperty(TITLE) String title,
+        @JsonProperty(NAME) String name,
+        @JsonProperty(SUMMARY) String summary,
+        @JsonProperty(VISIBILITY) DataVisibility visibility,
+        @JsonProperty(CLASSIFICATION) DataClassification classification,
+        @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
+        @JsonProperty(ZONE) DataZone zone) {
 
-      return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone);
-   }
+        return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone);
+    }
 
-   /**
-    * Creates a sample value object with default values.
-    *
-    * @param title The title for the asset.
-    * @param name The name of the asset.
-    * @return A new instance.
-    */
-   public static DataAssetMetadata sample(String title, String name) {
-      return apply(title, name, Operators.lorem(), DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
-   }
+    /**
+     * Creates a sample value object with default values.
+     *
+     * @param title The title for the asset.
+     * @param name  The name of the asset.
+     * @return A new instance.
+     */
+    public static DataAssetMetadata sample(String title, String name) {
+        return apply(title, name, Operators.lorem(), DataVisibility.PUBLIC, DataClassification.PUBLIC,
+            PersonalInformation.NONE, DataZone.RAW);
+    }
 
-   /**
-    * Creates a sample value object with default values.
-    *
-    * @param title The title for the asset.
-    * @return A new instance.
-    */
-   public static DataAssetMetadata sample(String title) {
-      return sample(title, title.toLowerCase(Locale.ROOT).replace(' ', '-'));
-   }
+    /**
+     * Creates a sample value object with default values.
+     *
+     * @param title The title for the asset.
+     * @return A new instance.
+     */
+    public static DataAssetMetadata sample(String title) {
+        return sample(title, title.toLowerCase(Locale.ROOT).replace(' ', '-'));
+    }
 
-   public static DataAssetMetadata sample() {
-      return sample("Some Asset");
-   }
+    public static DataAssetMetadata sample() {
+        return sample("Some Asset");
+    }
 
 }

@@ -8,21 +8,21 @@ import maquette.core.config.MaquetteConfiguration;
 
 public final class OpenApiResource {
 
-   private OpenApiResource() {
+    private OpenApiResource() {
 
-   }
+    }
 
-   public static OpenApiPlugin apply(MaquetteConfiguration config) {
-      var info = new Info()
-         .version(config.getVersion())
-         .title(config.getName())
-         .description(String.format("%s REST API.", config.getName()));
+    public static OpenApiPlugin apply(MaquetteConfiguration config) {
+        var info = new Info()
+            .version(config.getVersion())
+            .title(config.getName())
+            .description(String.format("%s REST API.", config.getName()));
 
-      var options = new OpenApiOptions(info)
-         .path("/api")
-         .swagger(new SwaggerOptions("/api/docs").title("Maquette Open API Documentation"));
+        var options = new OpenApiOptions(info)
+            .path("/api")
+            .swagger(new SwaggerOptions("/api/docs").title("Maquette Open API Documentation"));
 
-      return new OpenApiPlugin(options);
-   }
+        return new OpenApiPlugin(options);
+    }
 
 }

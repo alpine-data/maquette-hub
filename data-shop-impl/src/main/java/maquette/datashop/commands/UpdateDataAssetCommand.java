@@ -18,26 +18,26 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class UpdateDataAssetCommand implements Command {
 
-   String name;
+    String name;
 
-   DataAssetMetadata metadata;
+    DataAssetMetadata metadata;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .update(user, name, metadata)
-         .thenApply(done -> MessageResult.apply("Successfully updated data asset."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .update(user, name, metadata)
+            .thenApply(done -> MessageResult.apply("Successfully updated data asset."));
+    }
 
-   @Override
-   public Command example() {
-      var meta = DataAssetMetadata.apply(
-         "some-dataset", "title", Operators.lorem(),
-         DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
+    @Override
+    public Command example() {
+        var meta = DataAssetMetadata.apply(
+            "some-dataset", "title", Operators.lorem(),
+            DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW);
 
-      return apply("some-dataset", meta);
-   }
+        return apply("some-dataset", meta);
+    }
 
 }

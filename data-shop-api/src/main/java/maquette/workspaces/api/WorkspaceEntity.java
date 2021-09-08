@@ -6,8 +6,8 @@ import java.util.concurrent.CompletionStage;
 
 public interface WorkspaceEntity {
 
-   UID getId();
+    UID getId();
 
-   CompletionStage<WorkspaceProperties> getProperties();
+    CompletionStage<WorkspaceProperties> getProperties();
 
 }

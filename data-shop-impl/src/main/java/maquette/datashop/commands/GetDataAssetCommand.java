@@ -18,20 +18,20 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetDataAssetCommand implements Command {
 
-   String name;
+    String name;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .get(user, name)
-         .thenApply(DataResult::apply);
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .get(user, name)
+            .thenApply(DataResult::apply);
+    }
 
-   @Override
-   public Command example() {
-      return GetDataAssetCommand.apply("some-dataset");
-   }
+    @Override
+    public Command example() {
+        return GetDataAssetCommand.apply("some-dataset");
+    }
 
 }

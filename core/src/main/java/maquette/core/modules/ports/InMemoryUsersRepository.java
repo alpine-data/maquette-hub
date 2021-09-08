@@ -22,121 +22,122 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class InMemoryUsersRepository implements UsersRepository {
 
-   private final List<StoredUserNotification> notifications;
+    private final List<StoredUserNotification> notifications;
 
-   private final Map<UID, UserProfile> profiles;
+    private final Map<UID, UserProfile> profiles;
 
-   private final Map<UID, UserSettings> settings;
+    private final Map<UID, UserSettings> settings;
 
-   private final Map<UID, UserAuthenticationToken> tokens;
+    private final Map<UID, UserAuthenticationToken> tokens;
 
-   public static InMemoryUsersRepository apply() {
-      return apply(Lists.newArrayList(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap());
-   }
+    public static InMemoryUsersRepository apply() {
+        return apply(Lists.newArrayList(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap());
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateProfile(UserProfile profile) {
-      profiles.put(profile.getId(), profile);
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateProfile(UserProfile profile) {
+        profiles.put(profile.getId(), profile);
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateNotification(UID userId, UserNotification notification) {
-      notifications
-         .stream()
-         .filter(n -> n.userId.equals(userId) && n.notification.getId().equals(userId))
-         .forEach(notifications::remove);
+    @Override
+    public CompletionStage<Done> insertOrUpdateNotification(UID userId, UserNotification notification) {
+        notifications
+            .stream()
+            .filter(n -> n.userId.equals(userId) && n.notification.getId().equals(userId))
+            .forEach(notifications::remove);
 
-      notifications.add(StoredUserNotification.apply(userId, notification));
+        notifications.add(StoredUserNotification.apply(userId, notification));
 
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateSettings(UID userId, UserSettings settings) {
-      this.settings.put(userId, settings);
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateSettings(UID userId, UserSettings settings) {
+        this.settings.put(userId, settings);
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateAuthenticationToken(UID userId, UserAuthenticationToken token) {
-      this.tokens.put(userId, token);
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+    @Override
+    public CompletionStage<Done> insertOrUpdateAuthenticationToken(UID userId, UserAuthenticationToken token) {
+        this.tokens.put(userId, token);
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<List<UserProfile>> getUsers() {
-      return CompletableFuture.completedFuture(new ArrayList<>(profiles.values()));
-   }
+    @Override
+    public CompletionStage<List<UserProfile>> getUsers() {
+        return CompletableFuture.completedFuture(new ArrayList<>(profiles.values()));
+    }
 
-   @Override
-   public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(UID userId) {
-      if (tokens.containsKey(userId)) {
-         return CompletableFuture.completedFuture(Optional.of(tokens.get(userId)));
-      } else {
-         return CompletableFuture.completedFuture(Optional.empty());
-      }
-   }
+    @Override
+    public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(UID userId) {
+        if (tokens.containsKey(userId)) {
+            return CompletableFuture.completedFuture(Optional.of(tokens.get(userId)));
+        } else {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+    }
 
-   @Override
-   public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(UID tokenId) {
-      var result = tokens
-         .values()
-         .stream()
-         .filter(token -> token.getId().equals(tokenId))
-         .findFirst();
+    @Override
+    public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(UID tokenId) {
+        var result = tokens
+            .values()
+            .stream()
+            .filter(token -> token.getId().equals(tokenId))
+            .findFirst();
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, String notificationId) {
-      var result = notifications
-         .stream()
-         .filter(notification -> notification.userId.equals(userId) && notification.notification.getId().equals(notificationId))
-         .map(StoredUserNotification::getNotification)
-         .findAny();
+    @Override
+    public CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, String notificationId) {
+        var result = notifications
+            .stream()
+            .filter(notification -> notification.userId.equals(userId) && notification.notification.getId()
+                .equals(notificationId))
+            .map(StoredUserNotification::getNotification)
+            .findAny();
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Optional<UserProfile>> findProfileById(UID userId) {
-      if (profiles.containsKey(userId)) {
-         return CompletableFuture.completedFuture(Optional.of(profiles.get(userId)));
-      } else {
-         return CompletableFuture.completedFuture(Optional.empty());
-      }
-   }
+    @Override
+    public CompletionStage<Optional<UserProfile>> findProfileById(UID userId) {
+        if (profiles.containsKey(userId)) {
+            return CompletableFuture.completedFuture(Optional.of(profiles.get(userId)));
+        } else {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+    }
 
-   @Override
-   public CompletionStage<Optional<UserSettings>> findSettingsById(UID userId) {
-      if (settings.containsKey(userId)) {
-         return CompletableFuture.completedFuture(Optional.of(settings.get(userId)));
-      } else {
-         return CompletableFuture.completedFuture(Optional.empty());
-      }
-   }
+    @Override
+    public CompletionStage<Optional<UserSettings>> findSettingsById(UID userId) {
+        if (settings.containsKey(userId)) {
+            return CompletableFuture.completedFuture(Optional.of(settings.get(userId)));
+        } else {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+    }
 
-   @Override
-   public CompletionStage<List<UserNotification>> getAllNotifications(UID userId) {
-      var result = notifications
-         .stream()
-         .filter(n -> n.userId.equals(userId))
-         .map(StoredUserNotification::getNotification)
-         .collect(Collectors.toList());
+    @Override
+    public CompletionStage<List<UserNotification>> getAllNotifications(UID userId) {
+        var result = notifications
+            .stream()
+            .filter(n -> n.userId.equals(userId))
+            .map(StoredUserNotification::getNotification)
+            .collect(Collectors.toList());
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Value
-   @AllArgsConstructor(staticName = "apply")
-   private static class StoredUserNotification {
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    private static class StoredUserNotification {
 
-      UID userId;
+        UID userId;
 
-      UserNotification notification;
+        UserNotification notification;
 
-   }
+    }
 
 }

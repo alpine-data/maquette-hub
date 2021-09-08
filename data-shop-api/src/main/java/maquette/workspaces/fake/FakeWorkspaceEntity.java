@@ -11,16 +11,16 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class FakeWorkspaceEntity implements WorkspaceEntity {
 
-   WorkspaceProperties properties;
+    WorkspaceProperties properties;
 
-   @Override
-   public UID getId() {
-      return properties.getId();
-   }
+    @Override
+    public UID getId() {
+        return properties.getId();
+    }
 
-   @Override
-   public CompletionStage<WorkspaceProperties> getProperties() {
-      return CompletableFuture.completedFuture(properties);
-   }
+    @Override
+    public CompletionStage<WorkspaceProperties> getProperties() {
+        return CompletableFuture.completedFuture(properties);
+    }
 
 }

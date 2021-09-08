@@ -10,13 +10,13 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class UserSettings {
 
-   GitSettings git;
+    GitSettings git;
 
-   public static UserSettings apply() {
-      return apply(null);
-   }
+    public static UserSettings apply() {
+        return apply(null);
+    }
 
-   public Optional<GitSettings> getGit() {
-      return Optional.ofNullable(git);
-   }
+    public Optional<GitSettings> getGit() {
+        return Optional.ofNullable(git);
+    }
 }

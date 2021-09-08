@@ -18,22 +18,22 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class DeclineDataAssetCommand implements Command {
 
-   String name;
+    String name;
 
-   String reason;
+    String reason;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .decline(user, name, reason)
-         .thenApply(done -> MessageResult.apply("Declined data asset configuration."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .decline(user, name, reason)
+            .thenApply(done -> MessageResult.apply("Declined data asset configuration."));
+    }
 
-   @Override
-   public Command example() {
-      return DeclineDataAssetCommand.apply("some-dataset", "some reason");
-   }
+    @Override
+    public Command example() {
+        return DeclineDataAssetCommand.apply("some-dataset", "some reason");
+    }
 
 }

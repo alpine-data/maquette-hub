@@ -19,24 +19,24 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateAccessRequestCommand implements Command {
 
-   String name;
+    String name;
 
-   String project;
+    String project;
 
-   String reason;
+    String reason;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .createDataAccessRequest(user, name, project, reason)
-         .thenApply(DataResult::apply);
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .createDataAccessRequest(user, name, project, reason)
+            .thenApply(DataResult::apply);
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", "some-project", Operators.lorem());
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", "some-project", Operators.lorem());
+    }
 
 }

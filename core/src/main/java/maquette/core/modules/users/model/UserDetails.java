@@ -12,12 +12,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class UserDetails {
 
-   String username;
+    String username;
 
-   String name;
+    String name;
 
-   String email;
+    String email;
 
-   List<String> roles;
+    List<String> roles;
 
 }

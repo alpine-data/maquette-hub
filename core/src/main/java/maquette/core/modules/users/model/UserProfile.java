@@ -54,7 +54,7 @@ public class UserProfile {
                                     @JsonProperty(TITLE) String title, @JsonProperty(BIO) String bio,
                                     @JsonProperty(EMAIL) String email, @JsonProperty(PHONE) String phone,
                                     @JsonProperty(LOCATION)
-                                            String location) {
+                                        String location) {
         return new UserProfile(id, name, title, bio, email, phone, location);
     }
 
@@ -70,7 +70,7 @@ public class UserProfile {
     //@JsonProperty("avatar")
     public String getAvatar() {
         return "https://www.gravatar.com/avatar/" + DigestUtils.md5Hex(email != null ? email : "foo@bar.de") + "?d" +
-                "=retro";
+            "=retro";
     }
 
 }

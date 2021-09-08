@@ -12,21 +12,21 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class Request {
 
-   HttpMethod method;
+    HttpMethod method;
 
-   List<TextField> header;
+    List<TextField> header;
 
-   Body body;
+    Body body;
 
-   Url url;
+    Url url;
 
-   public static Request apply() {
-      return apply(HttpMethod.GET, Lists.newArrayList(), null, Url.apply());
-   }
+    public static Request apply() {
+        return apply(HttpMethod.GET, Lists.newArrayList(), null, Url.apply());
+    }
 
-   public Request withHeader(String key, String value) {
-      this.header.add(TextField.apply(key, value));
-      return this;
-   }
+    public Request withHeader(String key, String value) {
+        this.header.add(TextField.apply(key, value));
+        return this;
+    }
 
 }

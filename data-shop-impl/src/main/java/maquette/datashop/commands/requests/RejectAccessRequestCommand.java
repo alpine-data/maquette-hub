@@ -20,24 +20,24 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class RejectAccessRequestCommand implements Command {
 
-   String name;
+    String name;
 
-   UID id;
+    UID id;
 
-   String reason;
+    String reason;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .rejectDataAccessRequest(user, name, id, reason)
-         .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .rejectDataAccessRequest(user, name, id, reason)
+            .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
+    }
 
-   @Override
-   public Command example() {
-      return RejectAccessRequestCommand.apply("some-dataset", UID.apply(), Operators.lorem());
-   }
+    @Override
+    public Command example() {
+        return RejectAccessRequestCommand.apply("some-dataset", UID.apply(), Operators.lorem());
+    }
 
 }

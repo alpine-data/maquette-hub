@@ -15,23 +15,23 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FormDataBody implements Body {
 
-   @JsonProperty("formdata")
-   List<Field> formData;
+    @JsonProperty("formdata")
+    List<Field> formData;
 
-   public static FormDataBody apply(Field ...fields) {
-      return new FormDataBody(Lists.newArrayList(Arrays.stream(fields).iterator()));
-   }
+    public static FormDataBody apply(Field... fields) {
+        return new FormDataBody(Lists.newArrayList(Arrays.stream(fields).iterator()));
+    }
 
-   @Override
-   public Map<String, Object> getOptions() {
-      Map<String, Object> map = Maps.newHashMap();
-      map.put("formdata", new Object());
-      return map;
-   }
+    @Override
+    public Map<String, Object> getOptions() {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("formdata", new Object());
+        return map;
+    }
 
-   public FormDataBody withField(Field field) {
-      formData.add(field);
-      return this;
-   }
+    public FormDataBody withField(Field field) {
+        formData.add(field);
+        return this;
+    }
 
 }

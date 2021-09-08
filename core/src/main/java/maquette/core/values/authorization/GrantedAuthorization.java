@@ -18,7 +18,8 @@ public class GrantedAuthorization<T extends Enum<T>> {
         this.role = role;
     }
 
-    public static <T extends Enum<T>> GrantedAuthorization<T> apply(ActionMetadata granted, Authorization authorization, T role) {
+    public static <T extends Enum<T>> GrantedAuthorization<T> apply(ActionMetadata granted,
+                                                                    Authorization authorization, T role) {
         return new GrantedAuthorization<>(granted, authorization, role);
     }
 

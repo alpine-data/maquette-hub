@@ -17,38 +17,38 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public class DefaultAuthenticationHandler implements AuthenticationHandler {
 
-   @Override
-   public User handleAuthentication(Context ctx, MaquetteRuntime runtime) {
-      var userIdHeaderName = runtime.getConfig().getCore().getUserIdHeaderName();
-      var userRolesHeaderName = runtime.getConfig().getCore().getUserRolesHeaderName();
-      var headers = ctx.headerMap();
-      var roles = (List<String>) Lists.<String>newArrayList();
+    @Override
+    public User handleAuthentication(Context ctx, MaquetteRuntime runtime) {
+        var userIdHeaderName = runtime.getConfig().getCore().getUserIdHeaderName();
+        var userRolesHeaderName = runtime.getConfig().getCore().getUserRolesHeaderName();
+        var headers = ctx.headerMap();
+        var roles = (List<String>) Lists.<String>newArrayList();
 
-      if (headers.containsKey(userRolesHeaderName)) {
-         roles = Arrays
-            .stream(headers.get(userRolesHeaderName).split(","))
-            .map(String::trim)
-            .collect(Collectors.toList());
-      }
+        if (headers.containsKey(userRolesHeaderName)) {
+            roles = Arrays
+                .stream(headers.get(userRolesHeaderName).split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        }
 
-      if (headers.containsKey(userIdHeaderName)) {
-         var userId = headers.get(userIdHeaderName);
-         return AuthenticatedUser.apply(UID.apply(userId), roles);
-      } else {
-         return AnonymousUser.apply(roles);
-      }
-   }
+        if (headers.containsKey(userIdHeaderName)) {
+            var userId = headers.get(userIdHeaderName);
+            return AuthenticatedUser.apply(UID.apply(userId), roles);
+        } else {
+            return AnonymousUser.apply(roles);
+        }
+    }
 
-   @Override
-   public Optional<String> getUserDetailsFromRequest(Context ctx, MaquetteRuntime runtime) {
-      var headers = ctx.headerMap();
-      var userDetailsHeaderName = runtime.getConfig().getCore().getUserDetailsHeaderName();
+    @Override
+    public Optional<String> getUserDetailsFromRequest(Context ctx, MaquetteRuntime runtime) {
+        var headers = ctx.headerMap();
+        var userDetailsHeaderName = runtime.getConfig().getCore().getUserDetailsHeaderName();
 
-      if (headers.containsKey(userDetailsHeaderName)) {
-         return Optional.ofNullable(headers.get(userDetailsHeaderName));
-      } else {
-         return Optional.empty();
-      }
-   }
+        if (headers.containsKey(userDetailsHeaderName)) {
+            return Optional.ofNullable(headers.get(userDetailsHeaderName));
+        } else {
+            return Optional.empty();
+        }
+    }
 
 }

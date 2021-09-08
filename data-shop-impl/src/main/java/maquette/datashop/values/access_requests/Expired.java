@@ -12,14 +12,14 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Expired implements DataAccessRequestEvent {
 
-   private static final String MOMENT = "moment";
+    private static final String MOMENT = "moment";
 
-   @JsonProperty(MOMENT)
-   Instant eventMoment;
+    @JsonProperty(MOMENT)
+    Instant eventMoment;
 
-   @JsonCreator
-   public static Expired apply(@JsonProperty(MOMENT) Instant eventMoment) {
-      return new Expired(eventMoment);
-   }
+    @JsonCreator
+    public static Expired apply(@JsonProperty(MOMENT) Instant eventMoment) {
+        return new Expired(eventMoment);
+    }
 
 }

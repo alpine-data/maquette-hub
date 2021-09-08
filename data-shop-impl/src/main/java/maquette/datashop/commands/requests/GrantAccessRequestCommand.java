@@ -21,29 +21,29 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GrantAccessRequestCommand implements Command {
 
-   String name;
+    String name;
 
-   UID id;
+    UID id;
 
-   Instant until;
+    Instant until;
 
-   String message;
+    String message;
 
-   String environment;
+    String environment;
 
-   boolean downstreamApprovalRequired;
+    boolean downstreamApprovalRequired;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .grantDataAccessRequest(user, name, id, until, message, environment, downstreamApprovalRequired)
-         .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .grantDataAccessRequest(user, name, id, until, message, environment, downstreamApprovalRequired)
+            .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", UID.apply(), Instant.now(), Operators.lorem(), "any", true);
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", UID.apply(), Instant.now(), Operators.lorem(), "any", true);
+    }
 }

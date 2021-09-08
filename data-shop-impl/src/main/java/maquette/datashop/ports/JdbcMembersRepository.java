@@ -22,98 +22,102 @@ import java.util.function.Function;
 
 public final class JdbcMembersRepository<T extends Enum<T>> implements HasMembers<T> {
 
-   private final String typeName;
+    private final String typeName;
 
-   private final Jdbi jdbi;
+    private final Jdbi jdbi;
 
-   private final ObjectMapper om;
+    private final ObjectMapper om;
 
-   private final Function<T, String> mapRoleToString;
+    private final Function<T, String> mapRoleToString;
 
-   private final Function<String, T> mapStringToRole;
+    private final Function<String, T> mapStringToRole;
 
-   private JdbcMembersRepository(String typeName, Jdbi jdbi, ObjectMapper om, Function<T, String> mapRoleToString, Function<String, T> mapStringToRole) {
-      this.typeName = typeName;
-      this.jdbi = jdbi;
-      this.om = om;
-      this.mapRoleToString = mapRoleToString;
-      this.mapStringToRole = mapStringToRole;
-   }
+    private JdbcMembersRepository(String typeName, Jdbi jdbi, ObjectMapper om, Function<T, String> mapRoleToString,
+                                  Function<String, T> mapStringToRole) {
+        this.typeName = typeName;
+        this.jdbi = jdbi;
+        this.om = om;
+        this.mapRoleToString = mapRoleToString;
+        this.mapStringToRole = mapStringToRole;
+    }
 
-   public static <T extends Enum<T>> JdbcMembersRepository<T> apply(String typeName, Jdbi jdbi, ObjectMapper om, Function<T, String> mapRoleToString, Function<String, T> mapStringToRole) {
-      return new JdbcMembersRepository<T>(typeName, jdbi, om, mapRoleToString, mapStringToRole);
-   }
+    public static <T extends Enum<T>> JdbcMembersRepository<T> apply(String typeName, Jdbi jdbi, ObjectMapper om,
+                                                                     Function<T, String> mapRoleToString,
+                                                                     Function<String, T> mapStringToRole) {
+        return new JdbcMembersRepository<T>(typeName, jdbi, om, mapRoleToString, mapStringToRole);
+    }
 
-   @Override
-   public CompletionStage<List<GrantedAuthorization<T>>> findAllMembers(UID parent) {
-      var query = Templates.renderTemplateFromResources("db/sql/members/find-members-by-parent.sql");
+    @Override
+    public CompletionStage<List<GrantedAuthorization<T>>> findAllMembers(UID parent) {
+        var query = Templates.renderTemplateFromResources("db/sql/members/find-members-by-parent.sql");
 
-      var result = jdbi.withHandle(handle -> handle
-         .createQuery(query)
-         .bind("type", typeName)
-         .bind("parent", parent.getValue())
-         .map(new GrantedAuthorizationMapper()))
-         .list();
+        var result = jdbi.withHandle(handle -> handle
+            .createQuery(query)
+            .bind("type", typeName)
+            .bind("parent", parent.getValue())
+            .map(new GrantedAuthorizationMapper()))
+            .list();
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<List<GrantedAuthorization<T>>> findMembersByRole(UID parent, T role) {
-      var query = Templates.renderTemplateFromResources("db/sql/members/find-members-by-parent-and-role.sql");
+    @Override
+    public CompletionStage<List<GrantedAuthorization<T>>> findMembersByRole(UID parent, T role) {
+        var query = Templates.renderTemplateFromResources("db/sql/members/find-members-by-parent-and-role.sql");
 
-      var result = jdbi.withHandle(handle -> handle
-         .createQuery(query)
-         .bind("type", typeName)
-         .bind("parent", parent.getValue())
-         .bind("role", mapRoleToString.apply(role))
-         .map(new GrantedAuthorizationMapper()))
-         .list();
+        var result = jdbi.withHandle(handle -> handle
+            .createQuery(query)
+            .bind("type", typeName)
+            .bind("parent", parent.getValue())
+            .bind("role", mapRoleToString.apply(role))
+            .map(new GrantedAuthorizationMapper()))
+            .list();
 
-      return CompletableFuture.completedFuture(result);
-   }
+        return CompletableFuture.completedFuture(result);
+    }
 
-   @Override
-   public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<T> member) {
-      var query = Templates.renderTemplateFromResources("db/sql/members/insert-member.sql");
+    @Override
+    public CompletionStage<Done> insertOrUpdateMember(UID parent, GrantedAuthorization<T> member) {
+        var query = Templates.renderTemplateFromResources("db/sql/members/insert-member.sql");
 
-      jdbi.withHandle(handle -> handle
-         .createUpdate(query)
-         .bind("type", typeName)
-         .bind("parent", parent.getValue())
-         .bind("granted_by", member.getGranted().getBy())
-         .bind("granted_at", member.getGranted().getAt())
-         .bind("role", mapRoleToString.apply(member.getRole()))
-         .bind("auth", Operators.suppressExceptions(() -> om.writeValueAsString(member.getAuthorization())))
-         .execute());
+        jdbi.withHandle(handle -> handle
+            .createUpdate(query)
+            .bind("type", typeName)
+            .bind("parent", parent.getValue())
+            .bind("granted_by", member.getGranted().getBy())
+            .bind("granted_at", member.getGranted().getAt())
+            .bind("role", mapRoleToString.apply(member.getRole()))
+            .bind("auth", Operators.suppressExceptions(() -> om.writeValueAsString(member.getAuthorization())))
+            .execute());
 
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public CompletionStage<Done> removeMember(UID parent, Authorization member) {
-      var query = Templates.renderTemplateFromResources("db/sql/members/remove-member.sql");
+    @Override
+    public CompletionStage<Done> removeMember(UID parent, Authorization member) {
+        var query = Templates.renderTemplateFromResources("db/sql/members/remove-member.sql");
 
-      jdbi.withHandle(handle -> handle
-         .createUpdate(query)
-         .bind("type", typeName)
-         .bind("parent", parent.getValue())
-         .bind("auth", Operators.suppressExceptions(() -> om.writeValueAsString(member)))
-         .execute());
+        jdbi.withHandle(handle -> handle
+            .createUpdate(query)
+            .bind("type", typeName)
+            .bind("parent", parent.getValue())
+            .bind("auth", Operators.suppressExceptions(() -> om.writeValueAsString(member)))
+            .execute());
 
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   private class GrantedAuthorizationMapper implements RowMapper<GrantedAuthorization<T>> {
+    private class GrantedAuthorizationMapper implements RowMapper<GrantedAuthorization<T>> {
 
-      @Override
-      public GrantedAuthorization<T> map(ResultSet rs, StatementContext ctx) throws SQLException {
-         var action = ActionMetadata.apply(rs.getString("granted_by"), rs.getDate("granted_at").toInstant());
-         var authorization = Operators.suppressExceptions(() -> om.readValue(rs.getString("auth"), Authorization.class));
-         var role = mapStringToRole.apply(rs.getString("role"));
-         return GrantedAuthorization.apply(action, authorization, role);
-      }
+        @Override
+        public GrantedAuthorization<T> map(ResultSet rs, StatementContext ctx) throws SQLException {
+            var action = ActionMetadata.apply(rs.getString("granted_by"), rs.getDate("granted_at").toInstant());
+            var authorization = Operators.suppressExceptions(() -> om.readValue(rs.getString("auth"),
+                Authorization.class));
+            var role = mapStringToRole.apply(rs.getString("role"));
+            return GrantedAuthorization.apply(action, authorization, role);
+        }
 
-   }
+    }
 
 }

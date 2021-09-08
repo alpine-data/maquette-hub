@@ -15,92 +15,92 @@ import maquette.core.values.user.User;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class UserServicesImpl implements UserServices {
 
-   private final UserEntities users;
+    private final UserEntities users;
 
-   private final UserCompanion companion;
+    private final UserCompanion companion;
 
-   /*
-    * Notifications
-    */
+    /*
+     * Notifications
+     */
 
-   @Override
-   public CompletionStage<UserAuthenticationToken> getAuthenticationToken(User executor) {
-      if (executor instanceof AuthenticatedUser) {
-         return companion
+    @Override
+    public CompletionStage<UserAuthenticationToken> getAuthenticationToken(User executor) {
+        if (executor instanceof AuthenticatedUser) {
+            return companion
+                .withUser(executor)
+                .thenCompose(UserEntity::getAuthenticationToken);
+        } else {
+            return CompletableFuture.completedFuture(UserAuthenticationToken.apply(UID.apply("0815"), "0815",
+                Instant.MAX));
+        }
+    }
+
+    @Override
+    public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
+        return users.getUserForAuthenticationToken(UID.apply(tokenId), tokenSecret);
+    }
+
+    @Override
+    public CompletionStage<UserProfile> getProfile(User executor, UID userId) {
+        return companion
+            .withUser(userId)
+            .thenCompose(UserEntity::getProfile);
+    }
+
+    @Override
+    public CompletionStage<UserProfile> getProfile(User executor) {
+        return companion
             .withUser(executor)
-            .thenCompose(UserEntity::getAuthenticationToken);
-      } else {
-         return CompletableFuture.completedFuture(UserAuthenticationToken.apply(UID.apply("0815"), "0815", Instant.MAX));
-      }
-   }
+            .thenCompose(UserEntity::getProfile);
+    }
 
-   @Override
-   public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret) {
-      return users.getUserForAuthenticationToken(UID.apply(tokenId), tokenSecret);
-   }
+    @Override
+    public CompletionStage<UserSettings> getSettings(User executor, UID userId) {
+        return companion
+            .withUser(userId)
+            .thenCompose(entity -> entity.getSettings(true));
+    }
 
-   @Override
-   public CompletionStage<UserProfile> getProfile(User executor, UID userId) {
-      return companion
-         .withUser(userId)
-         .thenCompose(UserEntity::getProfile);
-   }
+    @Override
+    public CompletionStage<List<UserProfile>> getUsers(User executor) {
+        return users.getUsers();
+    }
 
-   @Override
-   public CompletionStage<UserProfile> getProfile(User executor) {
-      return companion
-         .withUser(executor)
-         .thenCompose(UserEntity::getProfile);
-   }
+    @Override
+    public CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails) {
+        return companion
+            .withUser(executor)
+            .thenCompose(entity -> entity.updateUserDetails(base64encodedDetails));
+    }
 
-   @Override
-   public CompletionStage<UserSettings> getSettings(User executor, UID userId) {
-      return companion
-         .withUser(userId)
-         .thenCompose(entity -> entity.getSettings(true));
-   }
+    @Override
+    public CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings) {
+        return companion
+            .withUser(userId)
+            .thenCompose(entity -> entity.updateUserProfile(profile).thenApply(d -> entity))
+            .thenCompose(entity -> entity.updateUserSettings(settings));
+    }
 
-   @Override
-   public CompletionStage<List<UserProfile>> getUsers(User executor) {
-      return users.getUsers();
-   }
+    @Override
+    public CompletionStage<List<UserNotification>> getNotifications(User executor) {
+        return companion.withUserOrDefault(
+            executor,
+            Lists.newArrayList(),
+            UserEntity::getNotifications);
+    }
 
-   @Override
-   public CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails) {
-      return companion
-         .withUser(executor)
-         .thenCompose(entity -> entity.updateUserDetails(base64encodedDetails));
-   }
-
-   @Override
-   public CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings) {
-      return companion
-         .withUser(userId)
-         .thenCompose(entity -> entity.updateUserProfile(profile).thenApply(d -> entity))
-         .thenCompose(entity -> entity.updateUserSettings(settings));
-   }
-
-   @Override
-   public CompletionStage<List<UserNotification>> getNotifications(User executor) {
-      return companion.withUserOrDefault(
-         executor,
-         Lists.newArrayList(),
-         UserEntity::getNotifications);
-   }
-
-   @Override
-   public CompletionStage<Done> readNotification(User executor, String notificationId) {
-      return companion.withUserOrDefault(
-         executor,
-         Done.getInstance(),
-         user -> user.readNotification(notificationId));
-   }
+    @Override
+    public CompletionStage<Done> readNotification(User executor, String notificationId) {
+        return companion.withUserOrDefault(
+            executor,
+            Done.getInstance(),
+            user -> user.readNotification(notificationId));
+    }
 
 }

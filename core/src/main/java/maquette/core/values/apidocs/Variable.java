@@ -8,14 +8,14 @@ import maquette.core.common.Operators;
 @AllArgsConstructor(staticName = "apply")
 public class Variable {
 
-   String id;
+    String id;
 
-   String key;
+    String key;
 
-   String value;
+    String value;
 
-   public static Variable apply(String key, String value) {
-      return apply(Operators.randomHash(), key, value);
-   }
+    public static Variable apply(String key, String value) {
+        return apply(Operators.randomHash(), key, value);
+    }
 
 }

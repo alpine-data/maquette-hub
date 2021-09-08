@@ -7,8 +7,8 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class FileField implements Field {
 
-   String key;
+    String key;
 
-   String src;
+    String src;
 
 }

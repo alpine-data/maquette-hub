@@ -13,23 +13,23 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Rejected implements DataAccessRequestEvent {
 
-   private static final String CREATED = "created";
-   private static final String REASON = "reason";
+    private static final String CREATED = "created";
+    private static final String REASON = "reason";
 
-   @JsonProperty(CREATED)
-   ActionMetadata created;
+    @JsonProperty(CREATED)
+    ActionMetadata created;
 
-   @JsonProperty(REASON)
-   String reason;
+    @JsonProperty(REASON)
+    String reason;
 
-   @JsonCreator
-   public static Rejected apply(@JsonProperty(CREATED) ActionMetadata created, @JsonProperty(REASON) String reason) {
-      return new Rejected(created, reason);
-   }
+    @JsonCreator
+    public static Rejected apply(@JsonProperty(CREATED) ActionMetadata created, @JsonProperty(REASON) String reason) {
+        return new Rejected(created, reason);
+    }
 
-   @Override
-   public Instant getEventMoment() {
-      return created.getAt();
-   }
+    @Override
+    public Instant getEventMoment() {
+        return created.getAt();
+    }
 
 }

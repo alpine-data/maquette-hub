@@ -18,22 +18,22 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class RequestReviewDataAssetCommand implements Command {
 
-   String name;
+    String name;
 
-   String message;
+    String message;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .requestReview(user, name, message)
-         .thenApply(done -> MessageResult.apply("Requested review for data asset."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .requestReview(user, name, message)
+            .thenApply(done -> MessageResult.apply("Requested review for data asset."));
+    }
 
-   @Override
-   public Command example() {
-      return RequestReviewDataAssetCommand.apply("some-dataset", "some reason");
-   }
+    @Override
+    public Command example() {
+        return RequestReviewDataAssetCommand.apply("some-dataset", "some reason");
+    }
 
 }

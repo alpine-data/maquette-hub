@@ -16,38 +16,38 @@ import java.util.Map;
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public final class UserModule implements MaquetteModule {
 
-   private final UserServices services;
+    private final UserServices services;
 
-   public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository) {
-      var users = UserEntities.apply(repository, runtime.getObjectMapperFactory().createJsonMapper());
-      var services = UserServicesFactory.apply(users);
-      return apply(services);
-   }
+    public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository) {
+        var users = UserEntities.apply(repository, runtime.getObjectMapperFactory().createJsonMapper());
+        var services = UserServicesFactory.apply(users);
+        return apply(services);
+    }
 
-   @Override
-   public String getName() {
-      return "users";
-   }
+    @Override
+    public String getName() {
+        return "users";
+    }
 
-   @Override
-   public void start(MaquetteRuntime runtime) {
-      MaquetteModule.super.start(runtime);
-   }
+    @Override
+    public void start(MaquetteRuntime runtime) {
+        MaquetteModule.super.start(runtime);
+    }
 
-   @Override
-   public void stop() {
-      MaquetteModule.super.stop();
-   }
+    @Override
+    public void stop() {
+        MaquetteModule.super.stop();
+    }
 
-   @Override
-   public Map<String, Class<? extends Command>> getCommands() {
-      Map<String, Class<? extends Command>> commands = Maps.newHashMap();
-      commands.put("update", UpdateUserCommand.class);
-      return commands;
-   }
+    @Override
+    public Map<String, Class<? extends Command>> getCommands() {
+        Map<String, Class<? extends Command>> commands = Maps.newHashMap();
+        commands.put("update", UpdateUserCommand.class);
+        return commands;
+    }
 
-   public UserServices getServices() {
-      return services;
-   }
-   
+    public UserServices getServices() {
+        return services;
+    }
+
 }

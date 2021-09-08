@@ -14,49 +14,49 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Granted implements DataAccessRequestEvent {
 
-   private static final String CREATED = "created";
-   private static final String UNTIL = "until";
-   private static final String MESSAGE = "message";
-   private static final String ENVIRONMENT = "environment";
-   private static final String DOWNSTREAM_APPROVAL_REQUIRED = "downstream-approval-required";
+    private static final String CREATED = "created";
+    private static final String UNTIL = "until";
+    private static final String MESSAGE = "message";
+    private static final String ENVIRONMENT = "environment";
+    private static final String DOWNSTREAM_APPROVAL_REQUIRED = "downstream-approval-required";
 
-   @JsonProperty(CREATED)
-   ActionMetadata created;
+    @JsonProperty(CREATED)
+    ActionMetadata created;
 
-   @JsonProperty(UNTIL)
-   Instant until;
+    @JsonProperty(UNTIL)
+    Instant until;
 
-   @JsonProperty(MESSAGE)
-   String message;
+    @JsonProperty(MESSAGE)
+    String message;
 
-   @JsonProperty(ENVIRONMENT)
-   String environment;
+    @JsonProperty(ENVIRONMENT)
+    String environment;
 
-   @JsonProperty(DOWNSTREAM_APPROVAL_REQUIRED)
-   boolean downstreamApprovalRequired;
+    @JsonProperty(DOWNSTREAM_APPROVAL_REQUIRED)
+    boolean downstreamApprovalRequired;
 
-   @JsonCreator
-   public static Granted apply(
-      @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(UNTIL) Instant until,
-      @JsonProperty(MESSAGE) String message,
-      @JsonProperty(ENVIRONMENT) String environment,
-      @JsonProperty(DOWNSTREAM_APPROVAL_REQUIRED) boolean downstreamApprovalRequired) {
+    @JsonCreator
+    public static Granted apply(
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(UNTIL) Instant until,
+        @JsonProperty(MESSAGE) String message,
+        @JsonProperty(ENVIRONMENT) String environment,
+        @JsonProperty(DOWNSTREAM_APPROVAL_REQUIRED) boolean downstreamApprovalRequired) {
 
-      return new Granted(created, until, message, environment, downstreamApprovalRequired);
-   }
+        return new Granted(created, until, message, environment, downstreamApprovalRequired);
+    }
 
-   @Override
-   public Instant getEventMoment() {
-      return created.getAt();
-   }
+    @Override
+    public Instant getEventMoment() {
+        return created.getAt();
+    }
 
-   public Optional<String> getMessage() {
-      return Optional.ofNullable(message);
-   }
+    public Optional<String> getMessage() {
+        return Optional.ofNullable(message);
+    }
 
-   public Optional<Instant> getUntil() {
-      return Optional.ofNullable(until);
-   }
+    public Optional<Instant> getUntil() {
+        return Optional.ofNullable(until);
+    }
 
 }

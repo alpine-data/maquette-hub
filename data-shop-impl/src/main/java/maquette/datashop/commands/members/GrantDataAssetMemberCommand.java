@@ -19,24 +19,24 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class GrantDataAssetMemberCommand implements Command {
 
-   String name;
+    String name;
 
-   Authorization authorization;
+    Authorization authorization;
 
-   DataAssetMemberRole role;
+    DataAssetMemberRole role;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .grant(user, name, authorization, role)
-         .thenApply(done -> MessageResult.apply("Successfully granted ownership."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .grant(user, name, authorization, role)
+            .thenApply(done -> MessageResult.apply("Successfully granted ownership."));
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", UserAuthorization.apply("edgar"), DataAssetMemberRole.OWNER);
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", UserAuthorization.apply("edgar"), DataAssetMemberRole.OWNER);
+    }
 
 }

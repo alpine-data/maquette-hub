@@ -10,26 +10,26 @@ import lombok.Value;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserDetails {
 
-   private static final String ID = "id";
-   private static final String EMAIL = "email";
-   private static final String NAME = "name";
+    private static final String ID = "id";
+    private static final String EMAIL = "email";
+    private static final String NAME = "name";
 
-   @JsonProperty(ID)
-   String id;
+    @JsonProperty(ID)
+    String id;
 
-   @JsonProperty(EMAIL)
-   String email;
+    @JsonProperty(EMAIL)
+    String email;
 
-   @JsonProperty(NAME)
-   String name;
+    @JsonProperty(NAME)
+    String name;
 
-   @JsonCreator
-   public static UserDetails apply(
-      @JsonProperty(ID) String id,
-      @JsonProperty(EMAIL) String email,
-      @JsonProperty(NAME) String name) {
+    @JsonCreator
+    public static UserDetails apply(
+        @JsonProperty(ID) String id,
+        @JsonProperty(EMAIL) String email,
+        @JsonProperty(NAME) String name) {
 
-      return new UserDetails(id, email, name);
-   }
+        return new UserDetails(id, email, name);
+    }
 
 }

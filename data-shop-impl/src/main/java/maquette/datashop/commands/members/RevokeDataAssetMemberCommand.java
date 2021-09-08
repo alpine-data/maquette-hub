@@ -18,22 +18,22 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class RevokeDataAssetMemberCommand implements Command {
 
-   String name;
+    String name;
 
-   Authorization authorization;
+    Authorization authorization;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getServices()
-         .revoke(user, name, authorization)
-         .thenApply(done -> MessageResult.apply("Successfully revoked ownership."));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .revoke(user, name, authorization)
+            .thenApply(done -> MessageResult.apply("Successfully revoked ownership."));
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", RoleAuthorization.apply("A_TEAM"));
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", RoleAuthorization.apply("A_TEAM"));
+    }
 
 }

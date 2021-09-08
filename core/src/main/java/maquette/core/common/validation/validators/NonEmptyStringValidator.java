@@ -9,18 +9,18 @@ import java.util.Objects;
 @AllArgsConstructor(staticName = "apply")
 public final class NonEmptyStringValidator implements Validator<String> {
 
-   private final int minLength;
+    private final int minLength;
 
-   public static NonEmptyStringValidator apply() {
-      return apply(1);
-   }
+    public static NonEmptyStringValidator apply() {
+        return apply(1);
+    }
 
-   @Override
-   public boolean validate(ValidationContext context, String fieldName, String value) throws Exception {
-      if (Objects.isNull(value) || value.length() < minLength) {
-         context.addErrorMessage("`%s` must be set with at least %d characters", fieldName, minLength);
-      }
+    @Override
+    public boolean validate(ValidationContext context, String fieldName, String value) throws Exception {
+        if (Objects.isNull(value) || value.length() < minLength) {
+            context.addErrorMessage("`%s` must be set with at least %d characters", fieldName, minLength);
+        }
 
-      return true;
-   }
+        return true;
+    }
 }

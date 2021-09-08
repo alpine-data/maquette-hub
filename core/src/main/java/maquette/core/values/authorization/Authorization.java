@@ -4,8 +4,8 @@ import maquette.core.values.user.User;
 
 public interface Authorization {
 
-   boolean authorizes(User user);
+    boolean authorizes(User user);
 
-   String getName();
+    String getName();
 
 }
