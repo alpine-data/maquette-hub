@@ -1,10 +1,12 @@
 package maquette.core.modules.users;
 
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.modules.ports.UsersRepository;
+import maquette.core.modules.users.commands.UpdateUserCommand;
 import maquette.core.modules.users.services.UserServices;
 import maquette.core.modules.users.services.UserServicesFactory;
 import maquette.core.server.commands.Command;
@@ -39,7 +41,9 @@ public final class UserModule implements MaquetteModule {
 
    @Override
    public Map<String, Class<? extends Command>> getCommands() {
-      return MaquetteModule.super.getCommands();
+      Map<String, Class<? extends Command>> commands = Maps.newHashMap();
+      commands.put("update", UpdateUserCommand.class);
+      return commands;
    }
 
    public UserServices getServices() {
