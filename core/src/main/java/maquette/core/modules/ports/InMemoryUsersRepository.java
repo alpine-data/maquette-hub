@@ -90,7 +90,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
     }
 
     @Override
-    public CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, String notificationId) {
+    public CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, UID notificationId) {
         var result = notifications
             .stream()
             .filter(notification -> notification.userId.equals(userId) && notification.notification.getId()

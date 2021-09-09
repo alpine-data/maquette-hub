@@ -33,7 +33,7 @@ public final class UserEntity {
     private final ObjectMapper om;
 
     public CompletionStage<Done> createNewNotification(String message) {
-        var notification = UserNotification.apply(UUID.randomUUID().toString(), Instant.now(), false, message);
+        var notification = UserNotification.apply(UID.apply(), Instant.now(), false, message);
         return repository.insertOrUpdateNotification(id, notification);
     }
 
@@ -65,7 +65,7 @@ public final class UserEntity {
             .findSettingsById(id)
             .thenApply(maybeSettings -> {
                 if (maybeSettings.isEmpty()) {
-                    return UserSettings.apply();
+                    return UserSettings.apply(null);
                 } else {
                     return maybeSettings.get();
                 }
@@ -133,7 +133,7 @@ public final class UserEntity {
     public CompletionStage<UserSettings> getSettings(boolean masked) {
         return repository
             .findSettingsById(id)
-            .thenApply(settings -> settings.orElse(UserSettings.apply()))
+            .thenApply(settings -> settings.orElse(UserSettings.apply(null)))
             .thenApply(settings -> {
                 if (masked) {
                     return settings.withGit(settings
@@ -162,7 +162,7 @@ public final class UserEntity {
 
     public CompletionStage<Done> readNotification(String notificationId) {
         return repository
-            .findNotificationById(id, notificationId)
+            .findNotificationById(id, UID.apply(notificationId))
             .thenCompose(maybeNotification -> {
                 if (maybeNotification.isPresent()) {
                     var notification = maybeNotification.get().withRead(true);
