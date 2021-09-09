@@ -79,7 +79,7 @@ public final class Maquette {
         /*
          * Initialize core modules.
          */
-        runtime.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
+        runtime = runtime.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
 
         /*
          * Initialize modules
