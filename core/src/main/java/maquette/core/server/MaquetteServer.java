@@ -11,7 +11,7 @@ import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.users.UserModule;
 import maquette.core.server.commands.MessageResult;
-import maquette.core.server.resource.AdminResource;
+import maquette.core.server.resource.AboutResource;
 import maquette.core.server.resource.CommandResource;
 import maquette.core.server.resource.PostmanDocsResource;
 import maquette.core.values.user.AnonymousUser;
@@ -38,7 +38,7 @@ public final class MaquetteServer {
         var om = runtime.getObjectMapperFactory().createJsonMapper(true);
         JavalinJackson.configure(om);
 
-        var adminResource = new AdminResource(runtime);
+        var adminResource = new AboutResource(runtime);
         var docsResource = new PostmanDocsResource(runtime, om);
         var commandResource = new CommandResource(runtime);
         var server = new MaquetteServer(runtime);
@@ -59,6 +59,7 @@ public final class MaquetteServer {
             .before(server::handleAuthentication)
             .get("/api/about", adminResource.getAbout())
             .get("/api/about/user", adminResource.getUserInfo())
+            .get("/api/about/config", adminResource.getConfiguration())
             .get("/api/commands", docsResource.getDocs())
             .post("/api/commands", commandResource.getCommand());
 

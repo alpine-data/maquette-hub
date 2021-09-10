@@ -28,7 +28,7 @@ public final class CommandResource {
                 op.addTagsItem("Commands");
             })
             .body(Command.class)
-            .json("200", AdminResource.About.class);
+            .json("200", AboutResource.About.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
             var command = ctx.bodyAsClass(Command.class);
