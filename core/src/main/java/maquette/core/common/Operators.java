@@ -74,7 +74,7 @@ public final class Operators {
             .allOf(f1, f2, f3, f4, f5)
             .thenApply(v -> Operators.suppressExceptions(() -> combineWith.apply(f1.join(), f2.join(), f3.join(),
                 f4.join(), f5
-                .join())));
+                    .join())));
     }
 
     public static <T1, T2, T3, T4, T5, T6, R> CompletionStage<R> compose(

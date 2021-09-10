@@ -18,7 +18,10 @@ import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -162,7 +165,7 @@ public final class Configs {
     /**
      * Returns a config object in a human-readable string.
      *
-     * @param config The config object to print
+     * @param config     The config object to print
      * @param obfuscated Whether secrets should be obfuscated.
      * @return A human readable string including all config values.
      */
@@ -173,7 +176,8 @@ public final class Configs {
         for (String key : configs.keySet().stream().sorted().collect(Collectors.toList())) {
             var value = configs.get(key);
 
-            if (obfuscated && (key.toLowerCase().contains("password") || key.toLowerCase().contains("secret")) || key.toLowerCase().contains("pwd")) {
+            if (obfuscated && (key.toLowerCase().contains("password") || key.toLowerCase()
+                .contains("secret")) || key.toLowerCase().contains("pwd")) {
                 value = "***";
             }
 
@@ -222,7 +226,7 @@ public final class Configs {
                 .forEach(field -> {
                     LOG.debug(String.format("Fetching configuration value for '%s.%s'", configClass.getSimpleName(),
                         field
-                        .getName()));
+                            .getName()));
 
                     try {
                         final Value valueAnnotation = field.getAnnotation(Value.class);
@@ -312,7 +316,7 @@ public final class Configs {
                         } else {
                             LOG.warn(String.format("Field '%s.%s' has unknown type for configuration: %s",
                                 configClass.getSimpleName(), field
-                                .getName(), field.getType().getName()));
+                                    .getName(), field.getType().getName()));
                         }
 
                         if (value.isPresent()) {
@@ -493,10 +497,12 @@ public final class Configs {
             final File secureConfigFile = new File(secureConfigFilePath);
 
             if (secureConfigFile.exists()) {
-                LOG.info(String.format("Loading configuration from secure configuration file '%s'", secureConfigFilePath));
+                LOG.info(String.format("Loading configuration from secure configuration file '%s'",
+                    secureConfigFilePath));
                 return withOverwrites(ConfigFactory.parseFile(secureConfigFile));
             } else {
-                LOG.debug(String.format("Configuration file '%s' does not exist - Will be skipped", secureConfigFilePath));
+                LOG.debug(String.format("Configuration file '%s' does not exist - Will be skipped",
+                    secureConfigFilePath));
                 return this;
             }
         }

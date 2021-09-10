@@ -69,7 +69,9 @@ public class MaquetteRuntime {
             .filter(type::isInstance)
             .map(m -> (T) m)
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException(String.format("The module of type `%s` has not been registered.", type.getName())));
+            .orElseThrow(() -> new IllegalStateException(String.format("The module of type `%s` has not been " +
+                "registered.", type
+                .getName())));
     }
 
     public MaquetteRuntime withModule(Function<MaquetteRuntime, MaquetteModule> module) {

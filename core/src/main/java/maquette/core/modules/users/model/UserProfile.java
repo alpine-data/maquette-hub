@@ -66,7 +66,7 @@ public class UserProfile {
     @JsonProperty(AVATAR)
     public String getAvatar() {
         return "https://www.gravatar.com/avatar/" + DigestUtils.md5Hex(email != null ? email : "foo@bar.de") + "?d" +
-                "=retro";
+            "=retro";
     }
 
 }

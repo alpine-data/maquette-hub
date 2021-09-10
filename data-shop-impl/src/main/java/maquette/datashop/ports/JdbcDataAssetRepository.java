@@ -301,7 +301,8 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
 
         @Override
         public DataAccessRequestProperties map(ResultSet rs, StatementContext ctx) {
-            return Operators.suppressExceptions(() -> om.readValue(rs.getString("request"), DataAccessRequestProperties.class));
+            return Operators.suppressExceptions(() -> om.readValue(rs.getString("request"),
+                DataAccessRequestProperties.class));
         }
 
     }

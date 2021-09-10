@@ -120,7 +120,8 @@ public class ServicesCompanion {
             if (authorized) {
                 return CompletableFuture.completedFuture(Done.getInstance());
             } else {
-                return CompletableFuture.failedFuture(NotAuthorizedException.apply("You are not authorized to execute this action."));
+                return CompletableFuture.failedFuture(NotAuthorizedException.apply("You are not authorized to execute" +
+                    " this action."));
             }
         });
     }

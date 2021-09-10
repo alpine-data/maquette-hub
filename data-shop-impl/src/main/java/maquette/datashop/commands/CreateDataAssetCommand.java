@@ -79,7 +79,8 @@ public class CreateDataAssetCommand implements Command {
     public Command example() {
         return apply(
             "dataset", "Some Dataset", "some-dataset", Operators.lorem(),
-            DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob", null);
+            DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob",
+            null);
     }
 
 }

@@ -190,11 +190,13 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     }
 
     @Deprecated
-    private CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset, DataAccessRequestProperties req) {
+    private CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset,
+                                                                       DataAccessRequestProperties req) {
         return workspaces
             .getWorkspaceById(req.getWorkspace())
             .thenCompose(WorkspaceEntity::getProperties)
-            .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace, req.getEvents()));
+            .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace,
+                req.getEvents()));
     }
 
 }

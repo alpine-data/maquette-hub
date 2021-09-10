@@ -24,7 +24,7 @@ public interface DataAssetServices {
      *
      * @param executor       The user who executes the action.
      * @param type           The data asset type name. The type must be covered by a registered
-     * {@link DataAssetProvider}.
+     *                       {@link DataAssetProvider}.
      * @param metadata       Basic metadata of the asset.
      * @param owner          Optional. The initial owner of the data asset.
      * @param steward        Optional. The initial steward of the data asset.

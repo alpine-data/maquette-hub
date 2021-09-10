@@ -26,9 +26,9 @@ public class UserDetails {
 
     @JsonCreator
     public static UserDetails apply(
-            @JsonProperty(ID) UID id,
-            @JsonProperty(EMAIL) String email,
-            @JsonProperty(NAME) String name) {
+        @JsonProperty(ID) UID id,
+        @JsonProperty(EMAIL) String email,
+        @JsonProperty(NAME) String name) {
 
         return new UserDetails(id, email, name);
     }

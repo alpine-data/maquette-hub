@@ -31,16 +31,16 @@ public class GitSettings {
 
     @JsonCreator
     public static GitSettings apply(@JsonProperty(USERNAME) String username, @JsonProperty(PASSWORD) String password,
-                                        @JsonProperty(PRIVATE_KEY) String privateKey,
-                                        @JsonProperty(PUBLIC_KEY) String publicKey) {
+                                    @JsonProperty(PRIVATE_KEY) String privateKey,
+                                    @JsonProperty(PUBLIC_KEY) String publicKey) {
         return new GitSettings(username, password, privateKey, publicKey);
     }
 
     public boolean isEmpty() {
         return (username == null || username.trim().isEmpty())
-                && (password == null || password.trim().isEmpty())
-                && (privateKey == null || privateKey.trim().isEmpty())
-                && (publicKey == null || publicKey.trim().isEmpty());
+            && (password == null || password.trim().isEmpty())
+            && (privateKey == null || privateKey.trim().isEmpty())
+            && (publicKey == null || publicKey.trim().isEmpty());
     }
 
 }
