@@ -27,7 +27,7 @@ public interface UsersRepository {
 
     CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(UID tokenId);
 
-    CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, String notificationId);
+    CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, UID notificationId);
 
     CompletionStage<Optional<UserProfile>> findProfileById(UID userId);
 
