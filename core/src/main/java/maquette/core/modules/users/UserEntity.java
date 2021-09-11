@@ -108,7 +108,7 @@ public final class UserEntity {
         return repository
             .findAuthenticationTokenByUserId(id)
             .thenCompose(maybeToken -> {
-                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
+                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isAfter(Instant.now())) {
                     return CompletableFuture.completedFuture(maybeToken.get());
                 } else {
                     var id = UID.apply();
