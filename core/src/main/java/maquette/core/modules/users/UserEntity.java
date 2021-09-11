@@ -115,7 +115,7 @@ public final class UserEntity {
                     var secret = UUID.randomUUID().toString();
                     var auth = UserAuthenticationToken.apply(id, secret, Instant.now().plusSeconds(60 * 60 * 24));
 
-                    return repository.insertOrUpdateAuthenticationToken(id, auth).thenApply(d -> auth);
+                    return repository.insertOrUpdateAuthenticationToken(this.id, auth).thenApply(d -> auth);
                 }
             });
     }
