@@ -49,7 +49,7 @@ public final class PostmanDocsResource {
                 .withVariable(Variable.apply("FILE", "some-file.bin"))
                 .withVariable(Variable.apply("COLLECTION", "sample-collection"))
                 .withVariable(Variable.apply("DATASET", "sample-dataset"))
-                .withVariable(Variable.apply("SOURCE", "sample-source"))q
+                .withVariable(Variable.apply("SOURCE", "sample-source"))
                 .withVariable(Variable.apply("REPOSITORY", "repository"))
                 .withVariable(Variable.apply("REVISION", "af10-cc-fc-40"))
                 .withVariable(Variable.apply("STREAM", "sample-stream"))
