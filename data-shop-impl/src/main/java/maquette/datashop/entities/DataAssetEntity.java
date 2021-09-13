@@ -144,6 +144,10 @@ public final class DataAssetEntity {
         return repository.fetchCustomProperties(id, expectedType).thenApply(Optional::orElseThrow);
     }
 
+    public UID getId() {
+        return id;
+    }
+
     /**
      * Returns a companion object to work with members of the data asset.
      *

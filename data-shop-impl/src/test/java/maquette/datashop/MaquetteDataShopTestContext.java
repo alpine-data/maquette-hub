@@ -23,7 +23,7 @@ public final class MaquetteDataShopTestContext {
         var providers = DataAssetProviders.apply(FakeProvider.apply());
 
         var services = DataAssetServicesFactory.apply(assets, workspaces, providers);
-        var shop = MaquetteDataShop.apply(services, providers);
+        var shop = MaquetteDataShop.apply(services, providers, assets);
 
         return apply(workspaces, shop);
     }

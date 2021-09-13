@@ -25,13 +25,15 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     private final DataAssetProviders providers;
 
+    private final DataAssetEntities entities;
+
     public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspaceEntities workspaces,
                                          DataAssetProvider... dataAssetProviders) {
         var providers = DataAssetProviders.apply(dataAssetProviders);
         var entities = DataAssetEntities.apply(repository, providers);
         var services = DataAssetServicesFactory.apply(entities, workspaces, providers);
 
-        return apply(services, providers);
+        return apply(services, providers, entities);
     }
 
     @Override
@@ -65,6 +67,10 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets update", UpdateDataAssetCommand.class);
 
         return commands;
+    }
+
+    public DataAssetEntities getEntities() {
+        return entities;
     }
 
     public DataAssetServices getServices() {
