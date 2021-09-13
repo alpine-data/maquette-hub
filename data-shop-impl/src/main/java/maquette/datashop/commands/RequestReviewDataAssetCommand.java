@@ -28,7 +28,7 @@ public class RequestReviewDataAssetCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .requestReview(user, name, message)
-            .thenApply(done -> MessageResult.apply("Requested review for data asset."));
+            .thenApply(done -> MessageResult.create("Requested review for data asset."));
     }
 
     @Override

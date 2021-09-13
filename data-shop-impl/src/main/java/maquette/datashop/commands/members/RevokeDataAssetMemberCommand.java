@@ -28,7 +28,7 @@ public final class RevokeDataAssetMemberCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .revoke(user, name, authorization)
-            .thenApply(done -> MessageResult.apply("Successfully revoked ownership."));
+            .thenApply(done -> MessageResult.create("Successfully revoked ownership."));
     }
 
     @Override

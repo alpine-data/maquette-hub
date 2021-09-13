@@ -111,6 +111,20 @@ public final class InMemoryUsersRepository implements UsersRepository {
     }
 
     @Override
+    public CompletionStage<Optional<UserProfile>> findProfileByAuthenticationToken(UID tokenId) {
+        var user = tokens
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue().getId().equals(tokenId))
+            .map(e -> e.getKey())
+            .findFirst();
+
+        var result = user.flatMap(userId -> Optional.ofNullable(profiles.get(userId)));
+
+        return CompletableFuture.completedFuture(result);
+    }
+
+    @Override
     public CompletionStage<Optional<UserSettings>> findSettingsById(UID userId) {
         if (settings.containsKey(userId)) {
             return CompletableFuture.completedFuture(Optional.of(settings.get(userId)));

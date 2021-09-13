@@ -41,7 +41,7 @@ public final class UpdateCustomDataAssetSettingsCommand implements Command {
                 return shop
                     .getServices()
                     .updateCustomSettings(user, name, customSettings)
-                    .thenApply(done -> MessageResult.apply("Successfully updated data asset."));
+                    .thenApply(done -> MessageResult.create("Successfully updated data asset."));
             });
     }
 

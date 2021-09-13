@@ -31,6 +31,8 @@ public interface UsersRepository {
 
     CompletionStage<Optional<UserProfile>> findProfileById(UID userId);
 
+    CompletionStage<Optional<UserProfile>> findProfileByAuthenticationToken(UID tokenId);
+
     CompletionStage<Optional<UserSettings>> findSettingsById(UID userId);
 
     CompletionStage<List<UserNotification>> getAllNotifications(UID userId);

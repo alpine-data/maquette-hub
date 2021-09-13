@@ -32,7 +32,7 @@ public class UpdateAccessRequestCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .updateDataAccessRequest(user, name, id, message)
-            .thenApply(done -> MessageResult.apply("Successfully updated data access request."));
+            .thenApply(done -> MessageResult.create("Successfully updated data access request."));
     }
 
     @Override

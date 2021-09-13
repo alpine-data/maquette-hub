@@ -32,9 +32,9 @@ public final class UserEntities {
         return repository
             .findAuthenticationTokenByTokenId(tokenId)
             .thenCompose(maybeToken -> {
-                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isBefore(Instant.now())) {
+                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isAfter(Instant.now())) {
                     return repository
-                        .findProfileById(tokenId)
+                        .findProfileByAuthenticationToken(maybeToken.get().getId())
                         .thenCompose(maybeProfile -> maybeProfile
                             .map(userProfile -> CompletableFuture.completedFuture(AuthenticatedUser.apply(userProfile.getId())))
                             .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId

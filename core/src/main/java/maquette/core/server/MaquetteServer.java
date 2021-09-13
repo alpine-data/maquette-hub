@@ -74,11 +74,11 @@ public final class MaquetteServer {
                 if (maybeApplicationException.isPresent()) {
                     var error = maybeApplicationException.get();
                     ctx.status(error.getHttpStatus());
-                    ctx.json(MessageResult.apply(error.getMessage()));
+                    ctx.json(MessageResult.create(error.getMessage()));
                 } else {
                     LOG.warn("Unhandled exception upon API call", e);
                     ctx.status(500);
-                    ctx.json(MessageResult.apply("Internal Server Error"));
+                    ctx.json(MessageResult.create("Internal Server Error"));
                 }
             });
 

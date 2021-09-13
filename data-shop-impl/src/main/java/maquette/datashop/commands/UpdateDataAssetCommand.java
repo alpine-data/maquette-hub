@@ -28,7 +28,7 @@ public final class UpdateDataAssetCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .update(user, name, metadata)
-            .thenApply(done -> MessageResult.apply("Successfully updated data asset."));
+            .thenApply(done -> MessageResult.create("Successfully updated data asset."));
     }
 
     @Override

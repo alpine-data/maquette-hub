@@ -28,7 +28,7 @@ public class DeclineDataAssetCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .decline(user, name, reason)
-            .thenApply(done -> MessageResult.apply("Declined data asset configuration."));
+            .thenApply(done -> MessageResult.create("Declined data asset configuration."));
     }
 
     @Override

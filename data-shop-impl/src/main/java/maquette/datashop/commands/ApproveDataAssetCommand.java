@@ -26,7 +26,7 @@ public class ApproveDataAssetCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .approve(user, name)
-            .thenApply(done -> MessageResult.apply("Successfully approved"));
+            .thenApply(done -> MessageResult.create("Successfully approved"));
     }
 
     @Override

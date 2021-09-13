@@ -39,7 +39,7 @@ public class GrantAccessRequestCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .grantDataAccessRequest(user, name, id, until, message, environment, downstreamApprovalRequired)
-            .thenApply(done -> MessageResult.apply("Data Access Request has been granted successfully"));
+            .thenApply(done -> MessageResult.create("Data Access Request has been granted successfully"));
     }
 
     @Override

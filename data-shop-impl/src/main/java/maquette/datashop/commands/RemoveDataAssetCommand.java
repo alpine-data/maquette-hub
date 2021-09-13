@@ -26,7 +26,7 @@ public class RemoveDataAssetCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .remove(user, name)
-            .thenApply(pid -> MessageResult.apply("Successfully removed data asset `%s` and all related resources.",
+            .thenApply(pid -> MessageResult.create("Successfully removed data asset `%s` and all related resources.",
                 name));
     }
 

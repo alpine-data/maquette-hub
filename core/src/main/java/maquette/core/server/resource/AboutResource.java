@@ -1,5 +1,6 @@
 package maquette.core.server.resource;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
@@ -87,6 +88,11 @@ public final class AboutResource {
         User user;
 
         UserAuthenticationToken token;
+
+        @JsonProperty("login")
+        public String getLogin() {
+            return String.format("python -m zurichmars.app login --token %s --secret %s", token.getId(), token.getSecret());
+        }
 
     }
 

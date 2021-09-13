@@ -28,7 +28,7 @@ public class DeprecateDataAssetCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .deprecate(user, name, deprecate)
-            .thenApply(done -> MessageResult.apply("Successfully deprecated asset"));
+            .thenApply(done -> MessageResult.create("Successfully deprecated asset"));
     }
 
     @Override

@@ -72,7 +72,7 @@ public class CreateDataAssetCommand implements Command {
         return shop
             .getServices()
             .create(user, type, metadata, ownerAuth, stewardAuth, customSettings)
-            .thenApply(pid -> MessageResult.apply("Successfully created data asset `%s`", name));
+            .thenApply(pid -> MessageResult.create("Successfully created data asset `%s`", name));
     }
 
     @Override

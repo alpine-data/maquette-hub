@@ -32,7 +32,7 @@ public class RejectAccessRequestCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .rejectDataAccessRequest(user, name, id, reason)
-            .thenApply(done -> MessageResult.apply("Successfully withdrawn data access request."));
+            .thenApply(done -> MessageResult.create("Successfully withdrawn data access request."));
     }
 
     @Override

@@ -31,7 +31,7 @@ public final class GrantDataAssetMemberCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .grant(user, name, authorization, role)
-            .thenApply(done -> MessageResult.apply("Successfully granted ownership."));
+            .thenApply(done -> MessageResult.create("Successfully granted ownership."));
     }
 
     @Override

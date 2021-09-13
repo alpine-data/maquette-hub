@@ -32,7 +32,7 @@ public class WithdrawAccessRequestCommand implements Command {
             .getModule(MaquetteDataShop.class)
             .getServices()
             .withdrawDataAccessRequest(user, name, id, message)
-            .thenApply(done -> MessageResult.apply("Successfully withdrew data access request."));
+            .thenApply(done -> MessageResult.create("Successfully withdrew data access request."));
     }
 
     @Override

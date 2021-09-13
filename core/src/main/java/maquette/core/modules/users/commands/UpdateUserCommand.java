@@ -30,7 +30,7 @@ public final class UpdateUserCommand implements Command {
             .getModule(UserModule.class)
             .getServices()
             .updateUser(user, profile.getId(), profile, settings)
-            .thenApply(done -> MessageResult.apply("Successfully updated user."));
+            .thenApply(done -> MessageResult.create("Successfully updated user."));
     }
 
     @Override

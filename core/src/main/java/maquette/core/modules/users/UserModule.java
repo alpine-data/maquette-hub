@@ -7,6 +7,7 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.commands.UpdateUserCommand;
+import maquette.core.modules.users.commands.UserInformationCommand;
 import maquette.core.modules.users.services.UserServices;
 import maquette.core.modules.users.services.UserServicesFactory;
 import maquette.core.server.commands.Command;
@@ -42,7 +43,8 @@ public final class UserModule implements MaquetteModule {
     @Override
     public Map<String, Class<? extends Command>> getCommands() {
         Map<String, Class<? extends Command>> commands = Maps.newHashMap();
-        commands.put("update", UpdateUserCommand.class);
+        commands.put("users info", UserInformationCommand.class);
+        commands.put("users update", UpdateUserCommand.class);
         return commands;
     }
 

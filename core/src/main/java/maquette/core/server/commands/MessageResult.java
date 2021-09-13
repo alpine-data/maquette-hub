@@ -2,6 +2,7 @@ package maquette.core.server.commands;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.With;
 import maquette.core.MaquetteRuntime;
 
 /**
@@ -12,6 +13,9 @@ import maquette.core.MaquetteRuntime;
 public class MessageResult implements CommandResult {
 
     String message;
+
+    @With
+    Object data;
 
     @Override
     public String toPlainText(MaquetteRuntime runtime) {
@@ -25,8 +29,8 @@ public class MessageResult implements CommandResult {
      * @param args Variables for substitution
      * @return The message result object
      */
-    public static MessageResult apply(String s, Object... args) {
-        return apply(String.format(s, args));
+    public static MessageResult create(String s, Object... args) {
+        return apply(String.format(s, args), null);
     }
 
 }
