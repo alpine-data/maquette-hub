@@ -1,16 +1,25 @@
 package maquette.core.values.authorization;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;
 import maquette.core.values.ActionMetadata;
 
 @Value
 public class GrantedAuthorization<T extends Enum<T>> {
 
+    @JsonProperty
     ActionMetadata granted;
 
+    @JsonProperty
     Authorization authorization;
 
+    @JsonProperty
     T role;
+
+    private static final String GRANTED = "granted";
+    private static final String AUTHORIZATION = "authorization";
+    private static final String ROLE = "role";
 
     private GrantedAuthorization(ActionMetadata granted, Authorization authorization, T role) {
         this.granted = granted;
@@ -18,8 +27,10 @@ public class GrantedAuthorization<T extends Enum<T>> {
         this.role = role;
     }
 
-    public static <T extends Enum<T>> GrantedAuthorization<T> apply(ActionMetadata granted,
-                                                                    Authorization authorization, T role) {
+    @JsonCreator
+    public static <T extends Enum<T>> GrantedAuthorization<T> apply(@JsonProperty(GRANTED) ActionMetadata granted,
+                                                                    @JsonProperty(AUTHORIZATION)  Authorization authorization,
+                                                                    @JsonProperty(ROLE) T role) {
         return new GrantedAuthorization<>(granted, authorization, role);
     }
 

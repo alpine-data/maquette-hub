@@ -125,6 +125,15 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-text:1.8" level="project" />
     <orderEntry type="library" name="Maven: com.github.wnameless.json:json-base:1.0.0" level="project" />
     <orderEntry type="module" module-name="data-shop-impl" />
+    <orderEntry type="module" module-name="data-shop-api" />
+    <orderEntry type="library" name="Maven: org.apache.avro:avro:1.10.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.20" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-stream_2.13:2.6.4" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-protobuf-v3_2.13:2.6.4" level="project" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.10.0" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe:ssl-config-core_2.13:0.4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.13:1.1.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.20" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
