@@ -117,8 +117,11 @@ public final class DataAssetEntity {
      * @param <T>          The expected type.
      * @return The settings.
      */
+    @SuppressWarnings("unchecked")
     public <T> CompletionStage<T> getCustomSettings(Class<T> expectedType) {
-        return repository.fetchCustomSettings(id, expectedType).thenApply(Optional::orElseThrow);
+        return getProperties().thenCompose(properties -> repository
+            .fetchCustomSettings(id, expectedType)
+            .thenApply(maybeSettings -> maybeSettings.orElse((T) providers.getByName(properties.getType()).getDefaultSettings())));
     }
 
     /**
@@ -140,8 +143,11 @@ public final class DataAssetEntity {
      * @param <T>          The expected type.
      * @return The properties.
      */
+    @SuppressWarnings("unchecked")
     public <T> CompletionStage<T> getCustomProperties(Class<T> expectedType) {
-        return repository.fetchCustomProperties(id, expectedType).thenApply(Optional::orElseThrow);
+        return getProperties().thenCompose(properties -> repository
+            .fetchCustomProperties(id, expectedType)
+            .thenApply(maybeProperties -> maybeProperties.orElse((T) providers.getByName(properties.getType()).getDefaultProperties())));
     }
 
     public UID getId() {

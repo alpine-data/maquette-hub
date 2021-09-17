@@ -29,10 +29,18 @@ public interface DataAssetProvider {
     /**
      * This method should return default properties assigned to new data assets created with this provider.
      *
-     * @return The default properties or null.
+     * @return The default properties.
      */
-    @Nullable
     default Object getDefaultProperties() {
+        return new Object();
+    }
+
+    /**
+     * The method should return default settings assigned to the new data asset if no settings are provided.
+     *
+     * @return The default settings.
+     */
+    default Object getDefaultSettings() {
         return new Object();
     }
 

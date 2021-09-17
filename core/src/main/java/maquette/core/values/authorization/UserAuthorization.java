@@ -16,7 +16,7 @@ public class UserAuthorization implements Authorization {
 
     @Override
     public boolean authorizes(User user) {
-        return user instanceof AuthenticatedUser && ((AuthenticatedUser) user).getId().equals(this.name);
+        return user instanceof AuthenticatedUser && ((AuthenticatedUser) user).getId().getValue().equals(this.name);
     }
 
 }

@@ -20,6 +20,7 @@ import maquette.datashop.values.metadata.PersonalInformation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -74,16 +75,15 @@ public final class DataAssetEntities {
                         .addMember(executor, steward, DataAssetMemberRole.STEWARD)
                         .thenApply(d -> entity))
                     .thenCompose(entity -> {
-                        if (customSettings != null) {
-                            var insertPropertiesCS = entity.updateCustomProperties(providers.getByName(type)
-                                .getDefaultProperties());
-                            var insertSettingsCS = entity.updateCustomSettings(executor, customSettings);
-                            return Operators.compose(
-                                insertPropertiesCS, insertSettingsCS,
-                                (insertProperties, insertSettings) -> entity);
-                        } else {
-                            return CompletableFuture.completedFuture(entity);
-                        }
+                        var insertPropertiesCS = entity.updateCustomProperties(providers.getByName(type)
+                            .getDefaultProperties());
+                        var insertSettingsCS = entity.updateCustomSettings(executor, Optional
+                            .ofNullable(customSettings)
+                            .orElse(providers.getByName(type).getDefaultSettings()));
+
+                        return Operators.compose(
+                            insertPropertiesCS, insertSettingsCS,
+                            (insertProperties, insertSettings) -> entity);
                     })
                     .thenCompose(entity -> {
                         var provider = providers.getByName(type);
