@@ -31,7 +31,7 @@ public final class Datasets implements DataAssetProvider {
 
     @Override
     public void configure(MaquetteRuntime runtime) {
-        var handlers = DatasetsAPI.apply(getServices());
+        var handlers = DatasetsAPI.apply(this);
 
         runtime
             .getApp()

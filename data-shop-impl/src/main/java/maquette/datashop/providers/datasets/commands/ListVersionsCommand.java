@@ -11,6 +11,8 @@ import maquette.core.server.commands.TableResult;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.providers.datasets.Datasets;
+import tech.tablesaw.api.DateTimeColumn;
+import tech.tablesaw.api.LongColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
@@ -36,10 +38,10 @@ public class ListVersionsCommand implements Command {
             .thenApply(revisions -> {
                 var table = Table
                     .create()
-                    .addColumns(StringColumn.create("type"))
-                    .addColumns(StringColumn.create("name"))
-                    .addColumns(StringColumn.create("visibility"))
-                    .addColumns(StringColumn.create("classification"))
+                    .addColumns(StringColumn.create("version"))
+                    .addColumns(StringColumn.create("created by"))
+                    .addColumns(DateTimeColumn.create("created at"))
+                    .addColumns(LongColumn.create("records"))
                     .addColumns(StringColumn.create("personal information"));
 
                 revisions.forEach(r -> {
@@ -49,7 +51,7 @@ public class ListVersionsCommand implements Command {
                     row.setString("created by", r.getCreated().getBy());
                     row.setDateTime("created at", LocalDateTime
                         .ofInstant(r.getCreated().getAt(), ZoneOffset.systemDefault()));
-                    row.setLong("record", r.getRecords());
+                    row.setLong("records", r.getRecords());
                 });
 
                 return TableResult.apply(table.sortOn("version"), revisions);

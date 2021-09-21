@@ -40,7 +40,7 @@ public final class ListDataAssetsCommand implements Command {
                     row.setString("personal information", p.getMetadata().getPersonalInformation().getValue());
                 });
 
-                return TableResult.apply(table.sortOn("name"), datasets);
+                return TableResult.apply(table.sortDescendingOn("name"), datasets);
             });
     }
 
