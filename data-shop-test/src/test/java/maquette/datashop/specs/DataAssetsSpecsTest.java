@@ -6,7 +6,7 @@ import maquette.datashop.ports.InMemoryDataAssetsRepository;
 public class DataAssetsSpecsTest extends DataAssetsSpecs {
 
     @Override
-    DataAssetsRepository setupDataAssetsRepository() {
+    public DataAssetsRepository setupDataAssetsRepository() {
         return InMemoryDataAssetsRepository.apply();
     }
 

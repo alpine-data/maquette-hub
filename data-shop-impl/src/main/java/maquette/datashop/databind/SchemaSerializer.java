@@ -22,6 +22,7 @@ public final class SchemaSerializer extends StdSerializer<Schema> {
     @Override
     public void serialize(Schema value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         JsonNode node = om.readValue(value.toString(false), JsonNode.class);
+        jgen.setCodec(new ObjectMapper());
         jgen.writeObject(node);
     }
 

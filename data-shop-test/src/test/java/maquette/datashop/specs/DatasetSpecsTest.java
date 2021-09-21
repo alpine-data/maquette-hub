@@ -8,12 +8,12 @@ import maquette.datashop.providers.datasets.ports.InMemoryDatasetsRepository;
 public class DatasetSpecsTest extends DatasetSpecs {
 
     @Override
-    DataAssetsRepository setupDataAssetsRepository() {
+    public DataAssetsRepository setupDataAssetsRepository() {
         return InMemoryDataAssetsRepository.apply();
     }
 
     @Override
-    DatasetsRepository setupDatasetsRepository() {
+    public DatasetsRepository setupDatasetsRepository() {
         return InMemoryDatasetsRepository.apply();
     }
 

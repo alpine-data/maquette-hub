@@ -39,9 +39,9 @@ public abstract class DatasetSpecs {
         this.context = MaquetteContext.apply();
     }
 
-    abstract DataAssetsRepository setupDataAssetsRepository();
+    public abstract DataAssetsRepository setupDataAssetsRepository();
 
-    abstract DatasetsRepository setupDatasetsRepository();
+    public abstract DatasetsRepository setupDatasetsRepository();
 
     /**
      * Datasets are versioned automatically, based on their schema, following semantic versioning principles.

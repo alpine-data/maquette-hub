@@ -34,7 +34,7 @@ public abstract class DataAssetsSpecs {
         this.context = MaquetteContext.apply();
     }
 
-    abstract DataAssetsRepository setupDataAssetsRepository();
+    public abstract DataAssetsRepository setupDataAssetsRepository();
 
     /**
      * Data Assets can be private or public. The metadata of public assets can be seen by all users, private assets
