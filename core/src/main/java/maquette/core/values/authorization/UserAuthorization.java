@@ -19,4 +19,9 @@ public class UserAuthorization implements Authorization {
         return user instanceof AuthenticatedUser && ((AuthenticatedUser) user).getId().getValue().equals(this.name);
     }
 
+    @Override
+    public GenericAuthorizationDefinition toGenericAuthorizationDefinition() {
+        return GenericAuthorizationDefinition.apply("user", name);
+    }
+
 }

@@ -19,4 +19,6 @@ public interface Authorization {
 
     String getName();
 
+    GenericAuthorizationDefinition toGenericAuthorizationDefinition();
+
 }

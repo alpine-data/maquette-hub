@@ -129,7 +129,7 @@ public class DataAssetStepDefinitions {
 
     public void $_grants_consumer_access_rights_for_$(User executor, String assetName, AuthenticatedUser grantedUser) throws ExecutionException, InterruptedException {
         var result = GrantDataAssetMemberCommand
-            .apply(assetName, grantedUser.toAuthorization(), DataAssetMemberRole.CONSUMER)
+            .apply(assetName, grantedUser.toAuthorization().toGenericAuthorizationDefinition(), DataAssetMemberRole.CONSUMER)
             .run(executor, runtime)
             .toCompletableFuture()
             .get()

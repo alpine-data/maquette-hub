@@ -18,4 +18,9 @@ public class RoleAuthorization implements Authorization {
         return user.getRoles().stream().anyMatch(roleId -> roleId.equals(this.name));
     }
 
+    @Override
+    public GenericAuthorizationDefinition toGenericAuthorizationDefinition() {
+        return GenericAuthorizationDefinition.apply("role", name);
+    }
+
 }

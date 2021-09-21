@@ -7,8 +7,8 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.MessageResult;
-import maquette.core.values.authorization.Authorization;
-import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.authorization.Authorizations;
+import maquette.core.values.authorization.GenericAuthorizationDefinition;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.values.access.DataAssetMemberRole;
@@ -21,7 +21,7 @@ public final class GrantDataAssetMemberCommand implements Command {
 
     String name;
 
-    Authorization authorization;
+    GenericAuthorizationDefinition authorization;
 
     DataAssetMemberRole role;
 
@@ -30,13 +30,13 @@ public final class GrantDataAssetMemberCommand implements Command {
         return runtime
             .getModule(MaquetteDataShop.class)
             .getServices()
-            .grant(user, name, authorization, role)
+            .grant(user, name, Authorizations.fromGenericAuthorizationDefinition(authorization), role)
             .thenApply(done -> MessageResult.create("Successfully granted ownership."));
     }
 
     @Override
     public Command example() {
-        return apply("some-dataset", UserAuthorization.apply("edgar"), DataAssetMemberRole.OWNER);
+        return apply("some-dataset", GenericAuthorizationDefinition.apply("user", "edgar"), DataAssetMemberRole.OWNER);
     }
 
 }

@@ -27,4 +27,8 @@ public final class Authorizations {
         }
     }
 
+    public static Authorization fromGenericAuthorizationDefinition(GenericAuthorizationDefinition authorization) {
+        return fromString(authorization.getType(), authorization.getValue());
+    }
+
 }
