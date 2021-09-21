@@ -24,7 +24,17 @@ public final class ValidationException extends ApplicationException {
     }
 
     public static ValidationException apply(String message, List<String> messages) {
-        return new ValidationException(message, messages);
+        var sb = new StringBuilder()
+            .append(message);
+
+        for (var msg : messages) {
+            sb
+                .append("\n")
+                .append("- ")
+                .append(msg);
+        }
+
+        return new ValidationException(sb.toString(), messages);
     }
 
     public List<String> getMessages() {

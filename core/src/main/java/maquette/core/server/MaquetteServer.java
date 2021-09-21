@@ -75,6 +75,7 @@ public final class MaquetteServer {
                     var error = maybeApplicationException.get();
                     ctx.status(error.getHttpStatus());
                     ctx.json(MessageResult.create(error.getMessage()));
+                    LOG.warn("A domain exception was catched and returned to the client", e);
                 } else {
                     LOG.warn("Unhandled exception upon API call", e);
                     ctx.status(500);
