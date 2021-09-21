@@ -8,6 +8,10 @@ import maquette.core.values.ActionMetadata;
 @Value
 public class GrantedAuthorization<T extends Enum<T>> {
 
+    private static final String GRANTED = "granted";
+    private static final String AUTHORIZATION = "authorization";
+    private static final String ROLE = "role";
+
     @JsonProperty
     ActionMetadata granted;
 
@@ -17,10 +21,6 @@ public class GrantedAuthorization<T extends Enum<T>> {
     @JsonProperty
     T role;
 
-    private static final String GRANTED = "granted";
-    private static final String AUTHORIZATION = "authorization";
-    private static final String ROLE = "role";
-
     private GrantedAuthorization(ActionMetadata granted, Authorization authorization, T role) {
         this.granted = granted;
         this.authorization = authorization;
@@ -29,7 +29,7 @@ public class GrantedAuthorization<T extends Enum<T>> {
 
     @JsonCreator
     public static <T extends Enum<T>> GrantedAuthorization<T> apply(@JsonProperty(GRANTED) ActionMetadata granted,
-                                                                    @JsonProperty(AUTHORIZATION)  Authorization authorization,
+                                                                    @JsonProperty(AUTHORIZATION) Authorization authorization,
                                                                     @JsonProperty(ROLE) T role) {
         return new GrantedAuthorization<>(granted, authorization, role);
     }
