@@ -2,6 +2,7 @@ package maquette.datashop;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.server.commands.Command;
 import maquette.datashop.commands.*;
@@ -87,6 +88,15 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     public DataAssetProviders getProviders() {
         return providers;
+    }
+
+    @Override
+    public void start(MaquetteRuntime runtime) {
+        for (var provider : this.getProviders().toMap().values()) {
+            provider.configure(runtime);
+        }
+
+        MaquetteModule.super.start(runtime);
     }
 
 }

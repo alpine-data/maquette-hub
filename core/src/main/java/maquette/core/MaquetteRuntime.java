@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -48,7 +47,6 @@ public class MaquetteRuntime {
 
     List<Function<MaquetteRuntime, MaquetteModule>> moduleFactories;
 
-    @With
     List<MaquetteModule> modules;
 
     public static MaquetteRuntime apply() {
@@ -57,33 +55,36 @@ public class MaquetteRuntime {
         var ath = DefaultAuthenticationHandler.apply();
         var usr = InMemoryUsersRepository.apply();
 
-        return apply(null, cfg, omf, ath, usr, List.of(), List.of());
+        return apply(null, cfg, omf, ath, usr, Lists.newArrayList(), Lists.newArrayList());
     }
 
     public MaquetteRuntime initialize() {
         /*
          * Initialize core modules.
          */
-        var runtime = this;
-        runtime = this.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
+        this.withModule(UserModule.apply(this, this.getUsersRepository()));
 
         /*
          * Initialize modules
          */
         List<MaquetteModule> initializedModules = Lists.newArrayList();
-        for (var moduleFactory : runtime.getModuleFactories()) {
-            var rt = runtime;
-            initializedModules.add(Operators.suppressExceptions(() -> moduleFactory.apply(rt)));
+        for (var moduleFactory : this.getModuleFactories()) {
+            initializedModules.add(Operators.suppressExceptions(() -> moduleFactory.apply(this)));
         }
 
-        runtime = runtime.withModules(initializedModules);
+        this.setModules(initializedModules);
 
-        for (var module : runtime.getModules()) {
+        for (var module : this.getModules()) {
             LOG.info("Starting module {}", module.getName());
-            module.start(runtime);
+            module.start(this);
         }
 
-        return runtime;
+        return this;
+    }
+
+    private void setModules(List<MaquetteModule> initializedModules) {
+        this.modules.clear();
+        this.modules.addAll(initializedModules);
     }
 
     @SuppressWarnings("unchecked")
@@ -104,18 +105,13 @@ public class MaquetteRuntime {
     }
 
     public MaquetteRuntime withModule(Function<MaquetteRuntime, MaquetteModule> module) {
-        var modulesNext = Lists.newArrayList(moduleFactories);
-        modulesNext.add(module);
-
-        return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository,
-            List.copyOf(modulesNext), modules);
+        this.moduleFactories.add(module);
+        return this;
     }
 
     public MaquetteRuntime withModule(MaquetteModule module) {
-        var modulesNext = Lists.newArrayList(moduleFactories);
-        modulesNext.add(mr -> module);
-        return apply(app, config, objectMapperFactory, authenticationHandler, usersRepository,
-            List.copyOf(modulesNext), modules);
+        this.moduleFactories.add(mr -> module);
+        return this;
     }
 
     public Javalin getApp() {
