@@ -9,6 +9,7 @@ import maquette.datashop.providers.datasets.model.Revision;
 import maquette.datashop.providers.datasets.records.Records;
 import org.apache.avro.Schema;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public interface DatasetServices {
@@ -22,6 +23,10 @@ public interface DatasetServices {
    CompletionStage<Records> download(User executor, String dataset, DatasetVersion version);
 
    CompletionStage<Records> download(User executor, String dataset);
+
+   CompletionStage<CommittedRevision> getCommit(User executor, String dataset, DatasetVersion version);
+
+   CompletionStage<List<CommittedRevision>> listCommits(User executor, String dataset);
 
    CompletionStage<Done> upload(User executor, String dataset, UID revision, Records records);
 

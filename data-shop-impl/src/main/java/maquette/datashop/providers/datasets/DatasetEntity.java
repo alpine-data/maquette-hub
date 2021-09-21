@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -108,6 +109,13 @@ public final class DatasetEntity {
 
    public DataAssetEntity getEntity() {
       return entity;
+   }
+
+   public CompletionStage<CommittedRevision> getVersion(DatasetVersion version) {
+       return repository
+           .findRevisionByVersion(entity.getId(), version)
+           .thenCompose(maybeRevision -> maybeRevision.<CompletionStage<CommittedRevision>>map(CompletableFuture::completedFuture)
+               .orElseGet(() -> CompletableFuture.failedFuture(VersionNotFoundException.apply(version.toString()))));
    }
 
    public CompletionStage<List<CommittedRevision>> getVersions() {

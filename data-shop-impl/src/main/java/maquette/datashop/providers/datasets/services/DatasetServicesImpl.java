@@ -14,6 +14,7 @@ import maquette.datashop.providers.datasets.model.Revision;
 import maquette.datashop.providers.datasets.records.Records;
 import org.apache.avro.Schema;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -55,6 +56,16 @@ public final class DatasetServicesImpl implements DatasetServices {
     @Override
     public CompletionStage<Records> download(User executor, String dataset) {
         return getEntity(dataset).thenCompose(entity -> entity.download(executor));
+    }
+
+    @Override
+    public CompletionStage<CommittedRevision> getCommit(User executor, String dataset, DatasetVersion version) {
+        return getEntity(dataset).thenCompose(entity -> entity.getVersion(version));
+    }
+
+    @Override
+    public CompletionStage<List<CommittedRevision>> listCommits(User executor, String dataset) {
+        return getEntity(dataset).thenCompose(DatasetEntity::getVersions);
     }
 
     @Override

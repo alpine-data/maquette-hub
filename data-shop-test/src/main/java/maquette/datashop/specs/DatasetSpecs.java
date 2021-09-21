@@ -11,6 +11,7 @@ import maquette.datashop.specs.steps.DatasetStepDefinitions;
 import maquette.testutils.MaquetteContext;
 import maquette.workspaces.fake.FakeWorkspaceEntities;
 import org.junit.Before;
+import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
@@ -40,11 +41,15 @@ public abstract class DatasetSpecs {
 
     abstract DatasetsRepository setupDatasetsRepository();
 
+    @Test
     public void datasetVersioning() throws ExecutionException, InterruptedException {
         // Given
         steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, "dataset", "some-asset");
 
-        steps.$_uploads_$_records_to_dataset_$(context.users.bob, 10, "some-asset");
+        // When
+        steps.$_uploads_records_to_dataset_$(context.users.bob, "some-asset");
+        steps.$_uploads_different_records_to_dataset_$(context.users.bob, "some-asset");
+        steps.$_lists_versions_of_data_asset_$(context.users.bob, "some-asset");
     }
 
 }

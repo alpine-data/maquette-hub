@@ -10,6 +10,7 @@ import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
 import maquette.datashop.commands.members.RevokeDataAssetMemberCommand;
 import maquette.datashop.commands.requests.*;
 import maquette.datashop.configuration.DataShopConfiguration;
+import maquette.datashop.databind.MaquetteDataShopObjectMapperFactory;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.providers.DataAssetProvider;
@@ -92,6 +93,8 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     @Override
     public void start(MaquetteRuntime runtime) {
+        runtime.withObjectMapperFactory(MaquetteDataShopObjectMapperFactory.apply(runtime.getObjectMapperFactory()));
+
         for (var provider : this.getProviders().toMap().values()) {
             provider.configure(runtime);
         }

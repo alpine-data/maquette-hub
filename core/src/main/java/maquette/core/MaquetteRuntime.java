@@ -4,7 +4,8 @@ import akka.japi.Function;
 import com.google.common.collect.Lists;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.With;
 import maquette.core.common.Operators;
 import maquette.core.config.MaquetteConfiguration;
@@ -23,7 +24,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-@Value
+@Getter
+@Setter
 @AllArgsConstructor(staticName = "apply")
 public class MaquetteRuntime {
 

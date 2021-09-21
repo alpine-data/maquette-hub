@@ -12,6 +12,7 @@ import maquette.datashop.services.DataAssetServicesCompanion;
 import maquette.datashop.values.access.DataAssetPermissions;
 import org.apache.avro.Schema;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -60,6 +61,26 @@ public final class DatasetServicesSecured implements DatasetServices {
              () -> comp.isSuperUser(executor),
             () -> comp.isSubscribedConsumer(executor, dataset))
          .thenCompose(ok -> delegate.download(executor, dataset));
+   }
+
+   @Override
+   public CompletionStage<CommittedRevision> getCommit(User executor, String dataset, DatasetVersion version) {
+      return comp
+          .withAuthorization(
+              () -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume),
+              () -> comp.isSuperUser(executor),
+              () -> comp.isSubscribedConsumer(executor, dataset))
+          .thenCompose(ok -> delegate.getCommit(executor, dataset, version));
+   }
+
+   @Override
+   public CompletionStage<List<CommittedRevision>> listCommits(User executor, String dataset) {
+      return comp
+          .withAuthorization(
+              () -> comp.hasPermission(executor, dataset, DataAssetPermissions::canConsume),
+              () -> comp.isSuperUser(executor),
+              () -> comp.isSubscribedConsumer(executor, dataset))
+          .thenCompose(ok -> delegate.listCommits(executor, dataset));
    }
 
    @Override

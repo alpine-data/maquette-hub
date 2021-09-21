@@ -69,6 +69,10 @@ public interface Records {
         }
     }
 
+    static SampleRecords getSamples() {
+        return SampleRecords.apply();
+    }
+
     Schema getSchema();
 
     List<GenericData.Record> getRecords();

@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.datashop.providers.DataAssetProvider;
-import maquette.datashop.providers.datasets.commands.AnalyzeVersionCommand;
-import maquette.datashop.providers.datasets.commands.CommitRevisionCommand;
-import maquette.datashop.providers.datasets.commands.CreateRevisionCommand;
+import maquette.datashop.providers.datasets.commands.*;
 import maquette.datashop.providers.datasets.ports.DatasetDataExplorer;
 import maquette.datashop.providers.datasets.ports.DatasetsRepository;
 import maquette.datashop.providers.datasets.services.DatasetServices;
@@ -48,7 +46,9 @@ public final class Datasets implements DataAssetProvider {
         Map<String, Class<? extends Command>> commands = Maps.newHashMap();
         commands.put("datasets revisions commit", CommitRevisionCommand.class);
         commands.put("datasets revisions create", CreateRevisionCommand.class);
+        commands.put("datasets versions", ListVersionsCommand.class);
         commands.put("datasets versions analyze", AnalyzeVersionCommand.class);
+        commands.put("datasets versions get", GetVersionCommand.class);
         return commands;
     }
 
