@@ -75,25 +75,7 @@ public final class Maquette {
             });
 
         runtime = runtime.withApp(app);
-
-        /*
-         * Initialize core modules.
-         */
-        runtime = runtime.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
-
-        /*
-         * Initialize modules
-         */
-        runtime = runtime.withModules(runtime
-            .getModuleFactories()
-            .stream()
-            .map(mf -> Operators.suppressExceptions(() -> mf.apply(runtime)))
-            .collect(Collectors.toList()));
-
-        runtime.getModules().forEach(module -> {
-            LOG.info("Starting module {}", module.getName());
-            module.start(runtime);
-        });
+        runtime = runtime.initialize();
 
         /*
          * Run server

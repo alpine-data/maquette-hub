@@ -89,7 +89,6 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
     @Override
     public CompletionStage<Done> decline(User executor, String name, String reason) {
-        // TODO mw: reason is not used yet!?
         return entities.getByName(name).thenCompose(entity -> entity.decline(executor));
     }
 
@@ -141,6 +140,13 @@ public final class DataAssetServicesImpl implements DataAssetServices {
         return Operators
             .compose(propertiesCS, accessRequestPropertiesCS, this::enrichDataAccessRequest)
             .thenCompose(cs -> cs);
+    }
+
+    @Override
+    public CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests(User executor, String name) {
+        return entities
+            .getByName(name)
+            .thenCompose(entity -> entity.getAccessRequests().getDataAccessRequests());
     }
 
     @Override

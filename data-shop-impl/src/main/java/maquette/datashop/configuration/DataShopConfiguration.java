@@ -14,8 +14,8 @@ import maquette.core.config.annotations.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DataShopConfiguration {
 
-    @Value("database")
-    private DatabaseConfiguration database;
+    @Value("default-data-owner")
+    private String defaultDataOwner;
 
     public static DataShopConfiguration apply() {
         return Configs.mapToConfigClass(DataShopConfiguration.class, "maquette.data-shop");

@@ -6,11 +6,11 @@ import maquette.core.values.authorization.WildcardAuthorization;
 
 public final class Authorizations {
 
-    public final UserAuthorization alice = UserAuthorization.apply("alice");
+    public final UserAuthorization alice = UserAuthorization.apply(Users.ALICE);
 
-    public final UserAuthorization bob = UserAuthorization.apply("bob");
+    public final UserAuthorization bob = UserAuthorization.apply(Users.BOB);
 
-    public final UserAuthorization charly = UserAuthorization.apply("charly");
+    public final UserAuthorization charly = UserAuthorization.apply(Users.CHARLY);
 
     public final WildcardAuthorization wildcard = WildcardAuthorization.apply();
 

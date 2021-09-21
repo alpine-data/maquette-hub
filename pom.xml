@@ -97,6 +97,7 @@
     <module>model-development-impl</module>
     <module>data-shop-api</module>
     <module>data-shop-impl</module>
+    <module>data-shop-test</module>
     <module>model-management-api</module>
     <module>model-management-impl</module>
     <module>app</module>

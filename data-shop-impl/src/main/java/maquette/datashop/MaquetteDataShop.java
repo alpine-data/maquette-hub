@@ -8,6 +8,7 @@ import maquette.datashop.commands.*;
 import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
 import maquette.datashop.commands.members.RevokeDataAssetMemberCommand;
 import maquette.datashop.commands.requests.*;
+import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.providers.DataAssetProvider;
@@ -27,13 +28,16 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     private final DataAssetEntities entities;
 
+    private final DataShopConfiguration configuration;
+
     public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspaceEntities workspaces,
                                          DataAssetProvider... dataAssetProviders) {
+        var configuration = DataShopConfiguration.apply();
         var providers = DataAssetProviders.apply(dataAssetProviders);
         var entities = DataAssetEntities.apply(repository, providers);
-        var services = DataAssetServicesFactory.apply(entities, workspaces, providers);
+        var services = DataAssetServicesFactory.apply(configuration, entities, workspaces, providers);
 
-        return apply(services, providers, entities);
+        return apply(services, providers, entities, configuration);
     }
 
     @Override
@@ -67,6 +71,10 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets update", UpdateDataAssetCommand.class);
 
         return commands;
+    }
+
+    public DataShopConfiguration getConfiguration() {
+        return configuration;
     }
 
     public DataAssetEntities getEntities() {

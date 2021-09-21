@@ -105,7 +105,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
     }
 
     /**
-     * Returns the passThrough of the user is member of a workspace which is the origin og the access request.
+     * Returns the passThrough of the user is member of a workspace which is the origin of the access request.
      *
      * @param user          The user to check.
      * @param name          The name of the data asset.

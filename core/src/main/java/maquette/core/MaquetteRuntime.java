@@ -6,12 +6,14 @@ import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
+import maquette.core.common.Operators;
 import maquette.core.config.MaquetteConfiguration;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.databind.ObjectMapperFactory;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.modules.ports.InMemoryUsersRepository;
 import maquette.core.modules.ports.UsersRepository;
+import maquette.core.modules.users.UserModule;
 import maquette.core.server.auth.AuthenticationHandler;
 import maquette.core.server.auth.DefaultAuthenticationHandler;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -55,6 +58,32 @@ public class MaquetteRuntime {
         var usr = InMemoryUsersRepository.apply();
 
         return apply(null, cfg, omf, ath, usr, List.of(), List.of());
+    }
+
+    public MaquetteRuntime initialize() {
+        /*
+         * Initialize core modules.
+         */
+        var runtime = this;
+        runtime = this.withModule(UserModule.apply(runtime, runtime.getUsersRepository()));
+
+        /*
+         * Initialize modules
+         */
+        List<MaquetteModule> initializedModules = Lists.newArrayList();
+        for (var moduleFactory : runtime.getModuleFactories()) {
+            var rt = runtime;
+            initializedModules.add(Operators.suppressExceptions(() -> moduleFactory.apply(rt)));
+        }
+
+        runtime = runtime.withModules(initializedModules);
+
+        for (var module : runtime.getModules()) {
+            LOG.info("Starting module {}", module.getName());
+            module.start(runtime);
+        }
+
+        return runtime;
     }
 
     @SuppressWarnings("unchecked")

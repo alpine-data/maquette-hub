@@ -1,6 +1,7 @@
 package maquette.datashop;
 
 import lombok.AllArgsConstructor;
+import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
 import maquette.datashop.providers.DataAssetProviders;
@@ -21,9 +22,10 @@ public final class MaquetteDataShopTestContext {
             .apply()));
         var workspaces = FakeWorkspaceEntities.apply();
         var providers = DataAssetProviders.apply(FakeProvider.apply());
+        var configuration = DataShopConfiguration.apply();
 
-        var services = DataAssetServicesFactory.apply(assets, workspaces, providers);
-        var shop = MaquetteDataShop.apply(services, providers, assets);
+        var services = DataAssetServicesFactory.apply(configuration, assets, workspaces, providers);
+        var shop = MaquetteDataShop.apply(services, providers, assets, configuration);
 
         return apply(workspaces, shop);
     }

@@ -10,7 +10,6 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
-import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.configuration.DatabaseConfiguration;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.DataAssetState;
@@ -45,10 +44,6 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
             "data-assets", jdbi, om, DataAssetMemberRole::getValue, DataAssetMemberRole::valueOf);
 
         return apply(jdbi, om, members);
-    }
-
-    public static JdbcDataAssetRepository apply(MaquetteRuntime runtime) {
-        return apply(runtime, DataShopConfiguration.apply().getDatabase());
     }
 
     @Override

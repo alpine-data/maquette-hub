@@ -97,6 +97,8 @@ public interface DataAssetServices {
 
     CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String name, UID request);
 
+    CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests(User executor, String name);
+
     CompletionStage<Done> grantDataAccessRequest(
         User executor, String name, UID request, @javax.annotation.Nullable Instant until,
         @javax.annotation.Nullable String message,

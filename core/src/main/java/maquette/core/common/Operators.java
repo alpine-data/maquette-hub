@@ -1,9 +1,11 @@
 package maquette.core.common;
 
 import akka.japi.function.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.javafaker.Faker;
 import com.google.common.hash.Hashing;
 import com.oblac.nomen.Nomen;
+import maquette.core.databind.DefaultObjectMapperFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 
@@ -170,6 +172,10 @@ public final class Operators {
         CompletableFuture<T> result = new CompletableFuture<>();
         result.completeExceptionally(new RuntimeException());
         return result;
+    }
+
+    public static JsonNode emptyJsonNode() {
+        return DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
     }
 
     public static <T> Optional<T> exceptionToNone(ExceptionalSupplier<T> supplier) {

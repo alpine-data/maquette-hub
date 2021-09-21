@@ -1,5 +1,6 @@
 package maquette.datashop.services;
 
+import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.workspaces.api.WorkspaceEntities;
@@ -18,11 +19,12 @@ public final class DataAssetServicesFactory {
      * @param providers  A set of registered data asset providers.
      * @return The new instance.
      */
-    public static DataAssetServices apply(DataAssetEntities dataAssets, WorkspaceEntities workspaces,
+    public static DataAssetServices apply(DataShopConfiguration configuration, DataAssetEntities dataAssets, WorkspaceEntities workspaces,
                                           DataAssetProviders providers) {
         var comp = DataAssetServicesCompanion.apply(dataAssets, workspaces);
         var impl = DataAssetServicesImpl.apply(dataAssets, workspaces, providers);
-        return DataAssetServicesSecured.apply(comp, impl);
+        var secured = DataAssetServicesSecured.apply(comp, impl);
+        return DataAssetServicesValidated.apply(secured, configuration);
     }
 
 }
