@@ -14,8 +14,10 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
+import maquette.datashop.exceptions.DataAssetNotFoundException;
 import maquette.datashop.values.metadata.*;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -50,6 +52,10 @@ public class CreateDataAssetCommand implements Command {
         Authorization ownerAuth = null;
         Authorization stewardAuth = null;
 
+        Operators.suppressExceptions(() -> Thread.sleep(5000));
+        return CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromName("foo bar"));
+
+        /*
         var shop = runtime.getModule(MaquetteDataShop.class);
 
         if (owner != null) {
@@ -73,6 +79,8 @@ public class CreateDataAssetCommand implements Command {
             .getServices()
             .create(user, type, metadata, ownerAuth, stewardAuth, customSettings)
             .thenApply(pid -> MessageResult.create("Successfully created data asset `%s`", name));
+
+         */
     }
 
     @Override
