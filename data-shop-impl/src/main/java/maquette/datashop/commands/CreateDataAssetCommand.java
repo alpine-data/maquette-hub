@@ -52,10 +52,6 @@ public class CreateDataAssetCommand implements Command {
         Authorization ownerAuth = null;
         Authorization stewardAuth = null;
 
-        Operators.suppressExceptions(() -> Thread.sleep(5000));
-        return CompletableFuture.failedFuture(DataAssetNotFoundException.applyFromName("foo bar"));
-
-        /*
         var shop = runtime.getModule(MaquetteDataShop.class);
 
         if (owner != null) {
@@ -79,8 +75,6 @@ public class CreateDataAssetCommand implements Command {
             .getServices()
             .create(user, type, metadata, ownerAuth, stewardAuth, customSettings)
             .thenApply(pid -> MessageResult.create("Successfully created data asset `%s`", name));
-
-         */
     }
 
     @Override
