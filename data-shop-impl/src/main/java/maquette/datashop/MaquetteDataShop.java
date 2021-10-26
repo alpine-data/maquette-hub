@@ -66,6 +66,7 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets decline", DeclineDataAssetCommand.class);
         commands.put("data-assets deprecate", DeprecateDataAssetCommand.class);
         commands.put("data-assets get", GetDataAssetCommand.class);
+        commands.put("data-assets view", DataAssetViewCommand.class);
         commands.put("data-assets list", ListDataAssetsCommand.class);
         commands.put("data-assets remove", RemoveDataAssetCommand.class);
         commands.put("data-assets request-review", RequestReviewDataAssetCommand.class);
