@@ -31,16 +31,20 @@ public final class FakeWorkspaceEntities implements WorkspaceEntities {
     }
 
     public void addWorkspace(WorkspaceProperties workspace) {
-        this.workspaces.add(workspace);
-        this.authorizations.put(workspace.getId(), Lists.newArrayList());
-        this.authorizations.get(workspace.getId()).add(GrantedAuthorization.apply(
-            ActionMetadata.apply("system"),
-            WildcardAuthorization.apply(),
-            ProjectMemberRole.ADMIN));
+        if (!authorizations.containsKey(workspace.getId())) {
+            this.workspaces.add(workspace);
+            this.authorizations.put(workspace.getId(), Lists.newArrayList());
+            this.authorizations.get(workspace.getId()).add(GrantedAuthorization.apply(
+                ActionMetadata.apply("system"),
+                WildcardAuthorization.apply(),
+                ProjectMemberRole.ADMIN));
+        }
     }
 
     @Override
     public CompletionStage<WorkspaceEntity> getWorkspaceByName(String name) {
+        addWorkspace(WorkspaceProperties.apply(name));
+
         var result = workspaces
             .stream()
             .filter(w -> w.getName().equals(name))
@@ -57,6 +61,8 @@ public final class FakeWorkspaceEntities implements WorkspaceEntities {
 
     @Override
     public CompletionStage<WorkspaceEntity> getWorkspaceById(UID id) {
+        addWorkspace(WorkspaceProperties.apply(id, "some name"));
+
         var result = workspaces
             .stream()
             .filter(w -> w.getId().equals(id))

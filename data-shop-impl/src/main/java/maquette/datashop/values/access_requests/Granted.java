@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Granted implements DataAccessRequestEvent {
+public class Granted implements DataAccessRequestUserTriggeredEvent {
 
     private static final String CREATED = "created";
     private static final String UNTIL = "until";

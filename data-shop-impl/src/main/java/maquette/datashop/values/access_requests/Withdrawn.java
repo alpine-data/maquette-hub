@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Withdrawn implements DataAccessRequestEvent {
+public class Withdrawn implements DataAccessRequestUserTriggeredEvent {
 
     private static final String CREATED = "created";
     private static final String REASON = "reason";

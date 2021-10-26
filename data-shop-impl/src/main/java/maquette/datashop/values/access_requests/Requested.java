@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Requested implements DataAccessRequestEvent {
+public class Requested implements DataAccessRequestUserTriggeredEvent {
 
     private static final String CREATED = "created";
     private static final String REASON = "reason";

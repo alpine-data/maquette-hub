@@ -1,5 +1,6 @@
 package maquette.datashop.commands;
 
+import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import maquette.core.modules.users.model.UserProfile;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -18,9 +20,12 @@ import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.commands.views.DataAssetView;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.access.DataAssetMemberRole;
+import maquette.datashop.values.access_requests.DataAccessRequestUserTriggeredEvent;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -38,15 +43,44 @@ public class DataAssetViewCommand implements Command {
         var assetCS = services
             .get(user, name);
 
-        var ownersCS = assetCS.thenCompose(asset ->
-            getUserProfiles(user, runtime, asset, DataAssetMemberRole.OWNER));
+        var usersCS = assetCS.thenCompose(asset -> {
+            var accessRequestCreatorsNames = asset.getAccessRequests()
+                .stream()
+                .map(request -> request.getCreated().getBy())
+                .collect(Collectors.toList());
 
-        var stewardsCS = assetCS.thenCompose(asset ->
-            getUserProfiles(user, runtime, asset, DataAssetMemberRole.STEWARD));
+            var accessRequestActorsNames = asset.getAccessRequests()
+                .stream()
+                .flatMap(req -> req.getEvents()
+                    .stream()
+                    .filter(e -> e instanceof DataAccessRequestUserTriggeredEvent)
+                    .map(e -> ((DataAccessRequestUserTriggeredEvent) e).getCreated().getBy()))
+                .collect(Collectors.toList());
 
-        return Operators.compose(assetCS, ownersCS, stewardsCS, (asset, owners, stewards) -> {
+            var membersNames = asset.getMembers()
+                .stream()
+                .map(GrantedAuthorization::getAuthorization)
+                .filter(auth -> auth instanceof UserAuthorization)
+                .map(Authorization::getName)
+                .collect(Collectors.toList());
+
+            var allUserNames = Sets.<String>newHashSet();
+            allUserNames.addAll(accessRequestCreatorsNames);
+            allUserNames.addAll(accessRequestActorsNames);
+            allUserNames.addAll(membersNames);
+
+            return Operators
+                .allOf(allUserNames
+                    .stream()
+                    .map(m -> runtime.getModule(UserModule.class).getServices().getProfile(user, UID.apply(m))))
+                .thenApply(list -> list
+                .stream()
+                .collect(Collectors.toMap((UserProfile p) -> p.getId().getValue(), Function.identity())));
+        });
+
+        return Operators.compose(assetCS, usersCS, (asset, users) -> {
             var permissions = asset.getDataAssetPermissions(user);
-            return DataAssetView.apply(asset, permissions, owners, stewards);
+            return DataAssetView.apply(asset, permissions, users);
         });
     }
 
