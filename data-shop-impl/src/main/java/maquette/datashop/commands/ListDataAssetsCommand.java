@@ -2,6 +2,7 @@ package maquette.datashop.commands;
 
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
+import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.TableResult;
@@ -17,6 +18,8 @@ public final class ListDataAssetsCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+
+        Operators.suppressExceptions(() -> Thread.sleep(5000));
 
         return runtime
             .getModule(MaquetteDataShop.class)

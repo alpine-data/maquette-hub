@@ -10,6 +10,7 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 public interface UserServices {
@@ -31,6 +32,8 @@ public interface UserServices {
     CompletionStage<UserSettings> getSettings(User executor, UID userId);
 
     CompletionStage<List<UserProfile>> getUsers(User executor);
+
+    CompletionStage<Map<String, UserProfile>> getUsers(User executor, List<UID> userIds);
 
     CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
 

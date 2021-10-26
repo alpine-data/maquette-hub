@@ -2,7 +2,9 @@ package maquette.core.modules.users.services;
 
 import akka.Done;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import maquette.core.common.Operators;
 import maquette.core.modules.users.UserEntities;
 import maquette.core.modules.users.UserEntity;
 import maquette.core.modules.users.model.UserAuthenticationToken;
@@ -15,6 +17,7 @@ import maquette.core.values.user.User;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -70,6 +73,19 @@ public final class UserServicesImpl implements UserServices {
     @Override
     public CompletionStage<List<UserProfile>> getUsers(User executor) {
         return users.getUsers();
+    }
+
+    @Override
+    public CompletionStage<Map<String, UserProfile>> getUsers(User executor, List<UID> userIds) {
+        return Operators
+            .allOf(userIds
+                .stream()
+                .map(id -> getProfile(executor, id)))
+            .thenApply(users -> {
+                var result = Maps.<String, UserProfile>newHashMap();
+                users.forEach(user -> result.put(user.getId().getValue(), user));
+                return result;
+            });
     }
 
     @Override
