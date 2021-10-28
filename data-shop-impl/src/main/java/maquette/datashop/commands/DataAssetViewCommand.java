@@ -74,13 +74,26 @@ public class DataAssetViewCommand implements Command {
                     .stream()
                     .map(m -> runtime.getModule(UserModule.class).getServices().getProfile(user, UID.apply(m))))
                 .thenApply(list -> list
-                .stream()
-                .collect(Collectors.toMap((UserProfile p) -> p.getId().getValue(), Function.identity())));
+                    .stream()
+                    .collect(Collectors.toMap((UserProfile p) -> p.getId().getValue(), Function.identity())));
         });
 
         return Operators.compose(assetCS, usersCS, (asset, users) -> {
             var permissions = asset.getDataAssetPermissions(user);
-            return DataAssetView.apply(asset, permissions, users);
+
+            var owners = asset.getMembers().stream()
+                .filter(auth -> auth.getRole().equals(DataAssetMemberRole.OWNER))
+                .filter(auth -> users.containsKey(auth.getAuthorization().getName()))
+                .map(auth -> users.get(auth.getAuthorization().getName()))
+                .collect(Collectors.toList());
+
+            var stewards = asset.getMembers().stream()
+                .filter(auth -> auth.getRole().equals(DataAssetMemberRole.STEWARD))
+                .filter(auth -> users.containsKey(auth.getAuthorization().getName()))
+                .map(auth -> users.get(auth.getAuthorization().getName()))
+                .collect(Collectors.toList());
+
+            return DataAssetView.apply(asset, permissions, owners, stewards, users);
         });
     }
 

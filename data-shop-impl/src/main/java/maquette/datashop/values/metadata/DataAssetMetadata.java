@@ -73,9 +73,21 @@ public class DataAssetMetadata {
         @JsonProperty(VISIBILITY) DataVisibility visibility,
         @JsonProperty(CLASSIFICATION) DataClassification classification,
         @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
-        @JsonProperty(ZONE) DataZone zone) {
+        @JsonProperty(ZONE) DataZone zone,
+        @JsonProperty("personalInformation") PersonalInformation ignore) {
 
         return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone);
+    }
+
+    public static DataAssetMetadata apply(
+        @JsonProperty(TITLE) String title,
+        @JsonProperty(NAME) String name,
+        @JsonProperty(SUMMARY) String summary,
+        @JsonProperty(VISIBILITY) DataVisibility visibility,
+        @JsonProperty(CLASSIFICATION) DataClassification classification,
+        @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
+        @JsonProperty(ZONE) DataZone zone) {
+        return apply(title, name, summary, visibility, classification, personalInformation, zone, personalInformation);
     }
 
     /**
@@ -87,7 +99,7 @@ public class DataAssetMetadata {
      */
     public static DataAssetMetadata sample(String title, String name) {
         return apply(title, name, Operators.lorem(), DataVisibility.PUBLIC, DataClassification.PUBLIC,
-            PersonalInformation.NONE, DataZone.RAW);
+            PersonalInformation.NONE, DataZone.RAW, PersonalInformation.PERSONAL_INFORMATION);
     }
 
     /**
@@ -102,6 +114,15 @@ public class DataAssetMetadata {
 
     public static DataAssetMetadata sample() {
         return sample("Some Asset");
+    }
+
+    @JsonProperty("personalInformation")
+    public PersonalInformation getPI() {
+        return personalInformation;
+    }
+
+    public void setPersonalInformation(PersonalInformation pi) {
+        // do nothing
     }
 
 }

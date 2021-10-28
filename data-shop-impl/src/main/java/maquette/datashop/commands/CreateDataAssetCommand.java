@@ -52,6 +52,8 @@ public class CreateDataAssetCommand implements Command {
         Authorization ownerAuth = null;
         Authorization stewardAuth = null;
 
+        Operators.suppressExceptions(() -> Thread.sleep(5000));
+
         var shop = runtime.getModule(MaquetteDataShop.class);
 
         if (owner != null) {
