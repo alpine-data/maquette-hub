@@ -180,12 +180,21 @@ public final class DataAssetServicesSecured implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String name, UID request) {
-        return comp
+        var canManageAccessRequestsCS = comp.hasPermission(executor, name,
+            DataAssetPermissions::canManageAccessRequests);
+        var isRequesterCS = comp.isRequester(executor, name, request);
+        var dataAccessRequestCS = comp
             .withAuthorization(
                 () -> comp.isSuperUser(executor),
-                () -> comp.hasPermission(executor, name, DataAssetPermissions::canManageAccessRequests),
-                () -> comp.isRequester(executor, name, request))
+                () -> canManageAccessRequestsCS,
+                () -> isRequesterCS)
             .thenCompose(ok -> delegate.getDataAccessRequest(executor, name, request));
+
+        return Operators.compose(
+            canManageAccessRequestsCS, isRequesterCS, dataAccessRequestCS,
+            (canManageAccessRequests, isRequester, dataAccessRequest) -> dataAccessRequest
+                .withCanRequest(isRequester)
+                .withCanGrant(canManageAccessRequests));
     }
 
     @Override

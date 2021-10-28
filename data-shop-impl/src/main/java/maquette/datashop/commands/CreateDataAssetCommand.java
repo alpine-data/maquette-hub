@@ -14,10 +14,8 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
-import maquette.datashop.exceptions.DataAssetNotFoundException;
 import maquette.datashop.values.metadata.*;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -51,8 +49,6 @@ public class CreateDataAssetCommand implements Command {
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         Authorization ownerAuth = null;
         Authorization stewardAuth = null;
-
-        Operators.suppressExceptions(() -> Thread.sleep(5000));
 
         var shop = runtime.getModule(MaquetteDataShop.class);
 
