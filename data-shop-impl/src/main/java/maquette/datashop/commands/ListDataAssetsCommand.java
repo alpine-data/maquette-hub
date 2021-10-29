@@ -1,6 +1,9 @@
 package maquette.datashop.commands;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
@@ -11,10 +14,16 @@ import maquette.datashop.MaquetteDataShop;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletionStage;
 
+@Value
 @AllArgsConstructor(staticName = "apply")
-public final class ListDataAssetsCommand implements Command {
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+public class ListDataAssetsCommand implements Command {
+
+    @Nullable
+    String query;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
@@ -49,7 +58,7 @@ public final class ListDataAssetsCommand implements Command {
 
     @Override
     public Command example() {
-        return ListDataAssetsCommand.apply();
+        return ListDataAssetsCommand.apply("some query");
     }
 
 }

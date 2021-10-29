@@ -44,7 +44,7 @@ public class DataAssetStepDefinitions {
 
     public void $_browses_all_data_assets(AuthenticatedUser user) throws ExecutionException, InterruptedException {
         var result = ListDataAssetsCommand
-            .apply()
+            .apply(null)
             .run(user, runtime)
             .toCompletableFuture()
             .get()
