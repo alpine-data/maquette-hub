@@ -74,7 +74,11 @@ public class DataAssetMetadata {
         @JsonProperty(CLASSIFICATION) DataClassification classification,
         @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
         @JsonProperty(ZONE) DataZone zone,
-        @JsonProperty("personalInformation") PersonalInformation ignore) {
+        @JsonProperty("personalInformation") PersonalInformation ignore,
+        @JsonProperty("timeliness") String timeliness,
+        @JsonProperty("geography") String geography,
+        @JsonProperty("bui") String bui,
+        @JsonProperty("lob") String lob) {
 
         return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone);
     }
@@ -86,8 +90,12 @@ public class DataAssetMetadata {
         @JsonProperty(VISIBILITY) DataVisibility visibility,
         @JsonProperty(CLASSIFICATION) DataClassification classification,
         @JsonProperty(PERSONAL_INFORMATION) PersonalInformation personalInformation,
-        @JsonProperty(ZONE) DataZone zone) {
-        return apply(title, name, summary, visibility, classification, personalInformation, zone, personalInformation);
+        @JsonProperty(ZONE) DataZone zone,
+        @JsonProperty("timeliness") String timeliness,
+        @JsonProperty("geography") String geography,
+        @JsonProperty("bui") String bui,
+        @JsonProperty("lob") String lob){
+        return apply(title, name, summary, visibility, classification, personalInformation, zone, personalInformation,timeliness,geography,bui,lob);
     }
 
     /**
@@ -99,7 +107,7 @@ public class DataAssetMetadata {
      */
     public static DataAssetMetadata sample(String title, String name) {
         return apply(title, name, Operators.lorem(), DataVisibility.PUBLIC, DataClassification.PUBLIC,
-            PersonalInformation.NONE, DataZone.RAW, PersonalInformation.PERSONAL_INFORMATION);
+            PersonalInformation.NONE, DataZone.RAW, PersonalInformation.PERSONAL_INFORMATION, "daily","EMEA","ZCH","P&C");
     }
 
     /**
