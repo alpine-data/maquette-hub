@@ -60,11 +60,12 @@ public final class DataAssetServicesSecured implements DataAssetServices {
                             isSubscribed);
 
                         // adopt permissions for access requests and filter not accessible access requests.
-                        if (permissions.canManageAccessRequests()) {
+                        if (permissions.canManageAccessRequests() || permissions.canReview()) {
                             var requests = entity
                                 .getAccessRequests()
                                 .stream()
-                                .map(request -> request.withCanGrant(true))
+                                .map(request -> request.withCanGrant(permissions.canManageAccessRequests()))
+                                .map(request -> request.withCanReview(permissions.canReview()))
                                 .collect(Collectors.toList());
 
                             return CompletableFuture.completedFuture(entity.withAccessRequests(requests));
@@ -182,6 +183,8 @@ public final class DataAssetServicesSecured implements DataAssetServices {
     public CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String name, UID request) {
         var canManageAccessRequestsCS = comp.hasPermission(executor, name,
             DataAssetPermissions::canManageAccessRequests);
+        var canReviewAccessRequestsCS = comp.hasPermission(executor, name,
+            DataAssetPermissions::canReview);
         var isRequesterCS = comp.isRequester(executor, name, request);
         var dataAccessRequestCS = comp
             .withAuthorization(
@@ -191,9 +194,10 @@ public final class DataAssetServicesSecured implements DataAssetServices {
             .thenCompose(ok -> delegate.getDataAccessRequest(executor, name, request));
 
         return Operators.compose(
-            canManageAccessRequestsCS, isRequesterCS, dataAccessRequestCS,
-            (canManageAccessRequests, isRequester, dataAccessRequest) -> dataAccessRequest
+            canManageAccessRequestsCS, canReviewAccessRequestsCS, isRequesterCS, dataAccessRequestCS,
+            (canManageAccessRequests, canReviewAccessRequest, isRequester, dataAccessRequest) -> dataAccessRequest
                 .withCanRequest(isRequester)
+                .withCanReview(canReviewAccessRequest)
                 .withCanGrant(canManageAccessRequests));
     }
 

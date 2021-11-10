@@ -104,8 +104,8 @@ public final class DataAccessRequestProperties {
         return List.copyOf(events);
     }
 
-    public Set<DataAccessRequestAction> getActions(boolean canGrant, boolean canRequest) {
-        return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
+    public Set<DataAccessRequestAction> getActions(boolean canGrant, boolean canRequest, boolean canReview) {
+        return DataAccessRequestCompanion.getActions(state, canGrant, canRequest, canReview);
     }
 
 }

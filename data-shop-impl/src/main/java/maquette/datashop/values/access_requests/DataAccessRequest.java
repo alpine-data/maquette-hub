@@ -27,10 +27,11 @@ public class DataAccessRequest {
     private static final String WORKSPACE = "workspace";
     private static final String EVENTS = "events";
     private static final String STATE = "state";
-    private static final String TARGET_PROJECT = "target-project";
+    private static final String TARGET_PROJECT = "targetProject";
     private static final String ASSET = "asset";
-    private static final String CAN_GRANT = "can-grant";
-    private static final String CAN_REQUEST = "can-request";
+    private static final String CAN_GRANT = "canGrant";
+    private static final String CAN_REQUEST = "canRequest";
+    private static final String CAN_REVIEW = "canReview";
 
     @JsonProperty(ID)
     UID id;
@@ -56,6 +57,9 @@ public class DataAccessRequest {
     @JsonProperty(CAN_REQUEST)
     boolean canRequest;
 
+    @JsonProperty(CAN_REVIEW)
+    boolean canReview;
+
     @JsonCreator
     public static DataAccessRequest apply(
         @JsonProperty(ID) UID id,
@@ -74,12 +78,12 @@ public class DataAccessRequest {
             .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
             .collect(Collectors.toList());
 
-        return new DataAccessRequest(id, created, asset, workspace, eventsCopy, state, false, false);
+        return new DataAccessRequest(id, created, asset, workspace, eventsCopy, state, false, false, false);
     }
 
     @JsonProperty("actions")
     public Set<DataAccessRequestAction> getActions() {
-        return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
+        return DataAccessRequestCompanion.getActions(state, canGrant, canRequest, canReview);
     }
 
 }
