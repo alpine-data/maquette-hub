@@ -1,10 +1,7 @@
 package maquette.datashop.values.access_requests;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import maquette.core.values.ActionMetadata;
-
-import java.time.Instant;
+import maquette.datashop.values.access_requests.events.DataAccessRequestEvent;
 
 public interface DataAccessRequestUserTriggeredEvent extends DataAccessRequestEvent {
 

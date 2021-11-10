@@ -14,6 +14,7 @@ import maquette.core.values.user.User;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Getter
 public final class MembersCompanion<T extends Enum<T>> {
@@ -38,6 +39,15 @@ public final class MembersCompanion<T extends Enum<T>> {
 
     public CompletionStage<List<GrantedAuthorization<T>>> getMembers() {
         return repository.findAllMembers(id);
+    }
+
+    public CompletionStage<List<GrantedAuthorization<T>>> getMembersWithRole(T role) {
+        return repository
+            .findAllMembers(id)
+            .thenApply(members -> members
+                .stream()
+                .filter(m -> m.getRole().equals(role))
+                .collect(Collectors.toList()));
     }
 
     public CompletionStage<Done> removeMember(User executor, Authorization member) {

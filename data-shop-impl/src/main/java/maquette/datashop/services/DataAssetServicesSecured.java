@@ -207,6 +207,15 @@ public final class DataAssetServicesSecured implements DataAssetServices {
     }
 
     @Override
+    public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
+                                                          @Nullable String message) {
+        return comp
+            .withAuthorization(
+                () -> comp.hasPermission(executor, name, DataAssetPermissions::canReview))
+            .thenCompose(ok -> delegate.approveDataAccessRequest(executor, name, request, message));
+    }
+
+    @Override
     public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
                                                         @Nullable Instant until, @Nullable String message,
                                                         String environment, boolean downstreamApprovalRequired) {

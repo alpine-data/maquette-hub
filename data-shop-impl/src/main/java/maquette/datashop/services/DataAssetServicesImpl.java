@@ -150,6 +150,15 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     }
 
     @Override
+    public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
+                                                          @Nullable String message) {
+        return entities
+            .getByName(name)
+            .thenCompose(a -> a.getAccessRequests()
+                .approveDataAccessRequest(executor, request, message));
+    }
+
+    @Override
     public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
                                                         @Nullable Instant until, @Nullable String message,
                                                         String environment, boolean downstreamApprovalRequired) {
@@ -202,7 +211,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
             .getWorkspaceById(req.getWorkspace())
             .thenCompose(WorkspaceEntity::getProperties)
             .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace,
-                req.getEvents()));
+                req.getEvents(), req.getState()));
     }
 
 }

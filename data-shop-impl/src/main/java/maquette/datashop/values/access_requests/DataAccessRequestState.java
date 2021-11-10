@@ -2,17 +2,18 @@ package maquette.datashop.values.access_requests;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum DataAccessRequestStatus {
+public enum DataAccessRequestState {
     REQUESTED("requested"),
     GRANTED("granted"),
     REJECTED("rejected"),
     EXPIRED("expired"),
+    REVIEW_REQUIRED("review-required"),
     WITHDRAWN("withdrawn");
 
     @JsonValue
     private final String value;
 
-    DataAccessRequestStatus(String value) {
+    DataAccessRequestState(String value) {
         this.value = value;
     }
 

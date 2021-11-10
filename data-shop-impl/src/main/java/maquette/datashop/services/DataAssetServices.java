@@ -11,8 +11,8 @@ import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -98,6 +98,9 @@ public interface DataAssetServices {
     CompletionStage<DataAccessRequest> getDataAccessRequest(User executor, String name, UID request);
 
     CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequests(User executor, String name);
+
+    CompletionStage<Done> approveDataAccessRequest(
+        User executor, String name, UID request, @Nullable String message);
 
     CompletionStage<Done> grantDataAccessRequest(
         User executor, String name, UID request, @javax.annotation.Nullable Instant until,

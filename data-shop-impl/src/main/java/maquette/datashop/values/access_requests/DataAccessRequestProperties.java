@@ -8,9 +8,13 @@ import lombok.Getter;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.datashop.values.access_requests.events.DataAccessRequestEvent;
+import maquette.datashop.values.access_requests.events.Requested;
+import org.apache.commons.compress.utils.Lists;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,7 @@ public final class DataAccessRequestProperties {
     private static final String EVENTS = "events";
     private static final String ASSET = "asset";
     private static final String WORKSPACE = "workspace";
+    private static final String STATE = "state";
 
     @JsonProperty(ID)
     private final UID id;
@@ -41,16 +46,24 @@ public final class DataAccessRequestProperties {
     @JsonProperty(EVENTS)
     private final List<DataAccessRequestEvent> events;
 
+    @JsonProperty(STATE)
+    private final DataAccessRequestState state;
+
     @JsonCreator
     public static DataAccessRequestProperties apply(
         @JsonProperty(ID) UID id,
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(ASSET) UID asset,
         @JsonProperty(WORKSPACE) UID workspace,
-        @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
+        @JsonProperty(EVENTS) List<DataAccessRequestEvent> events,
+        @JsonProperty(STATE) DataAccessRequestState state) {
 
         if (events.isEmpty()) {
             throw new IllegalArgumentException("events may not be empty");
+        }
+
+        if (Objects.isNull(state)) {
+            state = DataAccessRequestState.GRANTED;
         }
 
         List<DataAccessRequestEvent> eventsCopy = events
@@ -58,13 +71,13 @@ public final class DataAccessRequestProperties {
             .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
             .collect(Collectors.toList());
 
-        return new DataAccessRequestProperties(id, created, asset, workspace, eventsCopy);
+        return new DataAccessRequestProperties(id, created, asset, workspace, eventsCopy, state);
     }
 
     public static DataAccessRequestProperties apply(
         UID id, ActionMetadata created, UID asset, UID workspace, String reason) {
         var requested = Requested.apply(created, reason);
-        return apply(id, created, asset, workspace, List.of(requested));
+        return apply(id, created, asset, workspace, List.of(requested), DataAccessRequestState.REQUESTED);
     }
 
     public static DataAccessRequestProperties fake(UID asset, UID workspace) {
@@ -76,14 +89,15 @@ public final class DataAccessRequestProperties {
     }
 
 
-    public void addEvent(DataAccessRequestEvent event) {
+    public DataAccessRequestProperties withEvent(DataAccessRequestEvent event) {
         if (event.getEventMoment().isBefore(events.get(0).getEventMoment())) {
             throw new IllegalArgumentException("event may not be before previous event");
         }
 
-        // TODO mw: Handle invalid state transitions
+        var events$new = Lists.newArrayList(events.listIterator());
+        events$new.add(0, event);
 
-        this.events.add(0, event);
+        return withEvents(events$new).withState(event.getNextState());
     }
 
     public List<DataAccessRequestEvent> getEvents() {
@@ -92,10 +106,6 @@ public final class DataAccessRequestProperties {
 
     public Set<DataAccessRequestAction> getActions(boolean canGrant, boolean canRequest) {
         return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
-    }
-
-    public DataAccessRequestStatus getStatus() {
-        return DataAccessRequestCompanion.getStatus(events);
     }
 
 }

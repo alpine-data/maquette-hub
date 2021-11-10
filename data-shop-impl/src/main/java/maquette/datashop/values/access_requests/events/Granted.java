@@ -1,4 +1,4 @@
-package maquette.datashop.values.access_requests;
+package maquette.datashop.values.access_requests.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.values.ActionMetadata;
+import maquette.datashop.values.access_requests.DataAccessRequestState;
+import maquette.datashop.values.access_requests.DataAccessRequestUserTriggeredEvent;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -49,6 +51,11 @@ public class Granted implements DataAccessRequestUserTriggeredEvent {
     @Override
     public Instant getEventMoment() {
         return created.getAt();
+    }
+
+    @Override
+    public DataAccessRequestState getNextState() {
+        return DataAccessRequestState.GRANTED;
     }
 
     public Optional<String> getMessage() {

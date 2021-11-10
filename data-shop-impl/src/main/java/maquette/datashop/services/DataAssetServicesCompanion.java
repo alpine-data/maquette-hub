@@ -14,7 +14,7 @@ import maquette.datashop.values.access.DataAssetMembers;
 import maquette.datashop.values.access.DataAssetPermissions;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
-import maquette.datashop.values.access_requests.DataAccessRequestStatus;
+import maquette.datashop.values.access_requests.DataAccessRequestState;
 import maquette.datashop.values.metadata.DataVisibility;
 import maquette.workspaces.api.WorkspaceEntities;
 import maquette.workspaces.api.WorkspaceEntity;
@@ -157,7 +157,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
         return Operators.compose(requestsCS, workspacesCS, (requests, workspaces) -> {
             var request = requests
                 .stream()
-                .filter(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED))
+                .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
                     .anyMatch(p -> p.getId().equals(r.getWorkspace())));
@@ -189,7 +189,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
         return Operators.compose(requestsCS, workspacesCS, (requests, workspaces) -> {
             var request = requests
                 .stream()
-                .filter(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED))
+                .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
                     .anyMatch(p -> p.getId().equals(r.getWorkspace())));
@@ -318,7 +318,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
             .getWorkspaceById(req.getWorkspace())
             .thenCompose(WorkspaceEntity::getProperties)
             .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace,
-                req.getEvents()));
+                req.getEvents(), req.getState()));
     }
 
 

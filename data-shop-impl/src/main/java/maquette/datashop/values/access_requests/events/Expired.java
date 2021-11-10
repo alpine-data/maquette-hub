@@ -1,10 +1,11 @@
-package maquette.datashop.values.access_requests;
+package maquette.datashop.values.access_requests.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.datashop.values.access_requests.DataAccessRequestState;
 
 import java.time.Instant;
 
@@ -22,4 +23,8 @@ public class Expired implements DataAccessRequestEvent {
         return new Expired(eventMoment);
     }
 
+    @Override
+    public DataAccessRequestState getNextState() {
+        return DataAccessRequestState.EXPIRED;
+    }
 }

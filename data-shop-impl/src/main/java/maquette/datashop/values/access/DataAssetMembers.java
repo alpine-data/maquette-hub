@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 import maquette.datashop.values.access_requests.DataAccessRequest;
-import maquette.datashop.values.access_requests.DataAccessRequestStatus;
+import maquette.datashop.values.access_requests.DataAccessRequestState;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public class DataAssetMembers {
         var isSubscriber = this
             .accessRequests
             .stream()
-            .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+            .anyMatch(r -> r.getState().equals(DataAccessRequestState.GRANTED));
 
         return DataAssetPermissions.apply(isOwner, isSteward, isConsumer, isProducer, isMember, isSubscriber);
     }

@@ -54,6 +54,7 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets grant", GrantDataAssetMemberCommand.class);
         commands.put("data-assets revoke", RevokeDataAssetMemberCommand.class);
 
+        commands.put("data-assets request approve", ApproveAccessRequestCommand.class);
         commands.put("data-assets request create", CreateAccessRequestCommand.class);
         commands.put("data-assets request get", GetAccessRequestCommand.class);
         commands.put("data-assets request grant", GrantAccessRequestCommand.class);

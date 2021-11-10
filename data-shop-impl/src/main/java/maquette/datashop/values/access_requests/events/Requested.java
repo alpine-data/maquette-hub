@@ -1,4 +1,4 @@
-package maquette.datashop.values.access_requests;
+package maquette.datashop.values.access_requests.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,13 +6,14 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.values.ActionMetadata;
+import maquette.datashop.values.access_requests.DataAccessRequestState;
+import maquette.datashop.values.access_requests.DataAccessRequestUserTriggeredEvent;
 
 import java.time.Instant;
-import java.util.Optional;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Withdrawn implements DataAccessRequestUserTriggeredEvent {
+public class Requested implements DataAccessRequestUserTriggeredEvent {
 
     private static final String CREATED = "created";
     private static final String REASON = "reason";
@@ -24,11 +25,11 @@ public class Withdrawn implements DataAccessRequestUserTriggeredEvent {
     String reason;
 
     @JsonCreator
-    public static Withdrawn apply(
+    public static Requested apply(
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(REASON) String reason) {
 
-        return new Withdrawn(created, reason);
+        return new Requested(created, reason);
     }
 
     @Override
@@ -36,8 +37,8 @@ public class Withdrawn implements DataAccessRequestUserTriggeredEvent {
         return created.getAt();
     }
 
-    public Optional<String> getReason() {
-        return Optional.ofNullable(reason);
+    @Override
+    public DataAccessRequestState getNextState() {
+        return DataAccessRequestState.REQUESTED;
     }
-
 }

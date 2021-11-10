@@ -9,6 +9,7 @@ import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.datashop.values.DataAssetProperties;
+import maquette.datashop.values.access_requests.events.DataAccessRequestEvent;
 import maquette.workspaces.api.WorkspaceProperties;
 
 import java.util.Comparator;
@@ -25,7 +26,7 @@ public class DataAccessRequest {
     private static final String CREATED = "created";
     private static final String WORKSPACE = "workspace";
     private static final String EVENTS = "events";
-    private static final String STATUS = "status";
+    private static final String STATE = "state";
     private static final String TARGET_PROJECT = "target-project";
     private static final String ASSET = "asset";
     private static final String CAN_GRANT = "can-grant";
@@ -46,6 +47,9 @@ public class DataAccessRequest {
     @JsonProperty(EVENTS)
     List<DataAccessRequestEvent> events;
 
+    @JsonProperty(STATE)
+    DataAccessRequestState state;
+
     @JsonProperty(CAN_GRANT)
     boolean canGrant;
 
@@ -58,7 +62,8 @@ public class DataAccessRequest {
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(ASSET) DataAssetProperties asset,
         @JsonProperty(WORKSPACE) WorkspaceProperties workspace,
-        @JsonProperty(EVENTS) List<DataAccessRequestEvent> events) {
+        @JsonProperty(EVENTS) List<DataAccessRequestEvent> events,
+        @JsonProperty(STATE) DataAccessRequestState state) {
 
         if (events.isEmpty()) {
             throw new IllegalArgumentException("events may not be empty");
@@ -69,17 +74,12 @@ public class DataAccessRequest {
             .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
             .collect(Collectors.toList());
 
-        return new DataAccessRequest(id, created, asset, workspace, eventsCopy, false, false);
+        return new DataAccessRequest(id, created, asset, workspace, eventsCopy, state, false, false);
     }
 
     @JsonProperty("actions")
     public Set<DataAccessRequestAction> getActions() {
         return DataAccessRequestCompanion.getActions(events, canGrant, canRequest);
-    }
-
-    @JsonProperty("status")
-    public DataAccessRequestStatus getStatus() {
-        return DataAccessRequestCompanion.getStatus(events);
     }
 
 }

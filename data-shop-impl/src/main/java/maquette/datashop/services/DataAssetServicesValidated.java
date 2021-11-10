@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class DataAssetServicesValidated implements DataAssetServices {
+public final class DataAssetServicesValidated implements DataAssetServices {
 
     private final DataAssetServices delegate;
 
@@ -196,6 +196,17 @@ public class DataAssetServicesValidated implements DataAssetServices {
             .validate("name", name, NotNullValidator.apply())
             .checkAndFail()
             .thenCompose(done -> delegate.getDataAccessRequests(executor, name));
+    }
+
+    @Override
+    public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
+                                                          @Nullable String message) {
+        return FluentValidation
+            .apply()
+            .validate("executor", executor, NotNullValidator.apply())
+            .validate("name", name, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(ok -> delegate.approveDataAccessRequest(executor, name, request, message));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package maquette.datashop.values.access_requests;
 
 import com.google.common.collect.Sets;
+import maquette.datashop.values.access_requests.events.*;
 
 import java.util.List;
 import java.util.Set;
@@ -9,24 +10,6 @@ class DataAccessRequestCompanion {
 
     private DataAccessRequestCompanion() {
 
-    }
-
-    public static DataAccessRequestStatus getStatus(List<DataAccessRequestEvent> events) {
-        var latest = events.get(0);
-
-        if (latest instanceof Requested) {
-            return DataAccessRequestStatus.REQUESTED;
-        } else if (latest instanceof Granted) {
-            return DataAccessRequestStatus.GRANTED;
-        } else if (latest instanceof Rejected) {
-            return DataAccessRequestStatus.REJECTED;
-        } else if (latest instanceof Expired) {
-            return DataAccessRequestStatus.EXPIRED;
-        } else if (latest instanceof Withdrawn) {
-            return DataAccessRequestStatus.WITHDRAWN;
-        } else {
-            throw new IllegalStateException("Unknown event " + latest);
-        }
     }
 
     public static Set<DataAccessRequestAction> getActions(List<DataAccessRequestEvent> events, boolean canGrant,

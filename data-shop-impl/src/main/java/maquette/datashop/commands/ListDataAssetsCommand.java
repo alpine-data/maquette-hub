@@ -28,7 +28,7 @@ public class ListDataAssetsCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
 
-        Operators.suppressExceptions(() -> Thread.sleep(5000));
+        Operators.suppressExceptions(() -> Thread.sleep(2000));
 
         return runtime
             .getModule(MaquetteDataShop.class)

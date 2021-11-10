@@ -8,7 +8,7 @@ import maquette.core.values.user.User;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access.DataAssetPermissions;
 import maquette.datashop.values.access_requests.DataAccessRequest;
-import maquette.datashop.values.access_requests.DataAccessRequestStatus;
+import maquette.datashop.values.access_requests.DataAccessRequestState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -63,7 +63,7 @@ public final class DataAsset {
         var isSubscriber = this
             .getAccessRequests()
             .stream()
-            .anyMatch(r -> r.getStatus().equals(DataAccessRequestStatus.GRANTED));
+            .anyMatch(r -> r.getState().equals(DataAccessRequestState.GRANTED));
 
         return DataAssetPermissions.apply(isOwner, isSteward, isConsumer, isProducer, isMember, isSubscriber);
     }
