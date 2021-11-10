@@ -79,7 +79,11 @@ public class DataAssetStepDefinitions {
                 DataZone.PREPARED,
                 user.getId().getValue(),
                 null,
-                null)
+                null,
+                    "daily",
+                    null,
+                    null,
+                    null)
             .run(user, runtime)
             .toCompletableFuture()
             .get()

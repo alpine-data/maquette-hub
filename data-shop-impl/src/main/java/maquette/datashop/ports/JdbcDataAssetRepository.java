@@ -277,10 +277,15 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
             var classification = DataClassification.forValue(rs.getString("classification"));
             var personalInformation = PersonalInformation.forValue(rs.getString("personal_information"));
             var dataZone = DataZone.valueOf(rs.getString("data_zone"));
+            var timeliness = rs.getString("timeliness");
+            var geography = rs.getString("geography");
+            var bui = rs.getString("bui");
+            var lob = rs.getString("lob");
+
 
             var metadata = DataAssetMetadata.apply(
                 rs.getString("title"), rs.getString("name"), rs.getString("summary"),
-                visibility, classification, personalInformation, dataZone);
+                visibility, classification, personalInformation, dataZone,timeliness,geography,bui,lob);
 
             var created = ActionMetadata.apply(rs.getString("created_by"), rs.getDate("created_at").toInstant());
             var updated = ActionMetadata.apply(rs.getString("updated_by"), rs.getDate("updated_at").toInstant());
