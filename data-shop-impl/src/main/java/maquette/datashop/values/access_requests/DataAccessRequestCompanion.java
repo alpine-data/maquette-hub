@@ -34,7 +34,7 @@ class DataAccessRequestCompanion {
                 if (canRequest) result.add(DataAccessRequestAction.WITHDRAW);
                 break;
             case WITHDRAWN:
-                if (canRequest) result.add(DataAccessRequestAction.WITHDRAW);
+                if (canRequest) result.add(DataAccessRequestAction.REQUEST);
                 break;
             case EXPIRED:
                 if (canRequest) {

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Reviewed implements DataAccessRequestEvent {
+public class Approved implements DataAccessRequestEvent {
 
     private static final String CREATED = "created";
     private static final String MESSAGE = "message";
@@ -25,11 +25,11 @@ public class Reviewed implements DataAccessRequestEvent {
     String message;
 
     @JsonCreator
-    public static Reviewed apply(
+    public static Approved apply(
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(MESSAGE) String message) {
 
-        return new Reviewed(created, message);
+        return new Approved(created, message);
     }
 
     @Override

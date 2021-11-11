@@ -99,7 +99,7 @@ public final class AccessRequestsCompanion {
                                                           @Nullable String message) {
         return withDataAccessRequest(accessRequestId, request -> {
             var created = ActionMetadata.apply(executor);
-            request = request.withEvent(Reviewed.apply(created, message));
+            request = request.withEvent(Approved.apply(created, message));
 
             return repository.insertOrUpdateDataAccessRequest(request);
         });
@@ -168,6 +168,7 @@ public final class AccessRequestsCompanion {
 
         return withDataAccessRequest(accessRequestId, accessRequest -> {
             accessRequest = accessRequest
+                .withEvent(withdrawn)
                 .withState(DataAccessRequestState.WITHDRAWN);
 
             return repository.insertOrUpdateDataAccessRequest(accessRequest);

@@ -15,7 +15,7 @@ import java.time.Instant;
         @JsonSubTypes.Type(value = Granted.class, name = "granted"),
         @JsonSubTypes.Type(value = Rejected.class, name = "rejected"),
         @JsonSubTypes.Type(value = Requested.class, name = "requested"),
-        @JsonSubTypes.Type(value = Reviewed.class, name = "reviewed"),
+        @JsonSubTypes.Type(value = Approved.class, name = "approved"),
         @JsonSubTypes.Type(value = Withdrawn.class, name = "withdrawn")
     })
 public interface DataAccessRequestEvent {
