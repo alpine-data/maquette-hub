@@ -71,7 +71,13 @@ public final class InMemoryUsersRepository implements UsersRepository {
 
     @Override
     public CompletionStage<List<UserProfile>> getUsers(String query) {
-        return CompletableFuture.completedFuture(new ArrayList<>(profiles.values()));
+        var users = profiles
+            .values()
+            .stream()
+            .filter(p -> p.toString().contains(query))
+            .collect(Collectors.toList());
+
+        return CompletableFuture.completedFuture(users);
     }
 
     @Override
@@ -121,7 +127,7 @@ public final class InMemoryUsersRepository implements UsersRepository {
             .entrySet()
             .stream()
             .filter(e -> e.getValue().getId().equals(tokenId))
-            .map(e -> e.getKey())
+            .map(Map.Entry::getKey)
             .findFirst();
 
         var result = user.flatMap(userId -> Optional.ofNullable(profiles.get(userId)));

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import maquette.core.MaquetteRuntime;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.datashop.MaquetteDataShop;
+import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.providers.datasets.Datasets;
 import maquette.datashop.providers.datasets.commands.ListVersionsCommand;
 import maquette.datashop.providers.datasets.model.DatasetVersion;
@@ -20,8 +21,8 @@ public class DatasetStepDefinitions extends DataAssetStepDefinitions {
 
     private final List<Records> downloaded;
 
-    public DatasetStepDefinitions(MaquetteRuntime runtime) {
-        super(runtime, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(), null);
+    public DatasetStepDefinitions(MaquetteRuntime runtime, FakeWorkspacesServicePort workspaces) {
+        super(runtime, workspaces, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(), null);
         this.uploaded = Lists.newArrayList();
         this.downloaded = Lists.newArrayList();
     }

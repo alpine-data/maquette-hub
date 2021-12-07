@@ -1,9 +1,9 @@
 package maquette.datashop.specs;
 
-import io.javalin.Javalin;
 import maquette.core.MaquetteRuntime;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.DataAssetsRepository;
+import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.providers.datasets.Datasets;
 import maquette.datashop.providers.datasets.ports.DatasetsRepository;
@@ -11,7 +11,6 @@ import maquette.datashop.providers.datasets.ports.InMemoryDatasetDataExplorer;
 import maquette.datashop.providers.datasets.records.Records;
 import maquette.datashop.specs.steps.DatasetStepDefinitions;
 import maquette.testutils.MaquetteContext;
-import maquette.datashop.ports.FakeWorkspacesServicePort;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public abstract class DatasetSpecs {
             .withModule(shop)
             .initialize(context.system, context.app);
 
-        this.steps = new DatasetStepDefinitions(maquette);
+        this.steps = new DatasetStepDefinitions(maquette, workspaces);
     }
 
     @After

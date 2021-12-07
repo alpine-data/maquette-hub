@@ -28,13 +28,15 @@ public abstract class DataAssetsSpecs {
     @Before
     public void setup() {
         this.context = MaquetteContext.apply();
-        this.steps = new DataAssetStepDefinitions(MaquetteRuntime
-            .apply()
-            .withModule(MaquetteDataShop.apply(setupDataAssetsRepository(), FakeWorkspacesServicePort.apply(),
-                FakeProvider
-                .apply()))
-            .initialize(context.system, context.app));
 
+        var workspaces = FakeWorkspacesServicePort.apply();
+        var dataAssetsRepository = setupDataAssetsRepository();
+        var runtime = MaquetteRuntime
+            .apply()
+            .withModule(MaquetteDataShop.apply(dataAssetsRepository, workspaces, FakeProvider.apply()))
+            .initialize(context.system, context.app);
+
+        this.steps = new DataAssetStepDefinitions(runtime, workspaces);
     }
 
     @After
@@ -81,12 +83,17 @@ public abstract class DataAssetsSpecs {
      * Data Assets can be discovered by any user (except they have a private visibility).
      * To get access to these assets, users can request access, data owners and stewards can respond to these
      * requests and grant or reject the access.
+     *
+     * Data Access requests are always created on behalf of a workspace, which defines the use-case or initiative
+     * for which the data should be used. Thus, also other members of the workspace can view the access request or
+     * respond to it.
      */
     @Test
     public void dataAssetsAccessRequestProcess() throws ExecutionException, InterruptedException {
         // Given
         steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, "fake", "some-asset");
-        steps.$_requests_access_for_asset_$(context.users.charly, "some-asset");
+        steps.$_is_member_of_workspace_$(context.users.charly, "some-workspace");
+        steps.$_requests_access_for_asset_$_on_behalf_of_$(context.users.charly, "some-asset", "some-workspace");
 
         // When
         steps.$_lists_access_requests_for_asset_$(context.users.bob, "some-asset");
@@ -96,6 +103,39 @@ public abstract class DataAssetsSpecs {
 
         // When
         steps.$_grants_this_access_request(context.users.bob);
+
+        // Then
+        steps.$_should_be_able_to_read_asset_$(context.users.charly, "some-asset");
+    }
+
+    /**
+     * If an access request is made for a data asset which contains sensitive information (e.g. confidential data,
+     * or personal information). The access request must be reviewed by the data owner as well before access is possible.
+     */
+    @Test
+    public void dataAssetsAccessRequestProcessWithSensitiveInformation() throws ExecutionException,
+        InterruptedException {
+
+        // Given
+        steps.$_creates_a_data_asset_with_sensitive_data_of_type_$_with_name_$(context.users.bob, "fake", "some-asset");
+        steps.$_is_data_owner_of_data_asset_$(context.users.alice, "some-asset");
+        steps.$_is_member_of_workspace_$(context.users.charly, "some-workspace");
+        steps.$_requests_access_for_asset_$_on_behalf_of_$(context.users.charly, "some-asset", "some-workspace");
+
+        // When
+        steps.$_lists_access_requests_for_asset_$(context.users.bob, "some-asset");
+
+        // Then
+        steps.the_output_should_contain_the_access_request_of(context.users.charly);
+
+        // When
+        steps.$_grants_this_access_request(context.users.bob);
+
+        // Then
+        steps.$_should_not_be_able_to_read_asset_$(context.users.charly, "some-asset");
+
+        // When
+        steps.$_approves_the_access_request(context.users.alice);
 
         // Then
         steps.$_should_be_able_to_read_asset_$(context.users.charly, "some-asset");

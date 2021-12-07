@@ -69,6 +69,27 @@ public final class FakeWorkspacesServicePort implements WorkspacesServicePort {
         return CompletableFuture.completedFuture(result);
     }
 
+    /**
+     * Method to setup dummy test data. Registers a new workspace if not present, if the workspace does not exist yet,
+     * it will be created with the related owner.
+     *
+     * @param owner         The owner of the newly created workspace.
+     * @param workspaceName The name of the workspace.
+     */
+    public void createWorkspaceIfNotPresent(User owner, String workspaceName) {
+        var exists = workspaces
+            .stream()
+            .filter(wks -> wks.getName().equals(workspaceName))
+            .findFirst();
+
+        if (exists.isPresent()) {
+            exists.get().getMembers().add(owner.getDisplayName());
+        } else {
+            workspaces.add(FakeWorkspace.apply(UID.apply(workspaceName), workspaceName,
+                Lists.newArrayList(owner.getDisplayName())));
+        }
+    }
+
     @Value
     @AllArgsConstructor(staticName = "apply")
     private static class FakeWorkspace {
