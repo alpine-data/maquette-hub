@@ -80,9 +80,6 @@ public class DataAssetStepDefinitions {
                 user.getId().getValue(),
                 null,
                 null,
-                    "daily",
-                    null,
-                    null,
                     null)
             .run(user, runtime)
             .toCompletableFuture()

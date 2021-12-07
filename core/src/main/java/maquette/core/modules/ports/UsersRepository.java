@@ -23,6 +23,8 @@ public interface UsersRepository {
 
     CompletionStage<List<UserProfile>> getUsers();
 
+    CompletionStage<List<UserProfile>> getUsers(String query);
+
     CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(UID userId);
 
     CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByTokenId(UID tokenId);

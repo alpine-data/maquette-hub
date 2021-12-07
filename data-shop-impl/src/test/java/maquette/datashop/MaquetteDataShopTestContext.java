@@ -7,20 +7,21 @@ import maquette.datashop.ports.InMemoryDataAssetsRepository;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.services.DataAssetServicesFactory;
-import maquette.workspaces.api.WorkspaceEntities;
-import maquette.workspaces.fake.FakeWorkspaceEntities;
+import maquette.datashop.ports.WorkspacesServicePort;
+import maquette.datashop.ports.FakeWorkspacesServicePort;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteDataShopTestContext {
 
-    WorkspaceEntities workspaces;
+    WorkspacesServicePort workspaces;
 
     MaquetteDataShop shop;
 
     public static MaquetteDataShopTestContext apply() {
-        var assets = DataAssetEntities.apply(InMemoryDataAssetsRepository.apply(), DataAssetProviders.apply(FakeProvider
-            .apply()));
-        var workspaces = FakeWorkspaceEntities.apply();
+        var assets = DataAssetEntities.apply(
+            InMemoryDataAssetsRepository.apply(),
+            DataAssetProviders.apply(FakeProvider.apply()));
+        var workspaces = FakeWorkspacesServicePort.apply();
         var providers = DataAssetProviders.apply(FakeProvider.apply());
         var configuration = DataShopConfiguration.apply();
 

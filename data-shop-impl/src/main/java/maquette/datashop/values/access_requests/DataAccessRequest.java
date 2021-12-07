@@ -10,7 +10,6 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access_requests.events.DataAccessRequestEvent;
-import maquette.workspaces.api.WorkspaceProperties;
 
 import java.util.Comparator;
 import java.util.List;
@@ -43,7 +42,7 @@ public class DataAccessRequest {
     DataAssetProperties asset;
 
     @JsonProperty(WORKSPACE)
-    WorkspaceProperties workspace;
+    LinkedWorkspace workspace;
 
     @JsonProperty(EVENTS)
     List<DataAccessRequestEvent> events;
@@ -65,7 +64,7 @@ public class DataAccessRequest {
         @JsonProperty(ID) UID id,
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(ASSET) DataAssetProperties asset,
-        @JsonProperty(WORKSPACE) WorkspaceProperties workspace,
+        @JsonProperty(WORKSPACE) LinkedWorkspace workspace,
         @JsonProperty(EVENTS) List<DataAccessRequestEvent> events,
         @JsonProperty(STATE) DataAccessRequestState state) {
 

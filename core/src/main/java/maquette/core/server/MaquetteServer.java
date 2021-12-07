@@ -10,6 +10,7 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.users.UserModule;
+import maquette.core.server.commands.ErrorResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AboutResource;
 import maquette.core.server.resource.CommandResource;
@@ -74,8 +75,8 @@ public final class MaquetteServer {
                 if (maybeApplicationException.isPresent()) {
                     var error = maybeApplicationException.get();
                     ctx.status(error.getHttpStatus());
-                    ctx.json(MessageResult.create(error.getMessage()));
-                    LOG.warn("A domain exception was catched and returned to the client", e);
+                    ctx.json(ErrorResult.create(error.getMessage()));
+                    LOG.warn("A domain exception was caught and returned to the client", e);
                 } else {
                     LOG.warn("Unhandled exception upon API call", e);
                     ctx.status(500);

@@ -7,6 +7,7 @@ import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenExceptio
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,8 +25,13 @@ public final class UserEntities {
         return CompletableFuture.completedFuture(UserEntity.apply(id, repository, objectMapper));
     }
 
-    public CompletionStage<List<UserProfile>> getUsers() {
-        return repository.getUsers();
+    public CompletionStage<List<UserProfile>> getUsers(String query) {
+
+        if (StringUtils.isEmpty(query)) {
+            return repository.getUsers();
+        } else {
+            return repository.getUsers(query);
+        }
     }
 
     public CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(UID tokenId, String tokenSecret) {

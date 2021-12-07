@@ -12,11 +12,13 @@ import maquette.core.values.authorization.AuthorizationValidator;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 import maquette.datashop.configuration.DataShopConfiguration;
+import maquette.datashop.ports.Workspace;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
+import maquette.datashop.values.metadata.AdditionalProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,6 +43,13 @@ public final class DataAssetServicesValidated implements DataAssetServices {
         .validate("classification", DataAssetMetadata::getClassification, NotNullValidator.apply())
         .validate("personalInformation", DataAssetMetadata::getPersonalInformation, NotNullValidator.apply())
         .validate("zone", DataAssetMetadata::getZone, NotNullValidator.apply())
+        .validate("additionalProperties", DataAssetMetadata::getAdditionalProperties, ObjectValidator
+            .<AdditionalProperties>build()
+            .validate("timeliness", AdditionalProperties::getTimeliness, NotNullValidator.apply())
+            .validate("geography", AdditionalProperties::getGeography, NotNullValidator.apply())
+            .validate("bu", AdditionalProperties::getBu, NotNullValidator.apply())
+            .validate("lob", AdditionalProperties::getLob, NotNullValidator.apply())
+            .required())
         .required();
 
     @Override
@@ -166,7 +175,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String project, String reason) {
+                                                                                String workspace, String reason) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
@@ -174,7 +183,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             .validate("project", name, NotNullValidator.apply())
             .validate("reason", name, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, project, reason));
+            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason));
     }
 
     @Override
@@ -210,14 +219,17 @@ public final class DataAssetServicesValidated implements DataAssetServices {
     }
 
     @Override
-    public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request, @Nullable Instant until, @Nullable String message, String environment, boolean downstreamApprovalRequired) {
+    public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
+                                                        @Nullable Instant until, @Nullable String message,
+                                                        String environment, boolean downstreamApprovalRequired) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
             .validate("name", name, NotNullValidator.apply())
             .validate("request", name, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment, downstreamApprovalRequired));
+            .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment
+                , downstreamApprovalRequired));
     }
 
     @Override
@@ -277,6 +289,11 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             .validate("member", member, AuthorizationValidator.apply())
             .checkAndFail()
             .thenCompose(done -> delegate.revoke(executor, name, member));
+    }
+
+    @Override
+    public CompletionStage<List<Workspace>> getUsersWorkspaces(User executor) {
+        return delegate.getUsersWorkspaces(executor);
     }
 
 }

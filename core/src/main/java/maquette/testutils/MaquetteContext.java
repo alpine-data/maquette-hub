@@ -1,17 +1,34 @@
 package maquette.testutils;
 
+import akka.actor.ActorSystem;
+import io.javalin.Javalin;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import maquette.core.common.Operators;
+import scala.jdk.javaapi.FutureConverters;
+
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MaquetteContext {
 
-    public final Authorizations authorizations = Authorizations.apply();
+    public final ActorSystem system;
 
-    public final Users users = Users.apply();
+    public final Javalin app;
 
-    private MaquetteContext() {
+    public final Authorizations authorizations;
 
-    }
+    public final Users users;
 
     public static MaquetteContext apply() {
-        return new MaquetteContext();
+        var system = ActorSystem.create("maquette-test");
+        var app = Javalin.create();
+
+        return new MaquetteContext(system, app, Authorizations.apply(), Users.apply());
+    }
+
+    public void clean() {
+        Operators.suppressExceptions(() -> {
+            FutureConverters.asJava(this.system.terminate()).toCompletableFuture().get();
+        });
     }
 
 }

@@ -11,7 +11,8 @@ import maquette.datashop.providers.datasets.ports.InMemoryDatasetDataExplorer;
 import maquette.datashop.providers.datasets.records.Records;
 import maquette.datashop.specs.steps.DatasetStepDefinitions;
 import maquette.testutils.MaquetteContext;
-import maquette.workspaces.fake.FakeWorkspaceEntities;
+import maquette.datashop.ports.FakeWorkspacesServicePort;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,18 +26,23 @@ public abstract class DatasetSpecs {
 
     @Before
     public void setup() {
+        this.context = MaquetteContext.apply();
+
         var runtime = MaquetteRuntime.apply();
-        var workspaces = FakeWorkspaceEntities.apply();
+        var workspaces = FakeWorkspacesServicePort.apply();
         var datasets = Datasets.apply(runtime, setupDatasetsRepository(), InMemoryDatasetDataExplorer.apply(), workspaces);
         var shop = MaquetteDataShop.apply(setupDataAssetsRepository(), workspaces, FakeProvider.apply(), datasets);
 
         var maquette = runtime
-            .withApp(Javalin.create())
             .withModule(shop)
-            .initialize();
+            .initialize(context.system, context.app);
 
         this.steps = new DatasetStepDefinitions(maquette);
-        this.context = MaquetteContext.apply();
+    }
+
+    @After
+    public void clean() {
+        this.context.clean();
     }
 
     public abstract DataAssetsRepository setupDataAssetsRepository();

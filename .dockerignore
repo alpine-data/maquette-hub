@@ -47,5 +47,6 @@ buildNumber.properties
 ### IntelliJ ###
 .idea
 .iml
+*.iml
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,macos

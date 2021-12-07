@@ -60,6 +60,7 @@ public final class DataAsset {
         var isConsumer = this.isMember(user, DataAssetMemberRole.CONSUMER);
         var isProducer = this.isMember(user, DataAssetMemberRole.PRODUCER);
         var isMember = this.isMember(user, DataAssetMemberRole.MEMBER);
+
         var isSubscriber = this
             .getAccessRequests()
             .stream()

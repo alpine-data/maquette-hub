@@ -6,10 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.modules.ports.UsersRepository;
-import maquette.core.modules.users.commands.GetUserProfileCommand;
-import maquette.core.modules.users.commands.GetUsersDetailsCommand;
-import maquette.core.modules.users.commands.UpdateUserCommand;
-import maquette.core.modules.users.commands.UserInformationCommand;
+import maquette.core.modules.users.commands.*;
 import maquette.core.modules.users.services.UserServices;
 import maquette.core.modules.users.services.UserServicesFactory;
 import maquette.core.server.commands.Command;
@@ -49,6 +46,7 @@ public final class UserModule implements MaquetteModule {
         commands.put("users get", GetUsersDetailsCommand.class); // TODO mw: Rename to users profiles
         commands.put("users profile", GetUserProfileCommand.class);
         commands.put("users update", UpdateUserCommand.class);
+        commands.put("users list", GetUserListCommand.class);
         return commands;
     }
 

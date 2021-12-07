@@ -11,7 +11,7 @@ import maquette.datashop.providers.datasets.ports.DatasetsRepository;
 import maquette.datashop.providers.datasets.services.DatasetServices;
 import maquette.datashop.providers.datasets.services.DatasetServicesFactory;
 import maquette.datashop.values.DataAssetProperties;
-import maquette.workspaces.api.WorkspaceEntities;
+import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
@@ -27,7 +27,7 @@ public final class Datasets implements DataAssetProvider {
 
     private final DatasetDataExplorer explorer;
 
-    private final WorkspaceEntities workspaces;
+    private final WorkspacesServicePort workspaces;
 
     @Override
     public void configure(MaquetteRuntime runtime) {

@@ -5,6 +5,8 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.MaquetteRuntime;
 
+import javax.annotation.Nullable;
+
 /**
  * Return a single message as result of an operation.
  */
@@ -15,7 +17,12 @@ public class MessageResult implements CommandResult {
     String message;
 
     @With
+    @Nullable
     Object data;
+
+    public static MessageResult apply(String message) {
+        return apply(message, null);
+    }
 
     @Override
     public String toPlainText(MaquetteRuntime runtime) {

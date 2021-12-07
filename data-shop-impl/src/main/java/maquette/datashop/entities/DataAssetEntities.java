@@ -14,6 +14,7 @@ import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.DataAssetState;
 import maquette.datashop.values.access.DataAssetMemberRole;
+import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
 import maquette.datashop.values.metadata.DataZone;
 import maquette.datashop.values.metadata.PersonalInformation;
@@ -40,6 +41,7 @@ public final class DataAssetEntities {
             .findDataAssetByName(metadata.getName())
             .thenCompose(optEntity -> {
                 if (optEntity.isPresent()) {
+                    // TODO mw: Check for idempotent message from same.
                     return CompletableFuture.failedFuture(DataAssetAlreadyExistsException.withName(metadata.getName()));
                 } else if (customSettings != null && !providers.getByName(type)
                     .getSettingsType()
@@ -109,6 +111,18 @@ public final class DataAssetEntities {
 
     public CompletionStage<Done> removeByName(String name) {
         return repository.removeDataAssetByName(name);
+    }
+
+    public CompletionStage<List<DataAccessRequestProperties>> getDataAccessRequestsByWorkspace(UID workspace) {
+        return repository
+            .findDataAccessRequestsByWorkspace(workspace);
+    }
+
+    public CompletionStage<List<DataAssetProperties>> getDataAssetsByWorkspace(UID workspace) {
+        return getDataAccessRequestsByWorkspace(workspace).thenCompose(requests -> Operators.allOf(requests
+            .stream()
+            .map(DataAccessRequestProperties::getAsset)
+            .map(asset -> getById(asset).getProperties())));
     }
 
 }

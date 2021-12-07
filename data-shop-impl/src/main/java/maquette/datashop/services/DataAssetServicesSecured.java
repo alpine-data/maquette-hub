@@ -6,6 +6,7 @@ import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
+import maquette.datashop.ports.Workspace;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access.DataAssetMemberRole;
@@ -171,12 +172,12 @@ public final class DataAssetServicesSecured implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String project, String reason) {
+                                                                                String workspace, String reason) {
         return comp
             .withAuthorization(
                 () -> comp.isVisible(name),
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canConsume))
-            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, project, reason));
+            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason));
     }
 
     @Override
@@ -271,6 +272,11 @@ public final class DataAssetServicesSecured implements DataAssetServices {
             .withAuthorization(
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canChangeSettings))
             .thenCompose(ok -> delegate.revoke(executor, name, member));
+    }
+
+    @Override
+    public CompletionStage<List<Workspace>> getUsersWorkspaces(User executor) {
+        return delegate.getUsersWorkspaces(executor);
     }
 
 }

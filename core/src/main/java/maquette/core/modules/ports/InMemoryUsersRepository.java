@@ -70,6 +70,11 @@ public final class InMemoryUsersRepository implements UsersRepository {
     }
 
     @Override
+    public CompletionStage<List<UserProfile>> getUsers(String query) {
+        return CompletableFuture.completedFuture(new ArrayList<>(profiles.values()));
+    }
+
+    @Override
     public CompletionStage<Optional<UserAuthenticationToken>> findAuthenticationTokenByUserId(UID userId) {
         if (tokens.containsKey(userId)) {
             return CompletableFuture.completedFuture(Optional.of(tokens.get(userId)));

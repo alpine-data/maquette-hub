@@ -33,6 +33,8 @@ public interface UserServices {
 
     CompletionStage<List<UserProfile>> getUsers(User executor);
 
+    CompletionStage<List<UserProfile>> getUsers(User executor, String query);
+
     CompletionStage<Map<String, UserProfile>> getUsers(User executor, List<UID> userIds);
 
     CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);

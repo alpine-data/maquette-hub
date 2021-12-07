@@ -43,15 +43,9 @@ public class CreateDataAssetCommand implements Command {
 
     String steward;
 
+    AdditionalProperties additionalProperties;
+
     JsonNode customSettings;
-
-    String timeliness;
-
-    String geography;
-
-    String bui;
-
-    String lob;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
@@ -69,7 +63,7 @@ public class CreateDataAssetCommand implements Command {
         }
 
         var metadata = DataAssetMetadata
-            .apply(title, name, summary, visibility, classification, personalInformation, zone, timeliness,geography, bui, lob);
+            .apply(title, name, summary, visibility, classification, personalInformation, zone, additionalProperties);
 
         var dataAssetProvider = shop.getProviders().getByName(type);
         var customSettings = Operators.suppressExceptions(() ->
@@ -88,7 +82,7 @@ public class CreateDataAssetCommand implements Command {
         return apply(
             "dataset", "Some Dataset", "some-dataset", Operators.lorem(),
             DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, "alice", "bob",
-            null,"daily","EMEA","ZCH", "P&C");
+            AdditionalProperties.fake(), Operators.emptyJsonNode());
     }
 
 }

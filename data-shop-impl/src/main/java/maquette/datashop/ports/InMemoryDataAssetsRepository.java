@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.common.Operators;
+import maquette.core.ports.InMemoryMembersRepository;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;

@@ -1,19 +1,19 @@
 package maquette.core;
 
+import akka.actor.ActorSystem;
 import akka.japi.Function;
 import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.common.Templates;
-import maquette.core.modules.users.UserModule;
 import maquette.core.server.MaquetteServer;
 import maquette.core.server.resource.OpenApiResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.jdk.javaapi.FutureConverters;
 
 import javax.annotation.Nullable;
-import java.util.stream.Collectors;
 
 /**
  * Entrypoint for Maquette backend servers.
@@ -66,6 +66,11 @@ public final class Maquette {
         LOG.info("Starting Maquette Core ...");
 
         /*
+         * Create Actor System instance
+         */
+        var system = ActorSystem.apply("maquette");
+
+        /*
          * Create server and initialize modules
          */
         var app = Javalin
@@ -74,8 +79,7 @@ public final class Maquette {
                 config.registerPlugin(OpenApiResource.apply(runtime.getConfig()));
             });
 
-        runtime = runtime.withApp(app);
-        runtime = runtime.initialize();
+        runtime.initialize(system, app);
 
         /*
          * Run server
@@ -109,7 +113,17 @@ public final class Maquette {
             module.stop();
         });
 
+        if (this.runtime.getSystem() != null) {
+            Operators.suppressExceptions(() -> FutureConverters
+                .asJava(this.runtime.getSystem().terminate())
+                .toCompletableFuture()
+                .get());
+        }
+
         LOG.info("Maquette has stopped");
     }
 
+    public MaquetteRuntime getRuntime() {
+        return runtime;
+    }
 }

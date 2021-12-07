@@ -15,9 +15,9 @@ import maquette.datashop.values.access.DataAssetPermissions;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.access_requests.DataAccessRequestState;
+import maquette.datashop.values.access_requests.LinkedWorkspace;
 import maquette.datashop.values.metadata.DataVisibility;
-import maquette.workspaces.api.WorkspaceEntities;
-import maquette.workspaces.api.WorkspaceEntity;
+import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
 
     private final DataAssetEntities entities;
 
-    private final WorkspaceEntities workspaces;
+    private final WorkspacesServicePort workspaces;
 
     /**
      * Checks whether the user is a member of the data asset.
@@ -83,14 +83,14 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
                 .map(request -> enrichDataAccessRequest(properties, request)))))
             .thenCompose(cs -> cs);
         var membersCS = entityCS.thenCompose(entity -> entity.getMembers().getMembers());
-        var workspacesCS = workspaces.getWorkspacesByMember(user);
+        var workspaceUIDsCS = workspaces.getWorkspacesByMember(user);
 
-        return Operators.compose(accessRequestsCS, membersCS, workspacesCS, (accessRequests, members, workspaces) -> {
+        return Operators.compose(accessRequestsCS, membersCS, workspaceUIDsCS, (accessRequests, members, workspaceUIDs) -> {
             // filter access requests to the set of requests which can only be seen by the user.
             accessRequests = accessRequests
                 .stream()
-                .filter(request -> workspaces.stream()
-                    .anyMatch(ws -> ws.getId().equals(request.getWorkspace().getId())))
+                .filter(request -> workspaceUIDs.stream()
+                    .anyMatch(ws -> ws.equals(request.getWorkspace().getId())))
                 .collect(Collectors.toList());
 
             var membersCompanion = DataAssetMembers.apply(accessRequests, members);
@@ -151,7 +151,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
             .getWorkspacesByMember(user)
             .thenApply(workspaces -> workspaces
                 .stream()
-                .filter(wks -> wks.getId().equals(workspace))
+                .filter(wks -> wks.equals(workspace))
                 .collect(Collectors.toList()));
 
         return Operators.compose(requestsCS, workspacesCS, (requests, workspaces) -> {
@@ -160,7 +160,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
                 .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
-                    .anyMatch(p -> p.getId().equals(r.getWorkspace())));
+                    .anyMatch(workspaceUID -> workspaceUID.equals(r.getWorkspace())));
 
             if (request) {
                 return Optional.of(passThrough);
@@ -192,7 +192,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
                 .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
-                    .anyMatch(p -> p.getId().equals(r.getWorkspace())));
+                    .anyMatch(workspaceUID -> workspaceUID.equals(r.getWorkspace())));
 
             if (request) {
                 return Optional.of(passThrough);
@@ -312,13 +312,14 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
      * @param req   The access request which should be enriched.
      * @return The enriched request.
      */
-    private CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset,
+    public CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset,
                                                                        DataAccessRequestProperties req) {
         return workspaces
-            .getWorkspaceById(req.getWorkspace())
-            .thenCompose(WorkspaceEntity::getProperties)
-            .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace,
-                req.getEvents(), req.getState()));
+            .getWorkspacePropertiesByWorkspaceId(req.getWorkspace())
+            .thenApply(workspaceProperties -> {
+                var linkedWorkspace = LinkedWorkspace.apply(req.getId(), workspaceProperties);
+                return DataAccessRequest.apply(req.getId(), req.getCreated(), asset, linkedWorkspace, req.getEvents(), req.getState());
+            });
     }
 
 

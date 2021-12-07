@@ -3,18 +3,20 @@ package maquette.datashop.specs;
 import maquette.core.MaquetteRuntime;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.DataAssetsRepository;
+import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.specs.steps.DataAssetStepDefinitions;
 import maquette.datashop.values.metadata.DataVisibility;
 import maquette.testutils.MaquetteContext;
-import maquette.workspaces.fake.FakeWorkspaceEntities;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
 /**
- * Data assets represent all different kind of data which can be managed with Maquette DataShop. There are a bunch of operations which are common across
+ * Data assets represent all different kind of data which can be managed with Maquette DataShop. There are a bunch of
+ * operations which are common across
  * all data assets, e.g. Metadata management, Access Request procedures.
  */
 public abstract class DataAssetsSpecs {
@@ -25,13 +27,19 @@ public abstract class DataAssetsSpecs {
 
     @Before
     public void setup() {
-        var maquette = MaquetteRuntime
-            .apply()
-            .withModule(MaquetteDataShop.apply(setupDataAssetsRepository(), FakeWorkspaceEntities.apply(), FakeProvider.apply()))
-            .initialize();
-
-        this.steps = new DataAssetStepDefinitions(maquette);
         this.context = MaquetteContext.apply();
+        this.steps = new DataAssetStepDefinitions(MaquetteRuntime
+            .apply()
+            .withModule(MaquetteDataShop.apply(setupDataAssetsRepository(), FakeWorkspacesServicePort.apply(),
+                FakeProvider
+                .apply()))
+            .initialize(context.system, context.app));
+
+    }
+
+    @After
+    public void clean() {
+        this.context.clean();
     }
 
     public abstract DataAssetsRepository setupDataAssetsRepository();

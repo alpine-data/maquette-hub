@@ -41,7 +41,7 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var jdbi = Jdbi.create(config.getConnection(), config.getUsername(), config.getPassword());
         var om = runtime.getObjectMapperFactory().createJsonMapper(true);
         var members = JdbcMembersRepository.apply(
-            "data-assets", jdbi, om, DataAssetMemberRole::getValue, DataAssetMemberRole::valueOf);
+                "data-assets", jdbi, om, DataAssetMemberRole::getValue, DataAssetMemberRole::valueOf);
 
         return apply(jdbi, om, members);
     }
@@ -72,11 +72,11 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/find-data-asset-by-name.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("name", name)
-            .map(new DataAssetPropertiesMapper())
-            .stream()
-            .findFirst());
+                .createQuery(query)
+                .bind("name", name)
+                .map(new DataAssetPropertiesMapper())
+                .stream()
+                .findFirst());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -86,11 +86,11 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/find-data-asset-by-id.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("id", id.getValue())
-            .map(new DataAssetPropertiesMapper())
-            .stream()
-            .findFirst());
+                .createQuery(query)
+                .bind("id", id.getValue())
+                .map(new DataAssetPropertiesMapper())
+                .stream()
+                .findFirst());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -100,11 +100,11 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/fetch-custom-settings.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("id", id.getValue())
-            .map(new CustomObjectMapper<>(expectedType))
-            .stream()
-            .findFirst());
+                .createQuery(query)
+                .bind("id", id.getValue())
+                .map(new CustomObjectMapper<>(expectedType))
+                .stream()
+                .findFirst());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -114,11 +114,11 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/fetch-custom-properties.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("id", id.getValue())
-            .map(new CustomObjectMapper<>(expectedType))
-            .stream()
-            .findFirst());
+                .createQuery(query)
+                .bind("id", id.getValue())
+                .map(new CustomObjectMapper<>(expectedType))
+                .stream()
+                .findFirst());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -128,24 +128,24 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/upsert-asset.sql");
 
         jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("id", updated.getId().getValue())
-            .bind("type", updated.getType())
-            .bind("title", updated.getMetadata().getTitle())
-            .bind("name", updated.getMetadata().getName())
-            .bind("summary", updated.getMetadata().getSummary())
-            .bind("visibility", updated.getMetadata().getVisibility().getValue())
-            .bind("classification", updated.getMetadata().getClassification().getValue())
-            .bind("personal_information", updated.getMetadata().getPersonalInformation().getValue())
-            .bind("data_zone", updated.getMetadata().getZone().getValue())
-            .bind("state", updated.getState().getValue())
-            .bind("created_by", updated.getCreated().getBy())
-            .bind("created_at", updated.getCreated().getAt())
-            .bind("updated_by", updated.getUpdated().getBy())
-            .bind("updated_at", updated.getUpdated().getAt())
-            .bind("custom_properties", "{}")
-            .bind("custom_settings", "{}")
-            .execute());
+                .createUpdate(query)
+                .bind("id", updated.getId().getValue())
+                .bind("type", updated.getType())
+                .bind("title", updated.getMetadata().getTitle())
+                .bind("name", updated.getMetadata().getName())
+                .bind("summary", updated.getMetadata().getSummary())
+                .bind("visibility", updated.getMetadata().getVisibility().getValue())
+                .bind("classification", updated.getMetadata().getClassification().getValue())
+                .bind("personal_information", updated.getMetadata().getPersonalInformation().getValue())
+                .bind("data_zone", updated.getMetadata().getZone().getValue())
+                .bind("state", updated.getState().getValue())
+                .bind("created_by", updated.getCreated().getBy())
+                .bind("created_at", updated.getCreated().getAt())
+                .bind("updated_by", updated.getUpdated().getBy())
+                .bind("updated_at", updated.getUpdated().getAt())
+                .bind("custom_properties", "{}")
+                .bind("custom_settings", "{}")
+                .execute());
 
         return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -155,10 +155,10 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/insert-custom-settings.sql");
 
         jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("id", id)
-            .bind("custom_settings", Operators.suppressExceptions(() -> om.writeValueAsString(customSettings)))
-            .execute());
+                .createUpdate(query)
+                .bind("id", id)
+                .bind("custom_settings", Operators.suppressExceptions(() -> om.writeValueAsString(customSettings)))
+                .execute());
 
         return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -168,10 +168,10 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/insert-custom-properties.sql");
 
         jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("id", id)
-            .bind("custom_properties", Operators.suppressExceptions(() -> om.writeValueAsString(customProperties)))
-            .execute());
+                .createUpdate(query)
+                .bind("id", id)
+                .bind("custom_properties", Operators.suppressExceptions(() -> om.writeValueAsString(customProperties)))
+                .execute());
 
         return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -181,9 +181,9 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/list-assets.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .map(new DataAssetPropertiesMapper())
-            .stream());
+                .createQuery(query)
+                .map(new DataAssetPropertiesMapper())
+                .stream());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -193,9 +193,9 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/remove-asset.sql");
 
         jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("id", id.getValue())
-            .execute());
+                .createUpdate(query)
+                .bind("id", id.getValue())
+                .execute());
 
         return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -205,12 +205,12 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/find-access-request-by-id.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("id", request.getValue())
-            .bind("asset", asset.getValue())
-            .map(new AccessRequestPropertiesMapper())
-            .stream()
-            .findFirst());
+                .createQuery(query)
+                .bind("id", request.getValue())
+                .bind("asset", asset.getValue())
+                .map(new AccessRequestPropertiesMapper())
+                .stream()
+                .findFirst());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -220,12 +220,12 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/upsert-access-request.sql");
 
         jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("id", request.getId().getValue())
-            .bind("asset", request.getAsset().getValue())
-            .bind("workspace", request.getWorkspace().getValue())
-            .bind("request", Operators.suppressExceptions(() -> om.writeValueAsString(request)))
-            .execute());
+                .createUpdate(query)
+                .bind("id", request.getId().getValue())
+                .bind("asset", request.getAsset().getValue())
+                .bind("workspace", request.getWorkspace().getValue())
+                .bind("request", Operators.suppressExceptions(() -> om.writeValueAsString(request)))
+                .execute());
 
         return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -235,10 +235,10 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/find-access-requests-by-workspace.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("workspace", workspace.getValue())
-            .map(new AccessRequestPropertiesMapper())
-            .list());
+                .createQuery(query)
+                .bind("workspace", workspace.getValue())
+                .map(new AccessRequestPropertiesMapper())
+                .list());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -248,10 +248,10 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/find-access-requests-by-asset.sql");
 
         var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("asset", asset.getValue())
-            .map(new AccessRequestPropertiesMapper())
-            .list());
+                .createQuery(query)
+                .bind("asset", asset.getValue())
+                .map(new AccessRequestPropertiesMapper())
+                .list());
 
         return CompletableFuture.completedFuture(result);
     }
@@ -261,10 +261,10 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         var query = Templates.renderTemplateFromResources("db/sql/assets/remove-access-request.sql");
 
         jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("id", id.getValue())
-            .bind("asset", asset.getValue())
-            .execute());
+                .createUpdate(query)
+                .bind("id", id.getValue())
+                .bind("asset", asset.getValue())
+                .execute());
 
         return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -277,22 +277,18 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
             var classification = DataClassification.forValue(rs.getString("classification"));
             var personalInformation = PersonalInformation.forValue(rs.getString("personal_information"));
             var dataZone = DataZone.valueOf(rs.getString("data_zone"));
-            var timeliness = rs.getString("timeliness");
-            var geography = rs.getString("geography");
-            var bui = rs.getString("bui");
-            var lob = rs.getString("lob");
 
 
             var metadata = DataAssetMetadata.apply(
-                rs.getString("title"), rs.getString("name"), rs.getString("summary"),
-                visibility, classification, personalInformation, dataZone,timeliness,geography,bui,lob);
+                    rs.getString("title"), rs.getString("name"), rs.getString("summary"),
+                    visibility, classification, personalInformation, dataZone, null);
 
             var created = ActionMetadata.apply(rs.getString("created_by"), rs.getDate("created_at").toInstant());
             var updated = ActionMetadata.apply(rs.getString("updated_by"), rs.getDate("updated_at").toInstant());
 
             return DataAssetProperties.apply(
-                UID.apply(rs.getString("id")), rs.getString("type"), metadata,
-                DataAssetState.valueOf(rs.getString("state")), created, updated);
+                    UID.apply(rs.getString("id")), rs.getString("type"), metadata,
+                    DataAssetState.valueOf(rs.getString("state")), created, updated);
         }
 
     }
@@ -302,7 +298,7 @@ public final class JdbcDataAssetRepository implements DataAssetsRepository {
         @Override
         public DataAccessRequestProperties map(ResultSet rs, StatementContext ctx) {
             return Operators.suppressExceptions(() -> om.readValue(rs.getString("request"),
-                DataAccessRequestProperties.class));
+                    DataAccessRequestProperties.class));
         }
 
     }

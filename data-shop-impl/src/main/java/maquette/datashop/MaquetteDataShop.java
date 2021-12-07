@@ -17,12 +17,14 @@ import maquette.datashop.providers.DataAssetProvider;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.services.DataAssetServices;
 import maquette.datashop.services.DataAssetServicesFactory;
-import maquette.workspaces.api.WorkspaceEntities;
+import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Map;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteDataShop implements MaquetteModule {
+
+    public static final String MODULE_NAME = "data-shop";
 
     private final DataAssetServices services;
 
@@ -32,8 +34,7 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     private final DataShopConfiguration configuration;
 
-    public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspaceEntities workspaces,
-                                         DataAssetProvider... dataAssetProviders) {
+    public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspacesServicePort workspaces, DataAssetProvider... dataAssetProviders) {
         var configuration = DataShopConfiguration.apply();
         var providers = DataAssetProviders.apply(dataAssetProviders);
         var entities = DataAssetEntities.apply(repository, providers);
@@ -44,7 +45,7 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     @Override
     public String getName() {
-        return "data-shop";
+        return MODULE_NAME;
     }
 
     @Override
@@ -56,6 +57,7 @@ public final class MaquetteDataShop implements MaquetteModule {
 
         commands.put("data-assets request approve", ApproveAccessRequestCommand.class);
         commands.put("data-assets request create", CreateAccessRequestCommand.class);
+        commands.put("data-assets request create view", CreateAccessRequestViewCommand.class);
         commands.put("data-assets request get", GetAccessRequestCommand.class);
         commands.put("data-assets request grant", GrantAccessRequestCommand.class);
         commands.put("data-assets request reject", RejectAccessRequestCommand.class);

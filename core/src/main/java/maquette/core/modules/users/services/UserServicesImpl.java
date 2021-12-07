@@ -72,7 +72,12 @@ public final class UserServicesImpl implements UserServices {
 
     @Override
     public CompletionStage<List<UserProfile>> getUsers(User executor) {
-        return users.getUsers();
+        return getUsers(executor, "");
+    }
+
+    @Override
+    public CompletionStage<List<UserProfile>> getUsers(User executor, String query) {
+        return users.getUsers(query);
     }
 
     @Override

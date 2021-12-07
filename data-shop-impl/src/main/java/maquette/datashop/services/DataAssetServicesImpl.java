@@ -8,6 +8,7 @@ import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
+import maquette.datashop.ports.Workspace;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
@@ -15,8 +16,7 @@ import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
-import maquette.workspaces.api.WorkspaceEntities;
-import maquette.workspaces.api.WorkspaceEntity;
+import maquette.datashop.ports.WorkspacesServicePort;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -28,9 +28,11 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
     private final DataAssetEntities entities;
 
-    private final WorkspaceEntities workspaces;
+    private final WorkspacesServicePort workspaces;
 
     private final DataAssetProviders providers;
+
+    private final DataAssetServicesCompanion dataAssetsCompanion;
 
     @Override
     public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata,
@@ -52,7 +54,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
             var accessRequestsCS = Operators
                 .compose(propertiesCS, accessRequestsRawCS, (properties, accessRequestsRaw) -> accessRequestsRaw
                     .stream()
-                    .map(request -> this.enrichDataAccessRequest(properties, request)))
+                    .map(request -> dataAssetsCompanion.enrichDataAccessRequest(properties, request)))
                 .thenCompose(Operators::allOf);
 
             var customSettingsCS = propertiesCS.thenCompose(properties -> {
@@ -121,12 +123,12 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
                                                                                 String workspace, String reason) {
         var entityCS = entities.getByName(name);
-        var projectEntityCS = workspaces.getWorkspaceByName(workspace);
+        var workspaceUIDCS = workspaces.getWorkspaceIdByName(workspace);
 
         return Operators
-            .compose(entityCS, projectEntityCS, (entity, projectEntity) -> entity
+            .compose(entityCS, workspaceUIDCS, (entity, workspaceUID) -> entity
                 .getAccessRequests()
-                .createDataAccessRequest(executor, projectEntity.getId(), reason))
+                .createDataAccessRequest(executor, workspaceUID, reason))
             .thenCompose(cs -> cs);
     }
 
@@ -138,7 +140,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
             .getDataAccessRequestById(request));
 
         return Operators
-            .compose(propertiesCS, accessRequestPropertiesCS, this::enrichDataAccessRequest)
+            .compose(propertiesCS, accessRequestPropertiesCS, dataAssetsCompanion::enrichDataAccessRequest)
             .thenCompose(cs -> cs);
     }
 
@@ -204,14 +206,9 @@ public final class DataAssetServicesImpl implements DataAssetServices {
             .thenCompose(e -> e.getMembers().removeMember(executor, member));
     }
 
-    @Deprecated
-    private CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset,
-                                                                       DataAccessRequestProperties req) {
-        return workspaces
-            .getWorkspaceById(req.getWorkspace())
-            .thenCompose(WorkspaceEntity::getProperties)
-            .thenApply(workspace -> DataAccessRequest.apply(req.getId(), req.getCreated(), asset, workspace,
-                req.getEvents(), req.getState()));
+    @Override
+    public CompletionStage<List<Workspace>> getUsersWorkspaces(User executor) {
+        return workspaces.getWorkspacesByMember(executor);
     }
 
 }

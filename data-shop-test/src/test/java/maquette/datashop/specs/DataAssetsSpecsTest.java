@@ -1,3 +1,4 @@
+
 package maquette.datashop.specs;
 
 import maquette.datashop.ports.DataAssetsRepository;
@@ -11,3 +12,4 @@ public class DataAssetsSpecsTest extends DataAssetsSpecs {
     }
 
 }
+
