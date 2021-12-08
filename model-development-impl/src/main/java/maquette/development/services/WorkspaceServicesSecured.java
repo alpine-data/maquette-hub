@@ -46,7 +46,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Map<String, String>> environment(User user, String workspace,
                                                             EnvironmentType environmentType) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace))
+            .withAuthorization(() -> companion.isMember(user, workspace))
             .thenCompose(ok -> delegate.environment(user, workspace, environmentType));
     }
 
@@ -78,28 +78,28 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     @Override
     public CompletionStage<Done> remove(User user, String workspace) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.remove(user, workspace));
     }
 
     @Override
     public CompletionStage<Done> update(User user, String workspace, String updatedName, String title, String summary) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.update(user, workspace, updatedName, title, summary));
     }
 
     @Override
     public CompletionStage<List<ModelProperties>> getModels(User user, String workspace) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.getModels(user, workspace));
     }
 
     @Override
     public CompletionStage<Model> getModel(User user, String workspace, String model) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.getModel(user, workspace, model));
     }
 
@@ -107,7 +107,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> updateModel(User user, String workspace, String model, String title,
                                              String description) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.updateModel(user, workspace, model, title, description));
     }
 
@@ -115,7 +115,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> updateModelVersion(User user, String workspace, String model, String version,
                                                     String description) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.updateModelVersion(user, workspace, model, version, description));
     }
 
@@ -123,7 +123,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> answerQuestionnaire(User user, String workspace, String model, String version,
                                                      JsonNode responses) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.answerQuestionnaire(user, workspace, model, version, responses));
     }
 
@@ -136,7 +136,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     @Override
     public CompletionStage<Done> promoteModel(User user, String workspace, String model, String version, String stage) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.promoteModel(user, workspace, model, version, stage));
     }
 
@@ -149,7 +149,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     @Override
     public CompletionStage<Done> requestModelReview(User user, String workspace, String model, String version) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.requestModelReview(user, workspace, model, version));
     }
 
@@ -157,7 +157,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> reportCodeQuality(User user, String workspace, String model, String version,
                                                    String commit, int score, int coverage, List<CodeIssue> issues) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.reportCodeQuality(user, workspace, model, version, commit, score, coverage,
                 issues));
     }
@@ -165,7 +165,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     @Override
     public CompletionStage<Done> runExplainer(User user, String workspace, String model, String version) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.runExplainer(user, workspace, model, version));
     }
 
@@ -173,7 +173,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String workspace,
                                                                              String model) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.MEMBER))
             .thenCompose(ok -> delegate.getLatestQuestionnaireAnswers(user, workspace, model));
     }
 
@@ -181,7 +181,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> grantModelRole(User user, String workspace, String model,
                                                 UserAuthorization authorization, ModelMemberRole role) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.grantModelRole(user, workspace, model, authorization, role));
     }
 
@@ -189,7 +189,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> revokeModelRole(User user, String workspace, String model,
                                                  UserAuthorization authorization) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.revokeModelRole(user, workspace, model, authorization));
     }
 
@@ -197,14 +197,14 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> grant(User user, String workspace, Authorization authorization,
                                        WorkspaceMemberRole role) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.grant(user, workspace, authorization, role));
     }
 
     @Override
     public CompletionStage<Done> revoke(User user, String workspace, Authorization authorization) {
         return companion
-            .isAuthorized(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
+            .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.revoke(user, workspace, authorization));
     }
 }

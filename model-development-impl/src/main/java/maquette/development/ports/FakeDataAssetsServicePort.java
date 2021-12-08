@@ -28,7 +28,6 @@ public final class FakeDataAssetsServicePort implements DataAssetsServicePort {
         return apply(Lists.newArrayList(), DefaultObjectMapperFactory.apply().createJsonMapper());
     }
 
-
     @Override
     public CompletionStage<List<JsonNode>> findDataAccessRequestsByWorkspace(UID workspace) {
         var result = assets
@@ -63,6 +62,20 @@ public final class FakeDataAssetsServicePort implements DataAssetsServicePort {
             .findFirst()
             .map(CompletableFuture::completedFuture)
             .orElse(CompletableFuture.failedFuture(DataAssetNotFound.apply(id)));
+    }
+
+    public void createDataAsset(String name) {
+        assets.add(FakeDataAsset.apply(UID.apply(name), Lists.newArrayList()));
+    }
+
+    public void createAccessRequest(String name,
+                                    String dataAssetName,
+                                    String workspaceName) {
+        assets
+            .stream()
+            .filter(p -> p.id.equals(UID.apply(dataAssetName)))
+            .findFirst()
+            .map(p -> p.withAccessRequest(FakeAccessRequest.apply(UID.apply(name), true, UID.apply(workspaceName))));
     }
 
     public static class DataAssetNotFound extends ApplicationException {

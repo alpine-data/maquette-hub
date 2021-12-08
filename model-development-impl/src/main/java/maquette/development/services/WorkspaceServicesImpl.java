@@ -281,7 +281,6 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     /*
      * Manage members
      */
-
     @Override
     public CompletionStage<Done> grant(User user, String workspace, Authorization authorization, WorkspaceMemberRole role) {
         return projects

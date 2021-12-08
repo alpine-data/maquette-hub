@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @AllArgsConstructor(staticName = "apply")
 public class InMemoryWorkspacesRepository implements WorkspacesRepository {
@@ -94,12 +95,16 @@ public class InMemoryWorkspacesRepository implements WorkspacesRepository {
 
     @Override
     public CompletionStage<Stream<WorkspaceProperties>> getWorkspaces() {
-        return null;
+        var result = StreamSupport
+            .stream(store.values().spliterator(), false)
+            .map(WorkspacePersisted::getProperties);
+        return CompletableFuture.completedFuture(result);
     }
 
     @Override
     public CompletionStage<Done> removeWorkspace(UID project) {
-        return null;
+        store.remove(project);
+        return CompletableFuture.completedFuture(Done.getInstance());
     }
 
     @With

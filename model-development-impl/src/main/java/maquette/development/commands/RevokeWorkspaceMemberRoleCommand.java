@@ -38,7 +38,7 @@ public class RevokeWorkspaceMemberRoleCommand implements Command {
         return runtime.getModule(MaquetteModelDevelopment.class)
             .getServices()
             .revoke(user, workspace, authorization)
-            .thenApply(done -> MessageResult.apply("Revoked access from `%s`", authorization.getName()));
+            .thenApply(done -> MessageResult.create("Revoked access from `%s`", authorization.getName()));
     }
 
     @Override
