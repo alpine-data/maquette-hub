@@ -64,18 +64,15 @@ public final class FakeDataAssetsServicePort implements DataAssetsServicePort {
             .orElse(CompletableFuture.failedFuture(DataAssetNotFound.apply(id)));
     }
 
-    public void createDataAsset(String name) {
-        assets.add(FakeDataAsset.apply(UID.apply(name), Lists.newArrayList()));
-    }
-
-    public void createAccessRequest(String name,
-                                    String dataAssetName,
-                                    String workspaceName) {
-        assets
-            .stream()
-            .filter(p -> p.id.equals(UID.apply(dataAssetName)))
-            .findFirst()
-            .map(p -> p.withAccessRequest(FakeAccessRequest.apply(UID.apply(name), true, UID.apply(workspaceName))));
+    public void createDataAssetWithAccessRequest(String id,
+                                                 String dataAssetName,
+                                                 String workspaceName,
+                                                 String workspaceId) {
+        assets.add(FakeDataAsset
+            .apply(UID.apply(dataAssetName), Lists.newArrayList())
+            .withAccessRequest(
+                FakeAccessRequest
+                    .apply(UID.apply(id), true, UID.apply(workspaceId))));
     }
 
     public static class DataAssetNotFound extends ApplicationException {

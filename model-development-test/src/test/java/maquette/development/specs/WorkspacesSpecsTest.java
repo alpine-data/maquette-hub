@@ -6,9 +6,12 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
 
     private FakeDataAssetsServicePort dataAssetsServicePort;
 
+    private InMemoryWorkspacesRepository workspacesRepository;
+
     @Override
     public WorkspacesRepository setupWorkspacesRepository() {
-        return InMemoryWorkspacesRepository.apply();
+        workspacesRepository = InMemoryWorkspacesRepository.apply();
+        return workspacesRepository;
     }
 
     @Override
@@ -28,15 +31,11 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
     }
 
     @Override
-    protected void there_is_$_access_request_for_$_data_asset_with_within_$_workspace(String accessRequestName,
-                                                                                      String dataAssetName,
-                                                                                      String workspaceName) {
-        dataAssetsServicePort.createAccessRequest(accessRequestName, dataAssetName, workspaceName);
-    }
-
-    @Override
-    protected void there_is_$_data_asset(String dataAssetName) {
-        dataAssetsServicePort.createDataAsset(dataAssetName);
+    protected void create_data_access_request(String accessRequestId,
+                                                       String dataAssetName,
+                                                       String workspaceName,
+                                                       String workspaceId) {
+        dataAssetsServicePort.createDataAssetWithAccessRequest(accessRequestId, dataAssetName, workspaceName, workspaceId);
     }
 
 }

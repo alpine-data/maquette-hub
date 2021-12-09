@@ -8,9 +8,9 @@ import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.specs.steps.DataAssetStepDefinitions;
 import maquette.datashop.values.metadata.DataVisibility;
 import maquette.testutils.MaquetteContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
@@ -25,7 +25,7 @@ public abstract class DataAssetsSpecs {
 
     private MaquetteContext context;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.context = MaquetteContext.apply();
 
@@ -39,7 +39,7 @@ public abstract class DataAssetsSpecs {
         this.steps = new DataAssetStepDefinitions(runtime, workspaces);
     }
 
-    @After
+    @AfterEach
     public void clean() {
         this.context.clean();
     }

@@ -28,13 +28,16 @@ public abstract class WorkspacesSpecs {
 
     private MaquetteContext context;
 
+    private WorkspacesRepository workspacesRepository;
+
     @BeforeEach
     public void setup() {
         this.context = MaquetteContext.apply();
+        this.workspacesRepository = setupWorkspacesRepository();
         this.steps = new WorkspaceStepDefinitions(MaquetteRuntime
             .apply()
             .withModule(MaquetteModelDevelopment.apply(
-                setupWorkspacesRepository(), setupModelsRepository(), setupInfrastructurePort(),
+                this.workspacesRepository, setupModelsRepository(), setupInfrastructurePort(),
                 setupDataAssetsServicePort()))
             .initialize(context.system, context.app));
     }
@@ -106,12 +109,6 @@ public abstract class WorkspacesSpecs {
         // Then
         steps.the_output_should_contain("ENTRY_POINT_LABEL     Login");
         steps.the_output_should_contain("ENTRY_POINT_ENDPOINT  http://foo");
-
-        // When
-        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
-
-        // Then
-        steps.the_output_should_contain("mlFlowConfiguration  http://foo");
     }
 
 
@@ -243,6 +240,11 @@ public abstract class WorkspacesSpecs {
     @Test
     public void mlFlowParameters() throws ExecutionException, InterruptedException {
         // TODO bn extend getEnvironment with additional parameters that are coming from auto-infra?
+        /*// When
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // Then
+        steps.the_output_should_contain("mlFlowConfiguration  http://foo");*/
     }
 
     /**
@@ -281,19 +283,37 @@ public abstract class WorkspacesSpecs {
     public void listDataAcessRequests() throws ExecutionException, InterruptedException {
         // Given
         steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
-        there_is_$_data_asset("data-asset-1");
-        there_is_$_access_request_for_$_data_asset_with_within_$_workspace(
+        there_is_$_access_request_for_$_data_asset_within_$_workspace(
             "access-request-1", "data-asset-1", "fake");
 
         // When
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
 
+        // Then
+        steps.the_output_should_contain("data-asset-1");
+        steps.the_output_should_contain("access-request-1");
 
+        // Given
+        steps.$_grants_$_access_to_the_$_workspace_for_$(context.users.bob, WorkspaceMemberRole.MEMBER, "fake",
+            context.users.charly);
+
+        // When
+        steps.$_gets_workspace_with_name_$(context.users.charly, "fake");
+
+        // Then
+        steps.the_output_should_contain("data-asset-1");
+        steps.the_output_should_contain("access-request-1");
     }
 
-    protected abstract void there_is_$_access_request_for_$_data_asset_with_within_$_workspace(String accessRequestName,
-                                                                                               String dataAssetName,
-                                                                                               String workspaceName);
+    protected void there_is_$_access_request_for_$_data_asset_within_$_workspace(String accessRequestId,
+                                                                                 String dataAssetName,
+                                                                                 String workspaceName) throws ExecutionException, InterruptedException {
+        var workspace = this.workspacesRepository.findWorkspaceByName(workspaceName).toCompletableFuture().get();
+        create_data_access_request(accessRequestId, dataAssetName, workspaceName, workspace.get().getId().getValue());
+    }
 
-    protected abstract void there_is_$_data_asset(String dataAssetName);
-
+    protected abstract void create_data_access_request(String accessRequestId,
+                                                       String dataAssetName,
+                                                       String workspaceName,
+                                                       String workspaceId);
 }

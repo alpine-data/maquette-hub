@@ -5,10 +5,8 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
-import maquette.development.MaquetteModelDevelopment;
 import maquette.development.commands.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
-import maquette.development.ports.DataAssetsServicePort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
 
@@ -40,8 +38,8 @@ public class WorkspaceStepDefinitions {
     }
 
     public void $_creates_a_workspace_with_name_$(AuthenticatedUser user,
-                                                  String workspaceName) throws ExecutionException,
-        InterruptedException {
+                                                  String workspaceName)
+        throws ExecutionException, InterruptedException {
         var result = CreateWorkspaceCommand
             .apply(workspaceName, "fake-title", "fake-summary")
             .run(user, runtime)

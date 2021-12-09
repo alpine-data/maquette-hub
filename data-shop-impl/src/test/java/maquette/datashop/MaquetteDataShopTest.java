@@ -3,8 +3,8 @@ package maquette.datashop;
 import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.values.metadata.DataAssetMetadata;
 import maquette.testutils.MaquetteContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
@@ -15,7 +15,7 @@ public class MaquetteDataShopTest {
     private MaquetteContext mq;
     private MaquetteDataShopTestContext context;
 
-    @Before
+    @BeforeEach
     public void setup() {
         mq = MaquetteContext.apply();
         context = MaquetteDataShopTestContext.apply();
