@@ -46,7 +46,7 @@ public final class UserModule implements MaquetteModule {
         commands.put("users get", GetUsersDetailsCommand.class); // TODO mw: Rename to users profiles
         commands.put("users profile", GetUserProfileCommand.class);
         commands.put("users update", UpdateUserCommand.class);
-        commands.put("users list", GetUserListCommand.class);
+        commands.put("users list", QueryUsersCommand.class); // TODO mw: Rename to users query
         return commands;
     }
 

@@ -1,8 +1,6 @@
 package maquette.core.modules.users.commands;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
@@ -16,7 +14,7 @@ import maquette.core.values.user.User;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class UserInformationCommand implements Command {
+public final class UserInformationCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {

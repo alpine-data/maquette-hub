@@ -11,7 +11,7 @@ import maquette.core.values.user.User;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class GetUserProfileCommand implements Command {
+public final class GetUserProfileCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {

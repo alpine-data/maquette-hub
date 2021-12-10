@@ -1,7 +1,6 @@
 package maquette.core.modules.users.commands;
 
 
-import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,20 +9,17 @@ import maquette.core.modules.users.UserModule;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.TableResult;
-import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class GetUserListCommand implements Command {
+public final class QueryUsersCommand implements Command {
 
     String query;
-
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
@@ -61,6 +57,6 @@ public class GetUserListCommand implements Command {
 
     @Override
     public Command example() {
-        return GetUserListCommand.apply("test");
+        return QueryUsersCommand.apply("test");
     }
 }

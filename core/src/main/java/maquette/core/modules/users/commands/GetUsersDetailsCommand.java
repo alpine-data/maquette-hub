@@ -19,7 +19,7 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class GetUsersDetailsCommand implements Command {
+public final class GetUsersDetailsCommand implements Command {
 
     List<UID> users;
 
