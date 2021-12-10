@@ -1,0 +1,35 @@
+resources:
+  repositories:
+    - repository: space
+      type: git
+      name: Space/Space
+      ref: refs/tags/v0.94.0
+
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+  paths:
+    exclude:
+      - .bumpversion.cfg
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+
+        strategy:
+          matrix:
+            jdk8_linux:
+              devopsImageName: "ubuntu-latest"
+              jdk_version: "1.11"
+
+        pool:
+          vmImage: $(devopsImageName)
+
+        steps:
+          - checkout: self
+            submodules: true
+
+          - template: templates/java/build-maven.yml@space

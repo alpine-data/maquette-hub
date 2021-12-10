@@ -12,9 +12,9 @@ import maquette.datashop.providers.datasets.records.Records;
 import maquette.datashop.specs.steps.DatasetStepDefinitions;
 import maquette.testutils.MaquetteContext;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
@@ -24,7 +24,7 @@ public abstract class DatasetSpecs {
 
     private MaquetteContext context;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.context = MaquetteContext.apply();
 
@@ -40,7 +40,7 @@ public abstract class DatasetSpecs {
         this.steps = new DatasetStepDefinitions(maquette, workspaces);
     }
 
-    @After
+    @AfterEach
     public void clean() {
         this.context.clean();
     }
