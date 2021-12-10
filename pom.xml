@@ -93,16 +93,13 @@
   </build>
   
   <modules>
+    <module>app</module>
     <module>core</module>
-    <module>model-development-impl</module>
-    <module>model-development-test</module>
 
     <module>data-shop-impl</module>
-
     <module>data-shop-test</module>
-    <module>model-management-api</module>
-    <module>model-management-impl</module>
-    
-    <module>app</module>
+
+    <module>model-development-impl</module>
+    <module>model-development-test</module>
   </modules>
 </project>
