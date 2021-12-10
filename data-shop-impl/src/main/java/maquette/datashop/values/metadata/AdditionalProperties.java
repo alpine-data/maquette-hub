@@ -44,7 +44,7 @@ public class AdditionalProperties {
     }
 
     public static AdditionalProperties fake() {
-        return AdditionalProperties.apply(Timeliness.DAILY, "EMEA", "ZCH", "bu");
+        return AdditionalProperties.apply(Timeliness.DAILY, "EMEA", "ZCH", "P&C");
     }
 
 }
