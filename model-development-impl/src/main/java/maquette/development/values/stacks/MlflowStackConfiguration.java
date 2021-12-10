@@ -1,9 +1,12 @@
 package maquette.development.values.stacks;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
+import lombok.With;
 import maquette.core.common.Operators;
 
 import java.net.URL;
@@ -11,8 +14,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-@Data
-@AllArgsConstructor(staticName = "apply")
+@With
+@Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MlflowStackConfiguration implements StackConfiguration {
 
     private static final String NAME = "name";
@@ -39,6 +43,13 @@ public final class MlflowStackConfiguration implements StackConfiguration {
     @JsonProperty(RESOURCE_GROUPS)
     List<String> resourceGroups;
 
+    @JsonCreator
+    public static MlflowStackConfiguration apply(@JsonProperty(NAME) String name,
+                                                  @JsonProperty(SAS_EXPIRY_TOKEN) Instant sasTokenExpiry,
+                                                  @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups) {
+        return new MlflowStackConfiguration(name, sasTokenExpiry, resourceGroups);
+    }
+
     @Override
     public String getStackInstanceName() {
         return name;
@@ -54,7 +65,7 @@ public final class MlflowStackConfiguration implements StackConfiguration {
         // Add MLFLOW specific environment variables to parameters (MLFFLOW_ENDPOINT, MLFLOW_SE_...)
 
         return StackInstanceParameters.apply(
-            Operators.suppressExceptions(() -> new URL(parameters.get("foo").toString())), "MLFlow Dashboard", parameters);
+            Operators.suppressExceptions(() -> new URL(parameters.get("MLFFLOW_ENDPOINT"))), "MLFlow Dashboard", parameters);
     }
 
 }

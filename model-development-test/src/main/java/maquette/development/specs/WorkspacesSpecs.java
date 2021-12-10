@@ -24,6 +24,8 @@ import java.util.concurrent.ExecutionException;
  */
 public abstract class WorkspacesSpecs {
 
+    protected MaquetteRuntime runtime;
+
     private WorkspaceStepDefinitions steps;
 
     private MaquetteContext context;
@@ -34,12 +36,12 @@ public abstract class WorkspacesSpecs {
     public void setup() {
         this.context = MaquetteContext.apply();
         this.workspacesRepository = setupWorkspacesRepository();
-        this.steps = new WorkspaceStepDefinitions(MaquetteRuntime
-            .apply()
-            .withModule(MaquetteModelDevelopment.apply(
+        this.runtime = MaquetteRuntime.apply();
+        this.runtime.withModule(MaquetteModelDevelopment.apply(
                 this.workspacesRepository, setupModelsRepository(), setupInfrastructurePort(),
                 setupDataAssetsServicePort()))
-            .initialize(context.system, context.app));
+            .initialize(context.system, context.app);
+        this.steps = new WorkspaceStepDefinitions(this.runtime);
     }
 
 
@@ -107,8 +109,9 @@ public abstract class WorkspacesSpecs {
         steps.$_gets_environment_for_workspace_$_of_type_$(context.users.bob, "fake", EnvironmentType.SANDBOX);
 
         // Then
-        steps.the_output_should_contain("ENTRY_POINT_LABEL     Login");
+        steps.the_output_should_contain("ENTRY_POINT_LABEL     MLFlow Dashboard");
         steps.the_output_should_contain("ENTRY_POINT_ENDPOINT  http://foo");
+        steps.the_output_should_contain("CUSTOM_PARAM          test");
     }
 
 
