@@ -101,6 +101,15 @@ public final class DataAssetServicesValidated implements DataAssetServices {
     }
 
     @Override
+    public CompletionStage<List<DataAssetProperties>> query(User executor, String query) {
+        return FluentValidation
+            .apply()
+            .validate("query", query, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.query(executor, query));
+    }
+
+    @Override
     public CompletionStage<Done> approve(User executor, String name) {
         return FluentValidation
             .apply()

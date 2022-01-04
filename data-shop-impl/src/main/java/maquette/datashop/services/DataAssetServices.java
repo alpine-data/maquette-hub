@@ -46,12 +46,21 @@ public interface DataAssetServices {
     CompletionStage<DataAsset> get(User executor, String name);
 
     /**
-     * Get a list of available data assets (the user is allowed to view).
+     * Get a list of data assets where the executor is owner or member.
      *
      * @param executor The user who executes the request.
      * @return The list of data assets.
      */
     CompletionStage<List<DataAssetProperties>> list(User executor);
+
+    /**
+     * Query data assets and get a list of data assets the owner is allowed to view and match the query.
+     *
+     * @param executor The user who executes the request.
+     * @param query The query to filter.
+     * @return The list of data assets.
+     */
+    CompletionStage<List<DataAssetProperties>> query(User executor, String query);
 
     /**
      * Approve a data asset configuration (usually executed by a data owner)

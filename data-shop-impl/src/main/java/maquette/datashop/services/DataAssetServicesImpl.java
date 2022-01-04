@@ -9,6 +9,7 @@ import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.Workspace;
+import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
@@ -16,12 +17,12 @@ import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
-import maquette.datashop.ports.WorkspacesServicePort;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DataAssetServicesImpl implements DataAssetServices {
@@ -82,6 +83,22 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     @Override
     public CompletionStage<List<DataAssetProperties>> list(User executor) {
         return entities.list();
+    }
+
+    @Override
+    public CompletionStage<List<DataAssetProperties>> query(User executor, String query) {
+        return entities.list().thenApply(results -> results
+            .stream()
+            .filter(result -> {
+                var searchString = new StringBuilder()
+                    .append(result.getMetadata().getName())
+                    .append(result.getMetadata().getSummary())
+                    .toString()
+                    .toLowerCase();
+
+                return searchString.contains(query.toLowerCase());
+            })
+            .collect(Collectors.toList()));
     }
 
     @Override

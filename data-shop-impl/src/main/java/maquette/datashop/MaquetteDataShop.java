@@ -71,6 +71,7 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets get", GetDataAssetCommand.class);
         commands.put("data-assets view", DataAssetViewCommand.class);
         commands.put("data-assets list", ListDataAssetsCommand.class);
+        commands.put("data-assets query", QueryDataAssetsCommand.class);
         commands.put("data-assets remove", RemoveDataAssetCommand.class);
         commands.put("data-assets request-review", RequestReviewDataAssetCommand.class);
         commands.put("data-assets update-custom-settings", UpdateCustomDataAssetSettingsCommand.class);

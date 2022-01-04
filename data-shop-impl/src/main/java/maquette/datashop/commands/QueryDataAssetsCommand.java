@@ -19,7 +19,11 @@ import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class ListDataAssetsCommand implements Command {
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+public class QueryDataAssetsCommand implements Command {
+
+    @Nullable
+    String query;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
@@ -29,7 +33,7 @@ public class ListDataAssetsCommand implements Command {
         return runtime
             .getModule(MaquetteDataShop.class)
             .getServices()
-            .list(user)
+            .query(user, query)
             .thenApply(datasets -> {
                 var table = Table
                     .create()
@@ -54,7 +58,7 @@ public class ListDataAssetsCommand implements Command {
 
     @Override
     public Command example() {
-        return ListDataAssetsCommand.apply();
+        return QueryDataAssetsCommand.apply("some query");
     }
 
 }

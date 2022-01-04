@@ -101,6 +101,23 @@ public final class DataAssetServicesSecured implements DataAssetServices {
                 .stream()
                 .map(entity -> comp.filterAuthorized(
                     entity,
+                    () -> comp.isMember(executor, entity.getMetadata().getName()))))
+            .thenCompose(Operators::allOf)
+            .thenApply(datasets -> datasets
+                .stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public CompletionStage<List<DataAssetProperties>> query(User executor, String query) {
+        return delegate
+            .query(executor, query)
+            .thenApply(datasets -> datasets
+                .stream()
+                .map(entity -> comp.filterAuthorized(
+                    entity,
                     () -> comp.isVisible(entity.getMetadata().getName()),
                     () -> comp.isSuperUser(executor),
                     () -> comp.isMember(executor, entity.getMetadata().getName()),

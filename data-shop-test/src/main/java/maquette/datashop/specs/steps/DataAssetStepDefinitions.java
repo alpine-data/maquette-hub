@@ -9,6 +9,7 @@ import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.commands.CreateDataAssetCommand;
 import maquette.datashop.commands.ListDataAssetsCommand;
+import maquette.datashop.commands.QueryDataAssetsCommand;
 import maquette.datashop.commands.UpdateDataAssetCommand;
 import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
 import maquette.datashop.commands.requests.ApproveAccessRequestCommand;
@@ -48,8 +49,8 @@ public class DataAssetStepDefinitions {
     }
 
     public void $_browses_all_data_assets(AuthenticatedUser user) throws ExecutionException, InterruptedException {
-        var result = ListDataAssetsCommand
-            .apply(null)
+        var result = QueryDataAssetsCommand
+            .apply("")
             .run(user, runtime)
             .toCompletableFuture()
             .get()
