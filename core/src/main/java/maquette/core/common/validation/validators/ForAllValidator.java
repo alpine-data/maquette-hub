@@ -1,20 +1,22 @@
 package maquette.core.common.validation.validators;
 
-import lombok.AllArgsConstructor;
 import maquette.core.common.validation.api.ValidationContext;
 import maquette.core.common.validation.api.Validator;
 
 import java.util.Arrays;
 import java.util.List;
 
-@AllArgsConstructor(staticName = "apply")
 public final class ForAllValidator<T> implements Validator<List<T>> {
 
-    List<Validator<? super T>> validators;
+    private final List<Validator<? super T>> validators;
+
+    private ForAllValidator(List<Validator<? super T>> validators) {
+        this.validators = validators;
+    }
 
     @SafeVarargs
     public static <T> ForAllValidator<T> apply(Validator<? super T> ...validations) {
-        return apply(Arrays.asList(validations));
+        return new ForAllValidator<T>(Arrays.asList(validations));
     }
 
     @Override
