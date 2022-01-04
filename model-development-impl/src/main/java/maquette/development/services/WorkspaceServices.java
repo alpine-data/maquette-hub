@@ -55,7 +55,7 @@ public interface WorkspaceServices {
     }
 
     /**
-     * Lists workspaces of an user. The result contains only workspaces the user has access to.
+     * Lists workspaces of a user. The result contains only workspaces the user has access to.
      *
      * @param user The user who requests the list.
      * @return A list of workspaces.

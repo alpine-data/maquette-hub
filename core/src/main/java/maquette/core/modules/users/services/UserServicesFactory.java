@@ -10,7 +10,8 @@ public final class UserServicesFactory {
 
     public static UserServices apply(UserEntities users) {
         var comp = UserCompanion.apply(users);
-        return UserServicesImpl.apply(users, comp);
+        var impl = UserServicesImpl.apply(users, comp);
+        return UserServicesValidated.apply(impl);
     }
 
 }
