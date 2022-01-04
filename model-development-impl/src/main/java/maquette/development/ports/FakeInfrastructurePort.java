@@ -24,6 +24,11 @@ public class FakeInfrastructurePort implements InfrastructurePort {
     }
 
     @Override
+    public CompletionStage<Done> checkState() {
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
+
+    @Override
     public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace,
                                                                           String name) {
         return CompletableFuture.completedFuture(StackInstanceParameters.apply("http://foo", "MLFlow Dashboard")

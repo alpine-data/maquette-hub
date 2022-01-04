@@ -112,4 +112,8 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return Operators.compose(removeInfraCS, removeMetadataCS, (i, m) -> Done.getInstance());
     }
 
+    public CompletionStage<Done> redeployInfrastructure() {
+        return infrastructurePort.checkState();
+    }
+
 }

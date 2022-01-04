@@ -267,4 +267,9 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
             })
             .thenCompose(ok -> delegate.revoke(user, workspace, authorization));
     }
+
+    @Override
+    public CompletionStage<Done> redeployInfrastructure(User user) {
+        return delegate.redeployInfrastructure(user);
+    }
 }

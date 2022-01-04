@@ -42,7 +42,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkspaceServices.class);
 
-    WorkspaceEntities projects;
+    WorkspaceEntities workspaces;
 
     DataAssetsServicePort dataAssets;
 
@@ -54,9 +54,9 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> create(User executor, String name, String title, String summary) {
-        return projects
+        return workspaces
             .createWorkspace(executor, name, title, summary)
-            .thenCompose(project -> projects.getWorkspaceById(project.getId()))
+            .thenCompose(project -> workspaces.getWorkspaceById(project.getId()))
             .thenCompose(workspace -> {
                 var adminAddedCS = workspace.members()
                     .addMember(executor, executor.toAuthorization(), WorkspaceMemberRole.ADMIN);
@@ -71,17 +71,17 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Map<String, String>> environment(User user, String workspace, EnvironmentType type) {
-        return projects.getWorkspaceByName(workspace).thenCompose(WorkspaceEntity::getEnvironment);
+        return workspaces.getWorkspaceByName(workspace).thenCompose(WorkspaceEntity::getEnvironment);
     }
 
     @Override
     public CompletionStage<List<WorkspaceProperties>> list(User user) {
-        return projects.getWorkspaces();
+        return workspaces.getWorkspaces();
     }
 
     @Override
     public CompletionStage<Workspace> get(User user, String name) {
-        return projects
+        return workspaces
             .getWorkspaceByName(name)
             .thenCompose(workspace -> {
                 var propertiesCS = workspace.getProperties();
@@ -97,13 +97,13 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> remove(User user, String workspace) {
-        return projects
+        return workspaces
             .findWorkspaceByName(workspace)
             .thenCompose(maybeWorkspace -> {
                 if (maybeWorkspace.isPresent()) {
                     var projectId = maybeWorkspace.get().getId();
 
-                    return projects.removeWorkspace(projectId);
+                    return workspaces.removeWorkspace(projectId);
                 } else {
                     return CompletableFuture.completedFuture(Done.getInstance());
                 }
@@ -112,7 +112,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> update(User user, String workspace, String updatedName, String title, String summary) {
-        return projects
+        return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(project -> project.updateProperties(user, updatedName, title, summary));
     }
@@ -123,7 +123,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<List<ModelProperties>> getModels(User user, String workspace) {
-        return projects
+        return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(WorkspaceEntity::getModels)
             .thenCompose(ModelEntities::getModels);
@@ -131,7 +131,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Model> getModel(User user, String project, String model) {
-        var projectCS = projects
+        var projectCS = workspaces
             .getWorkspaceByName(project);
 
         var modelEntityCS = projectCS
@@ -157,7 +157,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> updateModel(User user, String project, String model, String title,
                                              String description) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -167,7 +167,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> updateModelVersion(User user, String project, String model, String version,
                                                     String description) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -177,7 +177,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> answerQuestionnaire(User user, String project, String model, String version,
                                                      JsonNode responses) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -186,7 +186,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> approveModel(User user, String project, String model, String version) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -197,7 +197,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -206,7 +206,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> rejectModel(User user, String project, String model, String version, String reason) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -216,7 +216,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Done> requestModelReview(User user, String project, String model, String version) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -228,7 +228,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> reportCodeQuality(User user, String project, String model, String version,
                                                    String commit, int score, int coverage, List<CodeIssue> issues) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -245,7 +245,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -261,7 +261,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                                                 UserAuthorization authorization, ModelMemberRole role) {
         // TODO mw: Check membership of project
 
-        return projects
+        return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -271,7 +271,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> revokeModelRole(User user, String workspace, String model,
                                                  UserAuthorization authorization) {
-        return projects
+        return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
@@ -283,16 +283,21 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
      */
     @Override
     public CompletionStage<Done> grant(User user, String workspace, Authorization authorization, WorkspaceMemberRole role) {
-        return projects
+        return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(project -> project.members().addMember(user, authorization, role));
     }
 
     @Override
     public CompletionStage<Done> revoke(User user, String workspace, Authorization authorization) {
-        return projects
+        return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(project -> project.members().removeMember(user, authorization));
+    }
+
+    @Override
+    public CompletionStage<Done> redeployInfrastructure(User user) {
+        return workspaces.redeployInfrastructure();
     }
 
 }

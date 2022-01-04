@@ -289,4 +289,12 @@ public interface WorkspaceServices {
      */
     CompletionStage<Done> revoke(User user, String workspace, Authorization authorization);
 
+    /**
+     * Initiate a re-deployment of the current infrastructure linked to workspaces.
+     *
+     * @param user The user who executes the action.
+     * @return Done.
+     */
+    CompletionStage<Done> redeployInfrastructure(User user);
+
 }
