@@ -26,8 +26,7 @@ public final class GrantWorkspaceMemberCommand implements Command {
     WorkspaceMemberRole role;
 
     @Override
-    public CompletionStage<CommandResult> run(User user,
-                                              MaquetteRuntime runtime) {
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getServices()

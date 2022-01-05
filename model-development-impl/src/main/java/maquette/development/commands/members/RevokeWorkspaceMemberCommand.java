@@ -1,43 +1,39 @@
-package maquette.development.commands;
+package maquette.development.commands.members;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.MessageResult;
-import maquette.core.values.authorization.Authorization;
-import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.authorization.Authorizations;
+import maquette.core.values.authorization.GenericAuthorizationDefinition;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
-import maquette.development.values.WorkspaceMemberRole;
 
 import java.util.concurrent.CompletionStage;
 
-@Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class GrantWorkspaceMemberRoleCommand implements Command {
+public final class RevokeWorkspaceMemberCommand implements Command {
 
-    String workspace;
+    String name;
 
-    Authorization authorization;
-
-    WorkspaceMemberRole role;
+    GenericAuthorizationDefinition authorization;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getServices()
-            .grant(user, workspace, authorization, role)
-            .thenApply(ok -> MessageResult.apply("Successfully granted access."));
+            .revoke(user, name, Authorizations.fromGenericAuthorizationDefinition(authorization))
+            .thenApply(done -> MessageResult.create("Successfully granted ownership."));
     }
 
     @Override
     public Command example() {
-        return apply("some-workspace", UserAuthorization.apply("some-user"), WorkspaceMemberRole.MEMBER);
+        return apply("some-dataset", GenericAuthorizationDefinition.apply("role", "a-team"));
     }
 
 }

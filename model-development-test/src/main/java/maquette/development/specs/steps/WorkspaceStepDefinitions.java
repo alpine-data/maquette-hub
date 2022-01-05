@@ -3,10 +3,12 @@ package maquette.development.specs.steps;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
+import maquette.core.values.authorization.GenericAuthorizationDefinition;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.commands.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
+import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
 
@@ -95,8 +97,8 @@ public class WorkspaceStepDefinitions {
                                                          String workspaceName,
                                                          AuthenticatedUser grantedUser) throws ExecutionException,
         InterruptedException {
-        var result = RevokeWorkspaceMemberRoleCommand
-            .apply(workspaceName, grantedUser.toAuthorization())
+        var result = RevokeWorkspaceMemberCommand
+            .apply(workspaceName, grantedUser.toAuthorization().toGenericAuthorizationDefinition())
             .run(executor, runtime)
             .toCompletableFuture()
             .get()

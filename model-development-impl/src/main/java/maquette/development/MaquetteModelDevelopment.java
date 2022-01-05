@@ -7,6 +7,8 @@ import maquette.core.modules.MaquetteModule;
 import maquette.core.server.commands.Command;
 import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
+import maquette.development.commands.members.GrantWorkspaceMemberCommand;
+import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.entities.WorkspaceEntities;
 import maquette.development.ports.DataAssetsServicePort;
 import maquette.development.ports.InfrastructurePort;
@@ -55,10 +57,15 @@ public class MaquetteModelDevelopment implements MaquetteModule {
     public Map<String, Class<? extends Command>> getCommands() {
         var commands = Maps.<String, Class<? extends Command>>newHashMap();
         commands.put("workspaces create", CreateWorkspaceCommand.class);
-        commands.put("workspaces update", UpdateWorkspaceCommand.class);
         commands.put("workspaces get", GetWorkspaceCommand.class);
         commands.put("workspaces list", ListWorkspacesCommand.class);
+        commands.put("workspaces remove", RemoveWorkspaceCommand.class);
+        commands.put("workspaces update", UpdateWorkspaceCommand.class);
         commands.put("workspaces view", WorkspaceViewCommand.class);
+
+        commands.put("workspaces members grant", GrantWorkspaceMemberCommand.class);
+        commands.put("workspaces members revoke", RevokeWorkspaceMemberCommand.class);
+
         commands.put("workspaces admin redeploy", RedeployInfrastructure.class);
         return commands;
     }
