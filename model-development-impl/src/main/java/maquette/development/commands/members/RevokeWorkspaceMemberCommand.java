@@ -24,11 +24,13 @@ public final class RevokeWorkspaceMemberCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        var auth = Authorizations.fromGenericAuthorizationDefinition(authorization);
+
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getServices()
-            .revoke(user, name, Authorizations.fromGenericAuthorizationDefinition(authorization))
-            .thenApply(done -> MessageResult.create("Successfully granted ownership."));
+            .revoke(user, name, auth)
+            .thenApply(done -> MessageResult.create("Revoked access from `%s`.", auth.getName()));
     }
 
     @Override
