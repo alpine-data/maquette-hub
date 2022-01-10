@@ -1,12 +1,17 @@
 package maquette.core.modules.users;
 
+import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import maquette.core.common.exceptions.ApplicationException;
+import maquette.core.modules.ports.AuthenticationTokenStore;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
+import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
+import maquette.core.values.user.User;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
@@ -18,6 +23,8 @@ import java.util.concurrent.CompletionStage;
 public final class UserEntities {
 
     private final UsersRepository repository;
+
+    private final AuthenticationTokenStore tokens;
 
     private final ObjectMapper objectMapper;
 
@@ -52,6 +59,32 @@ public final class UserEntities {
                         .getValue()));
                 }
             });
+    }
+
+    public CompletionStage<UserAuthenticationToken> readAuthenticationToken(String randomId) {
+        return tokens.get(randomId);
+    }
+
+    public CompletionStage<Done> registerAuthenticationToken(User executor, String randomId) {
+        if (executor instanceof AuthenticatedUser) {
+            var id = ((AuthenticatedUser) executor).getId();
+            return getUserById(id).thenCompose(user -> user.getAuthenticationToken().thenCompose(token -> tokens.put(randomId, token)));
+        } else {
+            return CompletableFuture.failedFuture(UserNotAuthenticatedException.apply());
+        }
+    }
+
+    public static class UserNotAuthenticatedException extends ApplicationException {
+
+        private UserNotAuthenticatedException(String message) {
+            super(message);
+        }
+
+        public static UserNotAuthenticatedException apply() {
+            String message = "User is not authenticated, but an authenticated user is required to execute this action.";
+            return new UserNotAuthenticatedException(message);
+        }
+
     }
 
 }

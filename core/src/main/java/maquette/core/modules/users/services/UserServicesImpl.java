@@ -50,6 +50,16 @@ public final class UserServicesImpl implements UserServices {
     }
 
     @Override
+    public CompletionStage<Done> registerAuthenticationToken(User executor, String randomId) {
+        return users.registerAuthenticationToken(executor, randomId);
+    }
+
+    @Override
+    public CompletionStage<UserAuthenticationToken> getAuthenticationToken(String randomId) {
+        return users.readAuthenticationToken(randomId);
+    }
+
+    @Override
     public CompletionStage<UserProfile> getProfile(User executor, UID userId) {
         return companion
             .withUser(userId)

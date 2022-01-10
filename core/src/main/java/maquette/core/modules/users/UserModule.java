@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
+import maquette.core.modules.ports.AuthenticationTokenStore;
+import maquette.core.modules.ports.InMemoryAuthenticationTokenStore;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.commands.*;
 import maquette.core.modules.users.services.UserServices;
@@ -18,10 +20,14 @@ public final class UserModule implements MaquetteModule {
 
     private final UserServices services;
 
-    public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository) {
-        var users = UserEntities.apply(repository, runtime.getObjectMapperFactory().createJsonMapper());
+    public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository, AuthenticationTokenStore authenticationTokenStore) {
+        var users = UserEntities.apply(repository, authenticationTokenStore, runtime.getObjectMapperFactory().createJsonMapper());
         var services = UserServicesFactory.apply(users);
         return apply(services);
+    }
+
+    public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository) {
+        return apply(runtime, repository, InMemoryAuthenticationTokenStore.apply());
     }
 
     @Override

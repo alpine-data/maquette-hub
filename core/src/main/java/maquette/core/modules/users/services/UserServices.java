@@ -22,6 +22,14 @@ public interface UserServices {
 
     CompletionStage<AuthenticatedUser> getUserForAuthenticationToken(String tokenId, String tokenSecret);
 
+
+    /*
+     * CLI authentication
+     */
+    CompletionStage<Done> registerAuthenticationToken(User executor, String randomId);
+
+    CompletionStage<UserAuthenticationToken> getAuthenticationToken(String randomId);
+
     /*
      * Profile
      */

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class UserServicesValidated implements UserServices {
+public final class UserServicesValidated implements UserServices {
 
     private final UserServices delegate;
 
@@ -36,6 +36,24 @@ public class UserServicesValidated implements UserServices {
             .validate("tokenSecret", tokenSecret, NotNullValidator.apply())
             .checkAndFail()
             .thenCompose(done -> delegate.getUserForAuthenticationToken(tokenId, tokenSecret));
+    }
+
+    @Override
+    public CompletionStage<Done> registerAuthenticationToken(User executor, String randomId) {
+        return FluentValidation
+            .apply()
+            .validate("randomId", randomId, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.registerAuthenticationToken(executor, randomId));
+    }
+
+    @Override
+    public CompletionStage<UserAuthenticationToken> getAuthenticationToken(String randomId) {
+        return FluentValidation
+            .apply()
+            .validate("randomId", randomId, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.getAuthenticationToken(randomId));
     }
 
     @Override
