@@ -12,16 +12,20 @@ import maquette.core.modules.users.commands.*;
 import maquette.core.modules.users.services.UserServices;
 import maquette.core.modules.users.services.UserServicesFactory;
 import maquette.core.server.commands.Command;
+import maquette.core.values.user.User;
 
 import java.util.Map;
+import java.util.Objects;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public final class UserModule implements MaquetteModule {
 
     private final UserServices services;
 
-    public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository, AuthenticationTokenStore authenticationTokenStore) {
-        var users = UserEntities.apply(repository, authenticationTokenStore, runtime.getObjectMapperFactory().createJsonMapper());
+    public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository,
+                                   AuthenticationTokenStore authenticationTokenStore) {
+        var users = UserEntities.apply(repository, authenticationTokenStore, runtime.getObjectMapperFactory()
+            .createJsonMapper());
         var services = UserServicesFactory.apply(users);
         return apply(services);
     }
@@ -38,6 +42,29 @@ public final class UserModule implements MaquetteModule {
     @Override
     public void start(MaquetteRuntime runtime) {
         MaquetteModule.super.start(runtime);
+
+        runtime
+            .getApp()
+            .get("/api/users/login", ctx -> {
+                var id = Objects.requireNonNull(ctx.queryParam("id"));
+                var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+
+                var result = services
+                    .registerAuthenticationToken(user, id)
+                    .thenApply(d -> "Successfully logged in. You can close this window now.")
+                    .toCompletableFuture();
+
+                ctx.result(result);
+            })
+            .get("/api/users/token", ctx -> {
+                var id = Objects.requireNonNull(ctx.queryParam("id"));
+
+                var result = services
+                    .getAuthenticationToken(id)
+                    .toCompletableFuture();
+
+                ctx.json(result);
+            });
     }
 
     @Override

@@ -10,6 +10,7 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.users.UserModule;
+import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
 import maquette.core.server.commands.ErrorResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AboutResource;
@@ -121,14 +122,20 @@ public final class MaquetteServer {
             var tokenSecret = headers.get(runtime.getConfig().getCore().getAuthTokenSecretHeaderName());
 
 
-            var authUser = Operators.suppressExceptions(() -> runtime
-                .getModule(UserModule.class)
-                .getServices()
-                .getUserForAuthenticationToken(tokenId, tokenSecret)
-                .toCompletableFuture()
-                .get());
+            try {
+                var authUser = Operators.suppressExceptions(() -> runtime
+                    .getModule(UserModule.class)
+                    .getServices()
+                    .getUserForAuthenticationToken(tokenId, tokenSecret)
+                    .toCompletableFuture()
+                    .get());
 
-            ctx.attribute("user", authUser);
+                ctx.attribute("user", authUser);
+            } catch (Exception ex) {
+                if (Operators.hasCause(ex, InvalidAuthenticationTokenException.class).isEmpty()) {
+                    throw ex;
+                }
+            }
         }
     }
 

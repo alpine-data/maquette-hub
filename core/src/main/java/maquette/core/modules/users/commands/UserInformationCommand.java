@@ -8,6 +8,7 @@ import maquette.core.modules.users.UserModule;
 import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
+import maquette.core.server.commands.DataResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 
@@ -24,8 +25,7 @@ public final class UserInformationCommand implements Command {
             .getAuthenticationToken(user)
             .thenApply(token -> {
                 var info = UserInformation.apply(user, token);
-                var json = Operators.suppressExceptions(() -> runtime.getObjectMapperFactory().createJsonMapper(true).writeValueAsString(info));
-                return MessageResult.create(json, info);
+                return DataResult.apply(info);
             });
     }
 
