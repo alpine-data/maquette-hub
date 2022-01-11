@@ -63,7 +63,6 @@ public final class DatasetsAPI {
                 op.description("Uploads data to an open revision of a dataset.");
                 op.addTagsItem("Dataset");
             })
-            .pathParam("project", String.class, p -> p.description("The name of the project"))
             .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
             .json("200", String.class);
 
