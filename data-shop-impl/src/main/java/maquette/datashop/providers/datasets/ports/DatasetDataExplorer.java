@@ -1,12 +1,12 @@
 package maquette.datashop.providers.datasets.ports;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import maquette.datashop.providers.datasets.model.DatasetVersion;
+import maquette.datashop.values.AnalysisResult;
 
 import java.util.concurrent.CompletionStage;
 
 public interface DatasetDataExplorer {
 
-   CompletionStage<JsonNode> analyze(String dataset, DatasetVersion version);
+   CompletionStage<AnalysisResult> analyze(String dataset, DatasetVersion version, String authTokenId, String authTokenSecret);
 
 }

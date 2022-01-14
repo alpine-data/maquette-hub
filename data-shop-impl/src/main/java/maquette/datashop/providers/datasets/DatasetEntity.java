@@ -37,7 +37,7 @@ public final class DatasetEntity {
 
     private final DataAssetEntity entity;
 
-    public CompletionStage<Done> analyze(DatasetVersion version) {
+    public CompletionStage<Done> analyze(DatasetVersion version, String authTokenId, String authTokenSecret) {
         var revisionCS = repository
             .findRevisionByVersion(entity.getId(), version)
             .thenApply(opt -> opt.orElseThrow(() -> VersionNotFoundException.apply(version)));
@@ -48,7 +48,7 @@ public final class DatasetEntity {
             .compose(
                 revisionCS, datasetCS,
                 (revision, dataset) -> explorer
-                    .analyze(dataset.getMetadata().getName(), revision.getVersion())
+                    .analyze(dataset.getMetadata().getName(), revision.getVersion(), authTokenId, authTokenSecret)
                     .thenApply(revision::withStatistics)
                     .thenCompose(r -> repository.insertOrUpdateRevision(entity.getId(), r)))
             .thenCompose(done -> done)

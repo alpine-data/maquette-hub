@@ -22,12 +22,16 @@ public final class UserModule implements MaquetteModule {
 
     private final UserServices services;
 
+    private final UserEntities users;
+
     public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository,
                                    AuthenticationTokenStore authenticationTokenStore) {
+
         var users = UserEntities.apply(repository, authenticationTokenStore, runtime.getObjectMapperFactory()
             .createJsonMapper());
         var services = UserServicesFactory.apply(users);
-        return apply(services);
+
+        return apply(services, users);
     }
 
     public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository) {
@@ -87,4 +91,7 @@ public final class UserModule implements MaquetteModule {
         return services;
     }
 
+    public UserEntities getUsers() {
+        return users;
+    }
 }

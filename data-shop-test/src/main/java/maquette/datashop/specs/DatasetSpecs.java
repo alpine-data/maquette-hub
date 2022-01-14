@@ -30,7 +30,7 @@ public abstract class DatasetSpecs {
 
         var runtime = MaquetteRuntime.apply();
         var workspaces = FakeWorkspacesServicePort.apply();
-        var datasets = Datasets.apply(runtime, setupDatasetsRepository(), InMemoryDatasetDataExplorer.apply(), workspaces);
+        var datasets = Datasets.apply(setupDatasetsRepository(), InMemoryDatasetDataExplorer.apply(), workspaces);
         var shop = MaquetteDataShop.apply(setupDataAssetsRepository(), workspaces, FakeProvider.apply(), datasets);
 
         var maquette = runtime

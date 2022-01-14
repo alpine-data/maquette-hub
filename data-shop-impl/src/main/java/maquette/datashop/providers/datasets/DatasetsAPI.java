@@ -95,6 +95,41 @@ public final class DatasetsAPI {
         });
     }
 
+    public Handler getProfile() {
+        var docs = OpenApiBuilder
+            .document()
+            .operation(op -> {
+                op.summary("Get Data Profile HTML Page of dataset.");
+                op.description("Downloads from a revision of a dataset.");
+                op.addTagsItem("Data Assets");
+            })
+            .pathParam("dataset", String.class, p -> p.description("The name of the dataset"))
+            .pathParam("version", String.class, p -> p.description("The version"))
+            .json("200", String.class);
+
+        return OpenApiBuilder.documented(docs, ctx -> {
+            var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+            var dataset = ctx.pathParam("dataset");
+            var version = ctx.pathParam("version");
+
+            var result = datasets
+                .getServices()
+                .getCommit(user, dataset, DatasetVersion.apply(version))
+                .thenApply(revision -> {
+
+                    if (revision.getStatistics().isPresent()) {
+                        return revision.getStatistics().get().getProfile();
+                    } else {
+                        return "No profiling data available";
+                    }
+                })
+                .toCompletableFuture();
+
+            ctx.header("Content-Type", "text/html");
+            ctx.result(result);
+        });
+    }
+
 
     public Handler downloadDatasetVersion() {
         var docs = OpenApiBuilder

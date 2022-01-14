@@ -77,6 +77,8 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets update-custom-settings", UpdateCustomDataAssetSettingsCommand.class);
         commands.put("data-assets update", UpdateDataAssetCommand.class);
 
+        this.providers.toMap().values().forEach(provider -> commands.putAll(provider.getCustomCommands()));
+
         return commands;
     }
 

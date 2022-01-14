@@ -2,12 +2,12 @@ package maquette.datashop.providers.datasets.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.datashop.values.AnalysisResult;
 import org.apache.avro.Schema;
 
 import java.util.Optional;
@@ -52,7 +52,7 @@ public class CommittedRevision implements Revision {
    String message;
 
    @JsonProperty(STATISTICS)
-   JsonNode statistics;
+   AnalysisResult statistics;
 
    @JsonCreator
    public static CommittedRevision apply(
@@ -73,7 +73,7 @@ public class CommittedRevision implements Revision {
       return Optional.of(this);
    }
 
-   public Optional<JsonNode> getStatistics() {
+   public Optional<AnalysisResult> getStatistics() {
       return Optional.ofNullable(statistics);
    }
 }

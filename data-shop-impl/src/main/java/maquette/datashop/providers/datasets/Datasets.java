@@ -14,6 +14,7 @@ import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -21,16 +22,22 @@ public final class Datasets implements DataAssetProvider {
 
     public static final String TYPE_NAME = "dataset";
 
-    private final MaquetteRuntime runtime;
-
     private final DatasetsRepository repository;
 
     private final DatasetDataExplorer explorer;
 
     private final WorkspacesServicePort workspaces;
 
+    private MaquetteRuntime runtime;
+
+    public static Datasets apply(DatasetsRepository repository, DatasetDataExplorer explorer, WorkspacesServicePort workspaces) {
+        return apply(repository, explorer, workspaces, null);
+    }
+
     @Override
     public void configure(MaquetteRuntime runtime) {
+        this.runtime = runtime;
+
         var handlers = DatasetsAPI.apply(this);
 
         runtime
@@ -38,7 +45,8 @@ public final class Datasets implements DataAssetProvider {
             .post("/api/data/datasets/:dataset", handlers.uploadDatasetFile())
             .post("/api/data/datasets/:dataset/:revision", handlers.upload())
             .get("/api/data/datasets/:dataset", handlers.downloadLatestDatasetVersion())
-            .get("/api/data/datasets/:dataset/:version", handlers.downloadDatasetVersion());
+            .get("/api/data/datasets/:dataset/:version", handlers.downloadDatasetVersion())
+            .get("/api/profiles/datasets/:dataset/:version", handlers.getProfile());
     }
 
     @Override
@@ -58,6 +66,10 @@ public final class Datasets implements DataAssetProvider {
     }
 
     public DatasetServices getServices() {
+        if (Objects.isNull(runtime)) {
+            throw new IllegalStateException("This method can not be called before everything is initialized.");
+        }
+
         return DatasetServicesFactory.apply(runtime, repository, explorer, workspaces);
     }
 

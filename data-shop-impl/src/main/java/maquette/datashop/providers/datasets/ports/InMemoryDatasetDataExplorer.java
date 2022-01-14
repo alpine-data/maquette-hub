@@ -1,9 +1,8 @@
 package maquette.datashop.providers.datasets.ports;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
-import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.datashop.providers.datasets.model.DatasetVersion;
+import maquette.datashop.values.AnalysisResult;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -12,9 +11,10 @@ import java.util.concurrent.CompletionStage;
 public final class InMemoryDatasetDataExplorer implements DatasetDataExplorer {
 
     @Override
-    public CompletionStage<JsonNode> analyze(String dataset, DatasetVersion version) {
-        var result = DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
+    public CompletionStage<AnalysisResult> analyze(
+        String dataset, DatasetVersion version, String authTokenId, String authTokenSecret) {
+
+        var result = AnalysisResult.empty(dataset, version.toString());
         return CompletableFuture.completedFuture(result);
     }
-
 }

@@ -192,7 +192,7 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
                 .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
-                    .anyMatch(workspaceUID -> workspaceUID.equals(r.getWorkspace())));
+                    .anyMatch(workspaceUID -> workspaceUID.getId().equals(r.getWorkspace())));
 
             if (request) {
                 return Optional.of(passThrough);
