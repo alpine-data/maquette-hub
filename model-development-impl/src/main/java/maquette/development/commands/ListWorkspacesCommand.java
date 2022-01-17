@@ -23,7 +23,7 @@ public class ListWorkspacesCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .list(user)
             .thenApply(workspaces -> {
                 var table = Table

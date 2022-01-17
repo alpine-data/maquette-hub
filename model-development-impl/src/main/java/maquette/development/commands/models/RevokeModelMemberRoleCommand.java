@@ -7,12 +7,10 @@ import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
-import maquette.core.server.commands.DataResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
-import maquette.development.values.model.ModelMemberRole;
 
 import java.util.concurrent.CompletionStage;
 
@@ -30,7 +28,7 @@ public class RevokeModelMemberRoleCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .revokeModelRole(user, workspace, model, authorization)
             .thenApply(done -> MessageResult.apply("Successfully revoked role."));
     }

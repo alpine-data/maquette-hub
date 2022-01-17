@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @AllArgsConstructor(staticName = "apply")
-public class InMemoryWorkspacesRepository implements WorkspacesRepository {
+public final class InMemoryWorkspacesRepository implements WorkspacesRepository {
 
     private final InMemoryMembersRepository<WorkspaceMemberRole> members;
 

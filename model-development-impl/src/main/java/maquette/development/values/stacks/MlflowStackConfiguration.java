@@ -17,7 +17,7 @@ import java.util.Map;
 @With
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class MlflowStackConfiguration implements StackConfiguration {
+public class MlflowStackConfiguration implements StackConfiguration {
 
     private static final String NAME = "name";
     private static final String SAS_EXPIRY_TOKEN = "sasExpiryToken";
@@ -66,6 +66,11 @@ public final class MlflowStackConfiguration implements StackConfiguration {
 
         return StackInstanceParameters.apply(
             Operators.suppressExceptions(() -> new URL(parameters.get("MLFFLOW_ENDPOINT"))), "MLFlow Dashboard", parameters);
+    }
+
+    @Override
+    public StackConfiguration withStackInstanceName(String name) {
+        return MlflowStackConfiguration.apply(name, sasTokenExpiry, resourceGroups);
     }
 
 }

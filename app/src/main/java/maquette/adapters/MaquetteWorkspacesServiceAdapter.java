@@ -34,7 +34,7 @@ public final class MaquetteWorkspacesServiceAdapter implements WorkspacesService
         }
 
         return module
-            .getEntities()
+            .getWorkspaces()
             .getWorkspaceByName(workspaceName)
             .thenApply(WorkspaceEntity::getId);
     }
@@ -46,7 +46,7 @@ public final class MaquetteWorkspacesServiceAdapter implements WorkspacesService
         }
 
         return module
-            .getEntities()
+            .getWorkspaces()
             .getWorkspacesByMember(user)
             .thenApply(workspaces -> workspaces
                 .stream()
@@ -61,7 +61,7 @@ public final class MaquetteWorkspacesServiceAdapter implements WorkspacesService
         }
 
         return module
-            .getEntities()
+            .getWorkspaces()
             .getWorkspaceById(id)
             .thenCompose(WorkspaceEntity::getProperties)
             .thenApply(workspace -> om.convertValue(workspace, JsonNode.class));

@@ -7,6 +7,7 @@ import com.google.common.hash.Hashing;
 import com.oblac.nomen.Nomen;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -198,6 +200,10 @@ public final class Operators {
         return expected.isInstance(exc) || (
             exc != null && isCause(expected, exc.getCause())
         );
+    }
+
+    public static boolean isKebabCase(String s, int minLength) {
+        return s.length() >= minLength && Pattern.compile("[a-z][a-z0-9\\-]*").matcher(s).matches();
     }
 
     public static String randomHash() {

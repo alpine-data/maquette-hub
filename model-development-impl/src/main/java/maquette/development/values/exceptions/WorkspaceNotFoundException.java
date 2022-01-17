@@ -3,7 +3,7 @@ package maquette.development.values.exceptions;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.values.UID;
 
-public class WorkspaceNotFoundException extends ApplicationException {
+public final class WorkspaceNotFoundException extends ApplicationException {
 
    private WorkspaceNotFoundException(String message) {
       super(message);
@@ -19,4 +19,8 @@ public class WorkspaceNotFoundException extends ApplicationException {
       return new WorkspaceNotFoundException(msg);
    }
 
+   @Override
+   public int getHttpStatus() {
+      return 404;
+   }
 }

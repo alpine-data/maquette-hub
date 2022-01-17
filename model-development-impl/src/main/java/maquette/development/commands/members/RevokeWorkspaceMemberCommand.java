@@ -28,7 +28,7 @@ public final class RevokeWorkspaceMemberCommand implements Command {
 
         return runtime
             .getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .revoke(user, name, auth)
             .thenApply(done -> MessageResult.create("Revoked access from `%s`.", auth.getName()));
     }

@@ -2,7 +2,7 @@ package maquette.development.values.exceptions;
 
 import maquette.core.common.exceptions.ApplicationException;
 
-public class WorkspaceAlreadyExistsException extends ApplicationException {
+public final class WorkspaceAlreadyExistsException extends ApplicationException {
 
    private WorkspaceAlreadyExistsException(String message) {
       super(message);

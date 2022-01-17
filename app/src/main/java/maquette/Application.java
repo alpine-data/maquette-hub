@@ -8,9 +8,10 @@ import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
 import maquette.datashop.providers.FakeProvider;
 import maquette.development.MaquetteModelDevelopment;
+import maquette.development.ports.FakeInfrastructurePort;
 import maquette.development.ports.InMemoryModelsRepository;
+import maquette.development.ports.InMemorySandboxesRepository;
 import maquette.development.ports.InMemoryWorkspacesRepository;
-import maquette.development.ports.InfrastructurePort;
 
 /**
  * This object ensembles Maquette Community Edition.
@@ -35,9 +36,10 @@ public class Application {
 
         var workspacesRepository = InMemoryWorkspacesRepository.apply();
         var modelsRepository = InMemoryModelsRepository.apply();
-        var infrastructurePort = (InfrastructurePort) null;
+        var sandboxesRepository = InMemorySandboxesRepository.apply();
+        var infrastructurePort = FakeInfrastructurePort.apply();
         var modelDevelopment = MaquetteModelDevelopment.apply(
-            workspacesRepository, modelsRepository, infrastructurePort, dataAssetsAdapter);
+            workspacesRepository, modelsRepository, sandboxesRepository, infrastructurePort, dataAssetsAdapter);
 
         var shop = MaquetteDataShop
             .apply(dataAssetsRepository, workspacesAdapter, FakeProvider.apply());
