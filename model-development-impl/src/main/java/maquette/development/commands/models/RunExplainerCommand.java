@@ -8,7 +8,6 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.MessageResult;
-import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 
@@ -28,7 +27,7 @@ public class RunExplainerCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .runExplainer(user, workspace, model, version)
             .thenApply(pid -> MessageResult.apply("Successfully started explainer"));
     }

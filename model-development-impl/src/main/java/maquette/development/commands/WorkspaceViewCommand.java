@@ -23,7 +23,7 @@ public class WorkspaceViewCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .get(user, name)
             .thenApply(WorkspaceView::apply);
     }

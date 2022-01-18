@@ -30,7 +30,7 @@ public class GetWorkspaceEnvironmentCommand implements Command {
         var environmentType = type != null ? type : EnvironmentType.EXTERNAL;
 
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .environment(user, workspace, environmentType)
             .thenApply(properties -> {
                 var table = Table

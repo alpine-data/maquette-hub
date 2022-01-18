@@ -23,7 +23,7 @@ public class RemoveWorkspaceCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .remove(user, workspace)
             .thenApply(DataResult::apply);
     }

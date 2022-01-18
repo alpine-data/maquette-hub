@@ -40,7 +40,7 @@ public class ReportModelQualityCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .reportCodeQuality(user, workspace, model, version, commit, score, coverage, issues)
             .thenApply(pid -> MessageResult.apply("Successfully submitted code quality results."));
     }

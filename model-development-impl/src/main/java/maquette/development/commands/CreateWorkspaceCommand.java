@@ -28,7 +28,7 @@ public class CreateWorkspaceCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .create(user, name, title, summary)
             .thenApply(done -> MessageResult.apply("Successfully created workspace"));
     }

@@ -13,7 +13,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class InMemoryModelsRepository implements ModelsRepository {
+public final class InMemoryModelsRepository implements ModelsRepository {
+
     @Override
     public CompletionStage<Done> insertOrUpdateModel(UID workspace,
                                                      ModelProperties model) {

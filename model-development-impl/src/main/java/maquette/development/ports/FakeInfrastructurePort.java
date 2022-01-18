@@ -12,9 +12,9 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public class FakeInfrastructurePort implements InfrastructurePort {
+
     @Override
-    public CompletionStage<Done> createOrUpdateStackInstance(UID workspace,
-                                                             StackConfiguration configuration) {
+    public CompletionStage<Done> createOrUpdateStackInstance(UID workspace, StackConfiguration configuration) {
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
@@ -29,8 +29,7 @@ public class FakeInfrastructurePort implements InfrastructurePort {
     }
 
     @Override
-    public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace,
-                                                                          String name) {
+    public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name) {
         return CompletableFuture.completedFuture(StackInstanceParameters.apply("http://foo", "MLFlow Dashboard")
             .withParameter("CUSTOM_PARAM", "test"));
     }

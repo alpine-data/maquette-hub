@@ -2,7 +2,7 @@ package maquette.development.values.exceptions;
 
 import maquette.core.common.exceptions.ApplicationException;
 
-public class ModelNotFoundException extends ApplicationException {
+public final class ModelNotFoundException extends ApplicationException {
 
    private ModelNotFoundException(String message) {
       super(message);

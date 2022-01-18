@@ -31,6 +31,11 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
     }
 
     @Override
+    public SandboxesRepository setupSandboxesRepository() {
+        return InMemorySandboxesRepository.apply();
+    }
+
+    @Override
     protected void create_data_access_request(String accessRequestId,
                                                        String dataAssetName,
                                                        String workspaceName,

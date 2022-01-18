@@ -2,10 +2,7 @@ package maquette.development.specs;
 
 import maquette.core.MaquetteRuntime;
 import maquette.development.MaquetteModelDevelopment;
-import maquette.development.ports.DataAssetsServicePort;
-import maquette.development.ports.InfrastructurePort;
-import maquette.development.ports.ModelsRepository;
-import maquette.development.ports.WorkspacesRepository;
+import maquette.development.ports.*;
 import maquette.development.specs.steps.WorkspaceStepDefinitions;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
@@ -38,8 +35,8 @@ public abstract class WorkspacesSpecs {
         this.workspacesRepository = setupWorkspacesRepository();
         this.runtime = MaquetteRuntime.apply();
         this.runtime.withModule(MaquetteModelDevelopment.apply(
-                this.workspacesRepository, setupModelsRepository(), setupInfrastructurePort(),
-                setupDataAssetsServicePort()))
+                this.workspacesRepository, setupModelsRepository(),
+                setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort()))
             .initialize(context.system, context.app);
         this.steps = new WorkspaceStepDefinitions(this.runtime);
     }
@@ -57,6 +54,8 @@ public abstract class WorkspacesSpecs {
     public abstract InfrastructurePort setupInfrastructurePort();
 
     public abstract DataAssetsServicePort setupDataAssetsServicePort();
+
+    public abstract SandboxesRepository setupSandboxesRepository();
 
     /**
      * Workspaces are always private and can be accessed only by the members

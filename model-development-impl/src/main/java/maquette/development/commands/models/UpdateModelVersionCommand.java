@@ -29,7 +29,7 @@ public class UpdateModelVersionCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .updateModelVersion(user, project, model, version, description)
             .thenApply(pid -> MessageResult.apply("Successfully updated model."));
     }

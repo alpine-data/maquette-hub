@@ -29,7 +29,7 @@ public final class GrantWorkspaceMemberCommand implements Command {
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
-            .getServices()
+            .getWorkspaceServices()
             .grant(user, name, Authorizations.fromGenericAuthorizationDefinition(authorization), role)
             .thenApply(done -> MessageResult.create("Successfully granted ownership."));
     }

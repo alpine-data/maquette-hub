@@ -1,5 +1,6 @@
-package maquette.development.commands.models;
+package maquette.development.commands.sandboxes;
 
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,31 +11,37 @@ import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
+import maquette.development.values.sandboxes.volumes.NewVolume;
+import maquette.development.values.sandboxes.volumes.VolumeDefinition;
+import maquette.development.values.stacks.StackConfiguration;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RequestModelReviewCommand implements Command {
+public class CreateSandboxCommand implements Command {
 
     String workspace;
 
-    String model;
+    String name;
 
-    String version;
+    VolumeDefinition volume;
+
+    List<StackConfiguration> stacks;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime.getModule(MaquetteModelDevelopment.class)
-            .getWorkspaceServices()
-            .requestModelReview(user, workspace, model, version)
-            .thenApply(pid -> MessageResult.apply("Successfully approved model version."));
+            .getSandboxServices()
+            .createSandbox(user, workspace, name, volume, stacks)
+            .thenApply(done -> MessageResult.apply("Successfully created workspace"));
     }
 
     @Override
     public Command example() {
-        return apply("some-workspace", "some-model", "1");
+        return apply("some-workspace", "some-sandbox", NewVolume.apply("some-volume"), Lists.newArrayList());
     }
 
 }

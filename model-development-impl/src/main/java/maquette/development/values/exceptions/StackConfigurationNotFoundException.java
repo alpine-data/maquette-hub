@@ -3,7 +3,7 @@ package maquette.development.values.exceptions;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.values.UID;
 
-public class StackConfigurationNotFoundException extends ApplicationException {
+public final class StackConfigurationNotFoundException extends ApplicationException {
 
    private StackConfigurationNotFoundException(String message) {
       super(message);

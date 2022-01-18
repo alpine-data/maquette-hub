@@ -9,11 +9,14 @@ import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
+import maquette.development.commands.sandboxes.CreateSandboxCommand;
+import maquette.development.commands.sandboxes.GetSandboxCommand;
+import maquette.development.commands.sandboxes.GetStacksCommand;
+import maquette.development.commands.sandboxes.ListSandboxesCommand;
+import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
-import maquette.development.ports.DataAssetsServicePort;
-import maquette.development.ports.InfrastructurePort;
-import maquette.development.ports.ModelsRepository;
-import maquette.development.ports.WorkspacesRepository;
+import maquette.development.ports.*;
+import maquette.development.services.SandboxServices;
 import maquette.development.services.WorkspaceServices;
 import maquette.development.services.WorkspaceServicesFactory;
 
@@ -24,18 +27,25 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
     public static final String MODULE_NAME = "model-development";
 
-    private final WorkspaceEntities entities;
+    private final WorkspaceEntities workspaces;
 
-    private final WorkspaceServices services;
+    private final WorkspaceServices workspaceServices;
+
+    private final SandboxEntities sandboxes;
+
+    private final SandboxServices sandboxServices;
 
     public static MaquetteModelDevelopment apply(
-        WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository,
+        WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository, SandboxesRepository sandboxesRepository,
         InfrastructurePort infrastructurePort, DataAssetsServicePort dataAssets) {
 
-        var entities = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
-        var services = WorkspaceServicesFactory.apply(entities, dataAssets);
+        var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
+        var workspaceServices = WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets);
 
-        return apply(entities, services);
+        var sandboxes = SandboxEntities.apply(sandboxesRepository, infrastructurePort);
+        var sandboxServices = WorkspaceServicesFactory.createSandboxServices(workspaces, dataAssets, sandboxes);
+
+        return apply(workspaces, workspaceServices, sandboxes, sandboxServices);
     }
 
     @Override
@@ -67,15 +77,28 @@ public class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("workspaces members revoke", RevokeWorkspaceMemberCommand.class);
 
         commands.put("workspaces admin redeploy", RedeployInfrastructure.class);
+
+        commands.put("sandboxes create", CreateSandboxCommand.class);
+        commands.put("sandboxes get", GetSandboxCommand.class);
+        commands.put("sandboxes stacks", GetStacksCommand.class);
+        commands.put("sandboxes list", ListSandboxesCommand.class);
         return commands;
     }
 
-    public WorkspaceServices getServices() {
-        return services;
+    public SandboxEntities getSandboxes() {
+        return sandboxes;
     }
 
-    public WorkspaceEntities getEntities() {
-        return entities;
+    public SandboxServices getSandboxServices() {
+        return sandboxServices;
+    }
+
+    public WorkspaceServices getWorkspaceServices() {
+        return workspaceServices;
+    }
+
+    public WorkspaceEntities getWorkspaces() {
+        return workspaces;
     }
 
 }

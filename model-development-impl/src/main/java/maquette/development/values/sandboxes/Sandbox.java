@@ -1,38 +1,46 @@
 package maquette.development.values.sandboxes;
 
-import com.google.common.collect.Sets;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.values.ActionMetadata;
-import maquette.core.values.UID;
-import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 
-import java.util.Set;
+import java.util.Map;
 
 @Value
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Sandbox {
 
-    UID id;
+    private static final String PROPERTIES = "properties";
+    private static final String STACKS = "stacks";
 
-    UID project;
+    /**
+     * Sandbox properties and details.
+     */
+    @JsonProperty(PROPERTIES)
+    SandboxProperties properties;
 
-    UID volume;
+    /**
+     * Runtime information from stacks.
+     */
+    @JsonProperty(STACKS)
+    Map<String, StackInstanceParameters> stacks;
 
-    String name;
+    /**
+     * Creates a new instance.
+     *
+     * @param properties Sandbox properties and details.
+     * @param stacks     Runtime information from stacks.
+     * @return A new sandbox instance.
+     */
+    @JsonCreator
+    public static Sandbox apply(
+        @JsonProperty(PROPERTIES) SandboxProperties properties,
+        @JsonProperty(STACKS) Map<String, StackInstanceParameters> stacks) {
 
-    ActionMetadata created;
-
-    Set<StackInstanceParameters> stacks;
-
-    @SuppressWarnings("unused")
-    private Sandbox() {
-        this(null, null, null, null, null, Sets.newHashSet());
-    }
-
-    public static Sandbox apply(UID id, UID project, UID volume, String name, ActionMetadata created) {
-        return apply(id, project, volume, name, created, Sets.newHashSet());
+        return new Sandbox(properties, stacks);
     }
 
 }

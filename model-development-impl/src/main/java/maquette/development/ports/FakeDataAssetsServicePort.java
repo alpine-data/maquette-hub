@@ -16,7 +16,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO mw: Add some methods to setup/modify dummy data
 @AllArgsConstructor(staticName = "apply")
 public final class FakeDataAssetsServicePort implements DataAssetsServicePort {
 
