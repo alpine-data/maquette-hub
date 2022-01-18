@@ -22,7 +22,7 @@ public final class SandboxEntities {
     private final InfrastructurePort infrastructurePort;
 
     /**
-     * Creates a bew sandbox.
+     * Creates a new sandbox.
      *
      * @param executor  The user who executes the action.
      * @param workspace The id of the workspace the sandbox belongs to.
