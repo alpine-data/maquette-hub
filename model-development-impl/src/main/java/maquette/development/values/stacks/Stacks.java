@@ -14,8 +14,7 @@ public class Stacks {
 
     private Stacks() {
         var stacks = Lists.<Stack<?>>newArrayList();
-        stacks.add(MlflowStack.apply()); // remove MLflow stack when real stacks are added, this should not be in the list.
-        // TODO mw: add defined stacks
+        stacks.add(PythonStack.apply());
 
         this.stacks = List.copyOf(stacks);
     }

@@ -13,7 +13,8 @@ import java.util.Map;
     use = JsonTypeInfo.Id.NAME,
     property = "stack")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = MlflowStackConfiguration.class, name = MlflowStack.STACK_NAME)
+    @JsonSubTypes.Type(value = MlflowStackConfiguration.class, name = MlflowStack.STACK_NAME),
+    @JsonSubTypes.Type(value = PythonStackConfiguration.class, name = PythonStack.STACK_NAME)
 })
 public interface StackConfiguration {
 
