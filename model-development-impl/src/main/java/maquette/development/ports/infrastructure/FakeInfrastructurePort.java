@@ -1,4 +1,4 @@
-package maquette.development.ports;
+package maquette.development.ports.infrastructure;
 
 import akka.Done;
 import lombok.AllArgsConstructor;

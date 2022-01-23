@@ -9,7 +9,7 @@ import maquette.core.ports.MembersCompanion;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
-import maquette.development.ports.InfrastructurePort;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.values.WorkspaceMemberRole;

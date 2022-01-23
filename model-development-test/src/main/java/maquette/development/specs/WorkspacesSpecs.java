@@ -3,6 +3,7 @@ package maquette.development.specs;
 import maquette.core.MaquetteRuntime;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.ports.*;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.specs.steps.WorkspaceStepDefinitions;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;

@@ -4,7 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.values.UID;
-import maquette.development.ports.InfrastructurePort;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.values.sandboxes.SandboxProperties;
 import maquette.development.values.stacks.StackConfiguration;

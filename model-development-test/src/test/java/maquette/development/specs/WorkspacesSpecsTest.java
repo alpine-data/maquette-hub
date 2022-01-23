@@ -1,6 +1,8 @@
 package maquette.development.specs;
 
 import maquette.development.ports.*;
+import maquette.development.ports.infrastructure.FakeInfrastructurePort;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 
 public class WorkspacesSpecsTest extends WorkspacesSpecs {
 

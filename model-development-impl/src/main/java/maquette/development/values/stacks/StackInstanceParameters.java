@@ -40,6 +40,10 @@ public class StackInstanceParameters {
       return apply(Operators.suppressExceptions(() -> new URL(entrypoint)), entrypointLabel);
    }
 
+   public static StackInstanceParameters apply(String entrypoint, String entrypointLabel, Map<String, String> parameters) {
+      return apply(Operators.suppressExceptions(() -> new URL(entrypoint)), entrypointLabel, parameters);
+   }
+
    @JsonAnyGetter
    public Map<String, Object> getParameters() {
       return Map.copyOf(parameters);
