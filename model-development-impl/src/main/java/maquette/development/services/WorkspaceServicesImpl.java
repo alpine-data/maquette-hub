@@ -27,6 +27,7 @@ import maquette.development.values.model.events.Rejected;
 import maquette.development.values.model.events.ReviewRequested;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.governance.CodeQuality;
+import maquette.development.values.stacks.Stacks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +92,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
                 return Operators.compose(
                     propertiesCS, membersCS, accessRequestsCS, dataAssetsCS,
-                    (properties, members, accessRequests, dataAssets) -> Workspace.apply(properties, accessRequests, members, dataAssets, List.of(), List.of()));
+                    (properties, members, accessRequests, dataAssets) -> Workspace.apply(properties, accessRequests, members, dataAssets, List.of(), Stacks.apply().getStacks()));
             });
     }
 

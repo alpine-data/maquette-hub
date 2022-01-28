@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
@@ -16,12 +18,16 @@ import java.io.IOException;
  *
  * @param <T> The actual type of the data.
  */
-@Value
-@AllArgsConstructor(staticName = "apply")
+@Getter
+@AllArgsConstructor
 @JsonSerialize(using = DataResult.Serializer.class)
 public class DataResult<T> implements CommandResult {
 
     T data;
+
+    public static <T> DataResult<T> apply(T data) {
+        return new DataResult<>(data);
+    }
 
     @Override
     public String toPlainText(MaquetteRuntime runtime) {

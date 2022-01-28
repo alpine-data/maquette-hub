@@ -68,6 +68,7 @@ public class MaquetteModelDevelopment implements MaquetteModule {
     public Map<String, Class<? extends Command>> getCommands() {
         var commands = Maps.<String, Class<? extends Command>>newHashMap();
         commands.put("workspaces create", CreateWorkspaceCommand.class);
+        commands.put("workspaces environment", GetWorkspaceEnvironmentCommand.class);
         commands.put("workspaces get", GetWorkspaceCommand.class);
         commands.put("workspaces list", ListWorkspacesCommand.class);
         commands.put("workspaces remove", RemoveWorkspaceCommand.class);

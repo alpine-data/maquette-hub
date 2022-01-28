@@ -8,9 +8,11 @@ import com.oblac.nomen.Nomen;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.text.CaseUtils;
+import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -316,6 +318,12 @@ public final class Operators {
         } catch (Exception e) {
             throw new RuntimeException(message, e);
         }
+    }
+
+
+    public static String toRelativeTimeString(Instant time) {
+        var p = new PrettyTime();
+        return p.format(time);
     }
 
     @FunctionalInterface

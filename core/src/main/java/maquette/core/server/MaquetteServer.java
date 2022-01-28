@@ -11,6 +11,7 @@ import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.users.UserModule;
 import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
+import maquette.core.server.commands.AboutCommand;
 import maquette.core.server.commands.ErrorResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AboutResource;
@@ -46,6 +47,12 @@ public final class MaquetteServer {
         var server = new MaquetteServer(runtime);
 
         /*
+         * Register core commands
+         */
+        var aboutCommandType = new NamedType(AboutCommand.class, "about");
+        om.registerSubtypes(aboutCommandType);
+
+        /*
          * Register commands from modules
          */
         runtime.getModules().forEach(module -> module.getCommands().forEach((key, command) -> {
@@ -77,7 +84,7 @@ public final class MaquetteServer {
                     var error = maybeApplicationException.get();
                     ctx.status(error.getHttpStatus());
                     ctx.json(ErrorResult.create(error.getMessage()));
-                    LOG.warn("A domain exception was caught and returned to the client", e);
+                    LOG.debug("A domain exception was caught and returned to the client", e);
                 } else {
                     LOG.warn("Unhandled exception upon API call", e);
                     ctx.status(500);

@@ -37,23 +37,21 @@ public final class AccessRequestsCompanion {
 
     private final DataAssetsRepository repository;
 
-    public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, UID project,
-                                                                                String reason) {
+    public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(
+        User executor, UID project, String reason) {
+
         var created = ActionMetadata.apply(executor);
 
-        var existingRequestsCS = repository.getDataAccessRequestsCountByParent(id);
-        var propertiesCS = repository.getDataAssetById(id);
-
-        return Operators
-            .compose(existingRequestsCS, propertiesCS, (existingRequests, properties) -> {
-                var requestId = UID.apply(String.valueOf(existingRequests + 1));
+        return repository
+            .getDataAssetById(id)
+            .thenApply(properties -> {
+                var requestId = UID.apply();
                 var request = DataAccessRequestProperties.apply(requestId, created, id, project, reason);
 
                 if (properties.getMetadata().getClassification().equals(DataClassification.PUBLIC) &&
                     properties.getMetadata().getPersonalInformation().equals(PersonalInformation.NONE)) {
                     request = request.withEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(),
-                        "Automatically " +
-                            "approved access to public data asset.", "any", false));
+                        "Automatically approved access to public data asset.", "any", false));
                 }
 
                 final var requestUpdated = request;

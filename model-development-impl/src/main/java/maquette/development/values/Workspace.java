@@ -7,6 +7,7 @@ import lombok.With;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
+import maquette.development.values.stacks.Stack;
 import maquette.development.values.stacks.StackProperties;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class Workspace {
 
     List<Sandbox> sandboxes;
 
-    List<StackProperties> stacks;
+    List<Stack<?>> stacks;
 
     public boolean isMember(User user, WorkspaceMemberRole role) {
         return members
