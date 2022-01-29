@@ -19,10 +19,10 @@ public final class SandboxServicesSecured implements SandboxServices {
     private final WorkspaceServicesCompanion workspaces;
 
     @Override
-    public CompletionStage<SandboxProperties> createSandbox(User user, String workspace, String name, VolumeDefinition volume, List<StackConfiguration> stacks) {
+    public CompletionStage<SandboxProperties> createSandbox(User user, String workspace, String name, String comment, VolumeDefinition volume, List<StackConfiguration> stacks) {
         return workspaces
             .withAuthorization(() -> workspaces.isMember(user, workspace))
-            .thenCompose(ok -> delegate.createSandbox(user, workspace, name, volume, stacks));
+            .thenCompose(ok -> delegate.createSandbox(user, workspace, name, comment, volume, stacks));
     }
 
     @Override

@@ -31,11 +31,11 @@ public final class SandboxServicesImpl implements SandboxServices {
 
     @Override
     public CompletionStage<SandboxProperties> createSandbox(
-        User user, String workspace, String name, VolumeDefinition volume, List<StackConfiguration> stacks) {
+        User user, String workspace, String name, String comment, VolumeDefinition volume, List<StackConfiguration> stacks) {
 
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(wks -> sandboxes.createSandbox(user, wks.getId(), UID.apply(), name))
+            .thenCompose(wks -> sandboxes.createSandbox(user, wks.getId(), UID.apply(), name, comment))
             .thenCompose(sdbx -> sandboxes.getSandboxById(sdbx.getWorkspace(), sdbx.getId()))
             .thenCompose(sdbx -> sdbx.addStacks(stacks).thenCompose(d -> sdbx.getProperties()));
     }

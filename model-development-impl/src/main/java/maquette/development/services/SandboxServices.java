@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionStage;
 public interface SandboxServices {
 
     CompletionStage<SandboxProperties> createSandbox(
-        User user, String workspace, String name, VolumeDefinition volume, List<StackConfiguration> stacks);
+        User user, String workspace, String name, String comment, VolumeDefinition volume, List<StackConfiguration> stacks);
 
     CompletionStage<Sandbox> getSandbox(User user, String workspace, String sandbox);
 

@@ -278,6 +278,8 @@ public final class Operators {
         return Nomen.randomName();
     }
 
+
+
     public static void require(boolean condition, String message, Object... args) {
         if (!condition) {
             throw new IllegalArgumentException(String.format(message, args));

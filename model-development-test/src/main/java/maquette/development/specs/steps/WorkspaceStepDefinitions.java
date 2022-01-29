@@ -3,7 +3,6 @@ package maquette.development.specs.steps;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
-import maquette.core.values.authorization.GenericAuthorizationDefinition;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.commands.*;
