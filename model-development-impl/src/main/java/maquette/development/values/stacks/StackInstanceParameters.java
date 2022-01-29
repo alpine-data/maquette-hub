@@ -25,6 +25,7 @@ public class StackInstanceParameters {
 
    String entrypointLabel;
 
+   @JsonAnyGetter
    Map<String, String> parameters;
 
    @SuppressWarnings("unused")
