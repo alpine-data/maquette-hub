@@ -7,6 +7,7 @@ import lombok.With;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
+import maquette.development.values.sandboxes.SandboxProperties;
 import maquette.development.values.stacks.Stack;
 import maquette.development.values.stacks.StackProperties;
 
@@ -36,6 +37,10 @@ public class Workspace {
 
     public boolean isMember(User user) {
         return isMember(user, null);
+    }
+
+    public WorkspacePermissions getWorkspacePermissions(User user) {
+        return WorkspacePermissions.forUser(user, members);
     }
 
 }

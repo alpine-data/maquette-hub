@@ -52,11 +52,19 @@ public final class Deployment {
 
    public CompletionStage<Done> stop() {
       return Operators
-         .allOf(containers.stream().map(DockerContainer::stop).collect(Collectors.toList()))
+         .allOf(containers.stream().map(DockerContainer::stop))
          .thenApply(done -> {
             status = DeploymentStatus.STOPPED;
             return Done.getInstance();
          });
+   }
+
+   public CompletionStage<Done> remove() {
+      return stop()
+          .thenCompose(done -> Operators.allOf(containers.stream().map(DockerContainer::remove)))
+          .thenApply(done -> {
+             return Done.getInstance();
+          });
    }
 
    public CompletionStage<Done> start() {

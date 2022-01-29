@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
 
+@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DummyPythonStackConfiguration implements StackConfiguration {
 

@@ -274,8 +274,13 @@ public final class Operators {
         return f.lebowski().quote();
     }
 
+    /**
+     * Returns a random technical name, consisting of an attribute and a name.
+     *
+     * @return The random name.
+     */
     public static String random_name() {
-        return Nomen.randomName();
+        return Nomen.randomName().replace("_", "-");
     }
 
 

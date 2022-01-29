@@ -8,6 +8,7 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
+import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.commands.views.WorkspaceView;
@@ -33,7 +34,19 @@ public class WorkspaceViewCommand implements Command {
             .getSandboxServices()
             .getStacks(user);
 
-        return Operators.compose(workspaceCS, stacksCS, WorkspaceView::apply);
+        var sandboxOwnedCountCS = workspaceCS.thenApply(wks -> wks.getSandboxes()
+            .stream()
+            .filter(sdbx -> (user instanceof AuthenticatedUser) && sdbx.getProperties()
+                .getCreated()
+                .getBy()
+                .equals(((AuthenticatedUser) user).getId().getValue()))
+            .count());
+
+        var workspacePermissionsCS = workspaceCS.thenApply(wks -> wks.getWorkspacePermissions(user));
+
+        return Operators.compose(
+            workspaceCS, stacksCS, sandboxOwnedCountCS, workspacePermissionsCS,
+            WorkspaceView::apply);
     }
 
     @Override

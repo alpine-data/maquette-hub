@@ -1,5 +1,6 @@
 package maquette.development.services;
 
+import akka.Done;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.sandboxes.SandboxProperties;
@@ -20,5 +21,7 @@ public interface SandboxServices {
     CompletionStage<List<StackProperties>> getStacks(User user);
 
     CompletionStage<List<SandboxProperties>> getSandboxes(User user, String workspace);
+
+    CompletionStage<Done> removeSandbox(User user, String workspace, String sandbox);
 
 }

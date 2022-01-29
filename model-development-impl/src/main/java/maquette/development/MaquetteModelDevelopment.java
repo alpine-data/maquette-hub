@@ -9,10 +9,7 @@ import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
-import maquette.development.commands.sandboxes.CreateSandboxCommand;
-import maquette.development.commands.sandboxes.GetSandboxCommand;
-import maquette.development.commands.sandboxes.GetStacksCommand;
-import maquette.development.commands.sandboxes.ListSandboxesCommand;
+import maquette.development.commands.sandboxes.*;
 import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
 import maquette.development.ports.*;
@@ -41,9 +38,9 @@ public class MaquetteModelDevelopment implements MaquetteModule {
         InfrastructurePort infrastructurePort, DataAssetsServicePort dataAssets) {
 
         var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
-        var workspaceServices = WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets);
-
         var sandboxes = SandboxEntities.apply(sandboxesRepository, infrastructurePort);
+
+        var workspaceServices = WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, sandboxes);
         var sandboxServices = WorkspaceServicesFactory.createSandboxServices(workspaces, dataAssets, sandboxes);
 
         return apply(workspaces, workspaceServices, sandboxes, sandboxServices);
@@ -84,6 +81,7 @@ public class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("sandboxes get", GetSandboxCommand.class);
         commands.put("sandboxes stacks", GetStacksCommand.class);
         commands.put("sandboxes list", ListSandboxesCommand.class);
+        commands.put("sandboxes remove", RemoveSandboxCommand.class);
         return commands;
     }
 

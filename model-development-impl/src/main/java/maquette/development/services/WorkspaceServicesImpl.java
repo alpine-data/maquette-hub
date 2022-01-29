@@ -9,10 +9,7 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
-import maquette.development.entities.ModelEntities;
-import maquette.development.entities.ModelEntity;
-import maquette.development.entities.WorkspaceEntities;
-import maquette.development.entities.WorkspaceEntity;
+import maquette.development.entities.*;
 import maquette.development.ports.DataAssetsServicePort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
@@ -27,7 +24,7 @@ import maquette.development.values.model.events.Rejected;
 import maquette.development.values.model.events.ReviewRequested;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.governance.CodeQuality;
-import maquette.development.values.stacks.Stacks;
+import maquette.development.values.sandboxes.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +42,14 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     WorkspaceEntities workspaces;
 
+    SandboxEntities sandboxes;
+
     DataAssetsServicePort dataAssets;
 
     public static WorkspaceServicesImpl apply(
-        WorkspaceEntities projects, DataAssetsServicePort dataAssets) {
+        WorkspaceEntities projects, SandboxEntities sandboxes, DataAssetsServicePort dataAssets) {
 
-        return new WorkspaceServicesImpl(projects, dataAssets);
+        return new WorkspaceServicesImpl(projects, sandboxes, dataAssets);
     }
 
     @Override
@@ -89,10 +88,19 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                 var membersCS = workspace.members().getMembers();
                 var accessRequestsCS = dataAssets.findDataAccessRequestsByWorkspace(workspace.getId());
                 var dataAssetsCS = dataAssets.findDataAssetsByWorkspace(workspace.getId());
+                var sandboxesCS = sandboxes
+                    .listSandboxes(workspace.getId())
+                    .thenCompose(sdbxProperties -> Operators.allOf(
+                        sdbxProperties
+                            .stream()
+                            .map(properties -> sandboxes
+                                .getSandboxById(workspace.getId(), properties.getId())
+                                .thenCompose(SandboxEntity::getState)
+                                .thenApply(stacks -> Sandbox.apply(properties, stacks)))));
 
                 return Operators.compose(
-                    propertiesCS, membersCS, accessRequestsCS, dataAssetsCS,
-                    (properties, members, accessRequests, dataAssets) -> Workspace.apply(properties, accessRequests, members, dataAssets, List.of()));
+                    propertiesCS, accessRequestsCS, membersCS, dataAssetsCS, sandboxesCS,
+                    Workspace::apply);
             });
     }
 
@@ -283,7 +291,8 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
      * Manage members
      */
     @Override
-    public CompletionStage<Done> grant(User user, String workspace, Authorization authorization, WorkspaceMemberRole role) {
+    public CompletionStage<Done> grant(User user, String workspace, Authorization authorization,
+                                       WorkspaceMemberRole role) {
         return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(project -> project.members().addMember(user, authorization, role));

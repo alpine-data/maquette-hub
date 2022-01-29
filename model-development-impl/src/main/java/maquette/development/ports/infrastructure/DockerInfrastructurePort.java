@@ -10,15 +10,14 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.values.UID;
+import maquette.development.ports.infrastructure.docker.Deployment;
 import maquette.development.ports.infrastructure.docker.Docker;
 import maquette.development.ports.infrastructure.docker.deployments.MlflowStackDeployment;
+import maquette.development.ports.infrastructure.docker.deployments.PythonStackDeployment;
 import maquette.development.ports.infrastructure.docker.deployments.StackDeployment;
 import maquette.development.ports.infrastructure.docker.deployments.StackDeploymentList;
 import maquette.development.values.exceptions.StackConfigurationNotFoundException;
-import maquette.development.values.stacks.MlflowStackConfiguration;
-import maquette.development.values.stacks.StackConfiguration;
-import maquette.development.values.stacks.StackInstanceParameters;
-import maquette.development.values.stacks.StackInstanceStatus;
+import maquette.development.values.stacks.*;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Files;
@@ -52,25 +51,29 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
     public CompletionStage<Done> createOrUpdateStackInstance(UID workspace, StackConfiguration configuration) {
         if (configuration instanceof MlflowStackConfiguration) {
             return createOrUpdateMlflow(workspace, (MlflowStackConfiguration) configuration);
+        } else if (configuration instanceof DummyPythonStackConfiguration) {
+            return createOrUpdatePython(workspace, (DummyPythonStackConfiguration) configuration);
         } else {
             return CompletableFuture.failedFuture(new RuntimeException(
-                String.format("Unknown stack type `%s`", configuration.getStackInstanceName())));
+                String.format("Unknown stack type `%s`", configuration.getClass().getName())));
         }
     }
 
     @Override
     public CompletionStage<Done> removeStackInstance(String name) {
-        // TODO mw
-        return CompletableFuture.completedFuture(Done.getInstance());
+        return docker
+            .runDeployment(getDeployedStackConfiguration(name).getDeploymentConfig())
+            .thenCompose(Deployment::remove)
+            .thenApply(done -> {
+                removeDeployedStackConfiguration(name);
+                return done;
+            });
     }
 
     @Override
     public CompletionStage<Done> checkState() {
         return CompletableFuture.supplyAsync(() -> {
-            getDeployedStackConfigurations().forEach(deployed -> {
-                docker.runDeployment(deployed.getDeploymentConfig());
-            });
-
+            getDeployedStackConfigurations().forEach(deployed -> docker.runDeployment(deployed.getDeploymentConfig()));
             return Done.getInstance();
         });
     }
@@ -99,6 +102,11 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
         return getStackInstanceStatus(configuration.getStackInstanceName()).thenApply(i -> Done.getInstance());
     }
 
+    private CompletionStage<Done> createOrUpdatePython(UID workspace, DummyPythonStackConfiguration configuration) {
+        insertOrUpdate(PythonStackDeployment.apply(configuration));
+        return getStackInstanceStatus(configuration.getStackInstanceName()).thenApply(i -> Done.getInstance());
+    }
+
     private void insertOrUpdate(StackDeployment configuration) {
         var current = getDeployedStackConfigurations()
             .stream()
@@ -108,6 +116,15 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
         var updated = Streams
             .concat(current, Stream.of(configuration))
+            .collect(Collectors.toList());
+
+        updateDeployedStackConfigurations(updated);
+    }
+
+    private  void removeDeployedStackConfiguration(String name) {
+        var updated = getDeployedStackConfigurations()
+            .stream()
+            .filter(d -> !d.getStackInstanceName().equals(name))
             .collect(Collectors.toList());
 
         updateDeployedStackConfigurations(updated);

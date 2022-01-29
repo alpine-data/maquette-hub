@@ -4,11 +4,12 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.values.UID;
-import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.ports.SandboxesRepository;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.sandboxes.SandboxProperties;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
+import maquette.development.values.stacks.StackRuntimeState;
 import maquette.development.values.stacks.Stacks;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -41,8 +42,7 @@ public final class SandboxEntity {
                 .stream()
                 .map(stackConfiguration -> {
                     var stack = Stacks.apply().getStackByConfiguration(stackConfiguration);
-                    var stackConfigurationName = String.format("mq--%s--%s--%s--%s", workspace, id, stack.getName(),
-                        UID.apply(4));
+                    var stackConfigurationName = String.format("mq--%s--%s--%s", workspace, id, stack.getName());
 
                     var updatedStackConfiguration = stackConfiguration.withStackInstanceName(stackConfigurationName);
 
@@ -82,6 +82,43 @@ public final class SandboxEntity {
             .thenApply(list -> list
                 .stream()
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
+    }
+
+    /**
+     * Fetches all runtime information and returns the runtime state for the sandbox.
+     *
+     * @return The list of state information for all included stacks.
+     */
+    public CompletionStage<List<StackRuntimeState>> getState() {
+        return getProperties()
+            .thenCompose(properties -> Operators.allOf(properties
+                .getStacks()
+                .keySet()
+                .stream()
+                .map(stack -> {
+                    var parametersCS = infrastructurePort.getInstanceParameters(workspace, stack);
+                    var stateCS = infrastructurePort.getStackInstanceStatus(stack);
+
+                    return Operators.compose(parametersCS, stateCS, (parameters, state) -> {
+                        var config = properties.getStacks().get(stack);
+                        return StackRuntimeState.apply(config, state, parameters);
+                    });
+                })));
+    }
+
+    /**
+     * Removes a sandbox and its related resources.
+     *
+     * @return Done.
+     */
+    public CompletionStage<Done> remove() {
+        return getProperties().thenCompose(properties -> Operators
+            .allOf(properties
+                .getStacks()
+                .keySet()
+                .stream()
+                .map(infrastructurePort::removeStackInstance))
+            .thenCompose(ok -> sandboxes.removeSandboxById(workspace, id)));
     }
 
     private CompletionStage<Done> updateProperties(Function<SandboxProperties, SandboxProperties> updateFunc) {

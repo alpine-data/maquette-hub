@@ -14,7 +14,8 @@ import java.util.concurrent.CompletionStage;
     property = "type")
 @JsonSubTypes(
     {
-        @JsonSubTypes.Type(value = MlflowStackDeployment.class, name = "mlflow")
+        @JsonSubTypes.Type(value = MlflowStackDeployment.class, name = "mlflow"),
+        @JsonSubTypes.Type(value = PythonStackDeployment.class, name = "python")
     })
 public interface StackDeployment {
 

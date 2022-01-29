@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.development.values.stacks.StackInstanceParameters;
+import maquette.development.values.stacks.StackRuntimeState;
 
-import java.util.Map;
+import java.util.List;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -26,7 +26,7 @@ public class Sandbox {
      * Runtime information from stacks.
      */
     @JsonProperty(STACKS)
-    Map<String, StackInstanceParameters> stacks;
+    List<StackRuntimeState> stacks;
 
     /**
      * Creates a new instance.
@@ -38,7 +38,7 @@ public class Sandbox {
     @JsonCreator
     public static Sandbox apply(
         @JsonProperty(PROPERTIES) SandboxProperties properties,
-        @JsonProperty(STACKS) Map<String, StackInstanceParameters> stacks) {
+        @JsonProperty(STACKS) List<StackRuntimeState> stacks) {
 
         return new Sandbox(properties, stacks);
     }

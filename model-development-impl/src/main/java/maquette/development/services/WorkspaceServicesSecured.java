@@ -77,6 +77,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
                 .thenApply(opt -> opt.orElse(project
                     .withMembers(List.of())
                     .withSandboxes(List.of())
+                    .withAssets(List.of())
                     .withDataAccessRequests(List.of()))));
     }
 
@@ -263,7 +264,8 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
                 var notSameUserCS = CompletableFuture.completedStage(!user.getDisplayName()
                     .equals(authorization.getName()));
                 var isAuthorizedCS = companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN);
-                return Operators.compose(notSameUserCS, isAuthorizedCS, (notSameUser, isAuthorized) -> notSameUser && isAuthorized);
+                return Operators.compose(notSameUserCS, isAuthorizedCS,
+                    (notSameUser, isAuthorized) -> notSameUser && isAuthorized);
             })
             .thenCompose(ok -> delegate.revoke(user, workspace, authorization));
     }

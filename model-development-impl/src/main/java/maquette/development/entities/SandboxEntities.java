@@ -72,7 +72,7 @@ public final class SandboxEntities {
      */
     public CompletionStage<Optional<SandboxEntity>> findSandboxByName(UID workspace, String sandbox) {
         return sandboxes.findSandboxByName(workspace, sandbox)
-            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, infrastructurePort, workspace, sdbx.getId())));
+            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, infrastructurePort, sdbx.getId(), workspace)));
     }
 
     /**

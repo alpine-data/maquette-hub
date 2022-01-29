@@ -1,5 +1,6 @@
 package maquette.development.services;
 
+import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.common.validation.api.FluentValidation;
@@ -46,7 +47,7 @@ public final class SandboxServicesValidated implements  SandboxServices {
                 }
 
                 if (Objects.isNull(volume)) {
-                    volumeValidated = NewVolume.apply(nameValidated);
+                    volumeValidated = NewVolume.apply(String.format("%s--volume", nameValidated));
                 } else {
                     volumeValidated = volume;
                 }
@@ -79,6 +80,17 @@ public final class SandboxServicesValidated implements  SandboxServices {
             .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
             .checkAndFail()
             .thenCompose(done -> delegate.getSandboxes(user, workspace));
+    }
+
+    @Override
+    public CompletionStage<Done> removeSandbox(User user, String workspace, String sandbox) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
+            .validate("sandbox", workspace, NonEmptyStringValidator.apply(3))
+            .checkAndFail()
+            .thenCompose(done -> delegate.removeSandbox(user, workspace, sandbox));
     }
 
 }

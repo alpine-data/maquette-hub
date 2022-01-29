@@ -1,5 +1,6 @@
 package maquette.development.services;
 
+import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.values.UID;
@@ -44,9 +45,9 @@ public final class SandboxServicesImpl implements SandboxServices {
     public CompletionStage<Sandbox> getSandbox(User user, String workspace, String sandbox) {
         return withSandboxByName(workspace, sandbox, (wks, sdbx) -> {
             var propertiesCS = sdbx.getProperties();
-            var paramsCS = sdbx.getStackInstanceParameters();
+            var stateCS = sdbx.getState();
 
-            return Operators.compose(propertiesCS, paramsCS, Sandbox::apply);
+            return Operators.compose(propertiesCS, stateCS, Sandbox::apply);
         });
     }
 
@@ -58,6 +59,11 @@ public final class SandboxServicesImpl implements SandboxServices {
     @Override
     public CompletionStage<List<SandboxProperties>> getSandboxes(User user, String workspace) {
         return workspaces.getWorkspaceByName(workspace).thenCompose(wks -> sandboxes.listSandboxes(wks.getId()));
+    }
+
+    @Override
+    public CompletionStage<Done> removeSandbox(User user, String workspace, String sandbox) {
+        return withSandboxByName(workspace, sandbox, (wks, sdbx) -> sdbx.remove());
     }
 
     private <T> CompletionStage<T> withSandboxByName(String workspace, String sandbox, BiFunction<WorkspaceEntity, SandboxEntity, CompletionStage<T>> func) {
