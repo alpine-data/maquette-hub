@@ -11,7 +11,6 @@ import maquette.development.entities.WorkspaceEntity;
 import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.sandboxes.SandboxProperties;
 import maquette.development.values.sandboxes.volumes.VolumeDefinition;
-import maquette.development.values.stacks.Stack;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackProperties;
 import maquette.development.values.stacks.Stacks;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class SandboxServicesImpl implements SandboxServices {
@@ -54,12 +52,7 @@ public final class SandboxServicesImpl implements SandboxServices {
 
     @Override
     public CompletionStage<List<StackProperties>> getStacks(User user) {
-        return CompletableFuture.completedFuture(Stacks
-            .apply()
-            .getStacks()
-            .stream()
-            .map(Stack::getProperties)
-            .collect(Collectors.toList()));
+        return CompletableFuture.completedFuture(Stacks.apply().getStacks());
     }
 
     @Override

@@ -28,8 +28,6 @@ public class Workspace {
 
     List<Sandbox> sandboxes;
 
-    List<Stack<?>> stacks;
-
     public boolean isMember(User user, WorkspaceMemberRole role) {
         return members
            .stream()

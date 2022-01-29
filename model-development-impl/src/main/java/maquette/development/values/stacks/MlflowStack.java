@@ -3,10 +3,8 @@ package maquette.development.values.stacks;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import maquette.core.common.forms.Form;
-import maquette.core.common.forms.inputs.InputControl;
 
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MlflowStack implements Stack<MlflowStackConfiguration>{
@@ -29,11 +27,6 @@ public final class MlflowStack implements Stack<MlflowStackConfiguration>{
     }
 
     @Override
-    public String getIcon() {
-        return "/foo.png";
-    }
-
-    @Override
     public List<String> getTags() {
         return Lists.newArrayList();
     }
@@ -48,8 +41,4 @@ public final class MlflowStack implements Stack<MlflowStackConfiguration>{
         return Form.apply();
     }
 
-    @Override
-    public CompletionStage<StackInstanceParameters> getParameters(MlflowStackConfiguration configuration) {
-        return null;
-    }
 }

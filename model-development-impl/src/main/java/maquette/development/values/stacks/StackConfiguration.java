@@ -13,7 +13,10 @@ import java.util.Map;
     use = JsonTypeInfo.Id.NAME,
     property = "stack")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = MlflowStackConfiguration.class, name = MlflowStack.STACK_NAME)
+    @JsonSubTypes.Type(value = DummyPythonStackConfiguration.class, name = DummyPythonStack.STACK_NAME),
+    @JsonSubTypes.Type(value = MlflowStackConfiguration.class, name = MlflowStack.STACK_NAME),
+    @JsonSubTypes.Type(value = PostgresStackConfiguration.class, name = PostgresStack.STACK_NAME),
+    @JsonSubTypes.Type(value = SynapseStackConfiguration.class, name = SynapseStack.STACK_NAME)
 })
 public interface StackConfiguration {
 

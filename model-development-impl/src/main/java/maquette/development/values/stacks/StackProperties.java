@@ -16,8 +16,6 @@ public class StackProperties {
 
     String summary;
 
-    String icon;
-
     List<String> tags;
 
     Form configurationForm;

@@ -20,18 +20,14 @@ public interface Stack<T extends StackConfiguration> {
 
    String getSummary();
 
-   String getIcon();
-
    List<String> getTags();
 
    Class<T> getConfigurationType();
 
    Form getConfigurationForm();
 
-   CompletionStage<StackInstanceParameters> getParameters(T configuration);
-
    default StackProperties getProperties() {
-      return StackProperties.apply(getTitle(), getName(), getSummary(), getIcon(), getTags(), getConfigurationForm());
+      return StackProperties.apply(getTitle(), getName(), getSummary(), getTags(), getConfigurationForm());
    }
 
 }

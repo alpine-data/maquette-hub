@@ -5,8 +5,9 @@ import maquette.development.values.exceptions.UnknownStackType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class Stacks {
+public final class Stacks {
 
     private static final Stacks INSTANCE = new Stacks();
 
@@ -14,7 +15,10 @@ public class Stacks {
 
     private Stacks() {
         var stacks = Lists.<Stack<?>>newArrayList();
-        stacks.add(MlflowStack.apply()); // remove MLflow stack when real stacks are added, this should not be in the list.
+        // stacks.add(MlflowStack.apply()); // remove MLflow stack when real stacks are added, this should not be in the list.
+        stacks.add(DummyPythonStack.apply());
+        stacks.add(PostgresStack.apply());
+        stacks.add(SynapseStack.apply());
         // TODO mw: add defined stacks
 
         this.stacks = List.copyOf(stacks);
@@ -45,8 +49,8 @@ public class Stacks {
             .orElseThrow(() -> UnknownStackType.apply(config));
     }
 
-    public List<Stack<?>> getStacks() {
-        return List.copyOf(stacks);
+    public List<StackProperties> getStacks() {
+        return stacks.stream().map(Stack::getProperties).collect(Collectors.toList());
     }
 
 }

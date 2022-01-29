@@ -92,7 +92,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
                 return Operators.compose(
                     propertiesCS, membersCS, accessRequestsCS, dataAssetsCS,
-                    (properties, members, accessRequests, dataAssets) -> Workspace.apply(properties, accessRequests, members, dataAssets, List.of(), Stacks.apply().getStacks()));
+                    (properties, members, accessRequests, dataAssets) -> Workspace.apply(properties, accessRequests, members, dataAssets, List.of()));
             });
     }
 

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
+import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.values.user.User;
@@ -22,14 +23,22 @@ public class WorkspaceViewCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        var services = runtime.getModule(MaquetteModelDevelopment.class);
+
+        var workspaceCS = services
             .getWorkspaceServices()
-            .get(user, name)
-            .thenApply(WorkspaceView::apply);
+            .get(user, name);
+
+        var stacksCS = services
+            .getSandboxServices()
+            .getStacks(user);
+
+        return Operators.compose(workspaceCS, stacksCS, WorkspaceView::apply);
     }
 
     @Override
     public Command example() {
         return WorkspaceViewCommand.apply("some-workspace");
     }
+
 }
