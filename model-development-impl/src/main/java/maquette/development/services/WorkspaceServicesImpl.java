@@ -71,7 +71,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Map<String, String>> environment(User user, String workspace, EnvironmentType type) {
-        return workspaces.getWorkspaceByName(workspace).thenCompose(WorkspaceEntity::getEnvironment);
+        return workspaces.getWorkspaceByName(workspace).thenCompose(wks -> wks.getEnvironment(type));
     }
 
     @Override
@@ -97,9 +97,10 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                                 .getSandboxById(workspace.getId(), properties.getId())
                                 .thenCompose(SandboxEntity::getState)
                                 .thenApply(stacks -> Sandbox.apply(properties, stacks)))));
+                var mlflowStatusCS = workspace.getMlflowStatus().thenApply(opt -> opt.orElse(null));
 
                 return Operators.compose(
-                    propertiesCS, accessRequestsCS, membersCS, dataAssetsCS, sandboxesCS,
+                    propertiesCS, accessRequestsCS, membersCS, dataAssetsCS, sandboxesCS, mlflowStatusCS,
                     Workspace::apply);
             });
     }

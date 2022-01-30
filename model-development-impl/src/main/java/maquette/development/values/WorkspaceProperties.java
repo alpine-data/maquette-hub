@@ -8,6 +8,7 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.development.values.stacks.MlflowStackConfiguration;
 
 import java.util.Optional;
 
@@ -43,13 +44,17 @@ public class WorkspaceProperties {
    ActionMetadata modified;
 
    @JsonProperty(ML_FLOW_CONFIGURATION)
-   MlflowConfiguration mlFlowConfiguration;
+   MlflowStackConfiguration mlFlowConfiguration;
 
    @JsonCreator
    public static WorkspaceProperties apply(
-       @JsonProperty(ID) UID id, @JsonProperty(NAME) String name, @JsonProperty(TITLE) String title,
-       @JsonProperty(SUMMARY) String summary, @JsonProperty(CREATED) ActionMetadata created,
-       @JsonProperty(MODIFIED) ActionMetadata modified, @JsonProperty(ML_FLOW_CONFIGURATION) MlflowConfiguration mlFlowConfiguration) {
+       @JsonProperty(ID) UID id,
+       @JsonProperty(NAME) String name,
+       @JsonProperty(TITLE) String title,
+       @JsonProperty(SUMMARY) String summary,
+       @JsonProperty(CREATED) ActionMetadata created,
+       @JsonProperty(MODIFIED) ActionMetadata modified,
+       @JsonProperty(ML_FLOW_CONFIGURATION) MlflowStackConfiguration mlFlowConfiguration) {
 
       return new WorkspaceProperties(id, name, title, summary, created, modified, mlFlowConfiguration);
    }
@@ -60,7 +65,7 @@ public class WorkspaceProperties {
       return apply(id, name, title, summary, created, modified, null);
    }
 
-   public Optional<MlflowConfiguration> getMlFlowConfiguration() {
+   public Optional<MlflowStackConfiguration> getMlFlowConfiguration() {
       return Optional.ofNullable(mlFlowConfiguration);
    }
 

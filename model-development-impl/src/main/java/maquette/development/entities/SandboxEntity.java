@@ -6,6 +6,7 @@ import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.values.EnvironmentType;
 import maquette.development.values.sandboxes.SandboxProperties;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
@@ -70,14 +71,14 @@ public final class SandboxEntity {
      *
      * @return A map containing all stacks mapped to their current instance parameters.
      */
-    public CompletionStage<Map<String, StackInstanceParameters>> getStackInstanceParameters() {
+    public CompletionStage<Map<String, StackInstanceParameters>> getStackInstanceParameters(EnvironmentType environmentType) {
         return getProperties()
             .thenCompose(properties -> Operators.allOf(properties
                 .getStacks()
                 .keySet()
                 .stream()
                 .map(stack -> infrastructurePort
-                    .getInstanceParameters(workspace, stack)
+                    .getInstanceParameters(workspace, stack, environmentType)
                     .thenApply(params -> Pair.of(stack, params)))))
             .thenApply(list -> list
                 .stream()
@@ -96,7 +97,7 @@ public final class SandboxEntity {
                 .keySet()
                 .stream()
                 .map(stack -> {
-                    var parametersCS = infrastructurePort.getInstanceParameters(workspace, stack);
+                    var parametersCS = infrastructurePort.getInstanceParameters(workspace, stack, EnvironmentType.EXTERNAL);
                     var stateCS = infrastructurePort.getStackInstanceStatus(stack);
 
                     return Operators.compose(parametersCS, stateCS, (parameters, state) -> {

@@ -7,12 +7,12 @@ import lombok.With;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
-import maquette.development.values.sandboxes.SandboxProperties;
-import maquette.development.values.stacks.Stack;
-import maquette.development.values.stacks.StackProperties;
+import maquette.development.values.stacks.StackInstanceStatus;
+import maquette.development.values.stacks.StackRuntimeState;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Value
 @With
@@ -29,6 +29,8 @@ public class Workspace {
 
     List<Sandbox> sandboxes;
 
+    StackRuntimeState mlflowStatus;
+
     public boolean isMember(User user, WorkspaceMemberRole role) {
         return members
            .stream()
@@ -43,4 +45,7 @@ public class Workspace {
         return WorkspacePermissions.forUser(user, members);
     }
 
+    public Optional<StackRuntimeState> getMlflowStatus() {
+        return Optional.ofNullable(mlflowStatus);
+    }
 }

@@ -13,7 +13,6 @@ import maquette.core.values.binary.BinaryObjects;
 import maquette.development.entities.mlflow.model.MLModel;
 import maquette.development.entities.mlflow.model.ModelVersionsResponse;
 import maquette.development.entities.mlflow.model.RegisteredModelsResponse;
-import maquette.development.values.MlflowConfiguration;
 import maquette.development.values.model.mlflow.ModelFromRegistry;
 import maquette.development.values.model.mlflow.VersionFromRegistry;
 import okhttp3.MediaType;
@@ -100,7 +99,7 @@ public final class MlflowClient {
 
                   var downloadPath = String.format(
                      "%s/get-artifact?path=%s%%2FMLmodel&run_uuid=%s",
-                     mlflowConfiguration.getMlflowBasePath(project),
+                     mlflowConfiguration.getMlflowBasePath(),
                      modelPath.replace("/", "%2F"),
                      version.getRunId());
 
@@ -111,7 +110,7 @@ public final class MlflowClient {
 
                   var explainerPath = String.format(
                      "%s/get-artifact?path=xpl.pkl&run_uuid=%s",
-                     mlflowConfiguration.getMlflowBasePath(project),
+                     mlflowConfiguration.getMlflowBasePath(),
                      version.getRunId());
 
                   var explainer = downloadFile(explainerPath).orElse(null);
@@ -154,7 +153,7 @@ public final class MlflowClient {
    public void transitionStage(String name, String version, String stage) {
       var url = String.format(
          "%s/api/2.0/preview/mlflow/model-versions/transition-stage",
-         mlflowConfiguration.getInternalTrackingUrl(), name, version, stage);
+         mlflowConfiguration.getInternalTrackingUrl());
 
       var req = TransitionStageRequest.apply(name, version, stage, false);
       var json = Operators.suppressExceptions(() -> om.writeValueAsString(req));
