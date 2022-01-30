@@ -110,9 +110,12 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
             .findWorkspaceByName(workspace)
             .thenCompose(maybeWorkspace -> {
                 if (maybeWorkspace.isPresent()) {
-                    var projectId = maybeWorkspace.get().getId();
+                    var workspaceId = maybeWorkspace.get().getId();
 
-                    return workspaces.removeWorkspace(projectId);
+                    var removeSandboxes = sandboxes.removeSandboxes(workspaceId);
+                    var removeWorkspace = workspaces.removeWorkspace(workspaceId);
+
+                    return Operators.compose(removeSandboxes, removeWorkspace, (r1, r2) -> Done.getInstance());
                 } else {
                     return CompletableFuture.completedFuture(Done.getInstance());
                 }

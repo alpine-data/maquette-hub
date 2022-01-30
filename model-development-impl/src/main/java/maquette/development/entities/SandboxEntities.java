@@ -2,6 +2,7 @@ package maquette.development.entities;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.common.Operators;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
@@ -33,7 +34,8 @@ public final class SandboxEntities {
      */
     public CompletionStage<SandboxProperties> createSandbox(
         User executor, UID workspace, UID volume, String name, String comment) {
-        var sandbox = SandboxProperties.apply(UID.apply(), workspace, volume, name, comment, ActionMetadata.apply(executor));
+        var sandbox = SandboxProperties.apply(UID.apply(), workspace, volume, name, comment,
+            ActionMetadata.apply(executor));
 
         return sandboxes
             .insertOrUpdateSandbox(workspace, sandbox)
@@ -72,7 +74,8 @@ public final class SandboxEntities {
      */
     public CompletionStage<Optional<SandboxEntity>> findSandboxByName(UID workspace, String sandbox) {
         return sandboxes.findSandboxByName(workspace, sandbox)
-            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, infrastructurePort, sdbx.getId(), workspace)));
+            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, infrastructurePort, sdbx.getId(),
+                workspace)));
     }
 
     /**
@@ -94,6 +97,20 @@ public final class SandboxEntities {
      */
     public CompletionStage<List<SandboxProperties>> listSandboxes(UID workspace) {
         return sandboxes.listSandboxes(workspace);
+    }
+
+    /**
+     * Remove all sandboxes of a workspace.
+     *
+     * @param workspace The unique ide of the workspace which sandboxes should be deleted.
+     * @return Done.
+     */
+    public CompletionStage<Done> removeSandboxes(UID workspace) {
+        return listSandboxes(workspace).thenCompose(sandboxes -> Operators
+            .allOf(sandboxes
+                .stream()
+                .map(sdbx -> removeSandboxById(workspace, sdbx.getId())))
+            .thenApply(done -> Done.getInstance()));
     }
 
     /**

@@ -173,9 +173,6 @@ public final class DockerOperations {
             .orElseGet(() -> {
                 client.startContainerCmd(containerId).exec();
                 log.info("`docker start {}` - Container started", containerId);
-
-                System.out.println(client.inspectContainerCmd(containerId).exec().getHostConfig());
-
                 return DockerContainer.apply(client, volumes, config, containerId);
             });
     }
