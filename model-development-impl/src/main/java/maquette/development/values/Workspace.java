@@ -7,7 +7,6 @@ import lombok.With;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
-import maquette.development.values.stacks.StackInstanceStatus;
 import maquette.development.values.stacks.StackRuntimeState;
 
 import java.util.List;

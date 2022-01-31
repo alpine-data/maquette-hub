@@ -13,6 +13,8 @@ import maquette.development.values.stacks.DummyPythonStackConfiguration;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -78,8 +80,7 @@ public class PythonStackDeployment implements StackDeployment {
     public CompletionStage<StackInstanceParameters> getInstanceParameters(Deployment deployment) {
         return deployment.getContainer(this.getStackInstanceName()).getMappedPortUrls().thenApply(ports -> {
             var url = String.format("%s?token=%s", ports.get(8888).toString(), this.jupyterToken);
-
-            return StackInstanceParameters.apply(url, "Jupyter Notebook");
+            return StackInstanceParameters.apply(url, "Launch Jupyter Notebook");
         });
     }
 

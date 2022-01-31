@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.development.values.EnvironmentType;
 
 import java.util.List;
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PostgresStackConfiguration implements StackConfiguration {
@@ -52,11 +50,6 @@ public final class PostgresStackConfiguration implements StackConfiguration {
     @Override
     public List<String> getResourceGroups() {
         return List.of();
-    }
-
-    @Override
-    public StackInstanceParameters getInstanceParameters(Map<String, String> parameters, EnvironmentType environment) {
-        return StackInstanceParameters.apply("http://foo.bar", "Open Notebook");
     }
 
     @Override

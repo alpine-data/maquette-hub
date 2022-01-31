@@ -6,10 +6,8 @@ import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.development.values.EnvironmentType;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -18,6 +16,13 @@ public final class DummyPythonStackConfiguration implements StackConfiguration {
     private static final String NAME = "name";
 
     private static final String VERSION = "version";
+
+    /**
+     * The environment variable name for the parameter which specifies the URL to access the Jupyter notebook of this stack.
+     *
+     * This parameter must be set by the infrastructure provider.
+     */
+    public static final String PARAM_JUPYTER_URL = "JUPYTER_URL";
 
     /**
      * The name of the stack instance.
@@ -54,11 +59,6 @@ public final class DummyPythonStackConfiguration implements StackConfiguration {
     @Override
     public List<String> getResourceGroups() {
         return Lists.newArrayList();
-    }
-
-    @Override
-    public StackInstanceParameters getInstanceParameters(Map<String, String> parameters, EnvironmentType environment) {
-        return StackInstanceParameters.apply("http://foo.bar", "Open Notebook");
     }
 
     @Override

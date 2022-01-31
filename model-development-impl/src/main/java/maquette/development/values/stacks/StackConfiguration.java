@@ -35,15 +35,6 @@ public interface StackConfiguration {
     List<String> getResourceGroups();
 
     /**
-     * Return parameters/ properties which are dependant on runtime-parameters of the stack.
-     *
-     * @param parameters A set of runtime parameters retrieved from infrastructure port.
-     * @param environment
-     * @return The stacks parameters/ properties.
-     */
-    StackInstanceParameters getInstanceParameters(Map<String, String> parameters, EnvironmentType environment);
-
-    /**
      * Returns a copy of the stack configuration, with updated name. This is required, since the backend
      * sets the instance name.
      *

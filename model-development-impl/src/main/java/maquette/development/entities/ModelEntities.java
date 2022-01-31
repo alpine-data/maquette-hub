@@ -38,7 +38,7 @@ public final class ModelEntities {
    }
 
    public static ModelEntities noMlflowBackend(UID workspace) {
-      return apply(workspace, null, null);
+      return apply(workspace, null, null, null);
    }
 
    public ModelEntity getModel(String model) {

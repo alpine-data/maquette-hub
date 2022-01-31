@@ -7,15 +7,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.development.entities.mlflow.MlflowConfiguration;
 import maquette.development.values.EnvironmentType;
 
-import java.net.URL;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @With
@@ -57,7 +54,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String, EnvironmentType)}.
      */
-    public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "MLFLOW_TRACKING_URL";
+    public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URL";
 
     /**
      * The name of the MLflow instance.
@@ -94,18 +91,6 @@ public class MlflowStackConfiguration implements StackConfiguration {
     @Override
     public List<String> getResourceGroups() {
         return resourceGroups;
-    }
-
-    @Override
-    public StackInstanceParameters getInstanceParameters(Map<String, String> parameters, EnvironmentType environment) {
-        URL mlflowEndpoint = null;
-        var mlflowEndpointLabel = "MLflow Dashboard";
-
-        if (parameters.containsKey(PARAM_MLFFLOW_ENDPOINT)) {
-            mlflowEndpoint = Operators.suppressExceptions(() -> new URL((parameters.get(PARAM_MLFFLOW_ENDPOINT))));
-        }
-
-        return StackInstanceParameters.apply(mlflowEndpoint, mlflowEndpointLabel, parameters);
     }
 
     public Optional<MlflowConfiguration> getMlflowConfiguration(StackInstanceParameters parameters) {

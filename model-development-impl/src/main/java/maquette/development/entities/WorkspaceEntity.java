@@ -86,8 +86,6 @@ public final class WorkspaceEntity {
     public CompletionStage<Map<String, String>> getEnvironment(EnvironmentType environmentType) {
         return infrastructurePort.getInstanceParameters(id, getMlflowStackName(id), environmentType).thenApply(parameters -> {
             Map<String, String> result = Maps.newHashMap();
-            result.put("ENTRY_POINT_LABEL", parameters.getEntrypointLabel());
-            result.put("ENTRY_POINT_ENDPOINT", parameters.getEntrypoint().toString());
             parameters.getParameters().forEach((key, value) -> result.put(key, value.toString()));
             return result;
         });

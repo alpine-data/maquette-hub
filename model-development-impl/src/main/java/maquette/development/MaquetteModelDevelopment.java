@@ -9,6 +9,7 @@ import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
+import maquette.development.commands.models.GetModelsViewCommand;
 import maquette.development.commands.sandboxes.*;
 import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
@@ -74,6 +75,8 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
         commands.put("workspaces members grant", GrantWorkspaceMemberCommand.class);
         commands.put("workspaces members revoke", RevokeWorkspaceMemberCommand.class);
+
+        commands.put("workspaces models view", GetModelsViewCommand.class);
 
         commands.put("workspaces admin redeploy", RedeployInfrastructure.class);
 

@@ -16,6 +16,7 @@ import maquette.development.ports.infrastructure.docker.deployments.MlflowStackD
 import maquette.development.ports.infrastructure.docker.deployments.PythonStackDeployment;
 import maquette.development.ports.infrastructure.docker.deployments.StackDeployment;
 import maquette.development.ports.infrastructure.docker.deployments.StackDeploymentList;
+import maquette.development.ports.infrastructure.docker.model.DeploymentConfig;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.exceptions.StackConfigurationNotFoundException;
 import maquette.development.values.stacks.*;
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.SystemUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -39,17 +41,21 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
     private final ObjectMapper om;
 
+    private final Map<String, Deployment> deployments;
+
     public static DockerInfrastructurePort apply() {
         var om = DefaultObjectMapperFactory.apply().createJsonMapper(true);
         var path = SystemUtils.getUserHome().toPath().resolve(".mq").resolve("docker");
         var docker = Docker.apply(path, om);
         var deploymentConfigurationStore = path.resolve("deployments.json");
 
-        return apply(docker, deploymentConfigurationStore, om);
+        return apply(docker, deploymentConfigurationStore, om, Maps.newHashMap());
     }
 
     @Override
     public CompletionStage<Done> createOrUpdateStackInstance(UID workspace, StackConfiguration configuration) {
+        deployments.remove(configuration.getStackInstanceName());
+
         if (configuration instanceof MlflowStackConfiguration) {
             return createOrUpdateMlflow(workspace, (MlflowStackConfiguration) configuration);
         } else if (configuration instanceof DummyPythonStackConfiguration) {
@@ -62,13 +68,20 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
     @Override
     public CompletionStage<Done> removeStackInstance(String name) {
-        return docker
-            .runDeployment(getDeployedStackConfiguration(name).getDeploymentConfig())
-            .thenCompose(Deployment::remove)
-            .thenApply(done -> {
+        if (deployments.containsKey(name)) {
+            return deployments.get(name).remove().thenApply(done -> {
                 removeDeployedStackConfiguration(name);
                 return done;
             });
+        } else {
+            return docker
+                .runDeployment(getDeployedStackConfiguration(name).getDeploymentConfig())
+                .thenCompose(Deployment::remove)
+                .thenApply(done -> {
+                    removeDeployedStackConfiguration(name);
+                    return done;
+                });
+        }
     }
 
     @Override
@@ -85,18 +98,29 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
         var parameters = Maps.<String, String>newHashMap();
         var deployedStackConfiguration = getDeployedStackConfiguration(name);
 
-        return docker
-            .runDeployment(deployedStackConfiguration.getDeploymentConfig())
-            .thenCompose(deployedStackConfiguration::getInstanceParameters);
+        if (deployments.containsKey(name)) {
+            return deployedStackConfiguration.getInstanceParameters(deployments.get(name));
+        } else {
+            return docker
+                .runDeployment(deployedStackConfiguration.getDeploymentConfig())
+                .thenCompose(deployedStackConfiguration::getInstanceParameters);
+        }
     }
 
     @Override
     public CompletionStage<StackInstanceStatus> getStackInstanceStatus(String name) {
-        return findDeployedStackConfiguration(name)
-            .map(config -> docker
-                .runDeployment(config.getDeploymentConfig())
-                .thenApply(deployment -> StackInstanceStatus.DEPLOYED))
-            .orElse(CompletableFuture.completedFuture(StackInstanceStatus.FAILED));
+        if (deployments.containsKey(name)) {
+            return CompletableFuture.completedFuture(StackInstanceStatus.DEPLOYED);
+        } else {
+            return findDeployedStackConfiguration(name)
+                .map(config -> docker
+                    .runDeployment(config.getDeploymentConfig())
+                    .thenApply(deployment -> {
+                        this.deployments.put(name, deployment);
+                        return StackInstanceStatus.DEPLOYED;
+                    }))
+                .orElse(CompletableFuture.completedFuture(StackInstanceStatus.FAILED));
+        }
     }
 
     private CompletionStage<Done> createOrUpdateMlflow(UID workspace, MlflowStackConfiguration configuration) {
