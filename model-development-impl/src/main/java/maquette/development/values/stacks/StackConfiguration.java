@@ -37,7 +37,9 @@ public interface StackConfiguration {
      * Environment variables which are set as input from Mars Hub which should set on all nodes of the stack.
      * @return A map with environment variables.
      */
-    Map<String, String> getEnvironmentVariables();
+    default Map<String, String> getEnvironmentVariables() {
+        return Map.of();
+    }
 
     /**
      * Returns a copy of the stack configuration, with updated name. This is required, since the backend
@@ -54,6 +56,8 @@ public interface StackConfiguration {
      * @param environment The new environment variables.
      * @return Updated stack configuration.
      */
-    StackConfiguration withEnvironmentVariables(Map<String, String> environment);
+    default StackConfiguration withEnvironmentVariables(Map<String, String> environment) {
+        return this;
+    }
 
 }
