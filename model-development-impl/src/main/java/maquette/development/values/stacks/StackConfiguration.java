@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Custom configuration types for defined stacks. See also {@link Stack}.
@@ -33,6 +34,12 @@ public interface StackConfiguration {
     List<String> getResourceGroups();
 
     /**
+     * Environment variables which are set as input from Mars Hub which should set on all nodes of the stack.
+     * @return A map with environment variables.
+     */
+    Map<String, String> getEnvironmentVariables();
+
+    /**
      * Returns a copy of the stack configuration, with updated name. This is required, since the backend
      * sets the instance name.
      *
@@ -40,5 +47,13 @@ public interface StackConfiguration {
      * @return A copy of the {@link StackConfiguration}
      */
     StackConfiguration withStackInstanceName(String name);
+
+    /**
+     * Return this stack configuration with additional environment variables.
+     *
+     * @param environment The new environment variables.
+     * @return Updated stack configuration.
+     */
+    StackConfiguration withEnvironmentVariables(Map<String, String> environment);
 
 }
