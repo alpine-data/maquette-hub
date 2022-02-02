@@ -73,7 +73,11 @@ public class MaquetteModelDevelopment implements MaquetteModule {
                 var sandbox = UID.apply(ctx.queryParam("sandbox"));
                 var stackHash = ctx.queryParam("hash");
 
-                ctx.json(getSandboxServices().getAuthenticationToken(workspace, sandbox, stackHash));
+                var result = getSandboxServices()
+                    .getAuthenticationToken(workspace, sandbox, stackHash)
+                    .toCompletableFuture();
+
+                ctx.json(result);
             });
     }
 
