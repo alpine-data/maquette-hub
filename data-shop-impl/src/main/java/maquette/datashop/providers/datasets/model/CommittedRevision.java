@@ -7,7 +7,7 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.datashop.values.AnalysisResult;
+import maquette.datashop.providers.datasets.ports.AnalysisResult;
 import org.apache.avro.Schema;
 
 import java.util.Optional;
