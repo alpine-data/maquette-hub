@@ -84,9 +84,21 @@ public final class WorkspaceEntity {
     }
 
     public CompletionStage<Map<String, String>> getEnvironment(EnvironmentType environmentType) {
-        return infrastructurePort.getInstanceParameters(id, getMlflowStackName(id), environmentType).thenApply(parameters -> {
+        return infrastructurePort.getInstanceParameters(id, getMlflowStackName(id)).thenApply(parameters -> {
             Map<String, String> result = Maps.newHashMap();
-            parameters.getParameters().forEach((key, value) -> result.put(key, value.toString()));
+            result.putAll(parameters.getParametersDecoded());
+
+
+            if (environmentType.equals(EnvironmentType.SANDBOX)) {
+                if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
+                    result.put(MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL, result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL));
+                }
+
+                if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT)) {
+                    // result.put(MlflowStackConfiguration.)
+                }
+            }
+            parameters.getParameters().forEach((key, value) -> result.put(key, value));
             return result;
         });
     }
@@ -101,7 +113,7 @@ public final class WorkspaceEntity {
                         .getStackInstanceStatus(config.getStackInstanceName());
 
                     var paramsCS = infrastructurePort
-                        .getInstanceParameters(id, config.getStackInstanceName(), EnvironmentType.EXTERNAL);
+                        .getInstanceParameters(id, config.getStackInstanceName());
 
                     return Operators.compose(statusCS, paramsCS, (status, params) ->
                         Optional.of(StackRuntimeState.apply(config, status, params)));
@@ -120,7 +132,7 @@ public final class WorkspaceEntity {
             .thenCompose(properties -> {
                 if (properties.getMlFlowConfiguration().isPresent()) {
                     return infrastructurePort
-                        .getInstanceParameters(this.getId(), getMlflowStackName(id), EnvironmentType.SANDBOX)
+                        .getInstanceParameters(this.getId(), getMlflowStackName(id))
                         .thenApply(params -> properties.getMlFlowConfiguration().get().getMlflowConfiguration(params))
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
                             .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models))

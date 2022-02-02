@@ -16,8 +16,6 @@ import maquette.development.ports.infrastructure.docker.deployments.MlflowStackD
 import maquette.development.ports.infrastructure.docker.deployments.PythonStackDeployment;
 import maquette.development.ports.infrastructure.docker.deployments.StackDeployment;
 import maquette.development.ports.infrastructure.docker.deployments.StackDeploymentList;
-import maquette.development.ports.infrastructure.docker.model.DeploymentConfig;
-import maquette.development.values.EnvironmentType;
 import maquette.development.values.exceptions.StackConfigurationNotFoundException;
 import maquette.development.values.stacks.*;
 import org.apache.commons.lang3.SystemUtils;
@@ -93,8 +91,7 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
     }
 
     @Override
-    public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name,
-                                                                          EnvironmentType environmentType) {
+    public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name) {
         var parameters = Maps.<String, String>newHashMap();
         var deployedStackConfiguration = getDeployedStackConfiguration(name);
 

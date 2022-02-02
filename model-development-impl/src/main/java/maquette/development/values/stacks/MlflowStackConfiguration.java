@@ -9,7 +9,6 @@ import lombok.Value;
 import lombok.With;
 import maquette.core.values.UID;
 import maquette.development.entities.mlflow.MlflowConfiguration;
-import maquette.development.values.EnvironmentType;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,7 +27,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Defines the public URL to access the MLflow instance.
      *
      * Parameter must be set by infrastructure implementation and returned with
-     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String, EnvironmentType)}.
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
     public static final String PARAM_MLFFLOW_ENDPOINT = "MLFFLOW_ENDPOINT";
 
@@ -36,7 +35,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Defines the public tracking URL which is used for experiment tracking from external environments (e.g. local).
      *
      * Parameter must be set by infrastructure implementation and returned with
-     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String, EnvironmentType)}.
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
     public static final String PARAM_MLFLOW_TRACKING_URL = "MLFLOW_TRACKING_URL";
 
@@ -44,7 +43,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Defines the URL which is required by Maquette Hub and Sandboxes to access the MLFlow API.
      *
      * Parameter must be set by infrastructure implementation and returned with
-     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String, EnvironmentType)}.
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
     public static final String PARAM_INTERNAL_MLFLOW_ENDPOINT = "INTERNAL_MLFLOW_ENDPOINT";
 
@@ -52,7 +51,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Defines the tracking URL which is used for experiment tracking from internal environments (e.g. hub, sandboxes).
      *
      * Parameter must be set by infrastructure implementation and returned with
-     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String, EnvironmentType)}.
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
     public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URL";
 
@@ -95,9 +94,8 @@ public class MlflowStackConfiguration implements StackConfiguration {
 
     public Optional<MlflowConfiguration> getMlflowConfiguration(StackInstanceParameters parameters) {
         if (parameters.getParameters().containsKey(PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
-            return Optional.of(MlflowConfiguration.apply(
-                parameters.getParameters().get(PARAM_INTERNAL_MLFLOW_TRACKING_URL).toString(),
-                ""));
+            var trackingUrl = parameters.getParametersDecoded().get(PARAM_MLFLOW_TRACKING_URL);
+            return Optional.of(MlflowConfiguration.apply(trackingUrl, ""));
         } else {
             return Optional.empty();
         }

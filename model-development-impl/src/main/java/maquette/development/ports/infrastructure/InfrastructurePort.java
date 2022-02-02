@@ -41,11 +41,9 @@ public interface InfrastructurePort {
      *
      * @param workspace The workspace a stack belongs to.
      * @param name      The name of the stack configuration.
-     * @param environmentType
      * @return Runtime parameters of the deployment.
      */
-    CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace,
-                                                                   String name, EnvironmentType environmentType);
+    CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name);
 
     /**
      * Return deployment status of a submitted stack.

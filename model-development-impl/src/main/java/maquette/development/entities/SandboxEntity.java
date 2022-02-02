@@ -78,7 +78,7 @@ public final class SandboxEntity {
                 .keySet()
                 .stream()
                 .map(stack -> infrastructurePort
-                    .getInstanceParameters(workspace, stack, environmentType)
+                    .getInstanceParameters(workspace, stack)
                     .thenApply(params -> Pair.of(stack, params)))))
             .thenApply(list -> list
                 .stream()
@@ -97,7 +97,7 @@ public final class SandboxEntity {
                 .keySet()
                 .stream()
                 .map(stack -> {
-                    var parametersCS = infrastructurePort.getInstanceParameters(workspace, stack, EnvironmentType.EXTERNAL);
+                    var parametersCS = infrastructurePort.getInstanceParameters(workspace, stack);
                     var stateCS = infrastructurePort.getStackInstanceStatus(stack);
 
                     return Operators.compose(parametersCS, stateCS, (parameters, state) -> {

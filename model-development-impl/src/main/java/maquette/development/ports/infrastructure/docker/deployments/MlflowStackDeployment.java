@@ -143,7 +143,7 @@ public class MlflowStackDeployment implements StackDeployment {
             parameters.put("AWS_SECRET_ACCESS_KEY", minioAccessSecret);
             parameters.put("AWS_DEFAULT_REGION", MINIO_REGION);
 
-            return StackInstanceParameters.apply(mlflowUrl, "Launch MLflow Dashboard", parameters);
+            return StackInstanceParameters.encodeAndCreate(mlflowUrl, "Launch MLflow Dashboard", parameters);
         });
     }
 

@@ -80,7 +80,7 @@ public class PythonStackDeployment implements StackDeployment {
     public CompletionStage<StackInstanceParameters> getInstanceParameters(Deployment deployment) {
         return deployment.getContainer(this.getStackInstanceName()).getMappedPortUrls().thenApply(ports -> {
             var url = String.format("%s?token=%s", ports.get(8888).toString(), this.jupyterToken);
-            return StackInstanceParameters.apply(url, "Launch Jupyter Notebook");
+            return StackInstanceParameters.encodeAndCreate(url, "Launch Jupyter Notebook");
         });
     }
 
