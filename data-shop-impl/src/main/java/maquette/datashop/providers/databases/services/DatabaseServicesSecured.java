@@ -8,6 +8,8 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.providers.databases.DatabaseEntities;
+import maquette.datashop.providers.databases.model.ConnectionTestResult;
+import maquette.datashop.providers.databases.model.DatabaseDriver;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.datasets.records.Records;
 import maquette.datashop.services.DataAssetServicesCompanion;
@@ -43,6 +45,12 @@ public final class DatabaseServicesSecured implements DatabaseServices {
                 () -> comp.isSuperUser(executor),
                 () -> comp.isSubscribedConsumer(executor, database))
             .thenCompose(ok -> delegate.download(executor, database));
+    }
+
+    @Override
+    public CompletionStage<ConnectionTestResult> test(DatabaseDriver driver, String connection, String username,
+                                                      String password, String query) {
+        return delegate.test(driver, connection, username, password, query);
     }
 
     @Override

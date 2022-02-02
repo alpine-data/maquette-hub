@@ -10,6 +10,7 @@ import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
 import maquette.datashop.providers.databases.commands.AnalyzeDatabaseCommand;
+import maquette.datashop.providers.databases.commands.TestDatabaseConnectionCommand;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.databases.ports.DatabasePort;
 import maquette.datashop.providers.databases.services.DatabaseServices;
@@ -52,6 +53,7 @@ public final class Databases implements DataAssetProvider {
     public Map<String, Class<? extends Command>> getCustomCommands() {
         Map<String, Class<? extends Command>> commands = Maps.newHashMap();
         commands.put("databases analyze", AnalyzeDatabaseCommand.class);
+        commands.put("databases test", TestDatabaseConnectionCommand.class);
         return commands;
     }
 
@@ -73,7 +75,7 @@ public final class Databases implements DataAssetProvider {
 
     @Override
     public String getType() {
-        return null;
+        return TYPE_NAME;
     }
 
     @Override

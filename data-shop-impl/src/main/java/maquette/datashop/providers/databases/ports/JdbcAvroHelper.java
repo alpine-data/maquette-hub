@@ -233,7 +233,13 @@ public final class JdbcAvroHelper {
 
    private static String getDatabaseTableName(final ResultSetMetaData meta) throws SQLException {
       if (meta.getColumnCount() > 0) {
-         return normalizeForAvro(meta.getTableName(1));
+         var result =  normalizeForAvro(meta.getTableName(1));
+
+         if (result.trim().length() == 0) {
+            result = "no_table_name";
+         }
+
+         return result;
       } else {
          return "no_table_name";
       }

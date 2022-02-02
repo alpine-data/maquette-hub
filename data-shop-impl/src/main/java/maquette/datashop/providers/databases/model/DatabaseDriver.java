@@ -2,7 +2,7 @@ package maquette.datashop.providers.databases.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum DataSourceDriver {
+public enum DatabaseDriver {
 
    POSTGRESQL("postgresql", "jdbc:postgresql"),
    MSSQL("mssql", "jdbc:sqlserver");
@@ -11,7 +11,7 @@ public enum DataSourceDriver {
 
    private final String connectionPrefix;
 
-   DataSourceDriver(String value, String connectionPrefix) {
+   DatabaseDriver(String value, String connectionPrefix) {
       this.value = value;
       this.connectionPrefix = connectionPrefix;
    }

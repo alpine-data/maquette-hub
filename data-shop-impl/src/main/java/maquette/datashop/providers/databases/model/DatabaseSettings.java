@@ -7,7 +7,7 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DatabaseSettings {
 
-        DataSourceDriver driver;
+        DatabaseDriver driver;
 
         String connection;
 

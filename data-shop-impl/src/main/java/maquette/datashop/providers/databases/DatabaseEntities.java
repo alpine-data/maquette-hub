@@ -6,7 +6,7 @@ import maquette.core.common.Operators;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.providers.databases.model.ConnectionTestResult;
-import maquette.datashop.providers.databases.model.DataSourceDriver;
+import maquette.datashop.providers.databases.model.DatabaseDriver;
 import maquette.datashop.providers.databases.model.DatabaseProperties;
 import maquette.datashop.providers.databases.model.DatabaseSettings;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
@@ -60,7 +60,7 @@ public final class DatabaseEntities {
     }
 
     public CompletionStage<ConnectionTestResult> test(
-        DataSourceDriver driver, String connection, String username, String password, String query) {
+        DatabaseDriver driver, String connection, String username, String password, String query) {
 
         return database.test(driver, connection, username, password, query);
     }

@@ -1,9 +1,10 @@
 package maquette.datashop.providers.databases.ports;
 
 import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.datashop.providers.databases.model.ConnectionTestResult;
-import maquette.datashop.providers.databases.model.DataSourceDriver;
+import maquette.datashop.providers.databases.model.DatabaseDriver;
 import maquette.datashop.providers.databases.model.FailedConnectionTestResult;
 import maquette.datashop.providers.databases.model.SuccessfulConnectionTestResult;
 import maquette.datashop.providers.datasets.records.Records;
@@ -14,11 +15,12 @@ import org.jdbi.v3.core.Jdbi;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+@AllArgsConstructor(staticName = "apply")
 public final class DatabaseJdbiImpl implements DatabasePort {
 
     @Override
     public CompletionStage<Records> read(
-        DataSourceDriver driver, String connection, String username, String password, String query) {
+        DatabaseDriver driver, String connection, String username, String password, String query) {
 
         return CompletableFuture.supplyAsync(() -> {
             var connectionString = String.format("%s:%s", driver.getConnectionPrefix(), connection);
@@ -50,7 +52,7 @@ public final class DatabaseJdbiImpl implements DatabasePort {
 
     @Override
     public CompletionStage<ConnectionTestResult> test(
-        DataSourceDriver driver, String connection, String username, String password, String query) {
+        DatabaseDriver driver, String connection, String username, String password, String query) {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -76,6 +78,7 @@ public final class DatabaseJdbiImpl implements DatabasePort {
                         return SuccessfulConnectionTestResult.apply(s, count - 1);
                     })));
             } catch (Exception e) {
+                e.printStackTrace();
                 return FailedConnectionTestResult.apply(e.getMessage());
             }
         });

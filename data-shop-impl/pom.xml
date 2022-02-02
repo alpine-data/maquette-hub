@@ -39,7 +39,13 @@
     <dependency>
       <groupId>org.jdbi</groupId>
       <artifactId>jdbi3-core</artifactId>
-      <scope>provided</scope>
+      <version>3.27.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>9.4.1.jre11</version>
     </dependency>
 
     <!-- test dependencies -->

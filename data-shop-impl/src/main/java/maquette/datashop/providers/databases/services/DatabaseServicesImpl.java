@@ -8,6 +8,8 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.providers.databases.DatabaseEntities;
+import maquette.datashop.providers.databases.model.ConnectionTestResult;
+import maquette.datashop.providers.databases.model.DatabaseDriver;
 import maquette.datashop.providers.databases.model.DatabaseProperties;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.datasets.records.Records;
@@ -52,6 +54,12 @@ public final class DatabaseServicesImpl implements DatabaseServices {
         return assets
             .getByName(database)
             .thenCompose(entity -> databases.download(entity, executor));
+    }
+
+    @Override
+    public CompletionStage<ConnectionTestResult> test(DatabaseDriver driver, String connection, String username,
+                                                      String password, String query) {
+        return databases.test(driver, connection, username, password, query);
     }
 
     @Override
