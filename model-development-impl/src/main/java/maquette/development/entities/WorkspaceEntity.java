@@ -75,7 +75,8 @@ public final class WorkspaceEntity {
         var config = MlflowStackConfiguration.apply(
             getMlflowStackName(id),
             Instant.now().plus(24, ChronoUnit.HOURS),
-            Lists.newArrayList(getWorkspaceResourceGroupName()));
+            Lists.newArrayList(getWorkspaceResourceGroupName()),
+            Maps.newHashMap());
 
         return infrastructurePort
             .createOrUpdateStackInstance(id, config)
@@ -90,15 +91,18 @@ public final class WorkspaceEntity {
 
 
             if (environmentType.equals(EnvironmentType.SANDBOX)) {
+                /*
+                 * If environment is requested from an internal sandbox environment, we need to change the correct MLflow endpoint urls.
+                 */
                 if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
                     result.put(MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL, result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL));
                 }
 
                 if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT)) {
-                    // result.put(MlflowStackConfiguration.)
+                    result.put(MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT, result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT));
                 }
             }
-            parameters.getParameters().forEach((key, value) -> result.put(key, value));
+
             return result;
         });
     }

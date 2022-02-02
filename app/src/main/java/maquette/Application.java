@@ -39,7 +39,7 @@ public class Application {
         var sandboxesRepository = InMemorySandboxesRepository.apply();
         var infrastructurePort = FakeInfrastructurePort.apply();
         var modelDevelopment = MaquetteModelDevelopment.apply(
-            workspacesRepository, modelsRepository, sandboxesRepository, infrastructurePort, dataAssetsAdapter);
+            runtime, workspacesRepository, modelsRepository, sandboxesRepository, infrastructurePort, dataAssetsAdapter);
 
         var shop = MaquetteDataShop
             .apply(dataAssetsRepository, workspacesAdapter, FakeProvider.apply());

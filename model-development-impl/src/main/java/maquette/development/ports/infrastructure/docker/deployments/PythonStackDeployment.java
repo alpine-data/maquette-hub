@@ -2,6 +2,7 @@ package maquette.development.ports.infrastructure.docker.deployments;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -9,12 +10,10 @@ import maquette.core.common.Operators;
 import maquette.development.ports.infrastructure.docker.Deployment;
 import maquette.development.ports.infrastructure.docker.model.ContainerConfig;
 import maquette.development.ports.infrastructure.docker.model.DeploymentConfig;
-import maquette.development.values.stacks.DummyPythonStackConfiguration;
+import maquette.development.values.stacks.PythonStackConfiguration;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -51,14 +50,15 @@ public class PythonStackDeployment implements StackDeployment {
         return new PythonStackDeployment(deploymentConfig, stackConfiguration, jupyterToken, stackHash);
     }
 
-    public static PythonStackDeployment apply(DummyPythonStackConfiguration configuration) {
+    public static PythonStackDeployment apply(PythonStackConfiguration configuration) {
         var jupyterToken = Operators.randomHash();
         var stackHash = Operators.randomHash();
 
         var pythonContainer = ContainerConfig
             .builder(configuration.getStackInstanceName(), String.format("mq--python:%s", configuration.getVersion()))
             .withEnvironmentVariable("MQ_JUPYTER_TOKEN", jupyterToken)
-            .withEnvironmentVariable("MQ_STACK_HASH", stackHash)
+            .withEnvironmentVariable(StackConfiguration.PARAM_STACK_TOKEN, stackHash)
+            .withEnvironmentVariables(configuration.getEnvironmentVariables())
             .withHostName("python")
             .withPort(8888)
             .build();
@@ -79,8 +79,11 @@ public class PythonStackDeployment implements StackDeployment {
     @Override
     public CompletionStage<StackInstanceParameters> getInstanceParameters(Deployment deployment) {
         return deployment.getContainer(this.getStackInstanceName()).getMappedPortUrls().thenApply(ports -> {
+            var params = Maps.<String, String>newHashMap();
+            params.put(StackConfiguration.PARAM_STACK_TOKEN, stackHash);
+
             var url = String.format("%s?token=%s", ports.get(8888).toString(), this.jupyterToken);
-            return StackInstanceParameters.encodeAndCreate(url, "Launch Jupyter Notebook");
+            return StackInstanceParameters.encodeAndCreate(url, "Launch Jupyter Notebook", params);
         });
     }
 

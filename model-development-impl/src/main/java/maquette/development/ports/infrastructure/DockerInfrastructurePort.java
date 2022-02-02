@@ -56,8 +56,8 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
         if (configuration instanceof MlflowStackConfiguration) {
             return createOrUpdateMlflow(workspace, (MlflowStackConfiguration) configuration);
-        } else if (configuration instanceof DummyPythonStackConfiguration) {
-            return createOrUpdatePython(workspace, (DummyPythonStackConfiguration) configuration);
+        } else if (configuration instanceof PythonStackConfiguration) {
+            return createOrUpdatePython(workspace, (PythonStackConfiguration) configuration);
         } else {
             return CompletableFuture.failedFuture(new RuntimeException(
                 String.format("Unknown stack type `%s`", configuration.getClass().getName())));
@@ -125,7 +125,7 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
         return getStackInstanceStatus(configuration.getStackInstanceName()).thenApply(i -> Done.getInstance());
     }
 
-    private CompletionStage<Done> createOrUpdatePython(UID workspace, DummyPythonStackConfiguration configuration) {
+    private CompletionStage<Done> createOrUpdatePython(UID workspace, PythonStackConfiguration configuration) {
         insertOrUpdate(PythonStackDeployment.apply(configuration));
         return getStackInstanceStatus(configuration.getStackInstanceName()).thenApply(i -> Done.getInstance());
     }

@@ -3,6 +3,7 @@ package maquette.development.values.stacks;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -12,6 +13,8 @@ import maquette.development.entities.mlflow.MlflowConfiguration;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @With
@@ -22,10 +25,11 @@ public class MlflowStackConfiguration implements StackConfiguration {
     private static final String NAME = "name";
     private static final String SAS_EXPIRY_TOKEN = "sasExpiryToken";
     private static final String RESOURCE_GROUPS = "resourceGroups";
+    private static final String ENVIRONMENT = "environment";
 
     /**
      * Defines the public URL to access the MLflow instance.
-     *
+     * <p>
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
@@ -33,7 +37,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
 
     /**
      * Defines the public tracking URL which is used for experiment tracking from external environments (e.g. local).
-     *
+     * <p>
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
@@ -41,7 +45,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
 
     /**
      * Defines the URL which is required by Maquette Hub and Sandboxes to access the MLFlow API.
-     *
+     * <p>
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
@@ -49,7 +53,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
 
     /**
      * Defines the tracking URL which is used for experiment tracking from internal environments (e.g. hub, sandboxes).
-     *
+     * <p>
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
@@ -75,11 +79,28 @@ public class MlflowStackConfiguration implements StackConfiguration {
     @JsonProperty(RESOURCE_GROUPS)
     List<String> resourceGroups;
 
+    /**
+     * Environment variables which should be set in the stacks nodes.
+     */
+    @JsonProperty(ENVIRONMENT)
+    Map<String, String> environmentVariables;
+
     @JsonCreator
-    public static MlflowStackConfiguration apply(@JsonProperty(NAME) String name,
-                                                  @JsonProperty(SAS_EXPIRY_TOKEN) Instant sasTokenExpiry,
-                                                  @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups) {
-        return new MlflowStackConfiguration(name, sasTokenExpiry, resourceGroups);
+    public static MlflowStackConfiguration apply(
+        @JsonProperty(NAME) String name,
+        @JsonProperty(SAS_EXPIRY_TOKEN) Instant sasTokenExpiry,
+        @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
+        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
+
+        if (Objects.isNull(environmentVariables)) {
+            environmentVariables = Maps.newHashMap();
+        }
+
+        return new MlflowStackConfiguration(name, sasTokenExpiry, resourceGroups, environmentVariables);
+    }
+
+    public Map<String, String> getEnvironmentVariables() {
+        return Map.copyOf(environmentVariables);
     }
 
     @Override
@@ -103,7 +124,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
 
     @Override
     public StackConfiguration withStackInstanceName(String name) {
-        return MlflowStackConfiguration.apply(name, sasTokenExpiry, resourceGroups);
+        return MlflowStackConfiguration.apply(name, sasTokenExpiry, resourceGroups, environmentVariables);
     }
 
 }

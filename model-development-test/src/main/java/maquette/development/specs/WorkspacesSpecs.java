@@ -36,7 +36,7 @@ public abstract class WorkspacesSpecs {
         this.workspacesRepository = setupWorkspacesRepository();
         this.runtime = MaquetteRuntime.apply();
         this.runtime.withModule(MaquetteModelDevelopment.apply(
-                this.workspacesRepository, setupModelsRepository(),
+                this.runtime, this.workspacesRepository, setupModelsRepository(),
                 setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort()))
             .initialize(context.system, context.app);
         this.steps = new WorkspaceStepDefinitions(this.runtime);

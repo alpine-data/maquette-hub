@@ -7,6 +7,7 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import maquette.development.ports.SandboxesRepository;
+import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.exceptions.SandboxNotFoundException;
 import maquette.development.values.sandboxes.SandboxProperties;
@@ -17,6 +18,8 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class SandboxEntities {
+
+    private final WorkspacesRepository workspaces;
 
     private final SandboxesRepository sandboxes;
 
@@ -51,7 +54,7 @@ public final class SandboxEntities {
      */
     public CompletionStage<Optional<SandboxEntity>> findSandboxById(UID workspace, UID sandbox) {
         return sandboxes.findSandboxById(workspace, sandbox)
-            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, infrastructurePort, sandbox, workspace)));
+            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, sandbox, workspace)));
     }
 
     /**
@@ -74,7 +77,7 @@ public final class SandboxEntities {
      */
     public CompletionStage<Optional<SandboxEntity>> findSandboxByName(UID workspace, String sandbox) {
         return sandboxes.findSandboxByName(workspace, sandbox)
-            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, infrastructurePort, sdbx.getId(),
+            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes,workspaces, infrastructurePort, sdbx.getId(),
                 workspace)));
     }
 

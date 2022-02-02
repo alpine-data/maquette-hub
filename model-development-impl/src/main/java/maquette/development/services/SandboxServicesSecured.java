@@ -3,6 +3,8 @@ package maquette.development.services;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
+import maquette.core.modules.users.model.UserAuthenticationToken;
+import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.sandboxes.Sandbox;
@@ -27,6 +29,13 @@ public final class SandboxServicesSecured implements SandboxServices {
         return workspaces
             .withAuthorization(() -> workspaces.isMember(user, workspace))
             .thenCompose(ok -> delegate.createSandbox(user, workspace, name, comment, volume, stacks));
+    }
+
+    @Override
+    public CompletionStage<UserAuthenticationToken> getAuthenticationToken(
+        UID workspaceId, UID sandboxId, String stackHash) {
+
+        return delegate.getAuthenticationToken(workspaceId, sandboxId, stackHash);
     }
 
     @Override

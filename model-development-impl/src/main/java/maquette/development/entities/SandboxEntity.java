@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.development.ports.SandboxesRepository;
+import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.sandboxes.SandboxProperties;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 public final class SandboxEntity {
 
     private final SandboxesRepository sandboxes;
+
+    private final WorkspacesRepository workspaces;
 
     private final InfrastructurePort infrastructurePort;
 
@@ -45,7 +48,10 @@ public final class SandboxEntity {
                     var stack = Stacks.apply().getStackByConfiguration(stackConfiguration);
                     var stackConfigurationName = String.format("mq--%s--%s--%s", workspace, id, stack.getName());
 
-                    var updatedStackConfiguration = stackConfiguration.withStackInstanceName(stackConfigurationName);
+                    var updatedStackConfiguration = stackConfiguration
+                        .withStackInstanceName(stackConfigurationName)
+                        .withEnvironmentVariable("MQ_SANDBOX_ID", id.getValue())
+                        .withEnvironmentVariable("MQ_WORKSPACE_ID", workspace.getValue());
 
                     return infrastructurePort
                         .createOrUpdateStackInstance(workspace, updatedStackConfiguration)

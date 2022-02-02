@@ -7,6 +7,8 @@ import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.NonEmptyListValidator;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
+import maquette.core.modules.users.model.UserAuthenticationToken;
+import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.sandboxes.SandboxProperties;
@@ -54,6 +56,18 @@ public final class SandboxServicesValidated implements  SandboxServices {
 
                 return delegate.createSandbox(user, workspace, nameValidated, comment, volumeValidated, stacks);
             });
+    }
+
+    @Override
+    public CompletionStage<UserAuthenticationToken> getAuthenticationToken(UID workspaceId, UID sandboxId,
+                                                                           String stackHash) {
+        return FluentValidation
+            .apply()
+            .validate("workspace", workspaceId, NotNullValidator.apply())
+            .validate("sandbox", sandboxId, NotNullValidator.apply())
+            .validate("stackHash", stackHash, NonEmptyStringValidator.apply(3))
+            .checkAndFail()
+            .thenCompose(done -> delegate.getAuthenticationToken(workspaceId, sandboxId, stackHash));
     }
 
     @Override
