@@ -3,7 +3,6 @@ package maquette.development.ports.infrastructure;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.values.UID;
-import maquette.development.values.EnvironmentType;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 import maquette.development.values.stacks.StackInstanceStatus;
@@ -33,6 +32,8 @@ public class FakeInfrastructurePort implements InfrastructurePort {
     public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name) {
         return CompletableFuture.completedFuture(StackInstanceParameters
             .encodeAndCreate("http://foo", "MLFlow Dashboard")
+            .withParameter("ENTRY_POINT_ENDPOINT", "http://foo")
+            .withParameter("MLFLOW_ENDPOINT_LABEL", "MLflow Dashboard")
             .withParameter("CUSTOM_PARAM", "test"));
     }
 

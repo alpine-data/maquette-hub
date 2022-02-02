@@ -54,7 +54,7 @@ public class StackInstanceParameters {
 
       for (var key : parametersEncoded.keySet()) {
          if (!org.apache.commons.codec.binary.Base64.isBase64(parametersEncoded.get(key))) {
-            throw new IllegalArgumentException(String.format("`%s` must be as Base64 string.", key));
+            throw new IllegalArgumentException(String.format("`%s` must be as Base64 string.", parametersEncoded.get(key)));
          }
       }
 
@@ -82,7 +82,7 @@ public class StackInstanceParameters {
     */
    public static StackInstanceParameters encodeAndCreate(String entrypoint, String entrypointLabel, Map<String, String> parameters) {
       var entrypointEncoded = Base64.getEncoder().encodeToString(entrypoint.getBytes());
-      var entrypointLabelEncoded = Base64.getEncoder().encodeToString(entrypointLabel.getBytes());
+      var entrypointLabelEncoded = entrypointLabel != null ? Base64.getEncoder().encodeToString(entrypointLabel.getBytes()) : null;
 
       Map<String, String> parametersEncoded = Maps.newHashMap();
 
@@ -150,7 +150,7 @@ public class StackInstanceParameters {
       var valueEncoded = Base64.getEncoder().encodeToString(value.getBytes());
       var parametersUpdated = Maps.<String, String>newHashMap();
       parametersUpdated.putAll(this.parameters);
-      parametersUpdated.put(key, value);
+      parametersUpdated.put(key, valueEncoded);
 
       return StackInstanceParameters.create(entrypoint, entrypointLabel, parametersUpdated);
    }
