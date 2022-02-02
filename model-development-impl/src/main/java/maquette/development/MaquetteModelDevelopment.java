@@ -41,7 +41,7 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
     private final DataAssetsServicePort dataAssets;
 
-    private final MaquetteRuntime runtime;
+    private MaquetteRuntime runtime;
 
 
     public static MaquetteModelDevelopment apply(
@@ -63,6 +63,8 @@ public class MaquetteModelDevelopment implements MaquetteModule {
     @Override
     public void start(MaquetteRuntime runtime) {
         MaquetteModule.super.start(runtime);
+
+        this.runtime = runtime;
 
         runtime
             .getApp()

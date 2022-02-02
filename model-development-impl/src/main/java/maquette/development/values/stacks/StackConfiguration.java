@@ -26,7 +26,7 @@ public interface StackConfiguration {
      * This parameter might be set by a stack and returned with {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      * It's a unique secret hash only known by the stack instance and can be used for authentication.
      */
-    String PARAM_STACK_TOKEN = "STACK_TOKEN";
+    String PARAM_STACK_TOKEN = "MQ_STACK_TOKEN";
 
     /**
      * An instance name of the stack. This name must be unique across all stacks managed by the infrastructure port.
