@@ -19,6 +19,7 @@ import java.util.Map;
 public class SandboxProperties {
 
     private static final String ID = "id";
+    private static final String COMMENT = "comment";
     private static final String WORKSPACE = "workspace";
     private static final String VOLUME = "volume";
     private static final String NAME = "name";
@@ -50,6 +51,12 @@ public class SandboxProperties {
     String name;
 
     /**
+     * A comment describing the purpose of the sandbox.
+     */
+    @JsonProperty(COMMENT)
+    String comment;
+
+    /**
      * Creation metadata, the creator of the sandbox is also its owner.
      */
     @JsonProperty(CREATED)
@@ -78,20 +85,16 @@ public class SandboxProperties {
         @JsonProperty(WORKSPACE) UID workspace,
         @JsonProperty(VOLUME) UID volume,
         @JsonProperty(NAME) String name,
+        @JsonProperty(COMMENT) String comment,
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(STACKS) Map<String, StackConfiguration> stacks) {
 
-        return new SandboxProperties(id, workspace, volume, name, created, stacks);
+        return new SandboxProperties(id, workspace, volume, name, comment, created, stacks);
     }
 
-    public static SandboxProperties apply(
-        @JsonProperty(ID) UID id,
-        @JsonProperty(WORKSPACE) UID workspace,
-        @JsonProperty(VOLUME) UID volume,
-        @JsonProperty(NAME) String name,
-        @JsonProperty(CREATED) ActionMetadata created) {
+    public static SandboxProperties apply(UID id, UID workspace, UID volume, String name, String comment, ActionMetadata created) {
 
-        return apply(id, workspace, volume, name, created, Maps.newHashMap());
+        return apply(id, workspace, volume, name, comment, created, Maps.newHashMap());
     }
 
     public SandboxProperties withAdditionalStacks(Map<String, StackConfiguration> stacks) {

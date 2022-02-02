@@ -3,6 +3,7 @@ package maquette.development.specs;
 import maquette.core.MaquetteRuntime;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.ports.*;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.specs.steps.WorkspaceStepDefinitions;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
@@ -35,7 +36,7 @@ public abstract class WorkspacesSpecs {
         this.workspacesRepository = setupWorkspacesRepository();
         this.runtime = MaquetteRuntime.apply();
         this.runtime.withModule(MaquetteModelDevelopment.apply(
-                this.workspacesRepository, setupModelsRepository(),
+                this.runtime, this.workspacesRepository, setupModelsRepository(),
                 setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort()))
             .initialize(context.system, context.app);
         this.steps = new WorkspaceStepDefinitions(this.runtime);
@@ -108,9 +109,9 @@ public abstract class WorkspacesSpecs {
         steps.$_gets_environment_for_workspace_$_of_type_$(context.users.bob, "fake", EnvironmentType.SANDBOX);
 
         // Then
-        steps.the_output_should_contain("ENTRY_POINT_LABEL     MLFlow Dashboard");
-        steps.the_output_should_contain("ENTRY_POINT_ENDPOINT  http://foo");
-        steps.the_output_should_contain("CUSTOM_PARAM          test");
+        steps.the_output_should_contain("MLFLOW_ENDPOINT_LABEL  MLflow Dashboard");
+        steps.the_output_should_contain("ENTRY_POINT_ENDPOINT   http://foo");
+        steps.the_output_should_contain("CUSTOM_PARAM           test");
     }
 
 
@@ -210,8 +211,8 @@ public abstract class WorkspacesSpecs {
         steps.$_browses_all_workspaces(context.users.bob);
 
         // Then
-        steps.the_output_should_be("NAME  TITLE  MODIFIED  SUMMARY  ID  ");
-        // TODO bn verify also that auto infra is cleaned up
+        steps.the_output_should_be("WORKSPACE ID  WORKSPACE  TITLE  MODIFIED  SUMMARY  ");
+        // TODO bn verify also that auto infra is cleaned up  - comment: ja mach das mal, das ist schon implementiert ;P
 
         // Given
         steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
@@ -233,7 +234,7 @@ public abstract class WorkspacesSpecs {
         steps.$_browses_all_workspaces(context.users.charly);
 
         // Then
-        steps.the_output_should_be("NAME  TITLE  MODIFIED  SUMMARY  ID  ");
+        steps.the_output_should_be("WORKSPACE ID  WORKSPACE  TITLE  MODIFIED  SUMMARY  ");
     }
 
     /**

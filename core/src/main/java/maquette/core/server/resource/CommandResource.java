@@ -5,6 +5,7 @@ import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
+import maquette.core.server.commands.CommandResult;
 import maquette.core.values.user.User;
 
 import java.util.Objects;
@@ -28,7 +29,7 @@ public final class CommandResource {
                 op.addTagsItem("Commands");
             })
             .body(Command.class)
-            .json("200", AboutResource.About.class);
+            .json("200", CommandResult.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
             var command = ctx.bodyAsClass(Command.class);

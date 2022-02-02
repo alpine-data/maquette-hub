@@ -1,7 +1,8 @@
-package maquette.development.ports;
+package maquette.development.ports.infrastructure;
 
 import akka.Done;
 import maquette.core.values.UID;
+import maquette.development.values.EnvironmentType;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 import maquette.development.values.stacks.StackInstanceStatus;
@@ -42,8 +43,7 @@ public interface InfrastructurePort {
      * @param name      The name of the stack configuration.
      * @return Runtime parameters of the deployment.
      */
-    CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace,
-                                                                   String name);
+    CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name);
 
     /**
      * Return deployment status of a submitted stack.

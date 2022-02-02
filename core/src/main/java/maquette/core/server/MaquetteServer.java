@@ -11,6 +11,7 @@ import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.users.UserModule;
 import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
+import maquette.core.server.commands.AboutCommand;
 import maquette.core.server.commands.ErrorResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AboutResource;
@@ -44,6 +45,12 @@ public final class MaquetteServer {
         var docsResource = new PostmanDocsResource(runtime, om);
         var commandResource = new CommandResource(runtime);
         var server = new MaquetteServer(runtime);
+
+        /*
+         * Register core commands
+         */
+        var aboutCommandType = new NamedType(AboutCommand.class, "about");
+        om.registerSubtypes(aboutCommandType);
 
         /*
          * Register commands from modules

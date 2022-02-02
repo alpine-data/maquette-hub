@@ -3,16 +3,19 @@ package maquette.development.values.stacks;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import maquette.core.common.Operators;
+import maquette.core.values.UID;
+import maquette.development.entities.mlflow.MlflowConfiguration;
 
-import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @With
 @Value
@@ -22,6 +25,39 @@ public class MlflowStackConfiguration implements StackConfiguration {
     private static final String NAME = "name";
     private static final String SAS_EXPIRY_TOKEN = "sasExpiryToken";
     private static final String RESOURCE_GROUPS = "resourceGroups";
+    private static final String ENVIRONMENT = "environment";
+
+    /**
+     * Defines the public URL to access the MLflow instance.
+     * <p>
+     * Parameter must be set by infrastructure implementation and returned with
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
+     */
+    public static final String PARAM_MLFFLOW_ENDPOINT = "MLFFLOW_ENDPOINT";
+
+    /**
+     * Defines the public tracking URL which is used for experiment tracking from external environments (e.g. local).
+     * <p>
+     * Parameter must be set by infrastructure implementation and returned with
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
+     */
+    public static final String PARAM_MLFLOW_TRACKING_URL = "MLFLOW_TRACKING_URL";
+
+    /**
+     * Defines the URL which is required by Maquette Hub and Sandboxes to access the MLFlow API.
+     * <p>
+     * Parameter must be set by infrastructure implementation and returned with
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
+     */
+    public static final String PARAM_INTERNAL_MLFLOW_ENDPOINT = "INTERNAL_MLFLOW_ENDPOINT";
+
+    /**
+     * Defines the tracking URL which is used for experiment tracking from internal environments (e.g. hub, sandboxes).
+     * <p>
+     * Parameter must be set by infrastructure implementation and returned with
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
+     */
+    public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URL";
 
     /**
      * The name of the MLflow instance.
@@ -43,11 +79,28 @@ public class MlflowStackConfiguration implements StackConfiguration {
     @JsonProperty(RESOURCE_GROUPS)
     List<String> resourceGroups;
 
+    /**
+     * Environment variables which should be set in the stacks nodes.
+     */
+    @JsonProperty(ENVIRONMENT)
+    Map<String, String> environmentVariables;
+
     @JsonCreator
-    public static MlflowStackConfiguration apply(@JsonProperty(NAME) String name,
-                                                  @JsonProperty(SAS_EXPIRY_TOKEN) Instant sasTokenExpiry,
-                                                  @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups) {
-        return new MlflowStackConfiguration(name, sasTokenExpiry, resourceGroups);
+    public static MlflowStackConfiguration apply(
+        @JsonProperty(NAME) String name,
+        @JsonProperty(SAS_EXPIRY_TOKEN) Instant sasTokenExpiry,
+        @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
+        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
+
+        if (Objects.isNull(environmentVariables)) {
+            environmentVariables = Maps.newHashMap();
+        }
+
+        return new MlflowStackConfiguration(name, sasTokenExpiry, resourceGroups, environmentVariables);
+    }
+
+    public Map<String, String> getEnvironmentVariables() {
+        return Map.copyOf(environmentVariables);
     }
 
     @Override
@@ -60,17 +113,18 @@ public class MlflowStackConfiguration implements StackConfiguration {
         return resourceGroups;
     }
 
-    @Override
-    public StackInstanceParameters getInstanceParameters(Map<String, String> parameters) {
-        // Add MLFLOW specific environment variables to parameters (MLFFLOW_ENDPOINT, MLFLOW_SE_...)
-
-        return StackInstanceParameters.apply(
-            Operators.suppressExceptions(() -> new URL(parameters.get("MLFFLOW_ENDPOINT"))), "MLFlow Dashboard", parameters);
+    public Optional<MlflowConfiguration> getMlflowConfiguration(StackInstanceParameters parameters) {
+        if (parameters.getParameters().containsKey(PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
+            var trackingUrl = parameters.getParametersDecoded().get(PARAM_MLFLOW_TRACKING_URL);
+            return Optional.of(MlflowConfiguration.apply(trackingUrl, ""));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
     public StackConfiguration withStackInstanceName(String name) {
-        return MlflowStackConfiguration.apply(name, sasTokenExpiry, resourceGroups);
+        return MlflowStackConfiguration.apply(name, sasTokenExpiry, resourceGroups, environmentVariables);
     }
 
 }

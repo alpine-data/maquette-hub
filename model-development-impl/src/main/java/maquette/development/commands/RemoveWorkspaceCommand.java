@@ -8,6 +8,7 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.DataResult;
+import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 
@@ -25,7 +26,7 @@ public class RemoveWorkspaceCommand implements Command {
         return runtime.getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .remove(user, workspace)
-            .thenApply(DataResult::apply);
+            .thenApply(done -> MessageResult.apply("Successfully removed workspace and its related resources."));
     }
 
     @Override

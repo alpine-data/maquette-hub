@@ -21,6 +21,9 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetWorkspaceEnvironmentCommand implements Command {
 
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
+
     String workspace;
 
     EnvironmentType type;
@@ -35,16 +38,16 @@ public class GetWorkspaceEnvironmentCommand implements Command {
             .thenApply(properties -> {
                 var table = Table
                     .create()
-                    .addColumns(StringColumn.create("key"))
-                    .addColumns(StringColumn.create("value"));
+                    .addColumns(StringColumn.create(KEY))
+                    .addColumns(StringColumn.create(VALUE));
 
                 properties.keySet().forEach(p -> {
                     var row = table.appendRow();
-                    row.setString("key", p);
-                    row.setString("value", properties.get(p));
+                    row.setString(KEY, p);
+                    row.setString(VALUE, properties.get(p));
                 });
 
-                return TableResult.apply(table.sortOn("key"), properties);
+                return TableResult.apply(table.sortOn(KEY), properties);
             });
     }
 

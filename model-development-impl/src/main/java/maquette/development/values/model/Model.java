@@ -17,7 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public class Model {
 
-    ModelProperties modelProperties;
+    ModelProperties properties;
 
     List<GrantedAuthorization<ModelMemberRole>> members;
 
@@ -32,7 +32,7 @@ public class Model {
     }
 
     public Optional<ModelVersion> findVersion(String version) {
-        return modelProperties.getVersions()
+        return properties.getVersions()
             .stream()
             .filter(v -> v.getVersion().equals(version))
             .findAny();
@@ -40,7 +40,7 @@ public class Model {
 
     @JsonProperty("exceptions")
     public long getExceptions() {
-        return modelProperties.getVersions()
+        return properties.getVersions()
             .stream()
             .max(Comparator.comparing(m -> m.getRegistered().getAt()))
             .map(version -> {
@@ -54,7 +54,7 @@ public class Model {
 
     @JsonProperty("warnings")
     public long getWarnings() {
-        return modelProperties.getVersions()
+        return properties.getVersions()
             .stream()
             .max(Comparator.comparing(m -> m.getRegistered().getAt()))
             .map(version -> {

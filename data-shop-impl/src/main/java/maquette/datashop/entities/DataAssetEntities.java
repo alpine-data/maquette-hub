@@ -13,6 +13,7 @@ import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.DataAssetState;
+import maquette.datashop.values.LinkedDataAsset;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
@@ -118,11 +119,12 @@ public final class DataAssetEntities {
             .findDataAccessRequestsByWorkspace(workspace);
     }
 
-    public CompletionStage<List<DataAssetProperties>> getDataAssetsByWorkspace(UID workspace) {
+    public CompletionStage<List<LinkedDataAsset>> getDataAssetsByWorkspace(UID workspace) {
         return getDataAccessRequestsByWorkspace(workspace).thenCompose(requests -> Operators.allOf(requests
             .stream()
-            .map(DataAccessRequestProperties::getAsset)
-            .map(asset -> getById(asset).getProperties())));
+            .map(request -> getById(request.getAsset())
+                .getProperties()
+                .thenApply(properties -> LinkedDataAsset.apply(request, properties)))));
     }
 
 }

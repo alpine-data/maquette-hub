@@ -1,4 +1,4 @@
-package maquette.development.ports;
+package maquette.development.ports.infrastructure;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
@@ -30,7 +30,10 @@ public class FakeInfrastructurePort implements InfrastructurePort {
 
     @Override
     public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name) {
-        return CompletableFuture.completedFuture(StackInstanceParameters.apply("http://foo", "MLFlow Dashboard")
+        return CompletableFuture.completedFuture(StackInstanceParameters
+            .encodeAndCreate("http://foo", "MLFlow Dashboard")
+            .withParameter("ENTRY_POINT_ENDPOINT", "http://foo")
+            .withParameter("MLFLOW_ENDPOINT_LABEL", "MLflow Dashboard")
             .withParameter("CUSTOM_PARAM", "test"));
     }
 
