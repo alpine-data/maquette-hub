@@ -2,6 +2,7 @@ package maquette.development.values.stacks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -65,6 +66,14 @@ public class PythonStackConfiguration implements StackConfiguration {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
+        }
+
+        if (Objects.isNull(resourceGroups)) {
+            resourceGroups = Lists.newArrayList();
+        }
+
+        if (Objects.isNull(memoryRequest)) {
+            memoryRequest = "1Gi";
         }
 
         return new PythonStackConfiguration(name, resourceGroups, version, memoryRequest, environmentVariables);
