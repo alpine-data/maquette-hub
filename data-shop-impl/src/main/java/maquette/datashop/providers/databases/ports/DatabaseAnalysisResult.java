@@ -28,22 +28,18 @@ public class DatabaseAnalysisResult {
     @JsonProperty(DATABASE)
     String database;
 
-    @JsonProperty(QUERY)
-    String query;
-
     @JsonCreator
     public static DatabaseAnalysisResult apply(
         @JsonProperty(COLUMNS) JsonNode columns,
         @JsonProperty(PROFILE) String profile,
-        @JsonProperty(DATABASE) String database,
-        @JsonProperty(QUERY) String query) {
+        @JsonProperty(DATABASE) String database) {
 
-        return new DatabaseAnalysisResult(columns, profile, database, query);
+        return new DatabaseAnalysisResult(columns, profile, database);
     }
 
     public static DatabaseAnalysisResult empty(String database) {
         var columns = DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
-        return DatabaseAnalysisResult.apply(columns, "", database, "");
+        return DatabaseAnalysisResult.apply(columns, "", database);
     }
 
 }

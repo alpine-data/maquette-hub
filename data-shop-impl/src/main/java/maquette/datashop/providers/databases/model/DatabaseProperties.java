@@ -1,8 +1,8 @@
 package maquette.datashop.providers.databases.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Value;
-import lombok.With;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import org.apache.avro.Schema;
 import org.jetbrains.annotations.Nullable;
@@ -11,22 +11,38 @@ import java.util.Optional;
 
 @With
 @Value
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseProperties {
 
-   long records;
+    public static final String RECORDS = "records";
+    public static final String SCHEMA = "schema";
+    public static final String STATISTICS = "statistics";
 
-   Schema schema;
+    @JsonProperty(RECORDS)
+    long records;
 
-   @Nullable
-   DatabaseAnalysisResult statistics;
+    @JsonProperty(SCHEMA)
+    Schema schema;
 
-   public static DatabaseProperties apply(long records, Schema schema) {
-      return apply(records, schema, null);
-   }
+    @Nullable
+    @JsonProperty(STATISTICS)
+    DatabaseAnalysisResult statistics;
 
-   public Optional<DatabaseAnalysisResult> getStatistics() {
-      return Optional.ofNullable(statistics);
-   }
+    @JsonCreator
+    public static DatabaseProperties apply(
+        @JsonProperty(RECORDS) long records,
+        @JsonProperty(SCHEMA) Schema schema,
+        @JsonProperty(STATISTICS) DatabaseAnalysisResult statistics) {
+
+       return new DatabaseProperties(records, schema, statistics);
+    }
+
+    public static DatabaseProperties apply(long records, Schema schema) {
+        return apply(records, schema, null);
+    }
+
+    public Optional<DatabaseAnalysisResult> getStatistics() {
+        return Optional.ofNullable(statistics);
+    }
 
 }

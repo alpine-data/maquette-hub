@@ -3,10 +3,10 @@ package maquette.datashop.providers;
 import akka.Done;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
+import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.values.DataAssetProperties;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -82,22 +82,25 @@ public interface DataAssetProvider {
     /**
      * This callback is called by Maquette Data Shop when a new data asset of this type has been created.
      *
+     * @param executor       The user who created the asset.
      * @param entity         The newly created data asset.
      * @param customSettings The custom settings submitted during creation.
      * @return Done.
      */
-    default CompletionStage<Done> onCreated(DataAssetEntity entity, Object customSettings) {
+    default CompletionStage<Done> onCreated(User executor, DataAssetEntity entity, Object customSettings) {
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
     /**
      * This callback is called by Maquette Data Shop when custom settings have been updated.
      *
+     * @param executor       The user who updated the asset.
      * @param entity         The updated entity.
      * @param customSettings The newly created custom settings.
      * @return Done.
      */
-    default CompletionStage<Done> onUpdatedCustomSettings(DataAssetEntity entity, Object customSettings) {
+    default CompletionStage<Done> onUpdatedCustomSettings(User executor, DataAssetEntity entity,
+                                                          Object customSettings) {
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.common.Operators;
 import maquette.core.config.Configs;
+import maquette.datashop.providers.databases.Databases;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.datasets.Datasets;
@@ -27,7 +28,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor(staticName = "apply")
-public final class MaquetteDataExplorer implements DatasetDataExplorer, DatabaseDataExplorer {
+public final class MaquetteDataExplorer implements DataExplorer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaquetteDataExplorer.class);
 
@@ -91,10 +92,40 @@ public final class MaquetteDataExplorer implements DatasetDataExplorer, Database
     }
 
     @Override
-    public CompletionStage<DatabaseAnalysisResult> analyze(String database, String query, String authTokenId,
-                                                           String authTokenSecret) {
+    public CompletionStage<DatabaseAnalysisResult> analyze(
+        String database, String authTokenId, String authTokenSecret) {
 
-        return CompletableFuture.completedFuture(DatabaseAnalysisResult.empty(database));
+        return CompletableFuture.supplyAsync(() -> {
+            var requestBody = DataExplorerRequest.apply(
+                Databases.TYPE_NAME, database, Maps.newHashMap(), authTokenId, authTokenSecret);
+
+            var json = Operators.suppressExceptions(() -> om.writeValueAsString(requestBody));
+
+            var request = new Request.Builder()
+                .url(String.format("%s/api/statistics", baseUrl))
+                .post(RequestBody.create(json, MediaType.parse("application/json")))
+                .build();
+
+            try {
+                var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+
+                if (!response.isSuccessful()) {
+                    var body = response.body();
+                    var content = body != null ? Operators.suppressExceptions(body::string) : "";
+                    content = StringUtils.leftPad(content, 3);
+                    LOG.warn("Received non-successful response from analysis service:\n" + content);
+
+                    return DatabaseAnalysisResult.empty(database);
+                } else {
+                    var body = response.body();
+                    var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
+                    return Operators.suppressExceptions(() -> om.readValue(content, DatabaseAnalysisResult.class));
+                }
+            } catch (Exception e) {
+                LOG.warn("Exception occurred while calling Maquette Data Explorer.", e);
+                return DatabaseAnalysisResult.empty(database);
+            }
+        });
     }
 
     @Value
