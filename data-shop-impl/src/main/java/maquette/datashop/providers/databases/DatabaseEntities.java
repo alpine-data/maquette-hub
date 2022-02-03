@@ -34,7 +34,7 @@ public final class DatabaseEntities {
         return Operators.compose(
                 settingsCS, dbPropertiesCS, propertiesCS,
                 (settings, dbProperties, properties) -> explorer
-                    .analyze(properties.getMetadata().getName(), settings.getQuery(), authToken, authTokenSecret)
+                    .analyze(properties.getMetadata().getName(), authToken, authTokenSecret)
                     .thenApply(dbProperties::withStatistics)
                     .thenCompose(entity::updateCustomProperties)
                     .thenApply(done -> {

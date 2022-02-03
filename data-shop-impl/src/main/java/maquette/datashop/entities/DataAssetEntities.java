@@ -90,7 +90,7 @@ public final class DataAssetEntities {
                     })
                     .thenCompose(entity -> {
                         var provider = providers.getByName(type);
-                        return provider.onCreated(entity, customSettings);
+                        return provider.onCreated(executor, entity, customSettings);
                     })
                     .thenApply(d -> properties);
             });

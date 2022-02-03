@@ -5,12 +5,14 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
+import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
 import maquette.datashop.providers.databases.commands.AnalyzeDatabaseCommand;
 import maquette.datashop.providers.databases.commands.TestDatabaseConnectionCommand;
+import maquette.datashop.providers.databases.model.DatabaseSettings;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.databases.ports.DatabasePort;
 import maquette.datashop.providers.databases.services.DatabaseServices;
@@ -32,7 +34,8 @@ public final class Databases implements DataAssetProvider {
 
     private MaquetteRuntime runtime;
 
-    public static Databases apply(DatabasePort database, DatabaseDataExplorer explorer, WorkspacesServicePort workspaces) {
+    public static Databases apply(DatabasePort database, DatabaseDataExplorer explorer,
+                                  WorkspacesServicePort workspaces) {
         var databases = DatabaseEntities.apply(database, explorer);
         return apply(databases, workspaces, null);
     }
@@ -79,7 +82,18 @@ public final class Databases implements DataAssetProvider {
     }
 
     @Override
-    public CompletionStage<Done> onUpdatedCustomSettings(DataAssetEntity entity, Object customSettings) {
-        return DataAssetProvider.super.onUpdatedCustomSettings(entity, customSettings);
+    public CompletionStage<Done> onCreated(User executor, DataAssetEntity entity, Object customSettings) {
+        return entity
+            .getProperties()
+            .thenApply(properties -> properties.getMetadata().getName())
+            .thenCompose(database -> getServices().analyze(executor, database));
     }
+
+    @Override
+    public CompletionStage<Done> onUpdatedCustomSettings(User executor, DataAssetEntity entity, Object customSettings) {
+        return entity
+            .getCustomSettings(DatabaseSettings.class)
+            .thenCompose(settings -> onCreated(executor, entity, settings));
+    }
+
 }

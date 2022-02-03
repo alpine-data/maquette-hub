@@ -289,7 +289,7 @@ public final class DataAssetEntity {
             .thenApply(entity -> entity.withUpdated(executor))
             .thenCompose(properties -> repository.insertOrUpdateDataAsset(properties).thenApply(d -> properties))
             .thenCompose(properties -> providers.getByName(properties.getType())
-                .onUpdatedCustomSettings(this, customSettings));
+                .onUpdatedCustomSettings(executor, this, customSettings));
     }
 
     /**
