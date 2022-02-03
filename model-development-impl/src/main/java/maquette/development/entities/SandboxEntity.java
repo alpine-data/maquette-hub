@@ -47,15 +47,19 @@ public final class SandboxEntity {
                 .map(stackConfiguration -> {
                     var stack = Stacks.apply().getStackByConfiguration(stackConfiguration);
                     var stackConfigurationName = String.format("mq--%s--%s--%s", workspace, id, stack.getName());
+                    var workspacePropertiesCS = workspaces.getWorkspaceById(workspace);
 
-                    var updatedStackConfiguration = stackConfiguration
-                        .withStackInstanceName(stackConfigurationName)
-                        .withEnvironmentVariable("MQ_SANDBOX_ID", id.getValue())
-                        .withEnvironmentVariable("MQ_WORKSPACE_ID", workspace.getValue());
+                    return workspacePropertiesCS.thenCompose(workspaceProperties -> {
+                        var updatedStackConfiguration = stackConfiguration
+                            .withStackInstanceName(stackConfigurationName)
+                            .withEnvironmentVariable("MQ_SANDBOX_ID", id.getValue())
+                            .withEnvironmentVariable("MQ_WORKSPACE_ID", workspace.getValue())
+                            .withEnvironmentVariable("MQ_WORKSPACE_NAME", workspaceProperties.getName());
 
-                    return infrastructurePort
-                        .createOrUpdateStackInstance(workspace, updatedStackConfiguration)
-                        .thenApply(done -> updatedStackConfiguration);
+                        return infrastructurePort
+                            .createOrUpdateStackInstance(workspace, updatedStackConfiguration)
+                            .thenApply(done -> updatedStackConfiguration);
+                    });
                 }))
             .thenApply(configurations -> configurations
                 .stream()
