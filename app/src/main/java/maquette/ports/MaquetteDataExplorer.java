@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.common.Operators;
 import maquette.core.config.Configs;
+import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
+import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.datasets.Datasets;
 import maquette.datashop.providers.datasets.model.DatasetVersion;
 import maquette.datashop.providers.datasets.ports.DatasetDataExplorer;
-import maquette.datashop.values.AnalysisResult;
+import maquette.datashop.providers.datasets.ports.AnalysisResult;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,7 +27,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor(staticName = "apply")
-public class MaquetteDataExplorer implements DatasetDataExplorer {
+public final class MaquetteDataExplorer implements DatasetDataExplorer, DatabaseDataExplorer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaquetteDataExplorer.class);
 
@@ -86,6 +88,13 @@ public class MaquetteDataExplorer implements DatasetDataExplorer {
                 return AnalysisResult.empty(dataset, version.toString());
             }
         });
+    }
+
+    @Override
+    public CompletionStage<DatabaseAnalysisResult> analyze(String database, String query, String authTokenId,
+                                                           String authTokenSecret) {
+
+        return CompletableFuture.completedFuture(DatabaseAnalysisResult.empty(database));
     }
 
     @Value

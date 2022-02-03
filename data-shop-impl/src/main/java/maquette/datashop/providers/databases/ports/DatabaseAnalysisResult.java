@@ -1,4 +1,4 @@
-package maquette.datashop.values;
+package maquette.datashop.providers.databases.ports;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -12,12 +12,12 @@ import maquette.core.databind.DefaultObjectMapperFactory;
 @Value
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AnalysisResult {
+public class DatabaseAnalysisResult {
 
     private static final String COLUMNS = "columns";
     private static final String PROFILE = "profile";
-    private static final String DATASET = "dataset";
-    private static final String VERSION = "version";
+    private static final String DATABASE = "database";
+    private static final String QUERY = "query";
 
     @JsonProperty(COLUMNS)
     JsonNode columns;
@@ -25,25 +25,25 @@ public class AnalysisResult {
     @JsonProperty(PROFILE)
     String profile;
 
-    @JsonProperty(DATASET)
-    String dataset;
+    @JsonProperty(DATABASE)
+    String database;
 
-    @JsonProperty(VERSION)
-    String version;
+    @JsonProperty(QUERY)
+    String query;
 
     @JsonCreator
-    public static AnalysisResult apply(
+    public static DatabaseAnalysisResult apply(
         @JsonProperty(COLUMNS) JsonNode columns,
         @JsonProperty(PROFILE) String profile,
-        @JsonProperty(DATASET) String dataset,
-        @JsonProperty(VERSION) String version) {
+        @JsonProperty(DATABASE) String database,
+        @JsonProperty(QUERY) String query) {
 
-        return new AnalysisResult(columns, profile, dataset, version);
+        return new DatabaseAnalysisResult(columns, profile, database, query);
     }
 
-    public static AnalysisResult empty(String dataset, String version) {
+    public static DatabaseAnalysisResult empty(String database) {
         var columns = DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
-        return AnalysisResult.apply(columns, "", dataset, version);
+        return DatabaseAnalysisResult.apply(columns, "", database, "");
     }
 
 }

@@ -1,7 +1,6 @@
 package maquette.datashop.providers.datasets.ports;
 
 import maquette.datashop.providers.datasets.model.DatasetVersion;
-import maquette.datashop.values.AnalysisResult;
 
 import java.util.concurrent.CompletionStage;
 
