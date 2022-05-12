@@ -41,7 +41,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
-    public static final String PARAM_MLFLOW_TRACKING_URL = "MLFLOW_TRACKING_URL";
+    public static final String PARAM_MLFLOW_TRACKING_URL = "MLFLOW_TRACKING_URI";
 
     /**
      * Defines the URL which is required by Maquette Hub and Sandboxes to access the MLFlow API.
@@ -57,7 +57,7 @@ public class MlflowStackConfiguration implements StackConfiguration {
      * Parameter must be set by infrastructure implementation and returned with
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
-    public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URL";
+    public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URI";
 
     /**
      * The name of the MLflow instance.

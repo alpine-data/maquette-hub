@@ -17,6 +17,8 @@ import maquette.core.modules.MaquetteModule;
 import maquette.core.modules.ports.InMemoryUsersRepository;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.UserModule;
+import maquette.core.scheduler.CronScheduler;
+import maquette.core.scheduler.quartz.QuartzCronScheduler;
 import maquette.core.server.auth.AuthenticationHandler;
 import maquette.core.server.auth.DefaultAuthenticationHandler;
 import org.slf4j.Logger;
@@ -69,6 +71,12 @@ public final class MaquetteRuntime {
     ObjectMapperFactory objectMapperFactory;
 
     /**
+     * The default quartz cron scheduler of Maquette.
+     */
+    @With
+    CronScheduler scheduler;
+
+    /**
      * The authentication handler configured for the Maquette instance. It's responsible to identify (authenticate)
      * as user based on the HTTP request, received by Maquette's webserver.
      */
@@ -82,7 +90,8 @@ public final class MaquetteRuntime {
     UsersRepository usersRepository;
 
     /**
-     * A list of modules which should be initialized during initialization. The list can only be modified before initialization.
+     * A list of modules which should be initialized during initialization. The list can only be modified before
+     * initialization.
      */
     List<Function<MaquetteRuntime, MaquetteModule>> moduleFactories;
 
@@ -112,10 +121,10 @@ public final class MaquetteRuntime {
         var omf = DefaultObjectMapperFactory.apply();
         var ath = DefaultAuthenticationHandler.apply();
         var usr = InMemoryUsersRepository.apply();
+        var scheduler = QuartzCronScheduler.apply();
 
-        return apply(null, null, cfg, omf, ath, usr, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList()
-            , Lists
-            .newArrayList());
+        return apply(null, null, cfg, omf, scheduler, ath, usr, Lists.newArrayList(),
+            Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
     }
 
     /**
@@ -123,7 +132,8 @@ public final class MaquetteRuntime {
      *
      * @return The initialized runtime.
      */
-    public MaquetteRuntime initialize(ActorSystem system, Javalin app) {
+    public MaquetteRuntime initialize(ActorSystem system,
+                                      Javalin app) {
         shouldNotBeInitialized();
 
         /*
@@ -170,7 +180,7 @@ public final class MaquetteRuntime {
      * Get a specific module based on its type.
      *
      * @param type The type of the module.
-     * @param <T> The type of the module.
+     * @param <T>  The type of the module.
      * @return The Maquette Module.
      */
     @SuppressWarnings("unchecked")
@@ -188,7 +198,8 @@ public final class MaquetteRuntime {
     }
 
     /**
-     * Register a listener which should be notified before module initialization. At this moment the Webserver and the actor system
+     * Register a listener which should be notified before module initialization. At this moment the Webserver and
+     * the actor system
      * have been already initialized and can be used.
      *
      * @param listener The listener to register.
@@ -247,7 +258,8 @@ public final class MaquetteRuntime {
      */
     public Javalin getApp() {
         if (Objects.isNull(app)) {
-            throw new IllegalStateException("The runtime is not properly initialized yet. The web server can only be used during or after the initialization.");
+            throw new IllegalStateException("The runtime is not properly initialized yet. The web server can only be " +
+                "used during or after the initialization.");
         }
 
         return app;
@@ -255,7 +267,8 @@ public final class MaquetteRuntime {
 
     public ActorSystem getSystem() {
         if (Objects.isNull(system)) {
-            throw new IllegalStateException("The runtime is not properly initialized yet. The actor system can only be used during or after initialization.");
+            throw new IllegalStateException("The runtime is not properly initialized yet. The actor system can only " +
+                "be used during or after initialization.");
         }
 
         return system;
@@ -263,7 +276,8 @@ public final class MaquetteRuntime {
 
     private void shouldBeInitialized() {
         if (Objects.isNull(app)) {
-            throw new IllegalStateException("Maquette Runtime is not initialized yet. This method can only be called after initialization.");
+            throw new IllegalStateException("Maquette Runtime is not initialized yet. This method can only be called " +
+                "after initialization.");
         }
     }
 

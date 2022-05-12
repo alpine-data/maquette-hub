@@ -109,9 +109,9 @@ public abstract class WorkspacesSpecs {
         steps.$_gets_environment_for_workspace_$_of_type_$(context.users.bob, "fake", EnvironmentType.SANDBOX);
 
         // Then
-        steps.the_output_should_contain("MLFLOW_ENDPOINT_LABEL  MLflow Dashboard");
-        steps.the_output_should_contain("ENTRY_POINT_ENDPOINT   http://foo");
-        steps.the_output_should_contain("CUSTOM_PARAM           test");
+        steps.the_output_should_contain("MLFLOW_ENDPOINT_LABEL  TUxmbG93IERhc2hib2FyZA==");
+        steps.the_output_should_contain("ENTRY_POINT_ENDPOINT   aHR0cDovL2Zvbw==");
+        steps.the_output_should_contain("CUSTOM_PARAM           dGVzdA==");
     }
 
 

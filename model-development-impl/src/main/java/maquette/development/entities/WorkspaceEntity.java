@@ -87,7 +87,7 @@ public final class WorkspaceEntity {
     public CompletionStage<Map<String, String>> getEnvironment(EnvironmentType environmentType) {
         return infrastructurePort.getInstanceParameters(id, getMlflowStackName(id)).thenApply(parameters -> {
             Map<String, String> result = Maps.newHashMap();
-            result.putAll(parameters.getParametersDecoded());
+            result.putAll(parameters.getParameters());
 
 
             if (environmentType.equals(EnvironmentType.SANDBOX)) {

@@ -7,11 +7,11 @@ import com.google.common.hash.Hashing;
 import com.oblac.nomen.Nomen;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.text.CaseUtils;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -206,6 +206,12 @@ public final class Operators {
 
     public static boolean isKebabCase(String s, int minLength) {
         return s.length() >= minLength && Pattern.compile("[a-z][a-z0-9\\-]*").matcher(s).matches();
+    }
+
+    public static boolean isInstantWithinRange(Instant compareFrom,
+                                               Instant compareTo,
+                                               Duration duration) {
+        return !Duration.between(compareFrom, compareTo).plus(duration).isNegative();
     }
 
     public static String randomHash() {
