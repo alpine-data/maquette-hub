@@ -71,6 +71,20 @@ public final class UserServicesValidated implements UserServices {
     }
 
     @Override
+    public CompletionStage<UserProfile> getProfileBySub(User executor) {
+        return delegate.getProfileBySub(executor);
+    }
+
+    @Override
+    public CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId) {
+        return FluentValidation
+            .apply()
+            .validate("userId", userId, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.getSettingsWithoutMask(executor, userId));
+    }
+
+    @Override
     public CompletionStage<UserSettings> getSettings(User executor, UID userId) {
         return FluentValidation
             .apply()
@@ -121,6 +135,16 @@ public final class UserServicesValidated implements UserServices {
             .validate("settings", settings, NotNullValidator.apply())
             .checkAndFail()
             .thenCompose(done -> delegate.updateUser(executor, userId, profile, settings));
+    }
+
+    @Override
+    public CompletionStage<Done> createUser(User executor, UID userId, UserProfile profile) {
+        return FluentValidation
+            .apply()
+            .validate("userId", userId, NotNullValidator.apply())
+            .validate("profile", userId, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.createUser(executor, userId, profile));
     }
 
     @Override

@@ -63,14 +63,28 @@ public final class UserServicesImpl implements UserServices {
     public CompletionStage<UserProfile> getProfile(User executor, UID userId) {
         return companion
             .withUser(userId)
-            .thenCompose(UserEntity::getProfile);
+            .thenCompose(UserEntity::getProfileById);
     }
 
     @Override
     public CompletionStage<UserProfile> getProfile(User executor) {
         return companion
             .withUser(executor)
-            .thenCompose(UserEntity::getProfile);
+            .thenCompose(UserEntity::getProfileById);
+    }
+
+    @Override
+    public CompletionStage<UserProfile> getProfileBySub(User executor) {
+        return companion
+            .withUser(executor)
+            .thenCompose(UserEntity::getProfileBySub);
+    }
+
+    @Override
+    public CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId) {
+        return companion
+            .withUser(userId)
+            .thenCompose(entity -> entity.getSettings(false));
     }
 
     @Override
@@ -98,7 +112,9 @@ public final class UserServicesImpl implements UserServices {
                 .map(id -> getProfile(executor, id)))
             .thenApply(users -> {
                 var result = Maps.<String, UserProfile>newHashMap();
-                users.forEach(user -> result.put(user.getId().getValue(), user));
+                users.forEach(user -> result.put(user
+                    .getId()
+                    .getValue(), user));
                 return result;
             });
     }
@@ -114,24 +130,27 @@ public final class UserServicesImpl implements UserServices {
     public CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings) {
         return companion
             .withUser(userId)
-            .thenCompose(entity -> entity.updateUserProfile(profile).thenApply(d -> entity))
+            .thenCompose(entity -> entity
+                .updateUserProfile(profile)
+                .thenApply(d -> entity))
             .thenCompose(entity -> entity.updateUserSettings(settings));
     }
 
     @Override
+    public CompletionStage<Done> createUser(User executor, UID userId, UserProfile profile) {
+        return companion
+            .withUser(userId)
+            .thenCompose(entity -> entity.updateUserProfile(profile));
+    }
+
+    @Override
     public CompletionStage<List<UserNotification>> getNotifications(User executor) {
-        return companion.withUserOrDefault(
-            executor,
-            Lists.newArrayList(),
-            UserEntity::getNotifications);
+        return companion.withUserOrDefault(executor, Lists.newArrayList(), UserEntity::getNotifications);
     }
 
     @Override
     public CompletionStage<Done> readNotification(User executor, String notificationId) {
-        return companion.withUserOrDefault(
-            executor,
-            Done.getInstance(),
-            user -> user.readNotification(notificationId));
+        return companion.withUserOrDefault(executor, Done.getInstance(), user -> user.readNotification(notificationId));
     }
 
 }

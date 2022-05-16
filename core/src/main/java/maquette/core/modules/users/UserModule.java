@@ -27,7 +27,8 @@ public final class UserModule implements MaquetteModule {
     public static UserModule apply(MaquetteRuntime runtime, UsersRepository repository,
                                    AuthenticationTokenStore authenticationTokenStore) {
 
-        var users = UserEntities.apply(repository, authenticationTokenStore, runtime.getObjectMapperFactory()
+        var users = UserEntities.apply(repository, authenticationTokenStore, runtime
+            .getObjectMapperFactory()
             .createJsonMapper());
         var services = UserServicesFactory.apply(users);
 
@@ -81,8 +82,11 @@ public final class UserModule implements MaquetteModule {
         Map<String, Class<? extends Command>> commands = Maps.newHashMap();
         commands.put("users info", UserInformationCommand.class);
         commands.put("users get", GetUsersDetailsCommand.class); // TODO mw: Rename to users profiles
+        commands.put("users get settings", GetUserConfigCommand.class);
         commands.put("users profile", GetUserProfileCommand.class);
         commands.put("users update", UpdateUserCommand.class);
+        commands.put("users create", CreateUserCommand.class);
+        commands.put("users isRegistered", IsUserRegisteredCommand.class);
         commands.put("users list", QueryUsersCommand.class); // TODO mw: Rename to users query
         return commands;
     }

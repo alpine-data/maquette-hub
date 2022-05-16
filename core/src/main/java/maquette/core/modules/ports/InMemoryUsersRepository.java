@@ -44,7 +44,9 @@ public final class InMemoryUsersRepository implements UsersRepository {
     public CompletionStage<Done> insertOrUpdateNotification(UID userId, UserNotification notification) {
         notifications
             .stream()
-            .filter(n -> n.userId.equals(userId) && n.notification.getId().equals(userId))
+            .filter(n -> n.userId.equals(userId) && n.notification
+                .getId()
+                .equals(userId))
             .forEach(notifications::remove);
 
         notifications.add(StoredUserNotification.apply(userId, notification));
@@ -74,7 +76,9 @@ public final class InMemoryUsersRepository implements UsersRepository {
         var users = profiles
             .values()
             .stream()
-            .filter(p -> p.toString().contains(query))
+            .filter(p -> p
+                .toString()
+                .contains(query))
             .collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(users);
@@ -94,7 +98,9 @@ public final class InMemoryUsersRepository implements UsersRepository {
         var result = tokens
             .values()
             .stream()
-            .filter(token -> token.getId().equals(tokenId))
+            .filter(token -> token
+                .getId()
+                .equals(tokenId))
             .findFirst();
 
         return CompletableFuture.completedFuture(result);
@@ -104,7 +110,8 @@ public final class InMemoryUsersRepository implements UsersRepository {
     public CompletionStage<Optional<UserNotification>> findNotificationById(UID userId, UID notificationId) {
         var result = notifications
             .stream()
-            .filter(notification -> notification.userId.equals(userId) && notification.notification.getId()
+            .filter(notification -> notification.userId.equals(userId) && notification.notification
+                .getId()
                 .equals(notificationId))
             .map(StoredUserNotification::getNotification)
             .findAny();
@@ -122,11 +129,19 @@ public final class InMemoryUsersRepository implements UsersRepository {
     }
 
     @Override
+    public CompletionStage<Optional<UserProfile>> findProfileBySub(String sub) {
+        return null;
+    }
+
+    @Override
     public CompletionStage<Optional<UserProfile>> findProfileByAuthenticationToken(UID tokenId) {
         var user = tokens
             .entrySet()
             .stream()
-            .filter(e -> e.getValue().getId().equals(tokenId))
+            .filter(e -> e
+                .getValue()
+                .getId()
+                .equals(tokenId))
             .map(Map.Entry::getKey)
             .findFirst();
 

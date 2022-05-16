@@ -39,14 +39,17 @@ public final class UserEntity {
 
     public CompletionStage<Done> updateUserDetails(String base64encodedUserDetails) {
         try {
-            var json = new String(Base64.getDecoder().decode(base64encodedUserDetails), StandardCharsets.UTF_8);
+            var json = new String(Base64
+                .getDecoder()
+                .decode(base64encodedUserDetails), StandardCharsets.UTF_8);
             var update = om.readValue(json, UserDetails.class);
 
             return repository
-                .findProfileById(id)
-                .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "")))
+                .findProfileBySub(id.getValue())
+                .thenApply(profile -> profile.orElse(UserProfile.apply(UID.apply(), "", "", "", "", "", "", "", false)))
                 .thenApply(profile -> profile
                     .withEmail(update.getEmail())
+                    .withSub(id.getValue())
                     .withName(update.getName()))
                 .thenCompose(repository::insertOrUpdateProfile);
         } catch (IOException ex) {
@@ -73,23 +76,42 @@ public final class UserEntity {
             .thenApply(current -> {
                 var updatedSettings = current;
 
-                if (settings.getGit().isPresent()) {
-                    var updated = settings.getGit().get();
+                if (settings
+                    .getGit()
+                    .isPresent()) {
+                    var updated = settings
+                        .getGit()
+                        .get();
 
-                    if (updated.getPassword() != null && updated.getPassword().equals(SECRET_MASK)) {
+                    if (updated.getPassword() != null && updated
+                        .getPassword()
+                        .equals(SECRET_MASK)) {
                         updated = updated
-                            .withPassword(current.getGit().map(GitSettings::getPassword).orElse(""));
+                            .withPassword(current
+                                .getGit()
+                                .map(GitSettings::getPassword)
+                                .orElse(""));
                     }
 
-                    if (updated.getPrivateKey() != null && updated.getPrivateKey().equals(SECRET_MASK)) {
+                    if (updated.getPrivateKey() != null && updated
+                        .getPrivateKey()
+                        .equals(SECRET_MASK)) {
                         updated = updated
-                            .withPrivateKey(current.getGit().map(GitSettings::getPrivateKey).orElse(""));
+                            .withPrivateKey(current
+                                .getGit()
+                                .map(GitSettings::getPrivateKey)
+                                .orElse(""));
                     }
 
 
-                    if (updated.getPublicKey() != null && updated.getPublicKey().equals(SECRET_MASK)) {
+                    if (updated.getPublicKey() != null && updated
+                        .getPublicKey()
+                        .equals(SECRET_MASK)) {
                         updated = updated
-                            .withPrivateKey(current.getGit().map(GitSettings::getPublicKey).orElse(""));
+                            .withPrivateKey(current
+                                .getGit()
+                                .map(GitSettings::getPublicKey)
+                                .orElse(""));
                     }
 
                     if (updated.isEmpty()) {
@@ -108,22 +130,38 @@ public final class UserEntity {
         return repository
             .findAuthenticationTokenByUserId(id)
             .thenCompose(maybeToken -> {
-                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isAfter(Instant.now())) {
+                if (maybeToken.isPresent() && maybeToken
+                    .get()
+                    .getValidBefore()
+                    .isAfter(Instant.now())) {
                     return CompletableFuture.completedFuture(maybeToken.get());
                 } else {
                     var id = UID.apply();
-                    var secret = UUID.randomUUID().toString();
-                    var auth = UserAuthenticationToken.apply(id, secret, Instant.now().plusSeconds(60 * 60 * 24));
+                    var secret = UUID
+                        .randomUUID()
+                        .toString();
+                    var auth = UserAuthenticationToken.apply(id, secret, Instant
+                        .now()
+                        .plusSeconds(60 * 60 * 24));
 
-                    return repository.insertOrUpdateAuthenticationToken(this.id, auth).thenApply(d -> auth);
+                    return repository
+                        .insertOrUpdateAuthenticationToken(this.id, auth)
+                        .thenApply(d -> auth);
                 }
             });
     }
 
-    public CompletionStage<UserProfile> getProfile() {
+
+    public CompletionStage<UserProfile> getProfileById() {
         return repository
             .findProfileById(id)
-            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "")));
+            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "", "", false)));
+    }
+
+    public CompletionStage<UserProfile> getProfileBySub() {
+        return repository
+            .findProfileBySub(id.getValue())
+            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "", "", false)));
     }
 
     public CompletionStage<UserSettings> getSettings() {
@@ -165,7 +203,9 @@ public final class UserEntity {
             .findNotificationById(id, UID.apply(notificationId))
             .thenCompose(maybeNotification -> {
                 if (maybeNotification.isPresent()) {
-                    var notification = maybeNotification.get().withRead(true);
+                    var notification = maybeNotification
+                        .get()
+                        .withRead(true);
                     return repository.insertOrUpdateNotification(id, notification);
                 } else {
                     return CompletableFuture.completedFuture(Done.getInstance());

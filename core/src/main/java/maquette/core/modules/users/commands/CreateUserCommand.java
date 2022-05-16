@@ -16,28 +16,30 @@ import maquette.core.values.user.User;
 
 import java.util.concurrent.CompletionStage;
 
+
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public final class UpdateUserCommand implements Command {
+public class CreateUserCommand implements Command {
 
     UserProfile profile;
 
-    UserSettings settings;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(UserModule.class)
             .getServices()
-            .updateUser(user, profile.getId(), profile, settings)
-            .thenApply(done -> MessageResult.create("Successfully updated user."));
+            .updateUser(user, profile.getId(), profile.withRegistered(true),
+                UserSettings.apply(GitSettings.apply("", "", "", "")))
+            .thenApply(done -> MessageResult.create("Successfully created user."));
     }
+
 
     @Override
     public Command example() {
-        return apply(UserProfile.apply(UID.apply("alice"), "Alice Kaye", "Data Scientist", "Lorem ipsum dolor",
-                "alice@mail" + ".con", "+49 12345 281 12", "Entenhausen", "", false),
-            UserSettings.apply(GitSettings.apply("username", "password", "privateSSHKey", "publicSSHKey")));
+        return apply(
+            UserProfile.apply(UID.apply("alice"), "Alice Kaye", "Data Scientist", "Lorem ipsum dolor", "alice@mail" +
+                ".con", "+49 12345 281 12", "Entenhausen", "", true)
+        );
     }
-
 }

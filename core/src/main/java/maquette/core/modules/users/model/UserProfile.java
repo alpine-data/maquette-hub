@@ -22,6 +22,8 @@ public class UserProfile {
     private static final String PHONE = "phone";
     private static final String LOCATION = "location";
     private static final String AVATAR = "avatar";
+    private static final String SUB = "sub";
+    private static final String REGISTERED = "registered";
 
     @JsonProperty(ID)
     UID id;
@@ -47,16 +49,23 @@ public class UserProfile {
     @JsonProperty(AVATAR)
     String avatar;
 
+    @JsonProperty(SUB)
+    String sub;
+
+    @JsonProperty(REGISTERED)
+    Boolean registered;
+
     @JsonCreator
     public static UserProfile apply(@JsonProperty(ID) UID id, @JsonProperty(NAME) String name,
                                     @JsonProperty(TITLE) String title, @JsonProperty(BIO) String bio,
                                     @JsonProperty(EMAIL) String email, @JsonProperty(PHONE) String phone,
-                                    @JsonProperty(LOCATION) String location) {
-        return new UserProfile(id, name, title, bio, email, phone, location, null);
+                                    @JsonProperty(LOCATION) String location, @JsonProperty(SUB) String sub,
+                                    @JsonProperty(REGISTERED) Boolean registered) {
+        return new UserProfile(id, name, title, bio, email, phone, location, null, sub, registered);
     }
 
     public static UserProfile fake(String name) {
-        return apply(UID.apply(), name, "title", "bio", "email", "phone", "location");
+        return apply(UID.apply(), name, "title", "bio", "email", "phone", "location", name, false);
     }
 
     public static UserProfile fake() {
@@ -65,8 +74,8 @@ public class UserProfile {
 
     @JsonProperty(AVATAR)
     public String getAvatar() {
-        return "https://www.gravatar.com/avatar/" + DigestUtils.md5Hex(email != null ? email : "foo@bar.de") + "?d" +
-            "=retro";
+        return "https://www.gravatar.com/avatar/" + DigestUtils.md5Hex(
+            email != null ? email : "foo@bar.de") + "?d" + "=retro";
     }
 
 }

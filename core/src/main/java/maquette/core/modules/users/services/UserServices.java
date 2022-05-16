@@ -37,6 +37,10 @@ public interface UserServices {
 
     CompletionStage<UserProfile> getProfile(User executor);
 
+    CompletionStage<UserProfile> getProfileBySub(User executor);
+
+    CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId);
+
     CompletionStage<UserSettings> getSettings(User executor, UID userId);
 
     CompletionStage<List<UserProfile>> getUsers(User executor);
@@ -48,6 +52,8 @@ public interface UserServices {
     CompletionStage<Done> updateUserDetails(User executor, String base64encodedDetails);
 
     CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings);
+
+    CompletionStage<Done> createUser(User executor, UID userId, UserProfile profile);
 
     /*
      * Notifications

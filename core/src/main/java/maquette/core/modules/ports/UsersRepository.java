@@ -33,6 +33,8 @@ public interface UsersRepository {
 
     CompletionStage<Optional<UserProfile>> findProfileById(UID userId);
 
+    CompletionStage<Optional<UserProfile>> findProfileBySub(String sub);
+
     CompletionStage<Optional<UserProfile>> findProfileByAuthenticationToken(UID tokenId);
 
     CompletionStage<Optional<UserSettings>> findSettingsById(UID userId);

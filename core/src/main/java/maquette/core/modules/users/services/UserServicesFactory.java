@@ -11,7 +11,9 @@ public final class UserServicesFactory {
     public static UserServices apply(UserEntities users) {
         var comp = UserCompanion.apply(users);
         var impl = UserServicesImpl.apply(users, comp);
-        return UserServicesValidated.apply(impl);
+        var validate = UserServicesValidated.apply(impl);
+        var secured = UserServicesSecured.apply(comp, validate);
+        return secured;
     }
 
 }
