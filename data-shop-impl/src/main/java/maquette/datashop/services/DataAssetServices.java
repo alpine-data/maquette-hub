@@ -1,6 +1,7 @@
 package maquette.datashop.services;
 
 import akka.Done;
+import maquette.core.MaquetteRuntime;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
@@ -146,7 +147,7 @@ public interface DataAssetServices {
      * @return The created access request.
      */
     CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name, String workspace,
-                                                                         String reason);
+                                                                         String reason, MaquetteRuntime runtime);
 
     /**
      * Get details of a data access request.

@@ -2,6 +2,7 @@ package maquette.datashop.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
@@ -184,7 +185,8 @@ public final class DataAssetServicesValidated implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason) {
+                                                                                String workspace, String reason,
+                                                                                MaquetteRuntime runtime) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
@@ -192,7 +194,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             .validate("project", name, NotNullValidator.apply())
             .validate("reason", name, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason));
+            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason, runtime));
     }
 
     @Override

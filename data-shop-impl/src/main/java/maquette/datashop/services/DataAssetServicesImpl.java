@@ -2,9 +2,15 @@ package maquette.datashop.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
+import maquette.core.modules.users.UserModule;
+import maquette.core.modules.users.model.UserProfile;
+import maquette.core.ports.email.EmailClient;
+import maquette.core.ports.email.EmailClientImpl;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
@@ -138,14 +144,41 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason) {
+                                                                                String workspace, String reason, MaquetteRuntime runtime) {
         var entityCS = entities.getByName(name);
         var workspaceUIDCS = workspaces.getWorkspaceIdByName(workspace);
 
         return Operators
             .compose(entityCS, workspaceUIDCS, (entity, workspaceUID) -> entity
                 .getAccessRequests()
-                .createDataAccessRequest(executor, workspaceUID, reason))
+                .createDataAccessRequest(executor, workspaceUID, reason).thenApply(z->{
+
+
+                    CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> members = entity
+                        .getMembers()
+                        .getMembers().thenApply(
+                            member-> {
+
+                                member.stream().forEach(x-> {
+                                    CompletionStage<UserProfile> profile = runtime
+                                            .getModule(UserModule.class)
+                                            .getServices()
+                                            .getProfile(executor, UID.apply(x
+                                                .getAuthorization()
+                                                .getName())).thenApply(y-> {
+                                                    EmailClient emailClient = EmailClientImpl.apply();
+                                                    emailClient.sendEmail(y,"","test email for code","test email",false);
+
+                                                return y;
+                                            }
+                                            );
+                                    }
+
+                                );
+                                 return member; }); //ID not sub
+
+                    return z;
+                }))
             .thenCompose(cs -> cs);
     }
 
@@ -171,6 +204,9 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     @Override
     public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
                                                           @Nullable String message) {
+
+        System.out.println("approve data access");
+
         return entities
             .getByName(name)
             .thenCompose(a -> a.getAccessRequests()
@@ -181,6 +217,8 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
                                                         @Nullable Instant until, @Nullable String message,
                                                         String environment, boolean downstreamApprovalRequired) {
+
+        System.out.println("grant data access");
         return entities
             .getByName(name)
             .thenCompose(a -> a.getAccessRequests()

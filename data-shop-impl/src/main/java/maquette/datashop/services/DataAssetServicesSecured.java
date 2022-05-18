@@ -2,6 +2,7 @@ package maquette.datashop.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
@@ -189,12 +190,13 @@ public final class DataAssetServicesSecured implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason) {
+                                                                                String workspace, String reason,
+                                                                                MaquetteRuntime runtime) {
         return comp
             .withAuthorization(
                 () -> comp.isVisible(name),
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canConsume))
-            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason));
+            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason, runtime));
     }
 
     @Override

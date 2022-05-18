@@ -132,6 +132,8 @@ public final class UserServicesImpl implements UserServices {
             .withUser(userId)
             .thenCompose(entity -> entity
                 .updateUserProfile(profile)
+                .thenApply(d -> entity)
+                .thenApply(b->b.createNewNotification("User info Updated."))
                 .thenApply(d -> entity))
             .thenCompose(entity -> entity.updateUserSettings(settings));
     }

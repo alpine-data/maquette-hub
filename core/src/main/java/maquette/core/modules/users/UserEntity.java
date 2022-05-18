@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.exceptions.MissingGitSettings;
 import maquette.core.modules.users.model.*;
+import maquette.core.ports.email.EmailClient;
+import maquette.core.ports.email.EmailClientImpl;
 import maquette.core.values.UID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,10 @@ public final class UserEntity {
 
     public CompletionStage<Done> createNewNotification(String message) {
         var notification = UserNotification.apply(UID.apply(), Instant.now(), false, message);
+        EmailClient emailClient = EmailClientImpl.apply();
+            repository
+                .findProfileById(id).thenApply(x->emailClient.sendEmail(x.orElseThrow(),"",message,message,false));
+
         return repository.insertOrUpdateNotification(id, notification);
     }
 

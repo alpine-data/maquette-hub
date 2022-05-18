@@ -30,7 +30,7 @@ public class CreateAccessRequestCommand implements Command {
         return runtime
             .getModule(MaquetteDataShop.class)
             .getServices()
-            .createDataAccessRequest(user, name, project, reason)
+            .createDataAccessRequest(user, name, project, reason, runtime)
             .thenApply(DataResult::apply);
     }
 
