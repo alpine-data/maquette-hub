@@ -17,6 +17,7 @@ import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.Workspace;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProviders;
+import maquette.datashop.providers.datasets.DatasetEntity;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access.DataAssetMemberRole;
@@ -24,6 +25,8 @@ import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.List;
@@ -32,6 +35,8 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DataAssetServicesImpl implements DataAssetServices {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DataAssetServices.class);
 
     private final DataAssetEntities entities;
 
@@ -155,6 +160,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
                     System.out.println("GENERATING");
 
+                    LOG.error("HERERRR");
                     CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> members = entity
                         .getMembers()
                         .getMembers().thenApply(
@@ -168,6 +174,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
                                                 .getAuthorization()
                                                 .getName())).thenApply(y-> {
                                                 System.out.println(y);
+                                                LOG.error(y.toString());
                                                     EmailClient emailClient = EmailClientImpl.apply();
                                                     emailClient.sendEmail(y,"","test email for code","test email",false);
 
