@@ -153,6 +153,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
                 .getAccessRequests()
                 .createDataAccessRequest(executor, workspaceUID, reason).thenApply(z->{
 
+                    System.out.println("GENERATING");
 
                     CompletionStage<List<GrantedAuthorization<DataAssetMemberRole>>> members = entity
                         .getMembers()
@@ -166,6 +167,7 @@ public final class DataAssetServicesImpl implements DataAssetServices {
                                             .getProfile(executor, UID.apply(x
                                                 .getAuthorization()
                                                 .getName())).thenApply(y-> {
+                                                System.out.println(y);
                                                     EmailClient emailClient = EmailClientImpl.apply();
                                                     emailClient.sendEmail(y,"","test email for code","test email",false);
 
