@@ -73,12 +73,6 @@ public final class UserServicesImpl implements UserServices {
             .thenCompose(UserEntity::getProfileById);
     }
 
-    @Override
-    public CompletionStage<UserProfile> getProfileBySub(User executor) {
-        return companion
-            .withUser(executor)
-            .thenCompose(UserEntity::getProfileBySub);
-    }
 
     @Override
     public CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId) {
@@ -133,7 +127,7 @@ public final class UserServicesImpl implements UserServices {
             .thenCompose(entity -> entity
                 .updateUserProfile(profile)
                 .thenApply(d -> entity)
-                .thenApply(b->b.createNewNotification("User info Updated."))
+                .thenApply(b -> b.createNewNotification("User info Updated."))
                 .thenApply(d -> entity))
             .thenCompose(entity -> entity.updateUserSettings(settings));
     }

@@ -36,7 +36,7 @@ public final class UpdateUserCommand implements Command {
     @Override
     public Command example() {
         return apply(UserProfile.apply(UID.apply("alice"), "Alice Kaye", "Data Scientist", "Lorem ipsum dolor",
-                "alice@mail" + ".con", "+49 12345 281 12", "Entenhausen", "", false),
+                "alice@mail" + ".con", "+49 12345 281 12", "Entenhausen", false),
             UserSettings.apply(GitSettings.apply("username", "password", "privateSSHKey", "publicSSHKey")));
     }
 

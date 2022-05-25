@@ -7,6 +7,8 @@ import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public class UserServicesSecured implements UserServices {
-
+    private static final Logger LOG = LoggerFactory.getLogger(UserServicesSecured.class);
     private final UserCompanion comp;
 
     private final UserServices delegate;
@@ -52,14 +54,9 @@ public class UserServicesSecured implements UserServices {
     }
 
     @Override
-    public CompletionStage<UserProfile> getProfileBySub(User executor) {
-        return delegate.getProfileBySub(executor);
-    }
-
-    @Override
     public CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId) {
         return delegate
-            .getProfileBySub(executor)
+            .getProfile(executor)
             .thenApply(x -> {
 
                 if (StringUtils.equalsAnyIgnoreCase(x
@@ -105,11 +102,11 @@ public class UserServicesSecured implements UserServices {
 
     @Override
     public CompletionStage<Done> updateUser(User executor, UID userId, UserProfile profile, UserSettings settings) {
-
         if (executor instanceof AuthenticatedUser) {
             var id = ((AuthenticatedUser) executor).getId();
-
-            if ((StringUtils.equalsAnyIgnoreCase(id.getValue(), profile.getSub())) && (StringUtils.equalsAnyIgnoreCase(
+            if ((StringUtils.equalsAnyIgnoreCase(id.getValue(), profile
+                .getId()
+                .getValue())) && (StringUtils.equalsAnyIgnoreCase(
                 userId.getValue(), profile
                     .getId()
                     .getValue()))) {

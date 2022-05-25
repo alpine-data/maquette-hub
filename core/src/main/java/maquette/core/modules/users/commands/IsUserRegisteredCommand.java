@@ -22,7 +22,7 @@ public class IsUserRegisteredCommand implements Command {
         return runtime
             .getModule(UserModule.class)
             .getServices()
-            .getProfileBySub(user)
+            .getProfile(user)
             .thenApply(x -> {
                 return BooleanResult.apply(x.getRegistered() != null ? x.getRegistered() : false);
             });

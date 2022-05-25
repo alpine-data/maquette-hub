@@ -1,7 +1,6 @@
 package maquette.datashop.services;
 
 import akka.Done;
-import maquette.core.MaquetteRuntime;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
@@ -58,7 +57,7 @@ public interface DataAssetServices {
      * Query data assets and get a list of data assets the owner is allowed to view and match the query.
      *
      * @param executor The user who executes the request.
-     * @param query The query to filter.
+     * @param query    The query to filter.
      * @return The list of data assets.
      */
     CompletionStage<List<DataAssetProperties>> query(User executor, String query);
@@ -147,7 +146,7 @@ public interface DataAssetServices {
      * @return The created access request.
      */
     CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name, String workspace,
-                                                                         String reason, MaquetteRuntime runtime);
+                                                                         String reason);
 
     /**
      * Get details of a data access request.

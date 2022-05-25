@@ -185,8 +185,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason,
-                                                                                MaquetteRuntime runtime) {
+                                                                                String workspace, String reason) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
@@ -194,7 +193,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             .validate("project", name, NotNullValidator.apply())
             .validate("reason", name, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason, runtime));
+            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason));
     }
 
     @Override

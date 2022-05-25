@@ -18,7 +18,7 @@ public final class GetUserProfileCommand implements Command {
         return runtime
             .getModule(UserModule.class)
             .getServices()
-            .getProfileBySub(user)
+            .getProfile(user)
             .thenApply(DataResult::apply);
     }
 

@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.exceptions.MissingGitSettings;
 import maquette.core.modules.users.model.*;
-import maquette.core.ports.email.EmailClient;
-import maquette.core.ports.email.EmailClientImpl;
 import maquette.core.values.UID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +34,6 @@ public final class UserEntity {
 
     public CompletionStage<Done> createNewNotification(String message) {
         var notification = UserNotification.apply(UID.apply(), Instant.now(), false, message);
-        EmailClient emailClient = EmailClientImpl.apply();
-            repository
-                .findProfileById(id).thenApply(x->emailClient.sendEmail(x.orElseThrow(),"",message,message,false));
-
         return repository.insertOrUpdateNotification(id, notification);
     }
 
@@ -51,11 +45,11 @@ public final class UserEntity {
             var update = om.readValue(json, UserDetails.class);
 
             return repository
-                .findProfileBySub(id.getValue())
-                .thenApply(profile -> profile.orElse(UserProfile.apply(UID.apply(), "", "", "", "", "", "", "", false)))
+                .findProfileById(UID.apply(id.getValue()))
+                .thenApply(profile -> profile.orElse(
+                    UserProfile.apply(UID.apply(id.getValue()), "", "", "", "", "", "", false)))
                 .thenApply(profile -> profile
                     .withEmail(update.getEmail())
-                    .withSub(id.getValue())
                     .withName(update.getName()))
                 .thenCompose(repository::insertOrUpdateProfile);
         } catch (IOException ex) {
@@ -161,13 +155,7 @@ public final class UserEntity {
     public CompletionStage<UserProfile> getProfileById() {
         return repository
             .findProfileById(id)
-            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "", "", false)));
-    }
-
-    public CompletionStage<UserProfile> getProfileBySub() {
-        return repository
-            .findProfileBySub(id.getValue())
-            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "", "", false)));
+            .thenApply(profile -> profile.orElse(UserProfile.apply(id, "", "", "", "", "", "", false)));
     }
 
     public CompletionStage<UserSettings> getSettings() {

@@ -70,10 +70,6 @@ public final class UserServicesValidated implements UserServices {
         return delegate.getProfile(executor);
     }
 
-    @Override
-    public CompletionStage<UserProfile> getProfileBySub(User executor) {
-        return delegate.getProfileBySub(executor);
-    }
 
     @Override
     public CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId) {

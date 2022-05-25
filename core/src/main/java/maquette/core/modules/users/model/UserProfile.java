@@ -49,9 +49,6 @@ public class UserProfile {
     @JsonProperty(AVATAR)
     String avatar;
 
-    @JsonProperty(SUB)
-    String sub;
-
     @JsonProperty(REGISTERED)
     Boolean registered;
 
@@ -59,13 +56,13 @@ public class UserProfile {
     public static UserProfile apply(@JsonProperty(ID) UID id, @JsonProperty(NAME) String name,
                                     @JsonProperty(TITLE) String title, @JsonProperty(BIO) String bio,
                                     @JsonProperty(EMAIL) String email, @JsonProperty(PHONE) String phone,
-                                    @JsonProperty(LOCATION) String location, @JsonProperty(SUB) String sub,
+                                    @JsonProperty(LOCATION) String location,
                                     @JsonProperty(REGISTERED) Boolean registered) {
-        return new UserProfile(id, name, title, bio, email, phone, location, null, sub, registered);
+        return new UserProfile(id, name, title, bio, email, phone, location, null, registered);
     }
 
     public static UserProfile fake(String name) {
-        return apply(UID.apply(), name, "title", "bio", "email", "phone", "location", name, false);
+        return apply(UID.apply(), name, "title", "bio", "email", "phone", "location", false);
     }
 
     public static UserProfile fake() {

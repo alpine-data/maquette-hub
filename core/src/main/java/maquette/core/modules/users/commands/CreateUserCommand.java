@@ -39,7 +39,7 @@ public class CreateUserCommand implements Command {
     public Command example() {
         return apply(
             UserProfile.apply(UID.apply("alice"), "Alice Kaye", "Data Scientist", "Lorem ipsum dolor", "alice@mail" +
-                ".con", "+49 12345 281 12", "Entenhausen", "", true)
+                ".con", "+49 12345 281 12", "Entenhausen", true)
         );
     }
 }

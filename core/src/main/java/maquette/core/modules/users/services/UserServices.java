@@ -37,7 +37,6 @@ public interface UserServices {
 
     CompletionStage<UserProfile> getProfile(User executor);
 
-    CompletionStage<UserProfile> getProfileBySub(User executor);
 
     CompletionStage<UserSettings> getSettingsWithoutMask(User executor, UID userId);
 

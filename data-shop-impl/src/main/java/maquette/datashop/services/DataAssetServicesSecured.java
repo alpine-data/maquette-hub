@@ -78,7 +78,10 @@ public final class DataAssetServicesSecured implements DataAssetServices {
                                     .stream()
                                     .map(request -> comp.filterRequester(
                                         executor,
-                                        entity.getProperties().getMetadata().getName(),
+                                        entity
+                                            .getProperties()
+                                            .getMetadata()
+                                            .getName(),
                                         request.getId(),
                                         request)))
                                 .thenApply(all -> all
@@ -102,7 +105,9 @@ public final class DataAssetServicesSecured implements DataAssetServices {
                 .stream()
                 .map(entity -> comp.filterAuthorized(
                     entity,
-                    () -> comp.isMember(executor, entity.getMetadata().getName()))))
+                    () -> comp.isMember(executor, entity
+                        .getMetadata()
+                        .getName()))))
             .thenCompose(Operators::allOf)
             .thenApply(datasets -> datasets
                 .stream()
@@ -119,10 +124,16 @@ public final class DataAssetServicesSecured implements DataAssetServices {
                 .stream()
                 .map(entity -> comp.filterAuthorized(
                     entity,
-                    () -> comp.isVisible(entity.getMetadata().getName()),
+                    () -> comp.isVisible(entity
+                        .getMetadata()
+                        .getName()),
                     () -> comp.isSuperUser(executor),
-                    () -> comp.isMember(executor, entity.getMetadata().getName()),
-                    () -> comp.isSubscribedConsumer(executor, entity.getMetadata().getName()))))
+                    () -> comp.isMember(executor, entity
+                        .getMetadata()
+                        .getName()),
+                    () -> comp.isSubscribedConsumer(executor, entity
+                        .getMetadata()
+                        .getName()))))
             .thenCompose(Operators::allOf)
             .thenApply(datasets -> datasets
                 .stream()
@@ -190,13 +201,12 @@ public final class DataAssetServicesSecured implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason,
-                                                                                MaquetteRuntime runtime) {
+                                                                                String workspace, String reason) {
         return comp
             .withAuthorization(
                 () -> comp.isVisible(name),
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canConsume))
-            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason, runtime));
+            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason));
     }
 
     @Override
