@@ -31,7 +31,7 @@ public class ApproveAccessRequestCommand implements Command {
         return runtime
             .getModule(MaquetteDataShop.class)
             .getServices()
-            .approveDataAccessRequest(user, name, id, message)
+            .approveDataAccessRequest(user, name, id, message, runtime)
             .thenApply(done -> MessageResult.create("Successfully approved data access request."));
     }
 

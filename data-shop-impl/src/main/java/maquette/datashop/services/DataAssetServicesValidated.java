@@ -185,7 +185,8 @@ public final class DataAssetServicesValidated implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason) {
+                                                                                String workspace, String reason,
+                                                                                MaquetteRuntime runtime) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
@@ -193,7 +194,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             .validate("project", name, NotNullValidator.apply())
             .validate("reason", name, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason));
+            .thenCompose(done -> delegate.createDataAccessRequest(executor, name, workspace, reason, runtime));
     }
 
     @Override
@@ -219,19 +220,20 @@ public final class DataAssetServicesValidated implements DataAssetServices {
 
     @Override
     public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
-                                                          @Nullable String message) {
+                                                          @Nullable String message, MaquetteRuntime runtime) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
             .validate("name", name, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(ok -> delegate.approveDataAccessRequest(executor, name, request, message));
+            .thenCompose(ok -> delegate.approveDataAccessRequest(executor, name, request, message, runtime));
     }
 
     @Override
     public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
                                                         @Nullable Instant until, @Nullable String message,
-                                                        String environment, boolean downstreamApprovalRequired) {
+                                                        String environment, boolean downstreamApprovalRequired,
+                                                        MaquetteRuntime runtime) {
         return FluentValidation
             .apply()
             .validate("executor", executor, NotNullValidator.apply())
@@ -239,7 +241,7 @@ public final class DataAssetServicesValidated implements DataAssetServices {
             .validate("request", name, NotNullValidator.apply())
             .checkAndFail()
             .thenCompose(done -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment
-                , downstreamApprovalRequired));
+                , downstreamApprovalRequired, runtime));
     }
 
     @Override

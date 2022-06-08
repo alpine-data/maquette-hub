@@ -201,12 +201,13 @@ public final class DataAssetServicesSecured implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason) {
+                                                                                String workspace, String reason,
+                                                                                MaquetteRuntime runtime) {
         return comp
             .withAuthorization(
                 () -> comp.isVisible(name),
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canConsume))
-            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason));
+            .thenCompose(ok -> delegate.createDataAccessRequest(executor, name, workspace, reason, runtime));
     }
 
     @Override
@@ -242,22 +243,23 @@ public final class DataAssetServicesSecured implements DataAssetServices {
 
     @Override
     public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
-                                                          @Nullable String message) {
+                                                          @Nullable String message, MaquetteRuntime runtime) {
         return comp
             .withAuthorization(
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canReview))
-            .thenCompose(ok -> delegate.approveDataAccessRequest(executor, name, request, message));
+            .thenCompose(ok -> delegate.approveDataAccessRequest(executor, name, request, message, runtime));
     }
 
     @Override
     public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
                                                         @Nullable Instant until, @Nullable String message,
-                                                        String environment, boolean downstreamApprovalRequired) {
+                                                        String environment, boolean downstreamApprovalRequired,
+                                                        MaquetteRuntime runtime) {
         return comp
             .withAuthorization(
                 () -> comp.hasPermission(executor, name, DataAssetPermissions::canManageAccessRequests))
             .thenCompose(ok -> delegate.grantDataAccessRequest(executor, name, request, until, message, environment,
-                downstreamApprovalRequired));
+                downstreamApprovalRequired, runtime));
     }
 
     @Override

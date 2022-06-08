@@ -49,6 +49,26 @@ public class CoreConfiguration {
     @Value("user-details-header-name")
     String userDetailsHeaderName;
 
+
+    @Value("rootURL")
+    String rootURL;
+
+    @Value("emailServiceUsername")
+    String emailServiceUsername;
+
+    @Value("emailServicePassword")
+    String emailServicePassword;
+
+    @Value("emailServiceUrl")
+    String emailServiceUrl;
+
+    @Value("emailServiceFromEmail")
+    String emailServiceFromEmail;
+
+    @Value("emailServiceFromName")
+    String emailServiceFromName;
+
+
     /**
      * The HTTP header name which may contain the id of the authentication token.
      */

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
+import maquette.core.ports.email.EmailClient;
 import maquette.core.server.commands.Command;
 import maquette.datashop.commands.*;
 import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
@@ -13,11 +14,11 @@ import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.databind.MaquetteDataShopObjectMapperFactory;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.ports.DataAssetsRepository;
+import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.services.DataAssetServices;
 import maquette.datashop.services.DataAssetServicesFactory;
-import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Map;
 
@@ -34,11 +35,12 @@ public final class MaquetteDataShop implements MaquetteModule {
 
     private final DataShopConfiguration configuration;
 
-    public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspacesServicePort workspaces, DataAssetProvider... dataAssetProviders) {
+    public static MaquetteDataShop apply(DataAssetsRepository repository, WorkspacesServicePort workspaces,
+                                         EmailClient emailClient, DataAssetProvider... dataAssetProviders) {
         var configuration = DataShopConfiguration.apply();
         var providers = DataAssetProviders.apply(dataAssetProviders);
         var entities = DataAssetEntities.apply(repository, providers);
-        var services = DataAssetServicesFactory.apply(configuration, entities, workspaces, providers);
+        var services = DataAssetServicesFactory.apply(configuration, entities, workspaces, providers, emailClient);
 
         return apply(services, providers, entities, configuration);
     }

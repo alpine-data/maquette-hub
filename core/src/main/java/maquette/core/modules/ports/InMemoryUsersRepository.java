@@ -128,10 +128,6 @@ public final class InMemoryUsersRepository implements UsersRepository {
         }
     }
 
-    @Override
-    public CompletionStage<Optional<UserProfile>> findProfileBySub(String sub) {
-        return null;
-    }
 
     @Override
     public CompletionStage<Optional<UserProfile>> findProfileByAuthenticationToken(UID tokenId) {

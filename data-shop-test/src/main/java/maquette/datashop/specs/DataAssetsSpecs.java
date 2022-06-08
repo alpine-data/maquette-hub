@@ -1,6 +1,7 @@
 package maquette.datashop.specs;
 
 import maquette.core.MaquetteRuntime;
+import maquette.core.ports.email.FakeEmailClient;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.ports.FakeWorkspacesServicePort;
@@ -33,7 +34,8 @@ public abstract class DataAssetsSpecs {
         var dataAssetsRepository = setupDataAssetsRepository();
         var runtime = MaquetteRuntime
             .apply()
-            .withModule(MaquetteDataShop.apply(dataAssetsRepository, workspaces, FakeProvider.apply()))
+            .withModule(
+                MaquetteDataShop.apply(dataAssetsRepository, workspaces, FakeEmailClient.apply(), FakeProvider.apply()))
             .initialize(context.system, context.app);
 
         this.steps = new DataAssetStepDefinitions(runtime, workspaces);

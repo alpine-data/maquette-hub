@@ -4,14 +4,15 @@ import maquette.adapters.MaquetteDataAssetsServiceAdapter;
 import maquette.adapters.MaquetteWorkspacesServiceAdapter;
 import maquette.core.Maquette;
 import maquette.core.MaquetteRuntime;
+import maquette.core.ports.email.FakeEmailClient;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
 import maquette.datashop.providers.FakeProvider;
 import maquette.development.MaquetteModelDevelopment;
-import maquette.development.ports.infrastructure.FakeInfrastructurePort;
 import maquette.development.ports.InMemoryModelsRepository;
 import maquette.development.ports.InMemorySandboxesRepository;
 import maquette.development.ports.InMemoryWorkspacesRepository;
+import maquette.development.ports.infrastructure.FakeInfrastructurePort;
 
 /**
  * This object ensembles Maquette Community Edition.
@@ -42,7 +43,7 @@ public class Application {
             runtime, workspacesRepository, modelsRepository, sandboxesRepository, infrastructurePort, dataAssetsAdapter);
 
         var shop = MaquetteDataShop
-            .apply(dataAssetsRepository, workspacesAdapter, FakeProvider.apply());
+            .apply(dataAssetsRepository, workspacesAdapter, FakeEmailClient.apply(), FakeProvider.apply());
 
         dataAssetsAdapter.setMaquetteModule(shop);
         workspacesAdapter.setMaquetteModule(modelDevelopment);

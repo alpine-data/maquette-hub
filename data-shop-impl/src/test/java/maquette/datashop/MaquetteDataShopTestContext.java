@@ -1,14 +1,15 @@
 package maquette.datashop;
 
 import lombok.AllArgsConstructor;
+import maquette.core.ports.email.FakeEmailClient;
 import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.entities.DataAssetEntities;
+import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
+import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProviders;
 import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.services.DataAssetServicesFactory;
-import maquette.datashop.ports.WorkspacesServicePort;
-import maquette.datashop.ports.FakeWorkspacesServicePort;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteDataShopTestContext {
@@ -25,7 +26,9 @@ public final class MaquetteDataShopTestContext {
         var providers = DataAssetProviders.apply(FakeProvider.apply());
         var configuration = DataShopConfiguration.apply();
 
-        var services = DataAssetServicesFactory.apply(configuration, assets, workspaces, providers);
+
+        var services = DataAssetServicesFactory.apply(configuration, assets, workspaces, providers,
+            FakeEmailClient.apply());
         var shop = MaquetteDataShop.apply(services, providers, assets, configuration);
 
         return apply(workspaces, shop);

@@ -22,7 +22,7 @@ public class UserProfile {
     private static final String PHONE = "phone";
     private static final String LOCATION = "location";
     private static final String AVATAR = "avatar";
-    private static final String SUB = "sub";
+
     private static final String REGISTERED = "registered";
 
     @JsonProperty(ID)

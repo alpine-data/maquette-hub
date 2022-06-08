@@ -1,6 +1,7 @@
 package maquette.datashop.specs;
 
 import maquette.core.MaquetteRuntime;
+import maquette.core.ports.email.FakeEmailClient;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.ports.FakeWorkspacesServicePort;
@@ -11,7 +12,6 @@ import maquette.datashop.providers.datasets.ports.InMemoryDatasetDataExplorer;
 import maquette.datashop.providers.datasets.records.Records;
 import maquette.datashop.specs.steps.DatasetStepDefinitions;
 import maquette.testutils.MaquetteContext;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,8 @@ public abstract class DatasetSpecs {
         var runtime = MaquetteRuntime.apply();
         var workspaces = FakeWorkspacesServicePort.apply();
         var datasets = Datasets.apply(setupDatasetsRepository(), InMemoryDatasetDataExplorer.apply(), workspaces);
-        var shop = MaquetteDataShop.apply(setupDataAssetsRepository(), workspaces, FakeProvider.apply(), datasets);
+        var shop = MaquetteDataShop.apply(setupDataAssetsRepository(), workspaces, FakeEmailClient.apply(),
+            FakeProvider.apply(), datasets);
 
         var maquette = runtime
             .withModule(shop)

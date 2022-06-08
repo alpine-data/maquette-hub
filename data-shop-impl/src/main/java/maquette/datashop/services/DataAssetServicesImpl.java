@@ -5,23 +5,24 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.modules.users.UserModule;
-import maquette.core.modules.users.model.UserProfile;
+import maquette.core.ports.email.EmailClient;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.Workspace;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProviders;
-import maquette.datashop.providers.datasets.DatasetEntity;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequest;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.metadata.DataAssetMetadata;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ public final class DataAssetServicesImpl implements DataAssetServices {
     private final DataAssetProviders providers;
 
     private final DataAssetServicesCompanion dataAssetsCompanion;
+
+    private final EmailClient emailClient;
 
     @Override
     public CompletionStage<DataAssetProperties> create(User executor, String type, DataAssetMetadata metadata,
@@ -170,15 +173,51 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
     @Override
     public CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
-                                                                                String workspace, String reason) {
+                                                                                String workspace, String reason,
+                                                                                MaquetteRuntime runtime) {
+
         var entityCS = entities.getByName(name);
         var workspaceUIDCS = workspaces.getWorkspaceIdByName(workspace);
 
         return Operators
             .compose(entityCS, workspaceUIDCS, (entity, workspaceUID) -> entity
                 .getAccessRequests()
-                .createDataAccessRequest(executor, workspaceUID, reason))
+                .createDataAccessRequest(executor, workspaceUID, reason)
+                .thenApply(dataAccessProperty -> {
+                    entity
+                        .getMembers()
+                        .getMembers()
+                        .thenApply(
+                            members -> {
+                                members
+                                    .stream()
+                                    .forEach(member -> {
+                                            sendRequestCreatedEmail(executor, name, runtime, member);
+                                        }
+                                    );
+                                return members;
+                            });
+
+                    return dataAccessProperty;
+                }))
             .thenCompose(cs -> cs);
+    }
+
+    private void sendRequestCreatedEmail(User executor, String name, MaquetteRuntime runtime,
+                                         GrantedAuthorization<DataAssetMemberRole> member) {
+        runtime
+            .getModule(UserModule.class)
+            .getServices()
+            .getProfile(executor, UID.apply(member
+                .getAuthorization()
+                .getName()))
+            .thenApply(reviewer -> {
+                    emailClient.sendEmail(reviewer, "",
+                        "Please review a new access request",
+                        "Mars: New access request", true, runtime, name);
+                    return reviewer;
+                }
+            );
     }
 
     @Override
@@ -205,28 +244,105 @@ public final class DataAssetServicesImpl implements DataAssetServices {
 
     @Override
     public CompletionStage<Done> approveDataAccessRequest(User executor, String name, UID request,
-                                                          @Nullable String message) {
-
-        System.out.println("approve data access");
+                                                          @Nullable String message, MaquetteRuntime runtime) {
 
         return entities
             .getByName(name)
             .thenCompose(a -> a
                 .getAccessRequests()
-                .approveDataAccessRequest(executor, request, message));
+                .approveDataAccessRequest(executor, request, message)
+                .thenApply(done -> {
+                    a
+                        .getProperties()
+                        .thenApply(props -> props
+                            .getMetadata()
+                            .getName())
+                        .thenApply(dataSetName -> {
+                            sendEmailForRequester(executor, request, runtime, a, dataSetName,
+                                "Your request has been reviewed by the Data Governor",
+                                "Mars: Access request reviewed by Data Governor");
+                            return dataSetName;
+                        });
+                    return done;
+                }));
     }
 
     @Override
     public CompletionStage<Done> grantDataAccessRequest(User executor, String name, UID request,
                                                         @Nullable Instant until, @Nullable String message,
-                                                        String environment, boolean downstreamApprovalRequired) {
-
-        System.out.println("grant data access");
+                                                        String environment, boolean downstreamApprovalRequired,
+                                                        MaquetteRuntime runtime) {
         return entities
             .getByName(name)
             .thenCompose(a -> a
                 .getAccessRequests()
-                .grantDataAccessRequest(executor, request, until, message, environment, downstreamApprovalRequired));
+                .grantDataAccessRequest(executor, request, until, message, environment, downstreamApprovalRequired)
+                .thenApply(done -> {
+                    a
+                        .getProperties()
+                        .thenApply(prop -> prop
+                            .getMetadata()
+                            .getName())
+                        .thenApply(datasetName -> {
+                            return extractDataAssetDatails(executor, request, runtime, a, datasetName);
+                        });
+                    return done;
+                }));
+    }
+
+    private String extractDataAssetDatails(User executor, UID request, MaquetteRuntime runtime, DataAssetEntity a,
+                                           String datasetName) {
+        a
+            .getMembers()
+            .getMembersWithRole(DataAssetMemberRole.OWNER)
+            .thenApply(owners -> {
+                String executorId = ((AuthenticatedUser) executor)
+                    .getId()
+                    .getValue();
+
+                boolean isExecutorOwner = owners
+                    .stream()
+                    .anyMatch(asset -> StringUtils.equalsAnyIgnoreCase(asset
+                        .getAuthorization()
+                        .getName(), executorId));
+
+                if (isExecutorOwner) {
+                    sendEmailForRequester(executor, request, runtime, a, datasetName,
+                        "Your request has been reviewed by the Data Governor",
+                        "Mars: Access request reviewed by Data Governor");
+                } else {
+                    sendEmailForRequester(executor, request, runtime, a, datasetName,
+                        "Your request has been reviewed by the deputy. Now waiting for the Data Governor approval.",
+                        "Mars: Access request reviewed by Deputy");
+                }
+                return owners;
+            });
+        return datasetName;
+    }
+
+    private void sendEmailForRequester(User executor, UID request, MaquetteRuntime runtime, DataAssetEntity a,
+                                       String datasetName, String emsilText, String title) {
+        a
+            .getAccessRequests()
+            .getDataAccessRequestById(request)
+            .thenApply(requestByID -> {
+                String by = requestByID
+                    .getCreated()
+                    .getBy();
+
+                return runtime
+                    .getModule(UserModule.class)
+                    .getServices()
+                    .getProfile(executor, UID.apply(by))
+                    .thenApply(profile -> {
+                            emailClient.sendEmail(profile, "",
+                                emsilText,
+                                title, true, runtime,
+                                datasetName);
+                            return profile;
+                        }
+                    );
+            });
     }
 
     @Override

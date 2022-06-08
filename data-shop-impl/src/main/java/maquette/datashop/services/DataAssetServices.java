@@ -1,6 +1,7 @@
 package maquette.datashop.services;
 
 import akka.Done;
+import maquette.core.MaquetteRuntime;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.user.User;
@@ -145,8 +146,11 @@ public interface DataAssetServices {
      * @param reason    The reason or justification to access the data.
      * @return The created access request.
      */
-    CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name, String workspace,
-                                                                         String reason);
+
+
+    CompletionStage<DataAccessRequestProperties> createDataAccessRequest(User executor, String name,
+                                                                         String workspace, String reason,
+                                                                         MaquetteRuntime runtime);
 
     /**
      * Get details of a data access request.
@@ -177,7 +181,7 @@ public interface DataAssetServices {
      * @return Done.
      */
     CompletionStage<Done> approveDataAccessRequest(
-        User executor, String name, UID request, @Nullable String message);
+        User executor, String name, UID request, @Nullable String message, MaquetteRuntime runtime);
 
     /**
      * Approve a data access request.
@@ -195,7 +199,7 @@ public interface DataAssetServices {
     CompletionStage<Done> grantDataAccessRequest(
         User executor, String name, UID request, @javax.annotation.Nullable Instant until,
         @javax.annotation.Nullable String message,
-        String environment, boolean downstreamApprovalRequired);
+        String environment, boolean downstreamApprovalRequired, MaquetteRuntime runtime);
 
     /**
      * Reject a data access request.
