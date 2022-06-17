@@ -116,6 +116,26 @@ public abstract class WorkspacesSpecs {
 
 
     /**
+     * Workspace creation still works even if the auto-infrastructure fails for the first time
+     */
+    @Test
+    public void workspaceInfrastructureAutoInfraError() throws ExecutionException, InterruptedException {
+        // Given
+        throw_error_in_auto_infra(true);
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "autoInfraError");
+        throw_error_in_auto_infra(false);
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "noError");
+
+        // When
+        steps.$_gets_workspace_with_name_$(context.users.bob, "noError");
+
+        // Then
+        steps.the_output_should_contain("noError");
+    }
+
+
+
+    /**
      * Add and remove members from a workspace
      */
     @Test
@@ -319,4 +339,6 @@ public abstract class WorkspacesSpecs {
                                                        String dataAssetName,
                                                        String workspaceName,
                                                        String workspaceId);
+
+    protected abstract void throw_error_in_auto_infra(Boolean throwError);
 }
