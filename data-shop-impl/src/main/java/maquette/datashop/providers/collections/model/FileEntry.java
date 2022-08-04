@@ -186,13 +186,15 @@ public abstract class FileEntry {
          if (path.isEmpty()) {
             throw new IllegalArgumentException("Invalid file name");
          } else if (path.size() == 1) {
+
+            System.out.println("Path len 1");
             var elementName = path.get(0);
             var exists = children.get(elementName);
 
             if (exists != null && !(exists instanceof RegularFile)) {
                throw new IllegalArgumentException("Cannot replace directory with file");
             } else {
-               return this;
+               childrenNext.remove(elementName);
             }
          } else {
             var elementName = path.get(0);
