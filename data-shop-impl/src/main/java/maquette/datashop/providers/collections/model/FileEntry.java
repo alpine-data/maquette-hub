@@ -187,7 +187,6 @@ public abstract class FileEntry {
             throw new IllegalArgumentException("Invalid file name");
          } else if (path.size() == 1) {
 
-            System.out.println("Path len 1");
             var elementName = path.get(0);
             var exists = children.get(elementName);
 
