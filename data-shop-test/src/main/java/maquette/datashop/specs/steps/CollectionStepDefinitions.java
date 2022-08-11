@@ -15,8 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,26 +41,26 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
         this.downloaded = Lists.newArrayList();
     }
 
-    public void $_uploads_file_$_to_collection_$(AuthenticatedUser user, String collection) throws ExecutionException, InterruptedException {
+    public void $_uploads_file_$_to_collection_$(AuthenticatedUser user, String collection, String fileName) throws ExecutionException, InterruptedException {
         var collections = this
                 .runtime
                 .getModule(MaquetteDataShop.class)
                 .getProviders()
                 .getByType(Collections.class);
 
-        var file = Paths.get("./src/main/ressources/test.txt");
+        var file = Paths.get(String.format("./src/main/ressources/%s", fileName));
         var bin = BinaryObjects.fromFile(file);
 
         collections
                 .getServices()
-                .put(user, collection, bin, "test.txt", "upload some test file")
+                .put(user, collection, bin, fileName, "upload some test file")
                 .toCompletableFuture()
                 .get();
 
         uploaded.add(file);
     }
 
-    public void $_downloads_file_$_from_collection_$(AuthenticatedUser user, String collection) throws ExecutionException, InterruptedException {
+    public void $_downloads_file_$_from_collection_$(AuthenticatedUser user, String collection, String fileName) throws ExecutionException, InterruptedException {
         var collections = this
                 .runtime
                 .getModule(MaquetteDataShop.class)
@@ -68,7 +71,7 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
 
         collections
                 .getServices()
-                .read(user, collection, "test.txt")
+                .read(user, collection, fileName)
                 .toCompletableFuture()
                 .get()
                 .toFile(file);
@@ -76,10 +79,105 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
         downloaded.add(file);
     }
 
+    public void $_uploads_dir_$_to_collection_$(AuthenticatedUser user, String collection, String zipName) throws ExecutionException, InterruptedException {
+        var collections = this
+                .runtime
+                .getModule(MaquetteDataShop.class)
+                .getProviders()
+                .getByType(Collections.class);
+
+        var file = Paths.get(String.format("./src/main/ressources/%s", zipName));
+        var bin = BinaryObjects.fromFile(file);
+
+        collections
+                .getServices()
+                .putAll(user, collection, bin, "", "upload some test file")
+                .toCompletableFuture()
+                .get();
+
+        uploaded.add(file);
+    }
+
+    public void $_creates_tag_$_for_collection_$(AuthenticatedUser user, String collection, String tagName) throws ExecutionException, InterruptedException {
+        var collections = this
+                .runtime
+                .getModule(MaquetteDataShop.class)
+                .getProviders()
+                .getByType(Collections.class);
+
+        collections
+                .getServices()
+                .tag(user, collection, tagName, "")
+                .toCompletableFuture()
+                .get();
+    }
+
+    public void $_deletes_file_$_from_collection_$(AuthenticatedUser user, String collection, String fileName) throws ExecutionException, InterruptedException {
+        var collections = this
+                .runtime
+                .getModule(MaquetteDataShop.class)
+                .getProviders()
+                .getByType(Collections.class);
+
+        collections
+                .getServices()
+                .remove(user, collection, fileName)
+                .toCompletableFuture()
+                .get();
+    }
+
     public void the_uploaded_files_should_equal_the_downloaded_files() throws IOException {
         var uploaded = new File(this.uploaded.get(this.uploaded.size() -  1).toString());
         var downloaded = new File(this.downloaded.get(this.downloaded.size() - 1).toString());
 
         assert(FileUtils.contentEquals(uploaded, downloaded));
+    }
+
+    public void the_uploaded_files_should_be_listed_in_collection_files(AuthenticatedUser user, String collection, String tag, List<String> uploadedFiles) throws ExecutionException, InterruptedException {
+        var collections = this
+                .runtime
+                .getModule(MaquetteDataShop.class)
+                .getProviders()
+                .getByType(Collections.class);
+
+        List<String> files;
+        if (tag == "") {
+            files = collections
+                    .getServices()
+                    .listFiles(user, collection)
+                    .toCompletableFuture()
+                    .get();
+        } else {
+            files = collections
+                    .getServices()
+                    .listFiles(user, collection, tag)
+                    .toCompletableFuture()
+                    .get();
+        }
+
+        assert(files.equals(uploadedFiles));
+    }
+
+    public void the_deleted_files_should_not_be_listed_in_collection_files(AuthenticatedUser user, String collection, List<String> deletedFiles) throws ExecutionException, InterruptedException {
+        var collections = this
+                .runtime
+                .getModule(MaquetteDataShop.class)
+                .getProviders()
+                .getByType(Collections.class);
+
+        List<String> files;
+
+        files = collections
+                .getServices()
+                .listFiles(user, collection)
+                .toCompletableFuture()
+                .get();
+
+        Set<String> intersection = files.stream()
+                .distinct()
+                .filter(deletedFiles::contains)
+                .collect(Collectors.toSet());
+
+        assert(intersection.isEmpty());
     }
 }
