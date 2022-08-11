@@ -26,9 +26,16 @@ public final class FileSystemCollectionTagsCompanion {
 
    private final ObjectMapper om;
 
-   private Path getAssetDirectory(UID asset) {
+   /**
+    * Returns the path of a collection.
+    * Creates the directory if it did not exist before.
+    *
+    * @param collection The UID of the collection.
+    * @return The path of the collection.
+    */
+   private Path getAssetDirectory(UID collection) {
       var file = directory
-         .resolve(asset.getValue())
+         .resolve(collection.getValue())
          .resolve(PATH);
 
       Operators.suppressExceptions(() -> Files.createDirectories(file));
@@ -36,10 +43,23 @@ public final class FileSystemCollectionTagsCompanion {
       return file;
    }
 
-   private Path getTagFile(UID asset, String tag) {
-      return getAssetDirectory(asset).resolve(tag + FILE_ENDING);
+   /**
+    * Returns the path of the tag file contained in the collection directory.
+    *
+    * @param collection The UID of the collection.
+    * @param tag The name of the tag.
+    * @return The path of the tag file.
+    */
+   private Path getTagFile(UID collection, String tag) {
+      return getAssetDirectory(collection).resolve(tag + FILE_ENDING);
    }
 
+   /**
+    * Finds and returns all tags of a collection.
+    *
+    * @param collection The UID of the collection.
+    * @return The tags of the collection.
+    */
    public CompletionStage<List<CollectionTag>> findAllTags(UID collection) {
       var result = Operators
          .suppressExceptions(() -> Files.list(getAssetDirectory(collection)))
@@ -50,6 +70,13 @@ public final class FileSystemCollectionTagsCompanion {
       return CompletableFuture.completedFuture(result);
    }
 
+   /**
+    * Finds a tag of a collection by the tag name.
+    *
+    * @param collection The UID of the collection.
+    * @param name The name of the tag.
+    * @return The first resolved tag.
+    */
    public CompletionStage<Optional<CollectionTag>> findTagByName(UID collection, String name) {
       return findAllTags(collection)
          .thenApply(tags -> tags
@@ -58,10 +85,16 @@ public final class FileSystemCollectionTagsCompanion {
             .findFirst());
    }
 
+   /**
+    * Persist a tag object.
+    *
+    * @param collection The UID of the collection.
+    * @param tag The tag object.
+    * @return Done.
+    */
    public CompletionStage<Done> insertOrUpdateTag(UID collection, CollectionTag tag) {
       var file = getTagFile(collection, tag.getName());
       Operators.suppressExceptions(() -> om.writeValue(file.toFile(), tag));
       return CompletableFuture.completedFuture(Done.getInstance());
    }
-
 }

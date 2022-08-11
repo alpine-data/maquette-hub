@@ -30,6 +30,14 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
 
    private final FileSystemCollectionTagsCompanion tagsCompanion;
 
+   /**
+    * Constructor which creates a new FileSystemCollectionsRepository object based on the given configuration and
+    * ObjectMapper.
+    *
+    * @param config The configuration object.
+    * @param om The ObjectMapper which serializes Java objects into JSON.
+    * @return The created object.
+    */
    public static FileSystemCollectionsRepository apply(FileSystemRepositoryConfiguration config, ObjectMapper om) {
       var directory = config.getDirectory().resolve("shop");
       var tagsCompanion = FileSystemCollectionTagsCompanion.apply(directory, om);
@@ -37,12 +45,27 @@ public final class FileSystemCollectionsRepository implements CollectionsReposit
       return new FileSystemCollectionsRepository(directory, om, tagsCompanion);
    }
 
+
+   /**
+    * Returns the path of a collection.
+    * Creates the directory if it did not exist before.
+    *
+    * @param collection The UID of the collection.
+    * @return The path of the collection.
+    */
    private Path getAssetDirectory(UID collection) {
       var dir = directory.resolve(collection.getValue());
       Operators.suppressExceptions(() -> Files.createDirectories(dir));
       return dir;
    }
 
+   /**
+    * Returns the path of a collection object store.
+    * Creates the directory if it did not exist before.
+    *
+    * @param collection The UID of the collection.
+    * @return The path of the collection object store.
+    */
    private ObjectStore getObjectStore(UID collection) {
       var dir = getAssetDirectory(collection).resolve("objects");
       Operators.suppressExceptions(() -> Files.createDirectories(dir));

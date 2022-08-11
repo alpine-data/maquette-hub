@@ -42,10 +42,21 @@ public final class CollectionEntity {
 
    private final DataAssetEntity entity;
 
+   /**
+    * Lists the file paths of all files contained in the collection.
+    *
+    * @return The list of file paths.
+    */
    public CompletionStage<List<String>> list() {
       return repository.getFiles(id).thenApply(FileEntry.Directory::fileNames);
    }
 
+   /**
+    * Lists the file paths of all files belonging to the given tag in the collection.
+    * @param tag The name of the tag.
+    *
+    * @return The list of file paths.
+    */
    public CompletionStage<List<String>> list(String tag) {
       if (tag.equals("main")) {
          return list();
@@ -141,6 +152,13 @@ public final class CollectionEntity {
          .thenApply(this::createZipFile);
    }
 
+   /**
+    * Reads all files belonging to the given tag in the collection.
+    *
+    * @param executor The user who executes the action.
+    * @param tag The name of the tag.
+    * @return A zip file including all files.
+    */
    public CompletionStage<BinaryObject> readAll(User executor, String tag) {
       if (tag.equals("main")) {
          return readAll(executor);
@@ -165,6 +183,12 @@ public final class CollectionEntity {
       }
    }
 
+   /**
+    * Creates a zip file containing multiple files.
+    *
+    * @param files The files to be zipped.
+    * @return A zip file including the files.
+    */
    private BinaryObject createZipFile(List<Pair<FileEntry.NamedRegularFile, BinaryObject>> files) {
       var zipFile = Operators.suppressExceptions(() -> Files.createTempFile("mq", "zip"));
 
@@ -192,6 +216,13 @@ public final class CollectionEntity {
       return BinaryObjects.fromTemporaryFile(zipFile);
    }
 
+   /**
+    * Reads a single file from the object store.
+    *
+    * @param executor The user who executes the action.
+    * @param file The name of the file to be read.
+    * @return The file read from the object store.
+    */
    public CompletionStage<BinaryObject> read(User executor, String file) {
       return repository
          .getFiles(id)
@@ -201,6 +232,14 @@ public final class CollectionEntity {
          .thenApply(maybeObject -> maybeObject.orElseThrow(() -> FileNotFoundException.withName(file)));
    }
 
+   /**
+    * Reads a single file belonging to a given tag from the object store.
+    *
+    * @param executor The user who executes the action.
+    * @param tag The name of the tag.
+    * @param file The name of the file to be read.
+    * @return The file read from the object store.
+    */
    public CompletionStage<BinaryObject> read(User executor, String tag, String file) {
       if (tag.equals("main")) {
          return read(executor, file);
@@ -215,6 +254,13 @@ public final class CollectionEntity {
       }
    }
 
+   /**
+    * Deletes a single file from the object store.
+    *
+    * @param executor The user who executes the action.
+    * @param file The name of the file to be deleted.
+    * @return Done.
+    */
    public CompletionStage<Done> remove(User executor, String file) {
       return repository
          .getFiles(id)
@@ -245,6 +291,14 @@ public final class CollectionEntity {
          });
    }
 
+   /**
+    * Adds a new tag to the collection.
+    *
+    * @param executor The user who executes the action.
+    * @param name The name of the tag.
+    * @param message The message describing the action.
+    * @return Done.
+    */
    public CompletionStage<Done> tag(User executor, String name, String message) {
       if (name.equals("main")) {
          return CompletableFuture.failedFuture(TagAlreadyExistsException.withName(name));
@@ -270,10 +324,21 @@ public final class CollectionEntity {
       }
    }
 
+   /**
+    * Finds and returns all tags belonging to the collection.
+    *
+    * @return All tags belonging to the collection.
+    */
    public CompletionStage<List<CollectionTag>> getTags() {
       return repository.findAllTags(id);
    }
 
+   /**
+    * Maps file names to file types.
+    *
+    * @param filename The name of the file to be mapped to a file type.
+    * @return The type of the file.
+    */
    private FileEntry.FileType mapFilenameToFileType(String filename) {
       var ext = FilenameUtils.getExtension(filename);
 

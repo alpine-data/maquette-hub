@@ -6,10 +6,16 @@ import org.apache.commons.lang3.NotImplementedException;
 
 public final class CollectionsRepositories {
 
-   private CollectionsRepositories() {
+   private CollectionsRepositories() {}
 
-   }
-
+   /**
+    * Creates a CollectionsRepository based on the configured repository type.
+    * Implemented repository types:
+    * - filesystem
+    *
+    * @param om The ObjectMapper which serializes Java objects into JSON.
+    * @return The created CollectionsRepository.
+    */
    public static CollectionsRepository create(ObjectMapper om) {
       var config = RepositoryConfiguration.apply("data-repository");
 

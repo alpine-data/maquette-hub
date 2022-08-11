@@ -44,6 +44,11 @@ public abstract class FileEntry {
          return new Directory(Map.copyOf(children));
       }
 
+      /**
+       * Returns the last modified file within the folder.
+       *
+       * @return The last modified file.
+       */
       @JsonProperty("lastModified")
       public Optional<RegularFile> getLastModified() {
          return files()
@@ -52,11 +57,21 @@ public abstract class FileEntry {
             .max(Comparator.comparing(f -> f.getAdded().getAt()));
       }
 
+      /**
+       * Counts the total number of files contained in the folder.
+       *
+       * @return The total number of files.
+       */
       @JsonProperty("files")
       public int getFilesCount() {
          return files().size();
       }
 
+      /**
+       * Measures the total size of the folder.
+       *
+       * @return The size of the folder.
+       */
       @JsonProperty("size")
       public FileSize getSize() {
          var result = FileSize.empty();
@@ -68,6 +83,12 @@ public abstract class FileEntry {
          return result;
       }
 
+      /**
+       * Returns a list of all file paths of files contained in the folder.
+       * The paths consist of directories and file name.
+       *
+       * @return The list all file paths.
+       */
       @JsonIgnore
       public List<String> fileNames() {
          var result = Lists.<String>newArrayList();
@@ -91,6 +112,11 @@ public abstract class FileEntry {
          return result;
       }
 
+      /**
+       * Recursively returns all files contained in the folder.
+       *
+       * @return The list of all named files.
+       */
       @JsonIgnore
       public List<NamedRegularFile> files() {
          var result = Lists.<NamedRegularFile>newArrayList();
@@ -114,6 +140,12 @@ public abstract class FileEntry {
          return result;
       }
 
+      /**
+       * Finds a file with the given file name in the directory.
+       *
+       * @param name The name of the file.
+       * @return The file object.
+       */
       public Optional<RegularFile> getFile(String name) {
          var path = getPathFromName(name);
 
@@ -143,6 +175,13 @@ public abstract class FileEntry {
          }
       }
 
+      /**
+       * Updates the map of children by a new file and returns the updated directory object.
+       *
+       * @param name The name (including directories) of the file.
+       * @param entry The file entry object.
+       * @return The updated directory object.
+       */
       public Directory withFile(String name, RegularFile entry) {
          Map<String, FileEntry> childrenNext = Maps.newHashMap();
          childrenNext.putAll(children);
@@ -177,6 +216,12 @@ public abstract class FileEntry {
          return new Directory(childrenNext);
       }
 
+      /**
+       * Removed a file from the map of children and returns the updated directory object.
+       *
+       * @param name The name (including directories) of the file.
+       * @return The updated directory object.
+       */
       public Directory withoutFile(String name) {
          Map<String, FileEntry> childrenNext = Maps.newHashMap();
          childrenNext.putAll(children);
@@ -215,6 +260,12 @@ public abstract class FileEntry {
          return new Directory(childrenNext);
       }
 
+      /**
+       * Builds a hierarchical directory structure string.
+       *
+       * @param indent The indent for the current depth level.
+       * @param sb The StringBuilder object.
+       */
       private void toStringTree$internal(int indent, StringBuilder sb) {
          var c = children
             .keySet()
@@ -245,12 +296,23 @@ public abstract class FileEntry {
          }
       }
 
+      /**
+       * Returns a directory hierarchical directory structure string.
+       *
+       * @return The directory structure string.
+       */
       public String toString() {
          var sb = new StringBuilder();
          toStringTree$internal(0, sb);
          return sb.toString();
       }
 
+      /**
+       * Splits a path string into a list of folders + file.
+       *
+       * @param name The path of the file.
+       * @return The list of folders + file.
+       */
       private List<String> getPathFromName(String name) {
          return Arrays
             .stream(name.split("/"))
