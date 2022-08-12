@@ -1,20 +1,16 @@
 package maquette.datashop.specs;
 
-import maquette.core.MaquetteRuntime;
 import maquette.core.databind.DefaultObjectMapperFactory;
-import maquette.core.databind.ObjectMapperFactory;
 import maquette.datashop.configuration.FileSystemRepositoryConfiguration;
-import maquette.datashop.databind.MaquetteDataShopObjectMapperFactory;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.ports.InMemoryDataAssetsRepository;
 import maquette.datashop.providers.collections.ports.CollectionsRepository;
 import maquette.datashop.providers.collections.ports.FileSystemCollectionsRepository;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
+import java.nio.file.Paths;
 
-public class CollectionSpecsTest extends CollectionSpecs {
+public class CollectionsSpecsTest extends CollectionSpecs {
 
     @Override
     public CollectionsRepository setupCollectionsRepository() {
@@ -26,6 +22,11 @@ public class CollectionSpecsTest extends CollectionSpecs {
     @Override
     public DataAssetsRepository setupDataAssetsRepository() {
         return InMemoryDataAssetsRepository.apply();
+    }
+
+    @Override
+    public Path getRessourcePath() {
+        return Paths.get("./src/main/ressources/");
     }
 
 }

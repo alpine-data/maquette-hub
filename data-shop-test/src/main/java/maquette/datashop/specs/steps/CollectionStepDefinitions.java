@@ -31,14 +31,18 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
     private final List<Path> downloaded;
 
 
+    private final Path ressourcePath;
+
+
     public List<Path> getDownloaded() {
         return downloaded;
     }
 
-    public CollectionStepDefinitions(MaquetteRuntime runtime, FakeWorkspacesServicePort workspaces) {
+    public CollectionStepDefinitions(MaquetteRuntime runtime, FakeWorkspacesServicePort workspaces, Path ressourcePath) {
         super(runtime, workspaces, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(), null);
         this.uploaded = Lists.newArrayList();
         this.downloaded = Lists.newArrayList();
+        this.ressourcePath = ressourcePath;
     }
 
     public void $_uploads_file_$_to_collection_$(AuthenticatedUser user, String collection, String fileName) throws ExecutionException, InterruptedException {
@@ -48,7 +52,7 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
                 .getProviders()
                 .getByType(Collections.class);
 
-        var file = Paths.get(String.format("./src/main/ressources/%s", fileName));
+        var file = Paths.get(String.format(this.ressourcePath + "/" + fileName));
         var bin = BinaryObjects.fromFile(file);
 
         collections
@@ -67,7 +71,7 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
                 .getProviders()
                 .getByType(Collections.class);
 
-        var file = Paths.get("./src/main/ressources/download_test.txt");
+        var file = Paths.get(this.ressourcePath + "/download_test.txt");
 
         collections
                 .getServices()
@@ -86,7 +90,7 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
                 .getProviders()
                 .getByType(Collections.class);
 
-        var file = Paths.get(String.format("./src/main/ressources/%s", zipName));
+        var file = Paths.get(String.format(this.ressourcePath + "/" + zipName));
         var bin = BinaryObjects.fromFile(file);
 
         collections

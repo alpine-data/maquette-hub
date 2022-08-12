@@ -8,6 +8,8 @@ import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.providers.FakeProvider;
 import maquette.datashop.providers.collections.Collections;
 import maquette.datashop.providers.collections.ports.CollectionsRepositories;
+import maquette.datashop.providers.collections.ports.CollectionsRepository;
+import maquette.datashop.providers.datasets.ports.DatasetsRepository;
 import maquette.datashop.specs.steps.CollectionStepDefinitions;
 import maquette.testutils.MaquetteContext;
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
@@ -31,7 +34,7 @@ public abstract class CollectionSpecs {
 
         var runtime = MaquetteRuntime.apply();
         var workspaces = FakeWorkspacesServicePort.apply();
-        var collections = Collections.apply(CollectionsRepositories.create(runtime.getObjectMapperFactory().createJsonMapper()), workspaces, runtime);
+        var collections = Collections.apply(setupCollectionsRepository(), workspaces, runtime);
         var shop = MaquetteDataShop.apply(setupDataAssetsRepository(), workspaces, FakeEmailClient.apply(),
             FakeProvider.apply(), collections);
 
@@ -39,7 +42,9 @@ public abstract class CollectionSpecs {
             .withModule(shop)
             .initialize(context.system, context.app);
 
-        this.steps = new CollectionStepDefinitions(maquette, workspaces);
+        var ressourcePath = getRessourcePath();
+
+        this.steps = new CollectionStepDefinitions(maquette, workspaces, ressourcePath);
     }
 
     @AfterEach
@@ -52,6 +57,11 @@ public abstract class CollectionSpecs {
 
     }
 
+    public abstract CollectionsRepository setupCollectionsRepository();
+
+    public abstract DataAssetsRepository setupDataAssetsRepository();
+
+    public abstract Path getRessourcePath();
 
     /**
      * When uploading a single file to a collection and downloading the collection file after, the downloaded file should
@@ -137,7 +147,4 @@ public abstract class CollectionSpecs {
                 Arrays.asList("test.txt")
         );
     }
-
-    public abstract DataAssetsRepository setupDataAssetsRepository();
-
 }
