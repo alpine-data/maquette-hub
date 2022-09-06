@@ -4,14 +4,10 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
-import maquette.core.common.DeleteOnCloseFileInputStream;
-import maquette.core.common.Operators;
 import maquette.core.values.binary.BinaryObject;
 import maquette.core.values.binary.BinaryObjects;
 import maquette.core.values.user.User;
-import org.apache.commons.io.FileUtils;
 
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -41,10 +37,7 @@ public final class CollectionsAPI {
          var name = ctx.formParam("name", uploaded.getFilename());
          var basePath = ctx.formParam("basePath");
 
-         var file = Files.createTempFile("maquette", "upload");
-         FileUtils.copyInputStreamToFile(uploaded.getContent(), file.toFile());
-
-         var binaryObject = BinaryObjects.fromFile(file);
+         var binaryObject = BinaryObjects.fromInputStream(uploaded.getContent());
 
          CompletableFuture<String> result;
 
@@ -52,19 +45,13 @@ public final class CollectionsAPI {
             result = collections
                .getServices()
                .put(user, collection, binaryObject, name, message)
-               .thenApply(done -> {
-                  Operators.suppressExceptions(() -> Files.deleteIfExists(file));
-                  return "Successfully uploaded data";
-               })
+               .thenApply(done -> "Successfully uploaded data")
                .toCompletableFuture();
          } else {
             result = collections
                .getServices()
                .putAll(user, collection, binaryObject, basePath, message)
-               .thenApply(done -> {
-                  Operators.suppressExceptions(() -> Files.deleteIfExists(file));
-                  return "Successfully uploaded files";
-               })
+               .thenApply(done -> "Successfully uploaded files")
                .toCompletableFuture();
          }
 
@@ -100,19 +87,10 @@ public final class CollectionsAPI {
                .readAll(user, collection);
          }
 
-         var result = download
-            .thenCompose(binaryObject -> {
-               var tmp = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+         var result = download.thenApply(BinaryObject::toInputStream).toCompletableFuture();
 
-               ctx.header("Content-Disposition", "attachment; filename=" + collection + ".zip");
-               ctx.header("Content-Type", "application/octet-stream");
-
-               return binaryObject
-                  .toFile(tmp)
-                  .thenCompose(d -> binaryObject.discard())
-                  .thenApply(done -> DeleteOnCloseFileInputStream.apply(tmp));
-            })
-            .toCompletableFuture();
+         ctx.header("Content-Disposition", "attachment; filename=" + collection + ".zip");
+         ctx.header("Content-Type", "application/octet-stream");
 
          ctx.result(result);
       });
@@ -144,20 +122,11 @@ public final class CollectionsAPI {
             download = collections.getServices().read(user, collection, file);
          }
 
-         var result = download
-            .thenCompose(binaryObject -> {
-               var tmp = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
-               var filename = Arrays.stream(file.split("/")).reduce((f, s) -> s).orElse(collection);
+         var result = download.thenApply(BinaryObject::toInputStream).toCompletableFuture();
+         var filename = Arrays.stream(file.split("/")).reduce((f, s) -> s).orElse(collection);
 
-               ctx.header("Content-Disposition", "attachment; filename=" + filename);
-               ctx.header("Content-Type", "application/octet-stream");
-
-               return binaryObject
-                  .toFile(tmp)
-                  .thenCompose(d -> binaryObject.discard())
-                  .thenApply(done -> DeleteOnCloseFileInputStream.apply(tmp));
-            })
-            .toCompletableFuture();
+         ctx.header("Content-Disposition", "attachment; filename=" + filename);
+         ctx.header("Content-Type", "application/octet-stream");
 
          ctx.result(result);
       });
