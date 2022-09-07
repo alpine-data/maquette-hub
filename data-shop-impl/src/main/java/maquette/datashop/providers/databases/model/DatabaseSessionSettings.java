@@ -5,10 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.datashop.providers.databases.exceptions.AllowLocalSessionsOnlyWithCustomQueriesException;
-import maquette.datashop.providers.databases.exceptions.AtLeastOneQueryException;
-
-import java.util.List;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
