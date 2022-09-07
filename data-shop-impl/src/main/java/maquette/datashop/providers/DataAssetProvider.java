@@ -40,8 +40,8 @@ public interface DataAssetProvider {
      *
      * @return The default settings.
      */
-    default Object getDefaultSettings() {
-        return new Object();
+    default DataAssetSettings getDefaultSettings() {
+        return new DataAssetSettings() {};
     }
 
     /**
@@ -49,8 +49,8 @@ public interface DataAssetProvider {
      *
      * @return The settings type of this provider.
      */
-    default Class<?> getSettingsType() {
-        return Object.class;
+    default Class<? extends DataAssetSettings> getSettingsType() {
+        return DataAssetSettings.class;
     }
 
     /**

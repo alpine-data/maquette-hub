@@ -6,6 +6,7 @@ import lombok.*;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 
 import java.util.List;
+import java.util.Optional;
 
 @With
 @Value
@@ -27,6 +28,10 @@ public class DatabaseProperties {
         @JsonProperty(QUERY_PROPERTIES) List<DatabaseQueryProperties> queryProperties,
         @JsonProperty(QUERY_STATISTICS) DatabaseAnalysisResult queryStatistics) {
         return new DatabaseProperties(queryProperties, queryStatistics);
+    }
+
+    public Optional<DatabaseAnalysisResult> getQueryStatistics() {
+        return Optional.ofNullable(queryStatistics);
     }
 
 }

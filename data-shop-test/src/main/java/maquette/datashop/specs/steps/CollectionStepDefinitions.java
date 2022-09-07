@@ -7,21 +7,16 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.providers.collections.Collections;
-import maquette.datashop.providers.datasets.Datasets;
-import maquette.datashop.providers.datasets.records.Records;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CollectionStepDefinitions extends DataAssetStepDefinitions {
 
@@ -52,7 +47,7 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
                 .getProviders()
                 .getByType(Collections.class);
 
-        var file = Paths.get(String.format(this.ressourcePath + "/" + fileName));
+        var file = Paths.get(this.ressourcePath + "/" + fileName);
         var bin = BinaryObjects.fromFile(file);
 
         collections

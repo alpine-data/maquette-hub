@@ -5,14 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.With;
+import maquette.datashop.providers.DataAssetSettings;
 import maquette.datashop.providers.databases.exceptions.AllowLocalSessionsOnlyWithCustomQueriesException;
 import maquette.datashop.providers.databases.exceptions.AtLeastOneQueryException;
+import maquette.datashop.providers.databases.exceptions.QueryNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
+@With
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatabaseSettings {
+public class DatabaseSettings implements DataAssetSettings {
 
     private static final String DRIVER = "driver";
     private static final String CONNECTION = "connection";
@@ -63,9 +68,35 @@ public class DatabaseSettings {
             throw AtLeastOneQueryException.apply();
         }
 
-        // TODO Add further validation (queries)
-
         return new DatabaseSettings(driver, connection, List.copyOf(query), username, password, allowCustomQueries, allowLocalSession);
     }
 
+    public DatabaseQuerySettings getQueryById(String queryId) {
+        return findQueryById(queryId).orElseThrow(() -> QueryNotFoundException.applyWithId(queryId));
+    }
+
+    public Optional<DatabaseQuerySettings> findQueryById(String queryId) {
+        return this
+            .query
+            .stream()
+            .filter(query -> query.getId().equals(queryId))
+            .findFirst();
+    }
+
+    public DatabaseQuerySettings getQueryByName(String queryName) {
+        return findQueryByName(queryName).orElseThrow(() -> QueryNotFoundException.applyWithName(queryName));
+    }
+
+    public Optional<DatabaseQuerySettings> findQueryByName(String queryName) {
+        return this
+            .query
+            .stream()
+            .filter(query -> query.getName().equals(queryName))
+            .findFirst();
+    }
+
+    @Override
+    public DataAssetSettings getObfuscated() {
+        return this.withPassword(this.password);
+    }
 }

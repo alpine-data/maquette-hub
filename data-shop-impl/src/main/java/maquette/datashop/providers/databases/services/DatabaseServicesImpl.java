@@ -50,10 +50,24 @@ public final class DatabaseServicesImpl implements DatabaseServices {
     }
 
     @Override
-    public CompletionStage<Records> download(User executor, String database) {
+    public CompletionStage<Records> executeQueryById(User executor, String database, String queryId) {
         return assets
             .getByName(database)
-            .thenCompose(entity -> databases.download(entity, executor));
+            .thenCompose(entity -> databases.executeQueryById(entity, executor, queryId));
+    }
+
+    @Override
+    public CompletionStage<Records> executeQueryByName(User executor, String database, String queryName) {
+        return assets
+            .getByName(database)
+            .thenCompose(entity -> databases.executeQueryByName(entity, executor, queryName));
+    }
+
+    @Override
+    public CompletionStage<Records> executeCustomQuery(User executor, String database, String query) {
+        return assets
+            .getByName(database)
+            .thenCompose(entity -> databases.executeQueryByName(entity, executor, query));
     }
 
     @Override
@@ -67,7 +81,7 @@ public final class DatabaseServicesImpl implements DatabaseServices {
         return assets
             .getByName(database)
             .thenCompose(entity -> entity.getCustomSettings(DatabaseProperties.class))
-            .thenApply(DatabaseProperties::getStatistics);
+            .thenApply(DatabaseProperties::getQueryStatistics);
     }
 
 }

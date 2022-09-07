@@ -48,7 +48,8 @@ public final class Databases implements DataAssetProvider {
 
         runtime
             .getApp()
-            .get("/api/data/databases/:database", handlers.download())
+            .get("/api/data/databases/:database/:query", handlers.download())
+            .post("/api/data/databases/:database/custom", handlers.downloadCustomQuery())
             .get("/api/profiles/databases/:database", handlers.getProfile());
     }
 

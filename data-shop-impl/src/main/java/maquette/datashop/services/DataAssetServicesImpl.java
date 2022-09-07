@@ -16,6 +16,7 @@ import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.Workspace;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProviders;
+import maquette.datashop.providers.DataAssetSettings;
 import maquette.datashop.values.DataAsset;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access.DataAssetMemberRole;
@@ -74,10 +75,12 @@ public final class DataAssetServicesImpl implements DataAssetServices {
                         .map(request -> dataAssetsCompanion.enrichDataAccessRequest(properties, request)))
                     .thenCompose(Operators::allOf);
 
-                var customSettingsCS = propertiesCS.thenCompose(properties -> {
-                    var provider = providers.getByName(properties.getType());
-                    return entity.getCustomSettings(provider.getSettingsType());
-                });
+                var customSettingsCS = propertiesCS
+                    .thenCompose(properties -> {
+                        var provider = providers.getByName(properties.getType());
+                        return entity.getCustomSettings(provider.getSettingsType());
+                    })
+                    .thenApply(DataAssetSettings::getObfuscated);
 
                 var customDetailsCS = Operators
                     .compose(propertiesCS, customSettingsCS, (properties, customSettings) -> providers

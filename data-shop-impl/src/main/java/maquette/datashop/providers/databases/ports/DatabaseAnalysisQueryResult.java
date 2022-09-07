@@ -13,14 +13,14 @@ import lombok.Value;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseAnalysisQueryResult {
 
-    private static final String NAME = "name";
+    private static final String ID = "id";
 
     private static final String COLUMNS = "columns";
 
     private static final String PROFILE = "profile";
 
-    @JsonProperty(NAME)
-    String name;
+    @JsonProperty(ID)
+    String id;
 
     @JsonProperty(COLUMNS)
     JsonNode columns;
@@ -31,12 +31,12 @@ public class DatabaseAnalysisQueryResult {
 
     @JsonCreator
     public static DatabaseAnalysisQueryResult apply(
-        @JsonProperty(NAME) String name,
+        @JsonProperty(ID) String id,
         @JsonProperty(COLUMNS) JsonNode columns,
         @JsonProperty(PROFILE) String profile
     ) {
 
-        return new DatabaseAnalysisQueryResult(name, columns, profile);
+        return new DatabaseAnalysisQueryResult(id, columns, profile);
     }
 
 }

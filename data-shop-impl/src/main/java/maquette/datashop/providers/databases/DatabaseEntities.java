@@ -44,19 +44,43 @@ public final class DatabaseEntities {
             .thenCompose(cs -> cs);
     }
 
-    public CompletionStage<Records> download(DataAssetEntity entity, User executor) {
+    public CompletionStage<Records> executeQueryById(DataAssetEntity entity, User executor, String queryId) {
         return entity
             .getCustomSettings(DatabaseSettings.class)
-            .thenCompose(this::download);
+            .thenCompose(properties -> this.executeQueryById(properties, queryId));
     }
 
-    public CompletionStage<Records> download(DatabaseSettings properties) {
+    public CompletionStage<Records> executeQueryById(DatabaseSettings properties, String queryId) {
         return database.read(
             properties.getDriver(),
             properties.getConnection(),
             properties.getUsername(),
             properties.getPassword(),
-            properties.getQuery());
+            properties.getQueryById(queryId).getQuery());
+    }
+
+    public CompletionStage<Records> executeQueryByName(DataAssetEntity entity, User executor, String queryName) {
+        return entity
+            .getCustomSettings(DatabaseSettings.class)
+            .thenCompose(properties -> this.executeQueryByName(properties, queryName));
+    }
+
+    public CompletionStage<Records> executeQueryByName(DatabaseSettings properties, String queryName) {
+        return database.read(
+            properties.getDriver(),
+            properties.getConnection(),
+            properties.getUsername(),
+            properties.getPassword(),
+            properties.getQueryByName(queryName).getQuery());
+    }
+
+    public CompletionStage<Records> executeCustomQuery(DatabaseSettings properties, String query) {
+        return database.read(
+            properties.getDriver(),
+            properties.getConnection(),
+            properties.getUsername(),
+            properties.getPassword(),
+            query);
     }
 
     public CompletionStage<ConnectionTestResult> test(
@@ -71,7 +95,7 @@ public final class DatabaseEntities {
             properties.getConnection(),
             properties.getUsername(),
             properties.getPassword(),
-            properties.getQuery());
+            properties.getQuery().get(0).getQuery()); // TODO: Test all queries.
     }
 
 }

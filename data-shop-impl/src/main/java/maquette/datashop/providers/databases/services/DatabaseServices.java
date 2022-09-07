@@ -14,7 +14,11 @@ public interface DatabaseServices {
 
     CompletionStage<Done> analyze(User executor, String database);
 
-    CompletionStage<Records> download(User executor, String database);
+    CompletionStage<Records> executeQueryById(User executor, String database, String queryId);
+
+    CompletionStage<Records> executeQueryByName(User executor, String database, String queryName);
+
+    CompletionStage<Records> executeCustomQuery(User executor, String database, String query);
 
     CompletionStage<ConnectionTestResult> test(
         DatabaseDriver driver, String connection, String username, String password, String query);

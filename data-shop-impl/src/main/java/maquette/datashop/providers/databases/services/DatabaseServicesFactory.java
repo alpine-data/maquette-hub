@@ -19,7 +19,7 @@ public final class DatabaseServicesFactory {
         var comp = DataAssetServicesCompanion.apply(dataAssets, workspaces);
         var impl = DatabaseServicesImpl.apply(dataAssets, users, databases);
 
-        return DatabaseServicesSecured.apply(impl,  comp);
+        return DatabaseServicesSecured.apply(dataAssets, impl, comp);
     }
 
 }

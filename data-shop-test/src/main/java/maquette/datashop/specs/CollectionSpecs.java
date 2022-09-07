@@ -40,7 +40,7 @@ public abstract class CollectionSpecs {
             .withModule(shop)
             .initialize(context.system, context.app);
 
-        var ressourcePath = getRessourcePath();
+        var ressourcePath = getResourcePath();
 
         this.steps = new CollectionStepDefinitions(maquette, workspaces, ressourcePath);
     }
@@ -59,7 +59,7 @@ public abstract class CollectionSpecs {
 
     public abstract DataAssetsRepository setupDataAssetsRepository();
 
-    public abstract Path getRessourcePath();
+    public abstract Path getResourcePath();
 
     /**
      * When uploading a single file to a collection and downloading the collection file after, the downloaded file should

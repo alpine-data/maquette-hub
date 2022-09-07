@@ -7,8 +7,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.databind.DefaultObjectMapperFactory;
+import maquette.datashop.providers.databases.exceptions.QueryNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Value
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,12 +26,12 @@ public class DatabaseAnalysisResult {
     String database;
 
     @JsonProperty(QUERIES)
-    List<DatabaseAnalysisResult> queries;
+    List<DatabaseAnalysisQueryResult> queries;
 
     @JsonCreator
     public static DatabaseAnalysisResult apply(
         @JsonProperty(DATABASE) String database,
-        @JsonProperty(QUERIES) List<DatabaseAnalysisResult> queries) {
+        @JsonProperty(QUERIES) List<DatabaseAnalysisQueryResult> queries) {
 
         return new DatabaseAnalysisResult(database, queries);
     }
@@ -40,6 +42,18 @@ public class DatabaseAnalysisResult {
             .createJsonMapper(true)
             .createObjectNode();
         return DatabaseAnalysisResult.apply(database, List.of());
+    }
+
+    public DatabaseAnalysisQueryResult getQueryById(String queryId) {
+        return findQueryById(queryId).orElseThrow(() -> QueryNotFoundException.applyWithId(queryId));
+    }
+
+    public Optional<DatabaseAnalysisQueryResult> findQueryById(String queryId) {
+        return this
+            .queries
+            .stream()
+            .filter(query -> query.getId().equals(queryId))
+            .findFirst();
     }
 
 }
