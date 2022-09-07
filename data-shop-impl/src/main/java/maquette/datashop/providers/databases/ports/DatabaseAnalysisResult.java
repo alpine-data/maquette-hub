@@ -3,44 +3,43 @@ package maquette.datashop.providers.databases.ports;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.databind.DefaultObjectMapperFactory;
+
+import java.util.List;
 
 @Value
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseAnalysisResult {
 
-    private static final String COLUMNS = "columns";
-    private static final String PROFILE = "profile";
     private static final String DATABASE = "database";
-    private static final String QUERY = "query";
 
-    @JsonProperty(COLUMNS)
-    JsonNode columns;
+    private static final String QUERIES = "queries";
 
-    // TODO adapt for multiple named queries
-    @JsonProperty(PROFILE)
-    String profile;
 
     @JsonProperty(DATABASE)
     String database;
 
+    @JsonProperty(QUERIES)
+    List<DatabaseAnalysisResult> queries;
+
     @JsonCreator
     public static DatabaseAnalysisResult apply(
-        @JsonProperty(COLUMNS) JsonNode columns,
-        @JsonProperty(PROFILE) String profile,
-        @JsonProperty(DATABASE) String database) {
+        @JsonProperty(DATABASE) String database,
+        @JsonProperty(QUERIES) List<DatabaseAnalysisResult> queries) {
 
-        return new DatabaseAnalysisResult(columns, profile, database);
+        return new DatabaseAnalysisResult(database, queries);
     }
 
     public static DatabaseAnalysisResult empty(String database) {
-        var columns = DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
-        return DatabaseAnalysisResult.apply(columns, "", database);
+        var columns = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper(true)
+            .createObjectNode();
+        return DatabaseAnalysisResult.apply(database, List.of());
     }
 
 }

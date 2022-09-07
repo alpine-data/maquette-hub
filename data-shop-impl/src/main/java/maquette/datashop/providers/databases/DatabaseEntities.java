@@ -35,7 +35,7 @@ public final class DatabaseEntities {
                 settingsCS, dbPropertiesCS, propertiesCS,
                 (settings, dbProperties, properties) -> explorer
                     .analyze(properties.getMetadata().getName(), authToken, authTokenSecret)
-                    .thenApply(dbProperties::withStatistics)
+                    .thenApply(dbProperties::withQueryStatistics)
                     .thenCompose(entity::updateCustomProperties)
                     .thenApply(done -> {
                         LOG.info("Successfully analyzed database `{}`", properties.getMetadata().getName());
