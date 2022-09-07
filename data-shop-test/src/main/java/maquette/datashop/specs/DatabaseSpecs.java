@@ -6,10 +6,14 @@ import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.ports.DataAssetsRepository;
 import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.providers.FakeProvider;
+import maquette.datashop.providers.databases.Databases;
+import maquette.datashop.providers.databases.ports.InMemoryDatabasePortImpl;
 import maquette.datashop.providers.datasets.Datasets;
 import maquette.datashop.providers.datasets.ports.DatasetsRepository;
+import maquette.datashop.providers.datasets.ports.InMemoryDatabaseDataExplorer;
 import maquette.datashop.providers.datasets.ports.InMemoryDatasetDataExplorer;
 import maquette.datashop.providers.datasets.records.Records;
+import maquette.datashop.specs.steps.DatabaseStepDefinitions;
 import maquette.datashop.specs.steps.DatasetStepDefinitions;
 import maquette.testutils.MaquetteContext;
 import org.junit.jupiter.api.AfterEach;
@@ -20,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class DatabaseSpecs {
 
-    private DatasetStepDefinitions steps;
+    private DatabaseStepDefinitions steps;
 
     private MaquetteContext context;
 
@@ -30,15 +34,16 @@ public abstract class DatabaseSpecs {
 
         var runtime = MaquetteRuntime.apply();
         var workspaces = FakeWorkspacesServicePort.apply();
-        var datasets = Datasets.apply(setupDatasetsRepository(), InMemoryDatasetDataExplorer.apply(), workspaces);
+        var databases = Databases.apply(InMemoryDatabasePortImpl.apply(), InMemoryDatabaseDataExplorer.apply(),
+            workspaces);
         var shop = MaquetteDataShop.apply(setupDataAssetsRepository(), workspaces, FakeEmailClient.apply(),
-            FakeProvider.apply(), datasets);
+            FakeProvider.apply(), databases);
 
         var maquette = runtime
             .withModule(shop)
             .initialize(context.system, context.app);
 
-        this.steps = new DatasetStepDefinitions(maquette, workspaces);
+        this.steps = new DatabaseStepDefinitions(maquette, workspaces);
     }
 
     @AfterEach
@@ -47,8 +52,6 @@ public abstract class DatabaseSpecs {
     }
 
     public abstract DataAssetsRepository setupDataAssetsRepository();
-
-    public abstract DatasetsRepository setupDatasetsRepository();
 
     /**
      * Create pretty case with usual data
@@ -92,7 +95,8 @@ public abstract class DatabaseSpecs {
     }
 
     /**
-     * Analyze the named queries which sends a request to data explorer and stores the response in the properties of a data asset
+     * Analyze the named queries which sends a request to data explorer and stores the response in the properties of
+     * a data asset
      */
     @Test
     public void analyze() throws ExecutionException, InterruptedException {
