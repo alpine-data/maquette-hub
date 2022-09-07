@@ -22,6 +22,7 @@ public class DatabaseAnalysisResult {
     @JsonProperty(COLUMNS)
     JsonNode columns;
 
+    // TODO adapt for multiple named queries
     @JsonProperty(PROFILE)
     String profile;
 
