@@ -4,6 +4,7 @@ import akka.Done;
 import maquette.core.values.user.User;
 import maquette.datashop.providers.databases.model.ConnectionTestResult;
 import maquette.datashop.providers.databases.model.DatabaseDriver;
+import maquette.datashop.providers.databases.model.DatabaseSettings;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.datasets.records.Records;
 
@@ -24,5 +25,7 @@ public interface DatabaseServices {
         DatabaseDriver driver, String connection, String username, String password, String query);
 
     CompletionStage<Optional<DatabaseAnalysisResult>> getAnalysisResult(User executor, String database);
+
+    CompletionStage<DatabaseSettings> getDatabaseSettings(User executor, String database);
 
 }

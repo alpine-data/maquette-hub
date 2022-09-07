@@ -8,9 +8,7 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.providers.databases.DatabaseEntities;
-import maquette.datashop.providers.databases.model.ConnectionTestResult;
-import maquette.datashop.providers.databases.model.DatabaseDriver;
-import maquette.datashop.providers.databases.model.DatabaseProperties;
+import maquette.datashop.providers.databases.model.*;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.datasets.records.Records;
 import org.slf4j.Logger;
@@ -84,4 +82,10 @@ public final class DatabaseServicesImpl implements DatabaseServices {
             .thenApply(DatabaseProperties::getQueryStatistics);
     }
 
+    @Override
+    public CompletionStage<DatabaseSettings> getDatabaseSettings(User executor, String database) {
+        return assets
+            .getByName(database)
+            .thenCompose(entity -> entity.getCustomSettings(DatabaseSettings.class));
+    }
 }

@@ -6,10 +6,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import maquette.datashop.providers.databases.exceptions.AllowLocalSessionsOnlyWithCustomQueriesException;
-import maquette.datashop.providers.databases.exceptions.AtLeastOneQueryException;
-
-import java.util.List;
 
 @With
 @Value
