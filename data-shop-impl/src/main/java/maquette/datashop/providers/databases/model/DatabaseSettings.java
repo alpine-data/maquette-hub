@@ -14,30 +14,19 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseSettings {
 
-    private static final String DRIVER = "driver";
-    private static final String CONNECTION = "connection";
-    private static final String QUERY = "query";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
+    private static final String SESSION_SETTINGS = "session-settings";
+
+    private static final String QUERY_SETTINGS = "query-setting";
 
     private static final String ALLOW_CUSTOM_QUERIES = "allow-custom-queries";
 
     private static final String ALLOW_LOCAL_SESSION = "allow-local-session";
 
-    @JsonProperty(DRIVER)
-    DatabaseDriver driver;
+    @JsonProperty(SESSION_SETTINGS)
+    DatabaseSessionSettings sessionSettings;
 
-    @JsonProperty(CONNECTION)
-    String connection;
-
-    @JsonProperty(QUERY)
-    List<DatabaseQuerySettings> query;
-
-    @JsonProperty(USERNAME)
-    String username;
-
-    @JsonProperty(PASSWORD)
-    String password;
+    @JsonProperty(QUERY_SETTINGS)
+    List<DatabaseQuerySettings> querySettings;
 
     @JsonProperty(ALLOW_CUSTOM_QUERIES)
     boolean allowCustomQueries;
@@ -47,11 +36,8 @@ public class DatabaseSettings {
 
     @JsonCreator
     public static DatabaseSettings apply(
-        @JsonProperty(DRIVER) DatabaseDriver driver,
-        @JsonProperty(CONNECTION) String connection,
-        @JsonProperty(QUERY) List<DatabaseQuerySettings> query,
-        @JsonProperty(USERNAME) String username,
-        @JsonProperty(PASSWORD) String password,
+        @JsonProperty(SESSION_SETTINGS) DatabaseSessionSettings sessionSettings,
+        @JsonProperty(QUERY_SETTINGS) List<DatabaseQuerySettings> querySettings,
         @JsonProperty(ALLOW_CUSTOM_QUERIES) boolean allowCustomQueries,
         @JsonProperty(ALLOW_LOCAL_SESSION) boolean allowLocalSession) {
 
@@ -59,13 +45,13 @@ public class DatabaseSettings {
             throw AllowLocalSessionsOnlyWithCustomQueriesException.apply();
         }
 
-        if (query.isEmpty()) {
+        if (querySettings.isEmpty()) {
             throw AtLeastOneQueryException.apply();
         }
 
         // TODO Add further validation (queries)
 
-        return new DatabaseSettings(driver, connection, List.copyOf(query), username, password, allowCustomQueries, allowLocalSession);
+        return new DatabaseSettings(sessionSettings, List.copyOf(querySettings), allowCustomQueries, allowLocalSession);
     }
 
 }
