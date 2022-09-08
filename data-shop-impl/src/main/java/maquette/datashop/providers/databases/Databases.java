@@ -10,6 +10,7 @@ import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
+import maquette.datashop.providers.DataAssetSettings;
 import maquette.datashop.providers.databases.commands.AnalyzeDatabaseCommand;
 import maquette.datashop.providers.databases.commands.GetDatabaseConnectionCommand;
 import maquette.datashop.providers.databases.commands.TestDatabaseConnectionCommand;
@@ -69,6 +70,11 @@ public final class Databases implements DataAssetProvider {
         }
 
         return runtime.getModule(MaquetteDataShop.class).getServices();
+    }
+
+    @Override
+    public Class<? extends DataAssetSettings> getSettingsType() {
+        return DatabaseSettings.class;
     }
 
     public DatabaseServices getServices() {
