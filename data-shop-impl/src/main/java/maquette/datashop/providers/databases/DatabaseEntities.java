@@ -52,10 +52,10 @@ public final class DatabaseEntities {
 
     public CompletionStage<Records> executeQueryById(DatabaseSettings properties, String queryId) {
         return database.read(
-            properties.getDriver(),
-            properties.getConnection(),
-            properties.getUsername(),
-            properties.getPassword(),
+            properties.getSessionSettings().getDriver(),
+            properties.getSessionSettings().getConnection(),
+            properties.getSessionSettings().getUsername(),
+            properties.getSessionSettings().getPassword(),
             properties.getQueryById(queryId).getQuery());
     }
 
@@ -67,19 +67,19 @@ public final class DatabaseEntities {
 
     public CompletionStage<Records> executeQueryByName(DatabaseSettings properties, String queryName) {
         return database.read(
-            properties.getDriver(),
-            properties.getConnection(),
-            properties.getUsername(),
-            properties.getPassword(),
+            properties.getSessionSettings().getDriver(),
+            properties.getSessionSettings().getConnection(),
+            properties.getSessionSettings().getUsername(),
+            properties.getSessionSettings().getPassword(),
             properties.getQueryByName(queryName).getQuery());
     }
 
     public CompletionStage<Records> executeCustomQuery(DatabaseSettings properties, String query) {
         return database.read(
-            properties.getDriver(),
-            properties.getConnection(),
-            properties.getUsername(),
-            properties.getPassword(),
+            properties.getSessionSettings().getDriver(),
+            properties.getSessionSettings().getConnection(),
+            properties.getSessionSettings().getUsername(),
+            properties.getSessionSettings().getPassword(),
             query);
     }
 
@@ -91,11 +91,11 @@ public final class DatabaseEntities {
 
     public CompletionStage<ConnectionTestResult> test(DatabaseSettings properties) {
         return test(
-            properties.getDriver(),
-            properties.getConnection(),
-            properties.getUsername(),
-            properties.getPassword(),
-            properties.getQuery().get(0).getQuery()); // TODO: Test all queries.
+            properties.getSessionSettings().getDriver(),
+            properties.getSessionSettings().getConnection(),
+            properties.getSessionSettings().getUsername(),
+            properties.getSessionSettings().getPassword(),
+            properties.getQuerySettings().get(0).getQuery()); // TODO: Test all queries.
     }
 
 }

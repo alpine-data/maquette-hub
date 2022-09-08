@@ -80,4 +80,10 @@ public final class DatabaseServicesSecured implements DatabaseServices {
         return delegate.getAnalysisResult(executor, database);
     }
 
+    @Override
+    public CompletionStage<DatabaseSettings> getDatabaseSettings(User executor, String database) {
+        // TODO: Check Permission
+        return delegate.getDatabaseSettings(executor, database);
+    }
+
 }
