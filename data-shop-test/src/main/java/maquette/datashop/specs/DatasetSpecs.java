@@ -63,7 +63,7 @@ public abstract class DatasetSpecs {
     @Test
     public void datasetVersioning() throws ExecutionException, InterruptedException {
         // Given
-        steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, "dataset", "some-asset");
+        steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, Datasets.TYPE_NAME, "some-asset");
 
         /*
          * When
@@ -103,7 +103,7 @@ public abstract class DatasetSpecs {
     @Test
     public void writeAndReadData() throws ExecutionException, InterruptedException {
         // Given
-        steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, "dataset", "some-asset");
+        steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, Datasets.TYPE_NAME, "some-asset");
 
         // When
         steps.$_uploads_records_to_dataset_$(context.users.bob, "some-asset");
@@ -119,14 +119,14 @@ public abstract class DatasetSpecs {
     @Test
     public void readLatestVersion() throws ExecutionException, InterruptedException {
         // Given
-        steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, "dataset", "some-asset");
+        steps.$_creates_a_data_asset_of_type_$_with_name_$(context.users.bob, Datasets.TYPE_NAME, "some-asset");
 
         // When
         steps.$_uploads_records_to_dataset_$(context.users.bob, "some-asset");
         steps.$_uploads_different_records_to_dataset_$(context.users.bob, "some-asset");
         steps.$_downloads_latest_version_from_dataset_$(context.users.bob, "some-asset");
 
-        //
+        // Then
         steps.the_uploaded_records_should_equal_the_downloaded_records();
     }
 

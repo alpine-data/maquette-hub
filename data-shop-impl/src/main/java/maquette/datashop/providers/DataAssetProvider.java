@@ -40,8 +40,8 @@ public interface DataAssetProvider {
      *
      * @return The default settings.
      */
-    default Object getDefaultSettings() {
-        return new Object();
+    default DataAssetSettings getDefaultSettings() {
+        return new DataAssetSettings() {};
     }
 
     /**
@@ -49,8 +49,8 @@ public interface DataAssetProvider {
      *
      * @return The settings type of this provider.
      */
-    default Class<?> getSettingsType() {
-        return Object.class;
+    default Class<? extends DataAssetSettings> getSettingsType() {
+        return DataAssetSettings.class;
     }
 
     /**
@@ -77,6 +77,18 @@ public interface DataAssetProvider {
      */
     default String getTypePluralized() {
         return getType() + "s";
+    }
+
+    /**
+     * This callback is called by Maquette Data Shop before a new data asset of this is about to be created.
+     *
+     * @param executor       The user who created the asset.
+     * @param properties     Data asset properties
+     * @param customSettings The custom settings submitted during creation.
+     * @return Done.
+     */
+    default CompletionStage<Done> beforeCreated(User executor, DataAssetProperties properties, Object customSettings) {
+        return CompletableFuture.completedFuture(Done.getInstance());
     }
 
     /**

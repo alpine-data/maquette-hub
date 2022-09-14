@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public abstract class CollectionSpecs {
@@ -40,7 +41,7 @@ public abstract class CollectionSpecs {
             .withModule(shop)
             .initialize(context.system, context.app);
 
-        var ressourcePath = getRessourcePath();
+        var ressourcePath = getResourcePath();
 
         this.steps = new CollectionStepDefinitions(maquette, workspaces, ressourcePath);
     }
@@ -59,7 +60,7 @@ public abstract class CollectionSpecs {
 
     public abstract DataAssetsRepository setupDataAssetsRepository();
 
-    public abstract Path getRessourcePath();
+    public abstract Path getResourcePath();
 
     /**
      * When uploading a single file to a collection and downloading the collection file after, the downloaded file should
@@ -120,7 +121,7 @@ public abstract class CollectionSpecs {
                 context.users.bob,
                 "some-asset",
                 "test_tag",
-                Arrays.asList("test.txt")
+            List.of("test.txt")
         );
     }
 
@@ -142,7 +143,7 @@ public abstract class CollectionSpecs {
         steps.the_deleted_files_should_not_be_listed_in_collection_files(
                 context.users.bob,
                 "some-asset",
-                Arrays.asList("test.txt")
+            List.of("test.txt")
         );
     }
 }

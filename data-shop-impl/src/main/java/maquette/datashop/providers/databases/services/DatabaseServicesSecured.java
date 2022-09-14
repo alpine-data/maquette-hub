@@ -2,14 +2,11 @@ package maquette.datashop.providers.databases.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.modules.users.UserEntities;
-import maquette.core.modules.users.UserEntity;
-import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
-import maquette.datashop.providers.databases.DatabaseEntities;
 import maquette.datashop.providers.databases.model.ConnectionTestResult;
 import maquette.datashop.providers.databases.model.DatabaseDriver;
+import maquette.datashop.providers.databases.model.DatabaseSettings;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.datasets.records.Records;
 import maquette.datashop.services.DataAssetServicesCompanion;
@@ -26,6 +23,8 @@ public final class DatabaseServicesSecured implements DatabaseServices {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseServices.class);
 
+    private final DataAssetEntities assets;
+
     private final DatabaseServices delegate;
 
     private final DataAssetServicesCompanion comp;
@@ -38,13 +37,33 @@ public final class DatabaseServicesSecured implements DatabaseServices {
     }
 
     @Override
-    public CompletionStage<Records> download(User executor, String database) {
+    public CompletionStage<Records> executeQueryById(User executor, String database, String queryId) {
         return comp
             .withAuthorization(
                 () -> comp.hasPermission(executor, database, DataAssetPermissions::canConsume),
                 () -> comp.isSuperUser(executor),
                 () -> comp.isSubscribedConsumer(executor, database))
-            .thenCompose(ok -> delegate.download(executor, database));
+            .thenCompose(ok -> delegate.executeQueryById(executor, database, queryId));
+    }
+
+    @Override
+    public CompletionStage<Records> executeQueryByName(User executor, String database, String queryName) {
+        return comp
+            .withAuthorization(
+                () -> comp.hasPermission(executor, database, DataAssetPermissions::canConsume),
+                () -> comp.isSuperUser(executor),
+                () -> comp.isSubscribedConsumer(executor, database))
+            .thenCompose(ok -> delegate.executeQueryByName(executor, database, queryName));
+    }
+
+    @Override
+    public CompletionStage<Records> executeCustomQuery(User executor, String database, String query) {
+        return comp
+            .withAuthorization(
+                () -> comp.hasPermission(executor, database, DataAssetPermissions::canConsume),
+                () -> comp.isSuperUser(executor),
+                () -> comp.isSubscribedConsumer(executor, database))
+            .thenCompose(ok -> delegate.executeCustomQuery(executor, database, query));
     }
 
     @Override
@@ -56,6 +75,16 @@ public final class DatabaseServicesSecured implements DatabaseServices {
     @Override
     public CompletionStage<Optional<DatabaseAnalysisResult>> getAnalysisResult(User executor, String database) {
         return delegate.getAnalysisResult(executor, database);
+    }
+
+    @Override
+    public CompletionStage<DatabaseSettings> getDatabaseSettings(User executor, String database) {
+        return comp
+            .withAuthorization(
+                () -> comp.hasPermission(executor, database, DataAssetPermissions::canConsume),
+                () -> comp.isSuperUser(executor),
+                () -> comp.isSubscribedConsumer(executor, database))
+            .thenCompose(ok -> delegate.getDatabaseSettings(executor, database));
     }
 
 }

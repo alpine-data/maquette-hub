@@ -16,7 +16,7 @@ public final class SchemaDeserializer extends StdDeserializer<Schema> {
 
 
     @Override
-    public Schema deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public Schema deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return new Schema.Parser().setValidate(true).parse(p.getCodec().readTree(p).toString());
     }
 

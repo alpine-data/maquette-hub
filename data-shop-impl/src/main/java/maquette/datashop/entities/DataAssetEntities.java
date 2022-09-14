@@ -44,11 +44,14 @@ public final class DataAssetEntities {
                 if (optEntity.isPresent()) {
                     // TODO mw: Check for idempotent message from same.
                     return CompletableFuture.failedFuture(DataAssetAlreadyExistsException.withName(metadata.getName()));
-                } else if (customSettings != null && !providers.getByName(type)
+                } else if (customSettings != null && !providers
+                    .getByName(type)
                     .getSettingsType()
                     .isInstance(customSettings)) {
                     return CompletableFuture.failedFuture(InvalidCustomSettingsException.apply(
-                        type, customSettings.getClass(), providers.getByName(type).getSettingsType()));
+                        type, customSettings.getClass(), providers
+                            .getByName(type)
+                            .getSettingsType()));
                 } else {
                     return CompletableFuture.completedFuture(Done.getInstance());
                 }
@@ -56,43 +59,57 @@ public final class DataAssetEntities {
             .thenCompose(checked -> {
                 var state = DataAssetState.APPROVED;
 
-                if (
-                    metadata.getZone().equals(DataZone.PREPARED) ||
-                        metadata.getZone().equals(DataZone.GOLD) ||
-                        metadata.getPersonalInformation().equals(PersonalInformation.PERSONAL_INFORMATION) ||
-                        metadata.getPersonalInformation().equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION)) {
+                if (metadata
+                    .getZone()
+                    .equals(DataZone.PREPARED) ||
+                    metadata
+                        .getZone()
+                        .equals(DataZone.GOLD) ||
+                    metadata
+                        .getPersonalInformation()
+                        .equals(PersonalInformation.PERSONAL_INFORMATION) ||
+                    metadata
+                        .getPersonalInformation()
+                        .equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION)) {
 
                     state = DataAssetState.REVIEW_REQUIRED;
                 }
 
                 var created = ActionMetadata.apply(executor);
                 var properties = DataAssetProperties.apply(UID.apply(), type, metadata, state, created, created);
+                return providers
+                    .getByName(type)
+                    .beforeCreated(executor, properties, customSettings)
+                    .thenCompose(done -> repository
+                        .insertOrUpdateDataAsset(properties)
+                        .thenApply(d -> getById(properties.getId()))
+                        .thenCompose(entity -> entity
+                            .getMembers()
+                            .addMember(executor, owner, DataAssetMemberRole.OWNER)
+                            .thenApply(d -> entity))
+                        .thenCompose(entity -> entity
+                            .getMembers()
+                            .addMember(executor, steward, DataAssetMemberRole.STEWARD)
+                            .thenApply(d -> entity))
+                        .thenCompose(entity -> {
+                            var insertPropertiesCS = entity.updateCustomProperties(providers
+                                .getByName(type)
+                                .getDefaultProperties());
+                            var insertSettingsCS = entity.updateCustomSettings(executor, Optional
+                                .ofNullable(customSettings)
+                                .orElse(providers
+                                    .getByName(type)
+                                    .getDefaultSettings()));
 
-                return repository
-                    .insertOrUpdateDataAsset(properties)
-                    .thenApply(d -> getById(properties.getId()))
-                    .thenCompose(entity -> entity.getMembers()
-                        .addMember(executor, owner, DataAssetMemberRole.OWNER)
-                        .thenApply(d -> entity))
-                    .thenCompose(entity -> entity.getMembers()
-                        .addMember(executor, steward, DataAssetMemberRole.STEWARD)
-                        .thenApply(d -> entity))
-                    .thenCompose(entity -> {
-                        var insertPropertiesCS = entity.updateCustomProperties(providers.getByName(type)
-                            .getDefaultProperties());
-                        var insertSettingsCS = entity.updateCustomSettings(executor, Optional
-                            .ofNullable(customSettings)
-                            .orElse(providers.getByName(type).getDefaultSettings()));
-
-                        return Operators.compose(
-                            insertPropertiesCS, insertSettingsCS,
-                            (insertProperties, insertSettings) -> entity);
-                    })
-                    .thenCompose(entity -> {
-                        var provider = providers.getByName(type);
-                        return provider.onCreated(executor, entity, customSettings);
-                    })
-                    .thenApply(d -> properties);
+                            return Operators.compose(
+                                insertPropertiesCS, insertSettingsCS,
+                                (insertProperties, insertSettings) -> entity);
+                        })
+                        .thenCompose(entity -> {
+                            var provider = providers.getByName(type);
+                            return provider.onCreated(executor, entity, customSettings);
+                        })
+                        .thenApply(d -> properties));
             });
     }
 
@@ -107,7 +124,9 @@ public final class DataAssetEntities {
     }
 
     public CompletionStage<List<DataAssetProperties>> list() {
-        return repository.listDataAssets().thenApply(s -> s.collect(Collectors.toList()));
+        return repository
+            .listDataAssets()
+            .thenApply(s -> s.collect(Collectors.toList()));
     }
 
     public CompletionStage<Done> removeByName(String name) {

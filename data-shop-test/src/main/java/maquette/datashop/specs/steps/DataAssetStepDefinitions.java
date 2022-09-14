@@ -2,13 +2,15 @@ package maquette.datashop.specs.steps;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import maquette.core.MaquetteRuntime;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.commands.CreateDataAssetCommand;
-import maquette.datashop.commands.ListDataAssetsCommand;
 import maquette.datashop.commands.QueryDataAssetsCommand;
 import maquette.datashop.commands.UpdateDataAssetCommand;
 import maquette.datashop.commands.members.GrantDataAssetMemberCommand;
@@ -30,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @AllArgsConstructor()
+@Slf4j
 public class DataAssetStepDefinitions {
 
     protected final MaquetteRuntime runtime;
@@ -38,14 +41,19 @@ public class DataAssetStepDefinitions {
 
     protected final List<String> mentionedAssets;
 
+    protected final List<User> mentionedUsers;
+
     protected final List<String> results;
 
     protected List<DataAccessRequestProperties> knownAccessRequests;
 
     protected DataAccessRequestProperties mentionedAccessRequest;
 
+    protected Exception exception;
+
     public DataAssetStepDefinitions(MaquetteRuntime runtime, FakeWorkspacesServicePort workspaces) {
-        this(runtime, workspaces, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(), null);
+        this(runtime, workspaces, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
+            Lists.newArrayList(), null, null);
     }
 
     public void $_browses_all_data_assets(AuthenticatedUser user) throws ExecutionException, InterruptedException {
@@ -59,12 +67,22 @@ public class DataAssetStepDefinitions {
         results.add(result);
     }
 
-    public void $_configures_data_asset_$_to_be_$(AuthenticatedUser user, String name, DataVisibility visibility) throws ExecutionException, InterruptedException {
-        var asset = runtime.getModule(MaquetteDataShop.class).getServices().get(user, name).toCompletableFuture().get();
-        var update = UpdateDataAssetCommand
+    public void $_configures_data_asset_$_to_be_$(AuthenticatedUser user, String name,
+                                                  DataVisibility visibility) throws ExecutionException,
+        InterruptedException {
+        var asset = runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices()
+            .get(user, name)
+            .toCompletableFuture()
+            .get();
+        UpdateDataAssetCommand
             .apply(
                 name,
-                asset.getProperties().getMetadata().withVisibility(visibility))
+                asset
+                    .getProperties()
+                    .getMetadata()
+                    .withVisibility(visibility))
             .run(user, runtime)
             .toCompletableFuture()
             .get();
@@ -72,7 +90,9 @@ public class DataAssetStepDefinitions {
         mentionedAssets.add(name);
     }
 
-    public void $_creates_a_data_asset_of_type_$_with_name_$(AuthenticatedUser user, String type, String name) throws ExecutionException, InterruptedException {
+    public void $_creates_a_data_asset_of_type_$_with_name_$(AuthenticatedUser user, String type,
+                                                             String name) throws ExecutionException,
+        InterruptedException {
         var result = CreateDataAssetCommand
             .apply(
                 type,
@@ -83,7 +103,9 @@ public class DataAssetStepDefinitions {
                 DataClassification.PUBLIC,
                 PersonalInformation.NONE,
                 DataZone.RAW,
-                user.getId().getValue(),
+                user
+                    .getId()
+                    .getValue(),
                 null,
                 null,
                 null)
@@ -110,7 +132,9 @@ public class DataAssetStepDefinitions {
                 DataClassification.CONFIDENTIAL,
                 PersonalInformation.SENSITIVE_PERSONAL_INFORMATION,
                 DataZone.RAW,
-                user.getId().getValue(),
+                user
+                    .getId()
+                    .getValue(),
                 null,
                 null,
                 null)
@@ -175,9 +199,12 @@ public class DataAssetStepDefinitions {
         results.add(result);
     }
 
-    public void $_grants_consumer_access_rights_for_$(User executor, String assetName, AuthenticatedUser grantedUser) throws ExecutionException, InterruptedException {
+    public void $_grants_consumer_access_rights_for_$(User executor, String assetName,
+                                                      AuthenticatedUser grantedUser) throws ExecutionException,
+        InterruptedException {
         var result = GrantDataAssetMemberCommand
-            .apply(assetName, grantedUser.toAuthorization()
+            .apply(assetName, grantedUser
+                .toAuthorization()
                 .toGenericAuthorizationDefinition(), DataAssetMemberRole.CONSUMER)
             .run(executor, runtime)
             .toCompletableFuture()
@@ -188,7 +215,8 @@ public class DataAssetStepDefinitions {
         results.add(result);
     }
 
-    public void $_is_data_owner_of_data_asset_$(AuthenticatedUser user, String dataAssetName) throws ExecutionException, InterruptedException {
+    public void $_is_data_owner_of_data_asset_$(AuthenticatedUser user,
+                                                String dataAssetName) throws ExecutionException, InterruptedException {
         runtime
             .getModule(MaquetteDataShop.class)
             .getEntities()
@@ -196,12 +224,15 @@ public class DataAssetStepDefinitions {
             .toCompletableFuture()
             .get()
             .getMembers()
-            .addMember(user, UserAuthorization.apply(user.getId().getValue()), DataAssetMemberRole.OWNER)
+            .addMember(user, UserAuthorization.apply(user
+                .getId()
+                .getValue()), DataAssetMemberRole.OWNER)
             .toCompletableFuture()
             .get();
     }
 
-    public void $_requests_access_for_asset_$_on_behalf_of_$(User user, String asset, String workspace) throws ExecutionException,
+    public void $_requests_access_for_asset_$_on_behalf_of_$(User user, String asset,
+                                                             String workspace) throws ExecutionException,
         InterruptedException {
 
         $_requests_access_for_asset_$_on_behalf_of_$_with_reason_$(user, asset, workspace, "some very good reason");
@@ -263,7 +294,12 @@ public class DataAssetStepDefinitions {
     public void the_output_should_contain_the_access_request_of(AuthenticatedUser user) {
         var result = knownAccessRequests
             .stream()
-            .filter(properties -> properties.getCreated().getBy().equals(user.getId().getValue()))
+            .filter(properties -> properties
+                .getCreated()
+                .getBy()
+                .equals(user
+                    .getId()
+                    .getValue()))
             .findFirst();
 
         assertThat(result).isPresent();
@@ -282,4 +318,7 @@ public class DataAssetStepDefinitions {
         this.workspaces.createWorkspaceIfNotPresent(user, workspaceName);
     }
 
+    public void an_error_occurs_with_a_message_$(String message) {
+        assertThat(this.exception.getMessage()).contains(message);
+    }
 }

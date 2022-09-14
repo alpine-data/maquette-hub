@@ -25,8 +25,8 @@ public class CollectionsSpecsTest extends CollectionSpecs {
     }
 
     @Override
-    public Path getRessourcePath() {
-        return Paths.get("./src/main/ressources/");
+    public Path getResourcePath() {
+        return Paths.get("./src/main/resources/");
     }
 
 }

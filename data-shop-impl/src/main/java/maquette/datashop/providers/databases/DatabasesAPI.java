@@ -29,13 +29,14 @@ public class DatabasesAPI {
         return OpenApiBuilder.documented(docs, ctx -> {
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
             var database = ctx.pathParam("database");
+            var queryId = ctx.pathParam("query");
 
             var result = databases
                 .getServices()
                 .getAnalysisResult(user, database)
                 .thenApply(analysisResult -> {
                     if (analysisResult.isPresent()) {
-                        return analysisResult.get().getProfile();
+                        return analysisResult.get().getQueryById(queryId).getProfile();
                     } else {
                         return "No profiling data available";
                     }
@@ -51,9 +52,9 @@ public class DatabasesAPI {
         var docs = OpenApiBuilder
             .document()
             .operation(op -> {
-                op.summary("Download Dataset Data");
-                op.description("Downloads from a revision of a dataset.");
-                op.addTagsItem("Data Assets");
+                op.summary("Download Database Data");
+                op.description("Downloads data from a database's defined query.");
+                op.addTagsItem("Databases");
             })
             .pathParam("database", String.class, p -> p.description("The name of the database"))
             .json("200", String.class);
@@ -61,10 +62,43 @@ public class DatabasesAPI {
         return OpenApiBuilder.documented(docs, ctx -> {
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
             var database = ctx.pathParam("database");
+            var queryId = ctx.pathParam("query");
 
             var result = databases
                 .getServices()
-                .download(user, database)
+                .executeQueryById(user, database, queryId)
+                .thenApply(records -> {
+                    var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
+                    records.toFile(file);
+                    return DeleteOnCloseFileInputStream.apply(file);
+                })
+                .toCompletableFuture();
+
+            ctx.header("Content-Disposition", "attachment; filename=" + database + "." + queryId + ".avro");
+            ctx.header("Content-Type", "application/octet-stream");
+            ctx.result(result);
+        });
+    }
+
+    public Handler downloadCustomQuery() {
+        var docs = OpenApiBuilder
+            .document()
+            .operation(op -> {
+                op.summary("Download Database Data");
+                op.description("Downloads data from a database's defined query.");
+                op.addTagsItem("Databases");
+            })
+            .pathParam("database", String.class, p -> p.description("The name of the database"))
+            .json("200", String.class);
+
+        return OpenApiBuilder.documented(docs, ctx -> {
+            var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+            var database = ctx.pathParam("database");
+            var query = ctx.body();
+
+            var result = databases
+                .getServices()
+                .executeCustomQuery(user, database, query)
                 .thenApply(records -> {
                     var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                     records.toFile(file);
@@ -77,5 +111,4 @@ public class DatabasesAPI {
             ctx.result(result);
         });
     }
-
 }

@@ -1,6 +1,7 @@
 package maquette.datashop.providers.databases;
 
 import akka.Done;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
@@ -10,18 +11,27 @@ import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
+import maquette.datashop.providers.DataAssetSettings;
 import maquette.datashop.providers.databases.commands.AnalyzeDatabaseCommand;
+import maquette.datashop.providers.databases.commands.GetDatabaseConnectionCommand;
 import maquette.datashop.providers.databases.commands.TestDatabaseConnectionCommand;
+import maquette.datashop.providers.databases.exceptions.QueryNamesMustBeUnique;
+import maquette.datashop.providers.databases.model.DatabaseProperties;
+import maquette.datashop.providers.databases.model.DatabaseQuerySettings;
 import maquette.datashop.providers.databases.model.DatabaseSettings;
+import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.databases.ports.DatabasePort;
 import maquette.datashop.providers.databases.services.DatabaseServices;
 import maquette.datashop.providers.databases.services.DatabaseServicesFactory;
 import maquette.datashop.services.DataAssetServices;
+import maquette.datashop.values.DataAssetProperties;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class Databases implements DataAssetProvider {
@@ -48,8 +58,14 @@ public final class Databases implements DataAssetProvider {
 
         runtime
             .getApp()
-            .get("/api/data/databases/:database", handlers.download())
+            .get("/api/data/databases/:database/:query", handlers.download())
+            .post("/api/data/databases/:database/custom", handlers.downloadCustomQuery())
             .get("/api/profiles/databases/:database", handlers.getProfile());
+    }
+
+    @Override
+    public Object getDefaultProperties() {
+        return DatabaseProperties.apply(Lists.newArrayList(), null);
     }
 
     @Override
@@ -57,6 +73,7 @@ public final class Databases implements DataAssetProvider {
         Map<String, Class<? extends Command>> commands = Maps.newHashMap();
         commands.put("databases analyze", AnalyzeDatabaseCommand.class);
         commands.put("databases test", TestDatabaseConnectionCommand.class);
+        commands.put("databases session", GetDatabaseConnectionCommand.class);
         return commands;
     }
 
@@ -65,7 +82,14 @@ public final class Databases implements DataAssetProvider {
             throw new IllegalStateException("This method can not be called before everything is initialized.");
         }
 
-        return runtime.getModule(MaquetteDataShop.class).getServices();
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getServices();
+    }
+
+    @Override
+    public Class<? extends DataAssetSettings> getSettingsType() {
+        return DatabaseSettings.class;
     }
 
     public DatabaseServices getServices() {
@@ -82,10 +106,30 @@ public final class Databases implements DataAssetProvider {
     }
 
     @Override
+    public CompletionStage<Done> beforeCreated(User executor, DataAssetProperties properties, Object customSettings) {
+        var dbSettings = (DatabaseSettings) customSettings;
+
+        if (dbSettings
+            .getQuerySettings()
+            .size() != dbSettings
+            .getQuerySettings()
+            .stream()
+            .map(DatabaseQuerySettings::getName)
+            .distinct()
+            .count()) {
+            throw QueryNamesMustBeUnique.apply();
+        }
+
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
+
+    @Override
     public CompletionStage<Done> onCreated(User executor, DataAssetEntity entity, Object customSettings) {
         return entity
             .getProperties()
-            .thenApply(properties -> properties.getMetadata().getName())
+            .thenApply(properties -> properties
+                .getMetadata()
+                .getName())
             .thenCompose(database -> getServices().analyze(executor, database));
     }
 
@@ -93,6 +137,10 @@ public final class Databases implements DataAssetProvider {
     public CompletionStage<Done> onUpdatedCustomSettings(User executor, DataAssetEntity entity, Object customSettings) {
         return entity
             .getCustomSettings(DatabaseSettings.class)
+            .thenCompose(settings -> entity
+                .getProperties()
+                .thenCompose(properties -> beforeCreated(executor, properties, settings))
+                .thenApply(done -> settings))
             .thenCompose(settings -> onCreated(executor, entity, settings));
     }
 

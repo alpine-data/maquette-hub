@@ -22,12 +22,14 @@ public class DatasetStepDefinitions extends DataAssetStepDefinitions {
     private final List<Records> downloaded;
 
     public DatasetStepDefinitions(MaquetteRuntime runtime, FakeWorkspacesServicePort workspaces) {
-        super(runtime, workspaces, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(), null);
+        super(runtime, workspaces, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
+            Lists.newArrayList(), null, null);
         this.uploaded = Lists.newArrayList();
         this.downloaded = Lists.newArrayList();
     }
 
-    public void $_uploads_records_$_to_dataset_$(AuthenticatedUser user, Records records, String dataset) throws ExecutionException, InterruptedException {
+    public void $_uploads_records_$_to_dataset_$(AuthenticatedUser user, Records records,
+                                                 String dataset) throws ExecutionException, InterruptedException {
         var datasets = this
             .runtime
             .getModule(MaquetteDataShop.class)
@@ -54,13 +56,20 @@ public class DatasetStepDefinitions extends DataAssetStepDefinitions {
         uploaded.add(records);
     }
 
-    public void $_uploads_records_to_dataset_$(AuthenticatedUser user, String dataset) throws ExecutionException, InterruptedException {
-        var records = Records.getSamples().getCountryRecords();
+    public void $_uploads_records_to_dataset_$(AuthenticatedUser user,
+                                               String dataset) throws ExecutionException, InterruptedException {
+        var records = Records
+            .getSamples()
+            .getCountryRecords();
         $_uploads_records_$_to_dataset_$(user, records, dataset);
     }
 
-    public void $_uploads_different_records_to_dataset_$(AuthenticatedUser user, String dataset) throws ExecutionException, InterruptedException {
-        var records = Records.getSamples().getCityRecords();
+    public void $_uploads_different_records_to_dataset_$(AuthenticatedUser user,
+                                                         String dataset) throws ExecutionException,
+        InterruptedException {
+        var records = Records
+            .getSamples()
+            .getCityRecords();
         $_uploads_records_$_to_dataset_$(user, records, dataset);
     }
 
@@ -77,7 +86,8 @@ public class DatasetStepDefinitions extends DataAssetStepDefinitions {
         results.add(output);
     }
 
-    public void $_downloads_version_$_from_dataset_$(AuthenticatedUser user, String version, String dataset) throws ExecutionException, InterruptedException {
+    public void $_downloads_version_$_from_dataset_$(AuthenticatedUser user, String version,
+                                                     String dataset) throws ExecutionException, InterruptedException {
         var result = runtime
             .getModule(MaquetteDataShop.class)
             .getProviders()
@@ -91,13 +101,14 @@ public class DatasetStepDefinitions extends DataAssetStepDefinitions {
     }
 
     public void the_uploaded_records_should_equal_the_downloaded_records() {
-        var uploaded = this.uploaded.get(this.uploaded.size() -  1);
+        var uploaded = this.uploaded.get(this.uploaded.size() - 1);
         var downloaded = this.downloaded.get(this.downloaded.size() - 1);
 
         assertThat(uploaded.getRecords()).containsAll(downloaded.getRecords());
     }
 
-    public void $_downloads_latest_version_from_dataset_$(AuthenticatedUser user, String dataset) throws ExecutionException, InterruptedException {
+    public void $_downloads_latest_version_from_dataset_$(AuthenticatedUser user,
+                                                          String dataset) throws ExecutionException, InterruptedException {
         var result = runtime
             .getModule(MaquetteDataShop.class)
             .getProviders()

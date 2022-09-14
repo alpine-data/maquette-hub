@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
-import org.apache.avro.Schema;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 @With
@@ -14,35 +13,25 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseProperties {
 
-    public static final String RECORDS = "records";
-    public static final String SCHEMA = "schema";
-    public static final String STATISTICS = "statistics";
+    private static final String QUERY_PROPERTIES = "query-properties";
 
-    @JsonProperty(RECORDS)
-    long records;
+    private static final String QUERY_STATISTICS = "query-statistics";
 
-    @JsonProperty(SCHEMA)
-    Schema schema;
+    @JsonProperty(QUERY_PROPERTIES)
+    public List<DatabaseQueryProperties> queryProperties;
 
-    @Nullable
-    @JsonProperty(STATISTICS)
-    DatabaseAnalysisResult statistics;
+    @JsonProperty(QUERY_STATISTICS)
+    public DatabaseAnalysisResult queryStatistics;
 
     @JsonCreator
     public static DatabaseProperties apply(
-        @JsonProperty(RECORDS) long records,
-        @JsonProperty(SCHEMA) Schema schema,
-        @JsonProperty(STATISTICS) DatabaseAnalysisResult statistics) {
-
-       return new DatabaseProperties(records, schema, statistics);
+        @JsonProperty(QUERY_PROPERTIES) List<DatabaseQueryProperties> queryProperties,
+        @JsonProperty(QUERY_STATISTICS) DatabaseAnalysisResult queryStatistics) {
+        return new DatabaseProperties(queryProperties, queryStatistics);
     }
 
-    public static DatabaseProperties apply(long records, Schema schema) {
-        return apply(records, schema, null);
-    }
-
-    public Optional<DatabaseAnalysisResult> getStatistics() {
-        return Optional.ofNullable(statistics);
+    public Optional<DatabaseAnalysisResult> getQueryStatistics() {
+        return Optional.ofNullable(queryStatistics);
     }
 
 }
