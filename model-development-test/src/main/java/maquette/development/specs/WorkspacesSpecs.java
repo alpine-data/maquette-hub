@@ -120,6 +120,8 @@ public abstract class WorkspacesSpecs {
      */
     @Test
     public void workspaceInfrastructureAutoInfraError() throws ExecutionException, InterruptedException {
+        // TODO bn: this doesn't belong to the standard maquette testing. Testing of failed auto-infra port
+        // should be implemented as a separate test suite in mars
         // Given
         auto_infrastructure_is_throwing_an_error(true);
         steps.$_creates_a_workspace_with_name_$(context.users.bob, "autoInfraError");
