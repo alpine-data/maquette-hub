@@ -46,7 +46,7 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
     }
 
     @Override
-    protected void throw_error_in_auto_infra(Boolean throwError) {
+    protected void auto_infrastructure_is_throwing_an_error(Boolean throwError) {
         // not needed
     }
 

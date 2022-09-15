@@ -121,9 +121,9 @@ public abstract class WorkspacesSpecs {
     @Test
     public void workspaceInfrastructureAutoInfraError() throws ExecutionException, InterruptedException {
         // Given
-        throw_error_in_auto_infra(true);
+        auto_infrastructure_is_throwing_an_error(true);
         steps.$_creates_a_workspace_with_name_$(context.users.bob, "autoInfraError");
-        throw_error_in_auto_infra(false);
+        auto_infrastructure_is_throwing_an_error(false);
         steps.$_creates_a_workspace_with_name_$(context.users.bob, "noError");
 
         // When
@@ -340,5 +340,5 @@ public abstract class WorkspacesSpecs {
                                                        String workspaceName,
                                                        String workspaceId);
 
-    protected abstract void throw_error_in_auto_infra(Boolean throwError);
+    protected abstract void auto_infrastructure_is_throwing_an_error(Boolean throwError);
 }
