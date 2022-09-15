@@ -41,7 +41,7 @@ public interface DataAssetProvider {
      * @return The default settings.
      */
     default DataAssetSettings getDefaultSettings() {
-        return new DataAssetSettings() {};
+        return NoDataAssetSettings.apply();
     }
 
     /**
@@ -50,7 +50,7 @@ public interface DataAssetProvider {
      * @return The settings type of this provider.
      */
     default Class<? extends DataAssetSettings> getSettingsType() {
-        return DataAssetSettings.class;
+        return NoDataAssetSettings.class;
     }
 
     /**
