@@ -12,10 +12,10 @@ import maquette.development.values.model.ModelVersionState;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class Approved implements ModelVersionEvent, StateChangedEvent {
 
-   ActionMetadata created;
+    ActionMetadata created;
 
-   @Override
-   public ModelVersionState getState() {
-      return ModelVersionState.APPROVED;
-   }
+    @Override
+    public ModelVersionState getState() {
+        return ModelVersionState.APPROVED;
+    }
 }

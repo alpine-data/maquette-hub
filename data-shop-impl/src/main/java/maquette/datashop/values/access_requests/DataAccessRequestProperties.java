@@ -68,7 +68,9 @@ public final class DataAccessRequestProperties {
 
         List<DataAccessRequestEvent> eventsCopy = events
             .stream()
-            .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
+            .sorted(Comparator
+                .comparing(DataAccessRequestEvent::getEventMoment)
+                .reversed())
             .collect(Collectors.toList());
 
         return new DataAccessRequestProperties(id, created, asset, workspace, eventsCopy, state);
@@ -90,7 +92,11 @@ public final class DataAccessRequestProperties {
 
 
     public DataAccessRequestProperties withEvent(DataAccessRequestEvent event) {
-        if (event.getEventMoment().isBefore(events.get(0).getEventMoment())) {
+        if (event
+            .getEventMoment()
+            .isBefore(events
+                .get(0)
+                .getEventMoment())) {
             throw new IllegalArgumentException("event may not be before previous event");
         }
 

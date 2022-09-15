@@ -22,7 +22,8 @@ public class GetWorkspaceCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .get(user, workspace)
             .thenApply(DataResult::apply);

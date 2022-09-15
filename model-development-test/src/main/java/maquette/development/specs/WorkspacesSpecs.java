@@ -2,7 +2,10 @@ package maquette.development.specs;
 
 import maquette.core.MaquetteRuntime;
 import maquette.development.MaquetteModelDevelopment;
-import maquette.development.ports.*;
+import maquette.development.ports.DataAssetsServicePort;
+import maquette.development.ports.ModelsRepository;
+import maquette.development.ports.SandboxesRepository;
+import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.specs.steps.WorkspaceStepDefinitions;
 import maquette.development.values.EnvironmentType;
@@ -35,7 +38,8 @@ public abstract class WorkspacesSpecs {
         this.context = MaquetteContext.apply();
         this.workspacesRepository = setupWorkspacesRepository();
         this.runtime = MaquetteRuntime.apply();
-        this.runtime.withModule(MaquetteModelDevelopment.apply(
+        this.runtime
+            .withModule(MaquetteModelDevelopment.apply(
                 this.runtime, this.workspacesRepository, setupModelsRepository(),
                 setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort()))
             .initialize(context.system, context.app);
@@ -134,7 +138,6 @@ public abstract class WorkspacesSpecs {
         // Then
         steps.the_output_should_contain("noError");
     }
-
 
 
     /**
@@ -333,8 +336,14 @@ public abstract class WorkspacesSpecs {
     protected void there_is_$_access_request_for_$_data_asset_within_$_workspace(String accessRequestId,
                                                                                  String dataAssetName,
                                                                                  String workspaceName) throws ExecutionException, InterruptedException {
-        var workspace = this.workspacesRepository.findWorkspaceByName(workspaceName).toCompletableFuture().get();
-        create_data_access_request(accessRequestId, dataAssetName, workspaceName, workspace.get().getId().getValue());
+        var workspace = this.workspacesRepository
+            .findWorkspaceByName(workspaceName)
+            .toCompletableFuture()
+            .get();
+        create_data_access_request(accessRequestId, dataAssetName, workspaceName, workspace
+            .get()
+            .getId()
+            .getValue());
     }
 
     protected abstract void create_data_access_request(String accessRequestId,

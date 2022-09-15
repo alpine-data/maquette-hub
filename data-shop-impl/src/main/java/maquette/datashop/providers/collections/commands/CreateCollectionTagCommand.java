@@ -20,26 +20,26 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateCollectionTagCommand implements Command {
 
-   String collection;
+    String collection;
 
-   String tag;
+    String tag;
 
-   String message;
+    String message;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getProviders()
-         .getByType(Collections.class)
-         .getServices()
-         .tag(user, collection, tag, message)
-         .thenApply(pid -> MessageResult.create("Successfully created tag `%s` on collection.", tag, collection));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getProviders()
+            .getByType(Collections.class)
+            .getServices()
+            .tag(user, collection, tag, message)
+            .thenApply(pid -> MessageResult.create("Successfully created tag `%s` on collection.", tag, collection));
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-collection", "tag", Operators.lorem());
-   }
+    @Override
+    public Command example() {
+        return apply("some-collection", "tag", Operators.lorem());
+    }
 
 }

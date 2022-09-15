@@ -10,11 +10,11 @@ import java.nio.file.Path;
 @AllArgsConstructor(staticName = "apply")
 public class FileSystemRepositoryConfiguration {
 
-   Path directory;
+    Path directory;
 
-   public static FileSystemRepositoryConfiguration apply(Config config) {
-      var path = config.getString("directory");
-      return apply(Path.of(path));
-   }
+    public static FileSystemRepositoryConfiguration apply(Config config) {
+        var path = config.getString("directory");
+        return apply(Path.of(path));
+    }
 
 }

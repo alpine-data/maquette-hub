@@ -67,7 +67,10 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
             .values()
             .stream()
             .map(p -> p.properties)
-            .filter(p -> p.getMetadata().getName().equals(name))
+            .filter(p -> p
+                .getMetadata()
+                .getName()
+                .equals(name))
             .findFirst();
 
         return CompletableFuture.completedFuture(result);
@@ -75,28 +78,36 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
 
     @Override
     public CompletionStage<Optional<DataAssetProperties>> findDataAssetById(UID id) {
-        var result = Optional.ofNullable(store.get(id)).map(p -> p.properties);
+        var result = Optional
+            .ofNullable(store.get(id))
+            .map(p -> p.properties);
         return CompletableFuture.completedFuture(result);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> CompletionStage<Optional<T>> fetchCustomSettings(UID id, Class<T> expectedType) {
-        var result = Optional.ofNullable(store.get(id)).flatMap(p -> Optional.ofNullable((T) p.customSettings));
+        var result = Optional
+            .ofNullable(store.get(id))
+            .flatMap(p -> Optional.ofNullable((T) p.customSettings));
         return CompletableFuture.completedFuture(result);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> CompletionStage<Optional<T>> fetchCustomProperties(UID id, Class<T> expectedType) {
-        var result = Optional.ofNullable(store.get(id)).flatMap(p -> Optional.ofNullable((T) p.customProperties));
+        var result = Optional
+            .ofNullable(store.get(id))
+            .flatMap(p -> Optional.ofNullable((T) p.customProperties));
         return CompletableFuture.completedFuture(result);
     }
 
     @Override
     public CompletionStage<Done> insertOrUpdateDataAsset(DataAssetProperties updated) {
         if (store.containsKey(updated.getId())) {
-            store.put(updated.getId(), store.get(updated.getId()).withProperties(updated));
+            store.put(updated.getId(), store
+                .get(updated.getId())
+                .withProperties(updated));
         } else {
             store.put(updated.getId(), DataAssetPersisted.apply(updated));
         }
@@ -116,7 +127,10 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
 
     @Override
     public CompletionStage<Stream<DataAssetProperties>> listDataAssets() {
-        return CompletableFuture.completedFuture(store.values().stream().map(a -> a.properties));
+        return CompletableFuture.completedFuture(store
+            .values()
+            .stream()
+            .map(a -> a.properties));
     }
 
     @Override
@@ -127,7 +141,8 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
 
     @Override
     public CompletionStage<Optional<DataAccessRequestProperties>> findDataAccessRequestById(UID asset, UID request) {
-        var result = Optional.ofNullable(store.get(asset))
+        var result = Optional
+            .ofNullable(store.get(asset))
             .flatMap(a -> Optional.ofNullable(a.accessRequests.get(request)));
         return CompletableFuture.completedFuture(result);
     }
@@ -145,8 +160,12 @@ public final class InMemoryDataAssetsRepository implements DataAssetsRepository 
         var result = store
             .values()
             .stream()
-            .flatMap(asset -> asset.accessRequests.values().stream())
-            .filter(request -> request.getWorkspace().equals(workspace))
+            .flatMap(asset -> asset.accessRequests
+                .values()
+                .stream())
+            .filter(request -> request
+                .getWorkspace()
+                .equals(workspace))
             .collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(result);

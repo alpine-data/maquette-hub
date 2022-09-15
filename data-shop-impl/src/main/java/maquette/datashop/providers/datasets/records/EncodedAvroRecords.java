@@ -29,7 +29,10 @@ final class EncodedAvroRecords implements Records {
     private final List<ByteString> data;
 
     InputStream asInputStream() {
-        List<ByteBuffer> buffers = data.stream().map(ByteString::asByteBuffer).collect(Collectors.toList());
+        List<ByteBuffer> buffers = data
+            .stream()
+            .map(ByteString::asByteBuffer)
+            .collect(Collectors.toList());
         return new ByteBufferInputStream(buffers);
     }
 
@@ -57,7 +60,9 @@ final class EncodedAvroRecords implements Records {
 
     @Override
     public Source<ByteBuffer, NotUsed> getSource() {
-        return Source.from(getBytes()).map(ByteString::asByteBuffer);
+        return Source
+            .from(getBytes())
+            .map(ByteString::asByteBuffer);
     }
 
     @Override
@@ -78,7 +83,10 @@ final class EncodedAvroRecords implements Records {
 
     private DataFileStream<GenericRecord> getDataFileStream() {
         return Operators.suppressExceptions(() -> {
-            List<ByteBuffer> buffers = data.stream().map(ByteString::asByteBuffer).collect(Collectors.toList());
+            List<ByteBuffer> buffers = data
+                .stream()
+                .map(ByteString::asByteBuffer)
+                .collect(Collectors.toList());
             DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
             return new DataFileStream<>(new ByteBufferInputStream(buffers), datumReader);
         });

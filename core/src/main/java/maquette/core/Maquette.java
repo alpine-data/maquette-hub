@@ -86,13 +86,24 @@ public final class Maquette {
          */
         server = MaquetteServer.apply(runtime);
         server.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+        Runtime
+            .getRuntime()
+            .addShutdownHook(new Thread(this::stop));
 
         var map = Maps.<String, Object>newHashMap();
-        map.put("version", runtime.getConfig().getVersion());
-        map.put("environment", runtime.getConfig().getEnvironment());
-        var banner = Templates.renderTemplateFromResources(runtime.getConfig().getCore().getBanner(), map);
-        LOG.info("{} has started {}", runtime.getConfig().getName(), banner);
+        map.put("version", runtime
+            .getConfig()
+            .getVersion());
+        map.put("environment", runtime
+            .getConfig()
+            .getEnvironment());
+        var banner = Templates.renderTemplateFromResources(runtime
+            .getConfig()
+            .getCore()
+            .getBanner(), map);
+        LOG.info("{} has started {}", runtime
+            .getConfig()
+            .getName(), banner);
 
         return this;
     }
@@ -108,14 +119,18 @@ public final class Maquette {
             this.server = null;
         }
 
-        runtime.getModules().forEach(module -> {
-            LOG.info("Stopping module {}", module.getName());
-            module.stop();
-        });
+        runtime
+            .getModules()
+            .forEach(module -> {
+                LOG.info("Stopping module {}", module.getName());
+                module.stop();
+            });
 
         if (this.runtime.getSystem() != null) {
             Operators.suppressExceptions(() -> FutureConverters
-                .asJava(this.runtime.getSystem().terminate())
+                .asJava(this.runtime
+                    .getSystem()
+                    .terminate())
                 .toCompletableFuture()
                 .get());
         }

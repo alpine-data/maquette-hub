@@ -20,7 +20,9 @@ public final class RegExStringValidator implements Validator<String> {
 
     @Override
     public boolean validate(ValidationContext context, String fieldName, String value) {
-        if (Objects.isNull(value) || !regex.matcher(value).matches()) {
+        if (Objects.isNull(value) || !regex
+            .matcher(value)
+            .matches()) {
             context.addErrorMessage("`%s` is not valid. The value must match the following regex `%s`.", fieldName,
                 pattern);
         }

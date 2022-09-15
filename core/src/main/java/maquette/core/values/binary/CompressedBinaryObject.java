@@ -13,75 +13,77 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public final class CompressedBinaryObject implements BinaryObject {
 
-   private final BinaryObject object;
+    private final BinaryObject object;
 
-   static CompressedBinaryObject fromFile(Path file) {
-      return Operators.suppressExceptions(() -> {
-         var zipFile = Files.createTempFile("mq", ".zip");
-         Files.delete(zipFile);
+    static CompressedBinaryObject fromFile(Path file) {
+        return Operators.suppressExceptions(() -> {
+            var zipFile = Files.createTempFile("mq", ".zip");
+            Files.delete(zipFile);
 
-         var zip = new ZipFile(zipFile.toFile());
-         zip.addFile(file.toFile());
+            var zip = new ZipFile(zipFile.toFile());
+            zip.addFile(file.toFile());
 
-         var object = ByteArrayBinaryObject.fromFile(zipFile);
-         Files.delete(zipFile);
+            var object = ByteArrayBinaryObject.fromFile(zipFile);
+            Files.delete(zipFile);
 
-         return CompressedBinaryObject.apply(object);
-      });
-   }
+            return CompressedBinaryObject.apply(object);
+        });
+    }
 
-   static CompressedBinaryObject fromDirectory(Path directory) {
-      return Operators.suppressExceptions(() -> {
-         var zipFile = Files.createTempFile("mq", ".zip");
-         Files.delete(zipFile);
+    static CompressedBinaryObject fromDirectory(Path directory) {
+        return Operators.suppressExceptions(() -> {
+            var zipFile = Files.createTempFile("mq", ".zip");
+            Files.delete(zipFile);
 
-         var zip = new ZipFile(zipFile.toFile());
-         Files
-            .list(directory)
-            .forEach(path -> Operators.suppressExceptions(() -> {
-               if (Files.isDirectory(path)) {
-                  zip.addFolder(path.toFile());
-               } else {
-                  zip.addFile(path.toFile());
-               }
-            }));
+            var zip = new ZipFile(zipFile.toFile());
+            Files
+                .list(directory)
+                .forEach(path -> Operators.suppressExceptions(() -> {
+                    if (Files.isDirectory(path)) {
+                        zip.addFolder(path.toFile());
+                    } else {
+                        zip.addFile(path.toFile());
+                    }
+                }));
 
-         var object = ByteArrayBinaryObject.fromFile(zipFile);
-         Files.delete(zipFile);
+            var object = ByteArrayBinaryObject.fromFile(zipFile);
+            Files.delete(zipFile);
 
-         return CompressedBinaryObject.apply(object);
-      });
-   }
+            return CompressedBinaryObject.apply(object);
+        });
+    }
 
-   @Override
-   public FileSize getSize() {
-      return object.getSize();
-   }
+    @Override
+    public FileSize getSize() {
+        return object.getSize();
+    }
 
-   @Override
-   public CompletionStage<Done> toFile(Path file) {
-      return Operators.suppressExceptions(() -> {
-         var zipFile = Files.createTempFile("mq", ".zip");
-         Files.delete(zipFile);
+    @Override
+    public CompletionStage<Done> toFile(Path file) {
+        return Operators.suppressExceptions(() -> {
+            var zipFile = Files.createTempFile("mq", ".zip");
+            Files.delete(zipFile);
 
-         return object
-            .toFile(zipFile)
-            .thenApply(done -> {
-               var zip = new ZipFile(zipFile.toFile());
+            return object
+                .toFile(zipFile)
+                .thenApply(done -> {
+                    var zip = new ZipFile(zipFile.toFile());
 
-               Operators.suppressExceptions(() -> {
-                  zip.extractAll(file.toFile().getAbsolutePath());
-                  Files.deleteIfExists(zipFile);
-               });
+                    Operators.suppressExceptions(() -> {
+                        zip.extractAll(file
+                            .toFile()
+                            .getAbsolutePath());
+                        Files.deleteIfExists(zipFile);
+                    });
 
-               return Done.getInstance();
-            });
-      });
-   }
+                    return Done.getInstance();
+                });
+        });
+    }
 
-   @Override
-   public InputStream toInputStream() {
-      return object.toInputStream();
-   }
+    @Override
+    public InputStream toInputStream() {
+        return object.toInputStream();
+    }
 
 }

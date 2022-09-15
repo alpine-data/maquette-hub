@@ -1,7 +1,6 @@
 package maquette.datashop.databind;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.apache.avro.Schema;
@@ -17,7 +16,12 @@ public final class SchemaDeserializer extends StdDeserializer<Schema> {
 
     @Override
     public Schema deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return new Schema.Parser().setValidate(true).parse(p.getCodec().readTree(p).toString());
+        return new Schema.Parser()
+            .setValidate(true)
+            .parse(p
+                .getCodec()
+                .readTree(p)
+                .toString());
     }
 
 }

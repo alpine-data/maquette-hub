@@ -10,13 +10,10 @@ import maquette.core.server.commands.TableResult;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.values.WorkspaceProperties;
-import tech.tablesaw.api.DateTimeColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -33,12 +30,17 @@ public class ListWorkspacesCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .list(user)
             .thenApply(workspaces -> workspaces
                 .stream()
-                .sorted(Comparator.<WorkspaceProperties, Instant>comparing(wks -> wks.getModified().getAt()).reversed())
+                .sorted(Comparator
+                    .<WorkspaceProperties, Instant>comparing(wks -> wks
+                        .getModified()
+                        .getAt())
+                    .reversed())
                 .collect(Collectors.toList()))
             .thenApply(workspaces -> {
                 var table = Table
@@ -53,9 +55,13 @@ public class ListWorkspacesCommand implements Command {
                     var row = table.appendRow();
                     row.setString(NAME, p.getName());
                     row.setString(TITLE, p.getTitle());
-                    row.setString(MODIFIED, Operators.toRelativeTimeString(p.getModified().getAt()));
+                    row.setString(MODIFIED, Operators.toRelativeTimeString(p
+                        .getModified()
+                        .getAt()));
                     row.setString(SUMMARY, p.getSummary());
-                    row.setString(ID, p.getId().getValue());
+                    row.setString(ID, p
+                        .getId()
+                        .getValue());
                 });
 
                 return TableResult.apply(table.sortOn(NAME), workspaces);

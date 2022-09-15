@@ -19,7 +19,8 @@ public class ListSandboxesCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getSandboxServices()
             .getSandboxes(user, workspace)
             .thenApply(DataResult::apply);

@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ModelVersionState {
 
-   REGISTERED("registered"), REVIEW_REQUESTED("requested"), APPROVED("approved"), REJECTED("rejected");
+    REGISTERED("registered"), REVIEW_REQUESTED("requested"), APPROVED("approved"), REJECTED("rejected");
 
-   private final String value;
+    private final String value;
 
-   ModelVersionState(String value) {
-      this.value = value;
-   }
+    ModelVersionState(String value) {
+        this.value = value;
+    }
 
-   @JsonValue
-   public String getValue() {
-      return value;
-   }
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 }

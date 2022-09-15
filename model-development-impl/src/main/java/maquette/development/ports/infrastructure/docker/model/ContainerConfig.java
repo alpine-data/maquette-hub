@@ -62,7 +62,9 @@ public class ContainerConfig {
     }
 
     public String getHostName() {
-        return Optional.ofNullable(hostName).orElse(name);
+        return Optional
+            .ofNullable(hostName)
+            .orElse(name);
     }
 
     public Optional<String> getMemory() {

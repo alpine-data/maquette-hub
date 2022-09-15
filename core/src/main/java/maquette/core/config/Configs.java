@@ -142,13 +142,18 @@ public final class Configs {
      */
     public static Map<String, String> asMap(Config config) {
         Map<String, String> configs = Maps.newLinkedHashMap();
-        config.entrySet().forEach(entry -> {
-            try {
-                configs.put(entry.getKey(), entry.getValue().unwrapped().toString());
-            } catch (ConfigException.NotResolved e) {
-                configs.put(entry.getKey(), "<Not Resolved>");
-            }
-        });
+        config
+            .entrySet()
+            .forEach(entry -> {
+                try {
+                    configs.put(entry.getKey(), entry
+                        .getValue()
+                        .unwrapped()
+                        .toString());
+                } catch (ConfigException.NotResolved e) {
+                    configs.put(entry.getKey(), "<Not Resolved>");
+                }
+            });
         return configs;
     }
 
@@ -173,11 +178,20 @@ public final class Configs {
         StringBuilder sb = new StringBuilder();
         Map<String, String> configs = asMap(config);
 
-        for (String key : configs.keySet().stream().sorted().collect(Collectors.toList())) {
+        for (String key : configs
+            .keySet()
+            .stream()
+            .sorted()
+            .collect(Collectors.toList())) {
             var value = configs.get(key);
 
-            if (obfuscated && (key.toLowerCase().contains("password") || key.toLowerCase()
-                .contains("secret")) || key.toLowerCase().contains("pwd")) {
+            if (obfuscated && (key
+                .toLowerCase()
+                .contains("password") || key
+                .toLowerCase()
+                .contains("secret")) || key
+                .toLowerCase()
+                .contains("pwd")) {
                 value = "***";
             }
 
@@ -233,44 +247,75 @@ public final class Configs {
                         final String configPath = valueAnnotation != null ? valueAnnotation.value() : field.getName();
                         Optional<Object> value = Optional.empty();
 
-                        if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
+                        if (field
+                            .getType()
+                            .equals(Boolean.class) || field
+                            .getType()
+                            .equals(boolean.class)) {
                             // Boolean, boolean
                             value = Optional.of(config.getBoolean(configPath));
                         } else if (Config.class.isAssignableFrom(field.getType())) {
                             // Config object
                             value = Optional.of(config.getConfig(configPath));
-                        } else if (field.getType().equals(Double.class) || field.getType().equals(double.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Double.class) || field
+                            .getType()
+                            .equals(double.class)) {
                             // Double, double
                             value = Optional.of(config.getDouble(configPath));
-                        } else if (field.getType().equals(Duration.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Duration.class)) {
                             // Duration
                             value = Optional.of(config.getDuration(configPath));
-                        } else if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Integer.class) || field
+                            .getType()
+                            .equals(int.class)) {
                             // Integer, int
                             value = Optional.of(config.getInt(configPath));
-                        } else if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Long.class) || field
+                            .getType()
+                            .equals(long.class)) {
                             // Long, long
                             value = Optional.of(config.getLong(configPath));
-                        } else if (field.getType().equals(Object.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Object.class)) {
                             // Object
                             value = Optional.of(config.getAnyRef(configPath));
-                        } else if (field.getType().equals(Number.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Number.class)) {
                             // Number
                             value = Optional.of(config.getNumber(configPath));
-                        } else if (field.getType().equals(Period.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(Period.class)) {
                             // Period
                             value = Optional.of(config.getPeriod(configPath));
-                        } else if (field.getType().equals(String.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(String.class)) {
                             // String
                             value = Optional.of(config.getString(configPath));
-                        } else if (field.getType().equals(TemporalAmount.class)) {
+                        } else if (field
+                            .getType()
+                            .equals(TemporalAmount.class)) {
                             // TemporalAmount
                             value = Optional.of(config.getTemporal(configPath));
-                        } else if (field.getType().getAnnotation(ConfigurationProperties.class) != null) {
+                        } else if (field
+                            .getType()
+                            .getAnnotation(ConfigurationProperties.class) != null) {
                             // Any type annotated with ConfigurationProperties
                             value = Optional.of(Configs.mapToConfigClass(field.getType(),
                                 config.getConfig(configPath)));
-                        } else if (field.getType()
+                        } else if (field
+                            .getType()
                             .equals(List.class) && field.getGenericType() instanceof ParameterizedType) {
                             // Lists
                             Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
@@ -302,7 +347,8 @@ public final class Configs {
                             } else if (genericType.equals(String.class)) {
                                 // List<String>
                                 value = Optional.of(ImmutableList.copyOf(config.getStringList(configPath)));
-                            } else if (genericType instanceof Class && ((Class<?>) genericType).getAnnotation(ConfigurationProperties.class) != null) {
+                            } else if (genericType instanceof Class && ((Class<?>) genericType).getAnnotation(
+                                ConfigurationProperties.class) != null) {
                                 value = Optional.of(ImmutableList.copyOf(config
                                     .getConfigList(configPath)
                                     .stream()
@@ -316,7 +362,9 @@ public final class Configs {
                         } else {
                             LOG.warn(String.format("Field '%s.%s' has unknown type for configuration: %s",
                                 configClass.getSimpleName(), field
-                                    .getName(), field.getType().getName()));
+                                    .getName(), field
+                                    .getType()
+                                    .getName()));
                         }
 
                         if (value.isPresent()) {
@@ -332,21 +380,27 @@ public final class Configs {
                                 LOG.warn(String.format(
                                     "Could not write field '%s' in config object of type '%s.",
                                     field.getName(),
-                                    config.getClass().getName()));
+                                    config
+                                        .getClass()
+                                        .getName()));
                             }
                         } else {
                             LOG.warn(String.format(
                                 "No value found for field '%s' with config path '%s' for class '%s'",
                                 field.getName(),
                                 configPath,
-                                configObject.getClass().getSimpleName()));
+                                configObject
+                                    .getClass()
+                                    .getSimpleName()));
                         }
                     } catch (ConfigException.Missing e) {
                         if (field.getAnnotationsByType(maquette.core.config.annotations.Optional.class).length == 0) {
                             LOG.error(String.format(
                                 "No value found for field '%s' for class '%s'",
                                 field.getName(),
-                                configObject.getClass().getSimpleName()), e);
+                                configObject
+                                    .getClass()
+                                    .getSimpleName()), e);
 
                             throw e;
                         }
@@ -354,7 +408,9 @@ public final class Configs {
                         LOG.error(String.format(
                             "Exception occurred while fetching field '%s' for class '%s'",
                             field.getName(),
-                            configObject.getClass().getSimpleName()), e);
+                            configObject
+                                .getClass()
+                                .getSimpleName()), e);
 
                         throw new RuntimeException(e);
                     }
@@ -425,7 +481,9 @@ public final class Configs {
          * @return A new {@link ConfigBuilder} instance
          */
         public ConfigBuilder withResource(String resourceFileName) {
-            if (this.getClass().getResource(String.format("/%s", resourceFileName)) != null) {
+            if (this
+                .getClass()
+                .getResource(String.format("/%s", resourceFileName)) != null) {
                 LOG.info(String.format("Loading configuration from resource file '%s'", resourceFileName));
                 return withOverwrites(ConfigFactory.parseResources(resourceFileName));
             } else {

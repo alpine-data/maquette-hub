@@ -21,31 +21,31 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateRevisionCommand implements Command {
 
-   String dataset;
+    String dataset;
 
-   Schema schema;
+    Schema schema;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-          .getModule(MaquetteDataShop.class)
-          .getProviders()
-          .getByType(Datasets.class)
-          .getServices()
-          .create(user, dataset, schema)
-          .thenApply(DataResult::apply);
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getProviders()
+            .getByType(Datasets.class)
+            .getServices()
+            .create(user, dataset, schema)
+            .thenApply(DataResult::apply);
+    }
 
-   @Override
-   public Command example() {
-      return CreateRevisionCommand.apply(
-         "some-dataset",
-         SchemaBuilder
-            .record("Test")
-            .fields()
-            .requiredLong("id")
-            .requiredString("color")
-            .optionalDouble("price")
-            .endRecord());
-   }
+    @Override
+    public Command example() {
+        return CreateRevisionCommand.apply(
+            "some-dataset",
+            SchemaBuilder
+                .record("Test")
+                .fields()
+                .requiredLong("id")
+                .requiredString("color")
+                .optionalDouble("price")
+                .endRecord());
+    }
 }

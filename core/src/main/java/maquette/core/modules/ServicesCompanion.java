@@ -46,13 +46,16 @@ public class ServicesCompanion {
         if (checks.isEmpty()) {
             return CompletableFuture.completedFuture(Optional.empty());
         } else {
-            return checks.get(0).get().thenCompose(r -> {
-                if (r) {
-                    return CompletableFuture.completedFuture(Optional.of(passThrough));
-                } else {
-                    return filterAuthorized(passThrough, checks.subList(1, checks.size()));
-                }
-            });
+            return checks
+                .get(0)
+                .get()
+                .thenCompose(r -> {
+                    if (r) {
+                        return CompletableFuture.completedFuture(Optional.of(passThrough));
+                    } else {
+                        return filterAuthorized(passThrough, checks.subList(1, checks.size()));
+                    }
+                });
         }
     }
 

@@ -29,7 +29,8 @@ public class AnswerModelQuestionnaireCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .answerQuestionnaire(user, workspace, model, version, answers)
             .thenApply(pid -> MessageResult.apply("Successfully submitted questionnaire answers."));

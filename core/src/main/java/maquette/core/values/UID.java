@@ -38,7 +38,11 @@ public class UID {
     }
 
     public static UID apply(int length) {
-        String random = UUID.randomUUID().toString().replace("-", "").substring(0, length);
+        String random = UUID
+            .randomUUID()
+            .toString()
+            .replace("-", "")
+            .substring(0, length);
         return apply(random);
     }
 

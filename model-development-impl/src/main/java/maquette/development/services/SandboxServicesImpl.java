@@ -32,8 +32,6 @@ public final class SandboxServicesImpl implements SandboxServices {
 
     private final WorkspaceEntities workspaces;
 
-    private final WorkspaceServices workspaceServices;
-
     private final UserEntities users;
 
     @Override
@@ -45,43 +43,51 @@ public final class SandboxServicesImpl implements SandboxServices {
             .getWorkspaceByName(workspace)
             .thenCompose(wks -> sandboxes.createSandbox(user, wks.getId(), UID.apply(), name, comment))
             .thenCompose(sdbx -> sandboxes.getSandboxById(sdbx.getWorkspace(), sdbx.getId()))
-            .thenCompose(sdbx -> sdbx.addStacks(stacks).thenCompose(d -> sdbx.getProperties()));
+            .thenCompose(sdbx -> sdbx
+                .addStacks(stacks)
+                .thenCompose(d -> sdbx.getProperties()));
     }
 
     @Override
     public CompletionStage<UserAuthenticationToken> getAuthenticationToken(
         UID workspaceId, UID sandboxId, String stackHash) {
 
-        return sandboxes.getSandboxById(workspaceId, sandboxId).thenCompose(sdbx -> {
-            var parametersCS = sdbx.getStackInstanceParameters(EnvironmentType.SANDBOX);
-            var userCS = sdbx.getProperties()
-                .thenApply(properties -> properties.getCreated().getBy())
-                .thenCompose(userId -> users.getUserById(UID.apply(userId)));
+        return sandboxes
+            .getSandboxById(workspaceId, sandboxId)
+            .thenCompose(sdbx -> {
+                var parametersCS = sdbx.getStackInstanceParameters(EnvironmentType.SANDBOX);
+                var userCS = sdbx
+                    .getProperties()
+                    .thenApply(properties -> properties
+                        .getCreated()
+                        .getBy())
+                    .thenCompose(userId -> users.getUserById(UID.apply(userId)));
 
-            return Operators
-                .compose(parametersCS, userCS, (parameters, user) -> {
-                    var containsHash = false;
+                return Operators
+                    .compose(parametersCS, userCS, (parameters, user) -> {
+                        var containsHash = false;
 
-                    for (var stackInstanceName : parameters.keySet()) {
-                        var p = parameters
-                            .get(stackInstanceName)
-                            .getParametersDecoded()
-                            .getOrDefault(StackConfiguration.PARAM_STACK_TOKEN, null);
+                        for (var stackInstanceName : parameters.keySet()) {
+                            var p = parameters
+                                .get(stackInstanceName)
+                                .getParametersDecoded()
+                                .getOrDefault(StackConfiguration.PARAM_STACK_TOKEN, null);
 
-                        if (p != null && p.equals(stackHash)) {
-                            containsHash = true;
-                            break;
+                            if (p != null && p.equals(stackHash)) {
+                                containsHash = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if (containsHash) {
-                        return user.getAuthenticationToken();
-                    } else {
-                        return CompletableFuture.<UserAuthenticationToken>failedFuture(InvalidStackHashException.apply(workspaceId, sandboxId, stackHash));
-                    }
-                })
-                .thenCompose(cs -> cs);
-        });
+                        if (containsHash) {
+                            return user.getAuthenticationToken();
+                        } else {
+                            return CompletableFuture.<UserAuthenticationToken>failedFuture(
+                                InvalidStackHashException.apply(workspaceId, sandboxId, stackHash));
+                        }
+                    })
+                    .thenCompose(cs -> cs);
+            });
     }
 
     @Override
@@ -96,12 +102,16 @@ public final class SandboxServicesImpl implements SandboxServices {
 
     @Override
     public CompletionStage<List<StackProperties>> getStacks(User user) {
-        return CompletableFuture.completedFuture(Stacks.apply().getStacks());
+        return CompletableFuture.completedFuture(Stacks
+            .apply()
+            .getStacks());
     }
 
     @Override
     public CompletionStage<List<SandboxProperties>> getSandboxes(User user, String workspace) {
-        return workspaces.getWorkspaceByName(workspace).thenCompose(wks -> sandboxes.listSandboxes(wks.getId()));
+        return workspaces
+            .getWorkspaceByName(workspace)
+            .thenCompose(wks -> sandboxes.listSandboxes(wks.getId()));
     }
 
     @Override
@@ -111,7 +121,8 @@ public final class SandboxServicesImpl implements SandboxServices {
 
     private <T> CompletionStage<T> withSandboxByName(String workspace, String sandbox, BiFunction<WorkspaceEntity,
         SandboxEntity, CompletionStage<T>> func) {
-        return workspaces.getWorkspaceByName(workspace)
+        return workspaces
+            .getWorkspaceByName(workspace)
             .thenCompose(project -> sandboxes
                 .getSandboxByName(project.getId(), sandbox)
                 .thenCompose(sdbx -> func.apply(project, sdbx)));

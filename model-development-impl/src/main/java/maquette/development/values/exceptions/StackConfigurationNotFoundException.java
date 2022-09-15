@@ -5,13 +5,13 @@ import maquette.core.values.UID;
 
 public final class StackConfigurationNotFoundException extends ApplicationException {
 
-   private StackConfigurationNotFoundException(String message) {
-      super(message);
-   }
+    private StackConfigurationNotFoundException(String message) {
+        super(message);
+    }
 
-   public static StackConfigurationNotFoundException applyFromId(UID id) {
-      String msg = String.format("StackConfiguration with id `%s` was not found.", id);
-      return new StackConfigurationNotFoundException(msg);
-   }
+    public static StackConfigurationNotFoundException applyFromId(UID id) {
+        String msg = String.format("StackConfiguration with id `%s` was not found.", id);
+        return new StackConfigurationNotFoundException(msg);
+    }
 
 }

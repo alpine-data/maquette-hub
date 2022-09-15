@@ -8,12 +8,12 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class RegisteredModel {
 
-   private String name;
+    private String name;
 
-   @JsonProperty("creation_timestamp")
-   private long creationTimestamp;
+    @JsonProperty("creation_timestamp")
+    private long creationTimestamp;
 
-   @JsonProperty("last_updated_timestamp")
-   private long lastUpdatedTimestamp;
+    @JsonProperty("last_updated_timestamp")
+    private long lastUpdatedTimestamp;
 
 }

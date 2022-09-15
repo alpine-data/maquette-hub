@@ -42,7 +42,9 @@ public final class DockerContainer {
             .withShowAll(true)
             .exec()
             .stream()
-            .filter(container -> container.getId().equals(containerId))
+            .filter(container -> container
+                .getId()
+                .equals(containerId))
             .findFirst();
     }
 
@@ -53,7 +55,9 @@ public final class DockerContainer {
     public CompletionStage<ContainerStatus> getStatus() {
         var result = getContainer()
             .map(container -> {
-                var status = container.getStatus().toLowerCase();
+                var status = container
+                    .getStatus()
+                    .toLowerCase();
 
                 if (status.contains("up")) {
                     return ContainerStatus.RUNNING;
@@ -64,7 +68,8 @@ public final class DockerContainer {
                 } else {
                     return ContainerStatus.CREATED;
                 }
-            }).orElse(ContainerStatus.STOPPED);
+            })
+            .orElse(ContainerStatus.STOPPED);
 
         return CompletableFuture.completedFuture(result);
     }
@@ -82,32 +87,34 @@ public final class DockerContainer {
     }
 
     public CompletionStage<String> getLogs() {
-        client.logContainerCmd(containerId).exec(new ResultCallback<Frame>() {
-            @Override
-            public void onStart(Closeable closeable) {
+        client
+            .logContainerCmd(containerId)
+            .exec(new ResultCallback<Frame>() {
+                @Override
+                public void onStart(Closeable closeable) {
 
-            }
+                }
 
-            @Override
-            public void onNext(Frame object) {
-                System.out.println(Arrays.toString(object.getPayload()));
-            }
+                @Override
+                public void onNext(Frame object) {
+                    System.out.println(Arrays.toString(object.getPayload()));
+                }
 
-            @Override
-            public void onError(Throwable throwable) {
+                @Override
+                public void onError(Throwable throwable) {
 
-            }
+                }
 
-            @Override
-            public void onComplete() {
+                @Override
+                public void onComplete() {
 
-            }
+                }
 
-            @Override
-            public void close() {
+                @Override
+                public void close() {
 
-            }
-        });
+                }
+            });
 
         return CompletableFuture.completedFuture("");
     }

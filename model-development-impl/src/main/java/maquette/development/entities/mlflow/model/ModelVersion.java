@@ -8,24 +8,24 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ModelVersion {
 
-   private String name;
+    private String name;
 
-   private String version;
+    private String version;
 
-   @JsonProperty("creation_timestamp")
-   private long creationTimestamp;
+    @JsonProperty("creation_timestamp")
+    private long creationTimestamp;
 
-   @JsonProperty("last_updated_timestamp")
-   private long lastUpdatedTimestamp;
+    @JsonProperty("last_updated_timestamp")
+    private long lastUpdatedTimestamp;
 
-   @JsonProperty("current_stage")
-   private String currentStage;
+    @JsonProperty("current_stage")
+    private String currentStage;
 
-   private String description;
+    private String description;
 
-   @JsonProperty("run_id")
-   private String runId;
+    @JsonProperty("run_id")
+    private String runId;
 
-   private String source;
+    private String source;
 
 }

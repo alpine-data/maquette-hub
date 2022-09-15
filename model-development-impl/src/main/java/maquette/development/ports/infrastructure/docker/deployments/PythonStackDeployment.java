@@ -56,7 +56,9 @@ public class PythonStackDeployment implements StackDeployment {
 
         var version = "3.8";
 
-        if (configuration.getVersion().equals("310")) {
+        if (configuration
+            .getVersion()
+            .equals("310")) {
             version = "3.10";
         }
 
@@ -84,13 +86,18 @@ public class PythonStackDeployment implements StackDeployment {
 
     @Override
     public CompletionStage<StackInstanceParameters> getInstanceParameters(Deployment deployment) {
-        return deployment.getContainer(this.getStackInstanceName()).getMappedPortUrls().thenApply(ports -> {
-            var params = Maps.<String, String>newHashMap();
-            params.put(StackConfiguration.PARAM_STACK_TOKEN, stackHash);
+        return deployment
+            .getContainer(this.getStackInstanceName())
+            .getMappedPortUrls()
+            .thenApply(ports -> {
+                var params = Maps.<String, String>newHashMap();
+                params.put(StackConfiguration.PARAM_STACK_TOKEN, stackHash);
 
-            var url = String.format("%s?token=%s", ports.get(8888).toString(), this.jupyterToken);
-            return StackInstanceParameters.encodeAndCreate(url, "Launch Jupyter Notebook", params);
-        });
+                var url = String.format("%s?token=%s", ports
+                    .get(8888)
+                    .toString(), this.jupyterToken);
+                return StackInstanceParameters.encodeAndCreate(url, "Launch Jupyter Notebook", params);
+            });
     }
 
 

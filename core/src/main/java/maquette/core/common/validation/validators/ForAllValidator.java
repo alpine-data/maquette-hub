@@ -15,7 +15,7 @@ public final class ForAllValidator<T> implements Validator<List<T>> {
     }
 
     @SafeVarargs
-    public static <T> ForAllValidator<T> apply(Validator<? super T> ...validations) {
+    public static <T> ForAllValidator<T> apply(Validator<? super T>... validations) {
         return new ForAllValidator<T>(Arrays.asList(validations));
     }
 

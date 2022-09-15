@@ -84,7 +84,9 @@ public final class DatasetsAPI {
                 .thenCompose(revision -> datasets
                     .getServices()
                     .upload(user, dataset, revision.getId(), records)
-                    .thenCompose(done -> datasets.getServices().commit(user, dataset, revision.getId(), message)))
+                    .thenCompose(done -> datasets
+                        .getServices()
+                        .commit(user, dataset, revision.getId(), message)))
                 .thenApply(committedRevision -> {
                     Operators.suppressExceptions(() -> Files.deleteIfExists(file));
                     return committedRevision;
@@ -117,8 +119,13 @@ public final class DatasetsAPI {
                 .getCommit(user, dataset, DatasetVersion.apply(version))
                 .thenApply(revision -> {
 
-                    if (revision.getStatistics().isPresent()) {
-                        return revision.getStatistics().get().getProfile();
+                    if (revision
+                        .getStatistics()
+                        .isPresent()) {
+                        return revision
+                            .getStatistics()
+                            .get()
+                            .getProfile();
                     } else {
                         return "No profiling data available";
                     }

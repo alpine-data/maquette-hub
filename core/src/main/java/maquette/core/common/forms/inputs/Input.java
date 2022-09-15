@@ -7,26 +7,26 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class Input implements InputControl {
 
-   String name;
+    String name;
 
-   String defaultValue;
+    String defaultValue;
 
-   String placeholder;
+    String placeholder;
 
-   public static Input apply(String name, String defaultValue) {
-      return apply(name, defaultValue, null);
-   }
+    public static Input apply(String name, String defaultValue) {
+        return apply(name, defaultValue, null);
+    }
 
-   public static Input apply(String name) {
-      return apply(name, "");
-   }
+    public static Input apply(String name) {
+        return apply(name, "");
+    }
 
-   public Input withDefaultValue(String value) {
-      return apply(name, value, placeholder);
-   }
+    public Input withDefaultValue(String value) {
+        return apply(name, value, placeholder);
+    }
 
-   public Input withPlaceholder(String placeholder) {
-      return apply(name, defaultValue, placeholder);
-   }
+    public Input withPlaceholder(String placeholder) {
+        return apply(name, defaultValue, placeholder);
+    }
 
 }

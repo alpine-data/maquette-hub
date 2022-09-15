@@ -24,7 +24,9 @@ public final class FakeDataAssetsServicePort implements DataAssetsServicePort {
     private final ObjectMapper om;
 
     public static FakeDataAssetsServicePort apply() {
-        return apply(Lists.newArrayList(), DefaultObjectMapperFactory.apply().createJsonMapper());
+        return apply(Lists.newArrayList(), DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper());
     }
 
     @Override

@@ -21,59 +21,72 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Deployment {
 
-   private final DeploymentConfig config;
+    private final DeploymentConfig config;
 
-   private final List<DockerContainer> containers;
+    private final List<DockerContainer> containers;
 
-   private final Instant created;
+    private final Instant created;
 
-   private DeploymentStatus status;
+    private DeploymentStatus status;
 
-   public static Deployment apply(DeploymentConfig config, List<DockerContainer> containers, Instant created) {
-      return new Deployment(config, List.copyOf(containers), Instant.now(), DeploymentStatus.STARTED);
-   }
+    public static Deployment apply(DeploymentConfig config, List<DockerContainer> containers, Instant created) {
+        return new Deployment(config, List.copyOf(containers), Instant.now(), DeploymentStatus.STARTED);
+    }
 
-   public Optional<DockerContainer> findContainer(String name) {
-      return containers.stream().filter(c -> c.getConfig().getName().equals(name)).findFirst();
-   }
-
-   public DockerContainer getContainer(String name) {
-      return findContainer(name).orElseThrow(() -> new RuntimeException("Container not found ..."));
-   }
-
-   public CompletionStage<DeploymentProperties> getProperties() {
-      return Operators
-         .allOf(containers
+    public Optional<DockerContainer> findContainer(String name) {
+        return containers
             .stream()
-            .map(DockerContainer::getProperties)
-            .collect(Collectors.toList()))
-      .thenApply(containerProperties -> DeploymentProperties.apply(config, containerProperties, created, status));
-   }
+            .filter(c -> c
+                .getConfig()
+                .getName()
+                .equals(name))
+            .findFirst();
+    }
 
-   public CompletionStage<Done> stop() {
-      return Operators
-         .allOf(containers.stream().map(DockerContainer::stop))
-         .thenApply(done -> {
-            status = DeploymentStatus.STOPPED;
-            return Done.getInstance();
-         });
-   }
+    public DockerContainer getContainer(String name) {
+        return findContainer(name).orElseThrow(() -> new RuntimeException("Container not found ..."));
+    }
 
-   public CompletionStage<Done> remove() {
-      return stop()
-          .thenCompose(done -> Operators.allOf(containers.stream().map(DockerContainer::remove)))
-          .thenApply(done -> {
-             return Done.getInstance();
-          });
-   }
+    public CompletionStage<DeploymentProperties> getProperties() {
+        return Operators
+            .allOf(containers
+                .stream()
+                .map(DockerContainer::getProperties)
+                .collect(Collectors.toList()))
+            .thenApply(containerProperties -> DeploymentProperties.apply(config, containerProperties, created, status));
+    }
 
-   public CompletionStage<Done> start() {
-      return Operators
-         .allOf(containers.stream().map(DockerContainer::start).collect(Collectors.toList()))
-         .thenApply(done -> {
-            status = DeploymentStatus.STARTED;
-            return Done.getInstance();
-         });
-   }
+    public CompletionStage<Done> stop() {
+        return Operators
+            .allOf(containers
+                .stream()
+                .map(DockerContainer::stop))
+            .thenApply(done -> {
+                status = DeploymentStatus.STOPPED;
+                return Done.getInstance();
+            });
+    }
+
+    public CompletionStage<Done> remove() {
+        return stop()
+            .thenCompose(done -> Operators.allOf(containers
+                .stream()
+                .map(DockerContainer::remove)))
+            .thenApply(done -> {
+                return Done.getInstance();
+            });
+    }
+
+    public CompletionStage<Done> start() {
+        return Operators
+            .allOf(containers
+                .stream()
+                .map(DockerContainer::start)
+                .collect(Collectors.toList()))
+            .thenApply(done -> {
+                status = DeploymentStatus.STARTED;
+                return Done.getInstance();
+            });
+    }
 
 }

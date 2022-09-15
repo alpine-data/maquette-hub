@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 
 public interface DatasetDataExplorer {
 
-   CompletionStage<AnalysisResult> analyze(String dataset, DatasetVersion version, String authTokenId, String authTokenSecret);
+    CompletionStage<AnalysisResult> analyze(String dataset, DatasetVersion version, String authTokenId,
+                                            String authTokenSecret);
 
 }

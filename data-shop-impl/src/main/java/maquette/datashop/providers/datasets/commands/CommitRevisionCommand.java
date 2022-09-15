@@ -21,25 +21,25 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CommitRevisionCommand implements Command {
 
-   String dataset;
+    String dataset;
 
-   UID revision;
+    UID revision;
 
-   String message;
+    String message;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-          .getModule(MaquetteDataShop.class)
-          .getProviders()
-          .getByType(Datasets.class)
-          .getServices()
-          .commit(user, dataset, revision, message)
-          .thenApply(DataResult::apply);
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getProviders()
+            .getByType(Datasets.class)
+            .getServices()
+            .commit(user, dataset, revision, message)
+            .thenApply(DataResult::apply);
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", UID.apply(), Operators.lorem());
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", UID.apply(), Operators.lorem());
+    }
 }

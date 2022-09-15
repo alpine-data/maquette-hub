@@ -12,14 +12,14 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class CodeQuality {
 
-   Instant checked;
+    Instant checked;
 
-   String commit;
+    String commit;
 
-   int score;
+    int score;
 
-   int testCoverage;
+    int testCoverage;
 
-   List<CodeIssue> issues;
+    List<CodeIssue> issues;
 
 }

@@ -10,21 +10,21 @@ import lombok.Value;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MountedVolume {
 
-   private static final String VOLUME = "volume";
-   private static final String PATH = "path";
+    private static final String VOLUME = "volume";
+    private static final String PATH = "path";
 
-   @JsonProperty(VOLUME)
-   DataVolume volume;
+    @JsonProperty(VOLUME)
+    DataVolume volume;
 
-   @JsonProperty(PATH)
-   String path;
+    @JsonProperty(PATH)
+    String path;
 
-   @JsonCreator
-   public static MountedVolume apply(
-       @JsonProperty(VOLUME) DataVolume volume,
-       @JsonProperty(PATH) String path) {
+    @JsonCreator
+    public static MountedVolume apply(
+        @JsonProperty(VOLUME) DataVolume volume,
+        @JsonProperty(PATH) String path) {
 
-      return new MountedVolume(volume, path);
-   }
+        return new MountedVolume(volume, path);
+    }
 
 }

@@ -4,6 +4,6 @@ import maquette.development.values.model.ModelVersionState;
 
 public interface StateChangedEvent {
 
-   ModelVersionState getState();
+    ModelVersionState getState();
 
 }

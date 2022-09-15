@@ -11,18 +11,18 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public class GitDetails {
 
-   String commit;
+    String commit;
 
-   String transferUrl;
+    String transferUrl;
 
-   boolean isMainBranch;
+    boolean isMainBranch;
 
-   public Optional<String> getCommit() {
-      return Optional.of(commit);
-   }
+    public Optional<String> getCommit() {
+        return Optional.of(commit);
+    }
 
-   public Optional<String> getTransferUrl() {
-      return Optional.ofNullable(transferUrl);
-   }
+    public Optional<String> getTransferUrl() {
+        return Optional.ofNullable(transferUrl);
+    }
 
 }

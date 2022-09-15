@@ -10,12 +10,12 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MLModel {
 
-   @JsonProperty("artifact_path")
-   String artifactPath;
+    @JsonProperty("artifact_path")
+    String artifactPath;
 
-   Map<String, Map<String, String>> flavors;
+    Map<String, Map<String, String>> flavors;
 
-   @JsonProperty("run_id")
-   String runId;
+    @JsonProperty("run_id")
+    String runId;
 
 }

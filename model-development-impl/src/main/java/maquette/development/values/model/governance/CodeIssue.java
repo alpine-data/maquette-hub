@@ -7,10 +7,10 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class CodeIssue {
 
-   String location;
+    String location;
 
-   IssueType type;
+    IssueType type;
 
-   String message;
+    String message;
 
 }

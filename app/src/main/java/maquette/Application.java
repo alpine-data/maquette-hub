@@ -25,11 +25,15 @@ public class Application {
             .configure(Application::configure)
             .start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(maquette::stop));
+        Runtime
+            .getRuntime()
+            .addShutdownHook(new Thread(maquette::stop));
     }
 
     private static MaquetteRuntime configure(MaquetteRuntime runtime) {
-        var om = runtime.getObjectMapperFactory().createJsonMapper();
+        var om = runtime
+            .getObjectMapperFactory()
+            .createJsonMapper();
         var dataAssetsAdapter = MaquetteDataAssetsServiceAdapter.apply(om);
         var workspacesAdapter = MaquetteWorkspacesServiceAdapter.apply(om);
 
@@ -40,7 +44,8 @@ public class Application {
         var sandboxesRepository = InMemorySandboxesRepository.apply();
         var infrastructurePort = FakeInfrastructurePort.apply();
         var modelDevelopment = MaquetteModelDevelopment.apply(
-            runtime, workspacesRepository, modelsRepository, sandboxesRepository, infrastructurePort, dataAssetsAdapter);
+            runtime, workspacesRepository, modelsRepository, sandboxesRepository, infrastructurePort,
+            dataAssetsAdapter);
 
         var shop = MaquetteDataShop
             .apply(dataAssetsRepository, workspacesAdapter, FakeEmailClient.apply(), FakeProvider.apply());

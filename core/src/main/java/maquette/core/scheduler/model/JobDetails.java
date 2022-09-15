@@ -20,7 +20,10 @@ public class JobDetails {
 
     public static JobDetails apply(ScheduledJob job,
                                    Scheduler scheduler) {
-        var nextExecution = Operators.suppressExceptions(() -> scheduler.getTrigger(job.getTrigger().getKey()))
+        var nextExecution = Operators
+            .suppressExceptions(() -> scheduler.getTrigger(job
+                .getTrigger()
+                .getKey()))
             .getNextFireTime()
             .toInstant()
             .atZone(ZoneId.systemDefault())

@@ -12,36 +12,38 @@ import java.util.Set;
 @AllArgsConstructor(staticName = "apply")
 public class VersionFromRegistry {
 
-   String version;
+    String version;
 
-   String description;
+    String description;
 
-   Instant created;
+    Instant created;
 
-   String stage;
+    String stage;
 
-   String user;
+    String user;
 
-   String gitCommit;
+    String gitCommit;
 
-   String gitUrl;
+    String gitUrl;
 
-   Set<String> flavors;
+    Set<String> flavors;
 
-   BinaryObject explainer;
+    BinaryObject explainer;
 
-   public Optional<String> getGitCommit() {
-      return Optional.ofNullable(gitCommit);
-   }
+    public Optional<String> getGitCommit() {
+        return Optional.ofNullable(gitCommit);
+    }
 
-   public Optional<String> getGitUrl() {
-      return Optional.ofNullable(gitUrl);
-   }
+    public Optional<String> getGitUrl() {
+        return Optional.ofNullable(gitUrl);
+    }
 
-   public Optional<String> gitUrl() {
-      return Optional.ofNullable(gitUrl);
-   }
+    public Optional<String> gitUrl() {
+        return Optional.ofNullable(gitUrl);
+    }
 
-   public Optional<BinaryObject> getExplainer() { return Optional.ofNullable(explainer); }
+    public Optional<BinaryObject> getExplainer() {
+        return Optional.ofNullable(explainer);
+    }
 
 }

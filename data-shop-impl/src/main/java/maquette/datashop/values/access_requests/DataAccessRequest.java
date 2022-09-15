@@ -74,7 +74,9 @@ public class DataAccessRequest {
 
         List<DataAccessRequestEvent> eventsCopy = events
             .stream()
-            .sorted(Comparator.comparing(DataAccessRequestEvent::getEventMoment).reversed())
+            .sorted(Comparator
+                .comparing(DataAccessRequestEvent::getEventMoment)
+                .reversed())
             .collect(Collectors.toList());
 
         return new DataAccessRequest(id, created, asset, workspace, eventsCopy, state, false, false, false);

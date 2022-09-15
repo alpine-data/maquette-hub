@@ -83,7 +83,9 @@ public class WorkspaceStepDefinitions {
                                                            AuthenticatedUser grantedUser) throws ExecutionException,
         InterruptedException {
         var result = GrantWorkspaceMemberCommand
-            .apply(workspaceName, grantedUser.toAuthorization().toGenericAuthorizationDefinition(), memberRole)
+            .apply(workspaceName, grantedUser
+                .toAuthorization()
+                .toGenericAuthorizationDefinition(), memberRole)
             .run(executor, runtime)
             .toCompletableFuture()
             .get()
@@ -97,7 +99,9 @@ public class WorkspaceStepDefinitions {
                                                          AuthenticatedUser grantedUser) throws ExecutionException,
         InterruptedException {
         var result = RevokeWorkspaceMemberCommand
-            .apply(workspaceName, grantedUser.toAuthorization().toGenericAuthorizationDefinition())
+            .apply(workspaceName, grantedUser
+                .toAuthorization()
+                .toGenericAuthorizationDefinition())
             .run(executor, runtime)
             .toCompletableFuture()
             .get()

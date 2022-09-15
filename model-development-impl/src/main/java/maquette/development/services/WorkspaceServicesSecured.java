@@ -56,7 +56,8 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
 
     @Override
     public CompletionStage<List<WorkspaceProperties>> list(User user) {
-        return delegate.list(user)
+        return delegate
+            .list(user)
             .thenCompose(workspaces -> Operators.allOf(workspaces
                 .stream()
                 .map(workspace -> companion.filterMember(user, workspace.getName(), workspace))))
@@ -262,7 +263,8 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
                                         Authorization authorization) {
         return companion
             .withAuthorization(() -> {
-                var notSameUserCS = CompletableFuture.completedStage(!user.getDisplayName()
+                var notSameUserCS = CompletableFuture.completedStage(!user
+                    .getDisplayName()
                     .equals(authorization.getName()));
                 var isAuthorizedCS = companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN);
                 return Operators.compose(notSameUserCS, isAuthorizedCS,

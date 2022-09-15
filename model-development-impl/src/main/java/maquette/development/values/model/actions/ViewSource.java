@@ -10,6 +10,6 @@ import lombok.Value;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class ViewSource implements ModelAction {
 
-   String url;
+    String url;
 
 }

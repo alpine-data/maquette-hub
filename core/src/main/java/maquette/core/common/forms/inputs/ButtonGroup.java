@@ -11,23 +11,23 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public class ButtonGroup implements InputControl {
 
-   String name;
+    String name;
 
-   List<DataItem> items;
+    List<DataItem> items;
 
-   public static ButtonGroup apply(String name) {
-      return apply(name, List.of());
-   }
+    public static ButtonGroup apply(String name) {
+        return apply(name, List.of());
+    }
 
-   public ButtonGroup withButton(String label, String action) {
-      var items = Lists.newArrayList(this.items.iterator());
-      items.add(DataItem.apply(action, label));
+    public ButtonGroup withButton(String label, String action) {
+        var items = Lists.newArrayList(this.items.iterator());
+        items.add(DataItem.apply(action, label));
 
-      return apply(name, List.copyOf(items));
-   }
+        return apply(name, List.copyOf(items));
+    }
 
-   @Override
-   public Object getDefaultValue() {
-      return "none";
-   }
+    @Override
+    public Object getDefaultValue() {
+        return "none";
+    }
 }

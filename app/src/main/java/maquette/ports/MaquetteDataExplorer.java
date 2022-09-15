@@ -68,7 +68,9 @@ public final class MaquetteDataExplorer implements DataExplorer {
                 .build();
 
             try {
-                var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+                var response = Operators.suppressExceptions(() -> client
+                    .newCall(request)
+                    .execute());
 
                 if (!response.isSuccessful()) {
                     var body = response.body();
@@ -105,7 +107,9 @@ public final class MaquetteDataExplorer implements DataExplorer {
                 .build();
 
             try {
-                var response = Operators.suppressExceptions(() -> client.newCall(request).execute());
+                var response = Operators.suppressExceptions(() -> client
+                    .newCall(request)
+                    .execute());
 
                 if (!response.isSuccessful()) {
                     var body = response.body();

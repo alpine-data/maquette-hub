@@ -4,25 +4,25 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DatabaseDriver {
 
-   POSTGRESQL("postgresql", "jdbc:postgresql"),
-   MSSQL("mssql", "jdbc:sqlserver");
+    POSTGRESQL("postgresql", "jdbc:postgresql"),
+    MSSQL("mssql", "jdbc:sqlserver");
 
-   private final String value;
+    private final String value;
 
-   private final String connectionPrefix;
+    private final String connectionPrefix;
 
-   DatabaseDriver(String value, String connectionPrefix) {
-      this.value = value;
-      this.connectionPrefix = connectionPrefix;
-   }
+    DatabaseDriver(String value, String connectionPrefix) {
+        this.value = value;
+        this.connectionPrefix = connectionPrefix;
+    }
 
-   @JsonValue
-   public String getValue() {
-      return value;
-   }
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 
-   public String getConnectionPrefix() {
-      return connectionPrefix;
-   }
-   
+    public String getConnectionPrefix() {
+        return connectionPrefix;
+    }
+
 }

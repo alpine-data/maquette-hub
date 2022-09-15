@@ -27,7 +27,10 @@ public final class MaquetteContext {
 
     public void clean() {
         Operators.suppressExceptions(() -> {
-            FutureConverters.asJava(this.system.terminate()).toCompletableFuture().get();
+            FutureConverters
+                .asJava(this.system.terminate())
+                .toCompletableFuture()
+                .get();
         });
     }
 

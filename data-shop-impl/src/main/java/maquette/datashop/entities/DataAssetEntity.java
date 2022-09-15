@@ -42,7 +42,9 @@ public final class DataAssetEntity {
             .thenCompose(properties -> {
                 var updated = properties;
 
-                if (properties.getState().equals(DataAssetState.REVIEW_REQUIRED)) {
+                if (properties
+                    .getState()
+                    .equals(DataAssetState.REVIEW_REQUIRED)) {
                     updated = updated
                         .withState(DataAssetState.APPROVED)
                         .withUpdated(executor);
@@ -84,11 +86,15 @@ public final class DataAssetEntity {
             .thenCompose(properties -> {
                 var updated = properties;
 
-                if (deprecate && properties.getState().equals(DataAssetState.APPROVED)) {
+                if (deprecate && properties
+                    .getState()
+                    .equals(DataAssetState.APPROVED)) {
                     updated = updated
                         .withState(DataAssetState.DECLINED)
                         .withUpdated(executor);
-                } else if (!deprecate && properties.getState().equals(DataAssetState.DECLINED)) {
+                } else if (!deprecate && properties
+                    .getState()
+                    .equals(DataAssetState.DECLINED)) {
                     updated = updated
                         .withState(DataAssetState.APPROVED)
                         .withUpdated(executor);
@@ -121,7 +127,9 @@ public final class DataAssetEntity {
     public <T> CompletionStage<T> getCustomSettings(Class<T> expectedType) {
         return getProperties().thenCompose(properties -> repository
             .fetchCustomSettings(id, expectedType)
-            .thenApply(maybeSettings -> maybeSettings.orElse((T) providers.getByName(properties.getType()).getDefaultSettings())));
+            .thenApply(maybeSettings -> maybeSettings.orElse((T) providers
+                .getByName(properties.getType())
+                .getDefaultSettings())));
     }
 
     /**
@@ -147,7 +155,9 @@ public final class DataAssetEntity {
     public <T> CompletionStage<T> getCustomProperties(Class<T> expectedType) {
         return getProperties().thenCompose(properties -> repository
             .fetchCustomProperties(id, expectedType)
-            .thenApply(maybeProperties -> maybeProperties.orElse((T) providers.getByName(properties.getType()).getDefaultProperties())));
+            .thenApply(maybeProperties -> maybeProperties.orElse((T) providers
+                .getByName(properties.getType())
+                .getDefaultProperties())));
     }
 
     public UID getId() {
@@ -209,57 +219,66 @@ public final class DataAssetEntity {
             .getMembers()
             .thenApply(members -> members
                 .stream()
-                .anyMatch(granted -> granted.getAuthorization().authorizes(executor) && granted.getRole()
+                .anyMatch(granted -> granted
+                    .getAuthorization()
+                    .authorizes(executor) && granted
+                    .getRole()
                     .equals(DataAssetMemberRole.OWNER)));
 
         var propertiesCS = repository.getDataAssetById(id);
 
-        return Operators.compose(isOwnerCS, propertiesCS, (isOwner, properties) -> {
-            var state = properties.getState();
-            var meta = properties.getMetadata();
-            boolean reviewRequired = false;
+        return Operators
+            .compose(isOwnerCS, propertiesCS, (isOwner, properties) -> {
+                var state = properties.getState();
+                var meta = properties.getMetadata();
+                boolean reviewRequired = false;
 
-            if (!meta.getPersonalInformation().equals(newMetadata.getPersonalInformation())) {
-                switch (meta.getPersonalInformation()) {
-                    case PERSONAL_INFORMATION:
-                    case SENSITIVE_PERSONAL_INFORMATION:
-                        reviewRequired = true;
-                        break;
-                    default:
-                        // ok
+                if (!meta
+                    .getPersonalInformation()
+                    .equals(newMetadata.getPersonalInformation())) {
+                    switch (meta.getPersonalInformation()) {
+                        case PERSONAL_INFORMATION:
+                        case SENSITIVE_PERSONAL_INFORMATION:
+                            reviewRequired = true;
+                            break;
+                        default:
+                            // ok
+                    }
+
+                    switch (newMetadata.getPersonalInformation()) {
+                        case PERSONAL_INFORMATION:
+                        case SENSITIVE_PERSONAL_INFORMATION:
+                            reviewRequired = true;
+                            break;
+                        default:
+                            // ok
+                    }
                 }
 
-                switch (newMetadata.getPersonalInformation()) {
-                    case PERSONAL_INFORMATION:
-                    case SENSITIVE_PERSONAL_INFORMATION:
-                        reviewRequired = true;
-                        break;
-                    default:
-                        // ok
+                if (!meta
+                    .getZone()
+                    .equals(newMetadata.getZone())) {
+                    switch (newMetadata.getZone()) {
+                        case PREPARED:
+                        case GOLD:
+                            reviewRequired = true;
+                        default:
+                            // ok
+                    }
                 }
-            }
 
-            if (!meta.getZone().equals(newMetadata.getZone())) {
-                switch (newMetadata.getZone()) {
-                    case PREPARED:
-                    case GOLD:
-                        reviewRequired = true;
-                    default:
-                        // ok
+                if (reviewRequired && !isOwner) {
+                    state = DataAssetState.REVIEW_REQUIRED;
                 }
-            }
 
-            if (reviewRequired && !isOwner) {
-                state = DataAssetState.REVIEW_REQUIRED;
-            }
+                var updated = properties
+                    .withMetadata(newMetadata)
+                    .withState(state)
+                    .withUpdated(executor);
 
-            var updated = properties
-                .withMetadata(newMetadata)
-                .withState(state)
-                .withUpdated(executor);
-
-            return repository.insertOrUpdateDataAsset(updated);
-        }).thenCompose(cs -> cs);
+                return repository.insertOrUpdateDataAsset(updated);
+            })
+            .thenCompose(cs -> cs);
     }
 
     /**
@@ -276,9 +295,13 @@ public final class DataAssetEntity {
         return repository
             .getDataAssetById(id)
             .thenCompose(properties -> {
-                if (!providers.getByName(properties.getType()).getSettingsType().isInstance(customSettings)) {
+                if (!providers
+                    .getByName(properties.getType())
+                    .getSettingsType()
+                    .isInstance(customSettings)) {
                     return CompletableFuture.failedFuture(InvalidCustomSettingsException.apply(
-                        properties.getType(), customSettings.getClass(), providers.getByName(properties.getType())
+                        properties.getType(), customSettings.getClass(), providers
+                            .getByName(properties.getType())
                             .getSettingsType()));
                 } else {
                     return CompletableFuture.completedFuture(Done.getInstance());
@@ -287,8 +310,11 @@ public final class DataAssetEntity {
             .thenCompose(done -> repository.insertOrUpdateCustomSettings(id, customSettings))
             .thenCompose(done -> repository.getDataAssetById(id))
             .thenApply(entity -> entity.withUpdated(executor))
-            .thenCompose(properties -> repository.insertOrUpdateDataAsset(properties).thenApply(d -> properties))
-            .thenCompose(properties -> providers.getByName(properties.getType())
+            .thenCompose(properties -> repository
+                .insertOrUpdateDataAsset(properties)
+                .thenApply(d -> properties))
+            .thenCompose(properties -> providers
+                .getByName(properties.getType())
                 .onUpdatedCustomSettings(executor, this, customSettings));
     }
 
@@ -307,9 +333,13 @@ public final class DataAssetEntity {
         return repository
             .getDataAssetById(id)
             .thenCompose(properties -> {
-                if (!providers.getByName(properties.getType()).getPropertiesType().isInstance(customProperties)) {
+                if (!providers
+                    .getByName(properties.getType())
+                    .getPropertiesType()
+                    .isInstance(customProperties)) {
                     return CompletableFuture.failedFuture(InvalidCustomPropertiesException.apply(
-                        properties.getType(), customProperties.getClass(), providers.getByName(properties.getType())
+                        properties.getType(), customProperties.getClass(), providers
+                            .getByName(properties.getType())
                             .getPropertiesType()));
                 } else {
                     return CompletableFuture.completedFuture(Done.getInstance());
@@ -327,7 +357,8 @@ public final class DataAssetEntity {
      * @return Done.
      */
     public <T> CompletionStage<Done> readAndUpdateCustomProperties(Class<T> expectedType, Function<T, T> updater) {
-        return this.getCustomProperties(expectedType)
+        return this
+            .getCustomProperties(expectedType)
             .thenApply(properties -> Operators.suppressExceptions(() -> updater.apply(properties)))
             .thenCompose(this::updateCustomProperties);
     }

@@ -15,50 +15,50 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public final class FileBinaryObject implements BinaryObject {
 
-   private final Path file;
+    private final Path file;
 
-   private final boolean temporary;
+    private final boolean temporary;
 
-   private boolean discarded;
+    private boolean discarded;
 
-   static FileBinaryObject apply(Path file, boolean temporary) {
-      return apply(file, temporary, false);
-   }
+    static FileBinaryObject apply(Path file, boolean temporary) {
+        return apply(file, temporary, false);
+    }
 
-   @Override
-   public FileSize getSize() {
-      if (discarded) {
-         throw new IllegalStateException("The object has been discarded already!");
-      }
+    @Override
+    public FileSize getSize() {
+        if (discarded) {
+            throw new IllegalStateException("The object has been discarded already!");
+        }
 
-      return Operators.suppressExceptions(() -> FileSize.apply(Files.size(file), FileSize.Unit.BYTES));
-   }
+        return Operators.suppressExceptions(() -> FileSize.apply(Files.size(file), FileSize.Unit.BYTES));
+    }
 
-   @Override
-   public CompletionStage<Done> toFile(Path file) {
-      if (discarded) {
-         throw new IllegalStateException("The object has been discarded already!");
-      }
+    @Override
+    public CompletionStage<Done> toFile(Path file) {
+        if (discarded) {
+            throw new IllegalStateException("The object has been discarded already!");
+        }
 
-      Operators.suppressExceptions(() -> {
-         Files.deleteIfExists(file);
-         Files.copy(this.file, file);
-      });
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        Operators.suppressExceptions(() -> {
+            Files.deleteIfExists(file);
+            Files.copy(this.file, file);
+        });
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 
-   @Override
-   public InputStream toInputStream() {
-      return Operators.suppressExceptions(() -> new FileInputStream(file.toFile()));
-   }
+    @Override
+    public InputStream toInputStream() {
+        return Operators.suppressExceptions(() -> new FileInputStream(file.toFile()));
+    }
 
-   @Override
-   public CompletionStage<Done> discard() {
-      if (temporary) {
-         Operators.ignoreExceptions(() -> Files.deleteIfExists(file));
-      }
+    @Override
+    public CompletionStage<Done> discard() {
+        if (temporary) {
+            Operators.ignoreExceptions(() -> Files.deleteIfExists(file));
+        }
 
-      discarded = true;
-      return CompletableFuture.completedFuture(Done.getInstance());
-   }
+        discarded = true;
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 }

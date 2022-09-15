@@ -13,7 +13,11 @@ public class AboutCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        var about = AboutResource.About.apply(runtime.getConfig().getEnvironment(), runtime.getConfig().getVersion());
+        var about = AboutResource.About.apply(runtime
+            .getConfig()
+            .getEnvironment(), runtime
+            .getConfig()
+            .getVersion());
         return CompletableFuture.completedFuture(new AboutDataResult(about));
     }
 
@@ -34,7 +38,10 @@ public class AboutCommand implements Command {
             map.put("version", data.getVersion());
             map.put("environment", data.getEnvironment());
 
-            return Templates.renderTemplateFromResources(runtime.getConfig().getCore().getBanner(), map);
+            return Templates.renderTemplateFromResources(runtime
+                .getConfig()
+                .getCore()
+                .getBanner(), map);
         }
     }
 

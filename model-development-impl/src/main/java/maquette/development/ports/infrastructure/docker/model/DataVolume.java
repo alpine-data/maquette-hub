@@ -12,10 +12,10 @@ import maquette.core.values.UID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class DataVolume {
 
-   UID id;
+    UID id;
 
-   String name;
+    String name;
 
-   ActionMetadata created;
+    ActionMetadata created;
 
 }

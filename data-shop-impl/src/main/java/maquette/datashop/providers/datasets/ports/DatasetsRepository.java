@@ -12,16 +12,16 @@ import java.util.concurrent.CompletionStage;
 
 public interface DatasetsRepository {
 
-   CompletionStage<List<Revision>> findAllRevisions(UID dataset);
+    CompletionStage<List<Revision>> findAllRevisions(UID dataset);
 
-   CompletionStage<List<CommittedRevision>> findAllVersions(UID dataset);
+    CompletionStage<List<CommittedRevision>> findAllVersions(UID dataset);
 
-   CompletionStage<Optional<Revision>> findRevisionById(UID dataset, UID revision);
+    CompletionStage<Optional<Revision>> findRevisionById(UID dataset, UID revision);
 
-   CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(UID dataset, DatasetVersion version);
+    CompletionStage<Optional<CommittedRevision>> findRevisionByVersion(UID dataset, DatasetVersion version);
 
-   CompletionStage<Done> insertOrUpdateRevision(UID dataset, Revision revision);
+    CompletionStage<Done> insertOrUpdateRevision(UID dataset, Revision revision);
 
-   RecordsStore getRecordsStore(UID dataset);
+    RecordsStore getRecordsStore(UID dataset);
 
 }

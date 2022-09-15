@@ -92,7 +92,8 @@ public class SandboxProperties {
         return new SandboxProperties(id, workspace, volume, name, comment, created, stacks);
     }
 
-    public static SandboxProperties apply(UID id, UID workspace, UID volume, String name, String comment, ActionMetadata created) {
+    public static SandboxProperties apply(UID id, UID workspace, UID volume, String name, String comment,
+                                          ActionMetadata created) {
 
         return apply(id, workspace, volume, name, comment, created, Maps.newHashMap());
     }

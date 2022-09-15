@@ -7,14 +7,14 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class DataItem {
 
-   String value;
+    String value;
 
-   String label;
+    String label;
 
-   String description;
+    String description;
 
-   public static DataItem apply(String key, String label) {
-      return apply(key, label, null);
-   }
+    public static DataItem apply(String key, String label) {
+        return apply(key, label, null);
+    }
 
 }

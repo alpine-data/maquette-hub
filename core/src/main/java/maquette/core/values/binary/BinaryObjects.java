@@ -8,45 +8,45 @@ import java.nio.file.Path;
 
 public final class BinaryObjects {
 
-   public static CompressedBinaryObject compress(Path file) {
-      return CompressedBinaryObject.fromFile(file);
-   }
+    public static CompressedBinaryObject compress(Path file) {
+        return CompressedBinaryObject.fromFile(file);
+    }
 
-   public static BinaryObject fromBytes(byte[] bytes) {
-      return ByteArrayBinaryObject.apply(bytes);
-   }
+    public static BinaryObject fromBytes(byte[] bytes) {
+        return ByteArrayBinaryObject.apply(bytes);
+    }
 
-   public static BinaryObject fromInputStream(InputStream is) {
-      return Operators.suppressExceptions(() -> {
-         var buffer = new byte[1024];
-         var tmp = Files.createTempFile("mq", "binary");
+    public static BinaryObject fromInputStream(InputStream is) {
+        return Operators.suppressExceptions(() -> {
+            var buffer = new byte[1024];
+            var tmp = Files.createTempFile("mq", "binary");
 
-         try (var os = Files.newOutputStream(tmp)) {
-            int len;
+            try (var os = Files.newOutputStream(tmp)) {
+                int len;
 
-            while ((len = is.read(buffer)) > 0) {
-               os.write(buffer, 0, len);
+                while ((len = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, len);
+                }
             }
-         }
 
-         return fromTemporaryFile(tmp);
-      });
-   }
+            return fromTemporaryFile(tmp);
+        });
+    }
 
-   public static CompressedBinaryObject fromDirectory(Path file) {
-      return CompressedBinaryObject.fromDirectory(file);
-   }
+    public static CompressedBinaryObject fromDirectory(Path file) {
+        return CompressedBinaryObject.fromDirectory(file);
+    }
 
-   public static BinaryObject fromFile(Path file) {
-      return FileBinaryObject.apply(file, false);
-   }
+    public static BinaryObject fromFile(Path file) {
+        return FileBinaryObject.apply(file, false);
+    }
 
-   public static BinaryObject fromTemporaryFile(Path file) {
-      return FileBinaryObject.apply(file, true);
-   }
+    public static BinaryObject fromTemporaryFile(Path file) {
+        return FileBinaryObject.apply(file, true);
+    }
 
-   public static BinaryObject empty() {
-      return ByteArrayBinaryObject.apply(new byte[]{});
-   }
+    public static BinaryObject empty() {
+        return ByteArrayBinaryObject.apply(new byte[]{});
+    }
 
 }

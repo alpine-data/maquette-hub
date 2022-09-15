@@ -2,7 +2,6 @@ package maquette.development.ports.infrastructure;
 
 import akka.Done;
 import maquette.core.values.UID;
-import maquette.development.values.EnvironmentType;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 import maquette.development.values.stacks.StackInstanceStatus;

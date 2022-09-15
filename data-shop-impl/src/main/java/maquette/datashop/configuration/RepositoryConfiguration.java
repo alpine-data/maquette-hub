@@ -8,17 +8,19 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class RepositoryConfiguration {
 
-   String type;
+    String type;
 
-   FileSystemRepositoryConfiguration fs;
+    FileSystemRepositoryConfiguration fs;
 
-   public static RepositoryConfiguration apply(String name) {
-      var config = ConfigFactory.load().getConfig("maquette.data-shop");
-      var repoConfig = config.getConfig(name);
-      var type = repoConfig.getString("type");
-      var fsConfig = FileSystemRepositoryConfiguration.apply(config.getConfig("common-settings.fs"));
+    public static RepositoryConfiguration apply(String name) {
+        var config = ConfigFactory
+            .load()
+            .getConfig("maquette.data-shop");
+        var repoConfig = config.getConfig(name);
+        var type = repoConfig.getString("type");
+        var fsConfig = FileSystemRepositoryConfiguration.apply(config.getConfig("common-settings.fs"));
 
-      return apply(type, fsConfig);
-   }
+        return apply(type, fsConfig);
+    }
 
 }

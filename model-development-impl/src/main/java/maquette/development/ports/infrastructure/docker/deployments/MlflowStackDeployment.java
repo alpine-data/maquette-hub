@@ -14,7 +14,6 @@ import maquette.development.values.stacks.MlflowStackConfiguration;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 
-import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -93,12 +92,18 @@ public class MlflowStackDeployment implements StackDeployment {
         var mlflowContainerCfg = ContainerConfig
             .builder(mlflowContainerName, "mq--mlflow:latest")
             .withEnvironmentVariable("MLFLOW_S3_ENDPOINT_URL", "http://minio:9000")
-            .withEnvironmentVariable("AWS_ACCESS_KEY_ID", minioContainerCfg.getEnvironment().get("MINIO_ACCESS_KEY"))
-            .withEnvironmentVariable("AWS_SECRET_ACCESS_KEY", minioContainerCfg.getEnvironment()
+            .withEnvironmentVariable("AWS_ACCESS_KEY_ID", minioContainerCfg
+                .getEnvironment()
+                .get("MINIO_ACCESS_KEY"))
+            .withEnvironmentVariable("AWS_SECRET_ACCESS_KEY", minioContainerCfg
+                .getEnvironment()
                 .get("MINIO_SECRET_KEY"))
             .withEnvironmentVariable("AWS_DEFAULT_REGION", MINIO_REGION)
-            .withEnvironmentVariable("POSTGRES_USERNAME", postgresContainerCfg.getEnvironment().get("POSTGRES_USER"))
-            .withEnvironmentVariable("POSTGRES_PASSWORD", postgresContainerCfg.getEnvironment()
+            .withEnvironmentVariable("POSTGRES_USERNAME", postgresContainerCfg
+                .getEnvironment()
+                .get("POSTGRES_USER"))
+            .withEnvironmentVariable("POSTGRES_PASSWORD", postgresContainerCfg
+                .getEnvironment()
                 .get("POSTGRES_PASSWORD"))
             .withEnvironmentVariable("POSTGRES_HOST", "postgres")
             .withHostName("mlflow")
@@ -113,7 +118,8 @@ public class MlflowStackDeployment implements StackDeployment {
             .withContainerConfig(mlflowContainerCfg)
             .build();
 
-        return apply(deploymentConfig, configuration, mlflowContainerName, minioContainerName, minioAccessKey, minioAccessSecret);
+        return apply(deploymentConfig, configuration, mlflowContainerName, minioContainerName, minioAccessKey,
+            minioAccessSecret);
     }
 
     @Override
@@ -123,12 +129,22 @@ public class MlflowStackDeployment implements StackDeployment {
 
     @Override
     public CompletionStage<StackInstanceParameters> getInstanceParameters(Deployment deployment) {
-        var mlflowPortsCS = deployment.getContainer(mlflowContainerName).getMappedPortUrls();
-        var minioPortsCS = deployment.getContainer(minioContainerName).getMappedPortUrls();
+        var mlflowPortsCS = deployment
+            .getContainer(mlflowContainerName)
+            .getMappedPortUrls();
+        var minioPortsCS = deployment
+            .getContainer(minioContainerName)
+            .getMappedPortUrls();
 
         return Operators.compose(mlflowPortsCS, minioPortsCS, (mlflowPorts, minioPorts) -> {
-            var mlflowUrl = mlflowPorts.get(5000).toString().replace("localhost", "host.docker.internal");
-            var minioUrl = minioPorts.get(9000).toString().replace("localhost", "host.docker.internal");
+            var mlflowUrl = mlflowPorts
+                .get(5000)
+                .toString()
+                .replace("localhost", "host.docker.internal");
+            var minioUrl = minioPorts
+                .get(9000)
+                .toString()
+                .replace("localhost", "host.docker.internal");
 
             var parameters = Maps.<String, String>newHashMap();
 

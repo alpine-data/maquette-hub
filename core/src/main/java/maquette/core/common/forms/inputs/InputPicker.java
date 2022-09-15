@@ -11,25 +11,27 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public class InputPicker implements InputControl {
 
-   String name;
+    String name;
 
-   List<DataItem> items;
+    List<DataItem> items;
 
-   String defaultValue;
+    String defaultValue;
 
-   public static InputPicker apply(String name, String defaultValue) {
-      return apply(name, List.of(), defaultValue);
-   }
+    public static InputPicker apply(String name, String defaultValue) {
+        return apply(name, List.of(), defaultValue);
+    }
 
-   public InputPicker withItem(String key, String label) {
-      var items = Lists.newArrayList(this.items.iterator());
-      items.add(DataItem.apply(key, label));
+    public InputPicker withItem(String key, String label) {
+        var items = Lists.newArrayList(this.items.iterator());
+        items.add(DataItem.apply(key, label));
 
-      return apply(name, List.copyOf(items), defaultValue);
-   }
+        return apply(name, List.copyOf(items), defaultValue);
+    }
 
-   public String getDefaultValue() {
-      return defaultValue != null ? defaultValue : items.isEmpty() ? "" : items.get(0).getValue();
-   }
+    public String getDefaultValue() {
+        return defaultValue != null ? defaultValue : items.isEmpty() ? "" : items
+            .get(0)
+            .getValue();
+    }
 
 }

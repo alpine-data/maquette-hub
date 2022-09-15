@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ModelVersionsResponse {
 
-   @JsonProperty("model_versions")
-   private List<ModelVersion> modelVersions;
+    @JsonProperty("model_versions")
+    private List<ModelVersion> modelVersions;
 
 }

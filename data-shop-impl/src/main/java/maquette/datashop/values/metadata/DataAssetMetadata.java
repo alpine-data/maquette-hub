@@ -83,7 +83,8 @@ public class DataAssetMetadata {
         @JsonProperty(ZONE) DataZone zone,
         @JsonProperty(ADDITIONAL_PROPERTIES) AdditionalProperties additionalProperties) {
 
-        return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone, additionalProperties);
+        return new DataAssetMetadata(title, name, summary, visibility, classification, personalInformation, zone,
+            additionalProperties);
     }
 
     /**
@@ -106,7 +107,9 @@ public class DataAssetMetadata {
      * @return A new instance.
      */
     public static DataAssetMetadata sample(String title) {
-        return sample(title, title.toLowerCase(Locale.ROOT).replace(' ', '-'));
+        return sample(title, title
+            .toLowerCase(Locale.ROOT)
+            .replace(' ', '-'));
     }
 
     public static DataAssetMetadata sample() {

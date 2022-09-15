@@ -27,7 +27,8 @@ public class RevokeModelMemberRoleCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .revokeModelRole(user, workspace, model, authorization)
             .thenApply(done -> MessageResult.apply("Successfully revoked role."));

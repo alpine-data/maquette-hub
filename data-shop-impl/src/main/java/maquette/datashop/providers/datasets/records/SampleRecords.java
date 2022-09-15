@@ -1,14 +1,13 @@
 package maquette.datashop.providers.datasets.records;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecordBuilder;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 @AllArgsConstructor(staticName = "apply")
 public final class SampleRecords {

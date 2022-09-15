@@ -17,40 +17,40 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OpenRevision implements Revision {
 
-   private static final String ID = "_id";
-   private static final String CREATED = "created";
-   private static final String MODIFIED = "modified";
-   private static final String RECORDS = "records";
-   private static final String SCHEMA = "schema";
+    private static final String ID = "_id";
+    private static final String CREATED = "created";
+    private static final String MODIFIED = "modified";
+    private static final String RECORDS = "records";
+    private static final String SCHEMA = "schema";
 
-   @JsonProperty
-   UID id;
+    @JsonProperty
+    UID id;
 
-   @JsonProperty
-   ActionMetadata created;
+    @JsonProperty
+    ActionMetadata created;
 
-   @JsonProperty
-   ActionMetadata modified;
+    @JsonProperty
+    ActionMetadata modified;
 
-   @JsonProperty
-   long records;
+    @JsonProperty
+    long records;
 
-   @JsonProperty
-   Schema schema;
+    @JsonProperty
+    Schema schema;
 
-   @JsonCreator
-   public static OpenRevision apply(
-           @JsonProperty(ID) UID id,
-           @JsonProperty(CREATED) ActionMetadata created,
-           @JsonProperty(MODIFIED) ActionMetadata modified,
-           @JsonProperty(RECORDS) long records,
-           @JsonProperty(SCHEMA) Schema schema) {
+    @JsonCreator
+    public static OpenRevision apply(
+        @JsonProperty(ID) UID id,
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(MODIFIED) ActionMetadata modified,
+        @JsonProperty(RECORDS) long records,
+        @JsonProperty(SCHEMA) Schema schema) {
 
-      return new OpenRevision(id, created, modified, records, schema);
-   }
+        return new OpenRevision(id, created, modified, records, schema);
+    }
 
-   @Override
-   public Optional<CommittedRevision> getCommit() {
-      return Optional.empty();
-   }
+    @Override
+    public Optional<CommittedRevision> getCommit() {
+        return Optional.empty();
+    }
 }

@@ -50,7 +50,9 @@ public final class DockerOperations {
             .withShowAll(true)
             .exec()
             .stream()
-            .filter(container -> Arrays.asList(container.getNames()).contains("/" + config.getName()))
+            .filter(container -> Arrays
+                .asList(container.getNames())
+                .contains("/" + config.getName()))
             .findFirst()
             .map(Container::getId)
             .orElseGet(() -> {
@@ -62,8 +64,12 @@ public final class DockerOperations {
 
                 Ports portBindings = new Ports();
                 exposedPorts.forEach(p -> {
-                    if (p.getLeft().getHostPort().isPresent()) {
-                        portBindings.bind(p.getRight(), Ports.Binding.bindIpAndPort("0.0.0.0", p.getLeft()
+                    if (p
+                        .getLeft()
+                        .getHostPort()
+                        .isPresent()) {
+                        portBindings.bind(p.getRight(), Ports.Binding.bindIpAndPort("0.0.0.0", p
+                            .getLeft()
                             .getHostPort()
                             .get()));
                     } else {
@@ -75,7 +81,12 @@ public final class DockerOperations {
                     .getVolumes()
                     .stream()
                     .map(v -> new Mount()
-                        .withSource(volumes.getVolumeDirectory(v.getVolume().getId()).toAbsolutePath().toString())
+                        .withSource(volumes
+                            .getVolumeDirectory(v
+                                .getVolume()
+                                .getId())
+                            .toAbsolutePath()
+                            .toString())
                         .withTarget(v.getPath())
                         .withType(MountType.BIND))
                     .collect(Collectors.toList());
@@ -97,11 +108,16 @@ public final class DockerOperations {
                     .createContainerCmd(config.getImage())
                     .withName(config.getName())
                     .withEnv(environment)
-                    .withExposedPorts(exposedPorts.stream().map(Pair::getRight).collect(Collectors.toList()))
+                    .withExposedPorts(exposedPorts
+                        .stream()
+                        .map(Pair::getRight)
+                        .collect(Collectors.toList()))
                     .withHostConfig(hostConfig)
                     .withHostName(config.getHostName());
 
-                config.getCommand().ifPresent(cmd -> createCmd.withCmd(cmd.split(" ")));
+                config
+                    .getCommand()
+                    .ifPresent(cmd -> createCmd.withCmd(cmd.split(" ")));
 
                 var response = createCmd.exec();
 
@@ -127,7 +143,9 @@ public final class DockerOperations {
             .listNetworksCmd()
             .exec()
             .stream()
-            .filter(n -> n.getName().equals(name))
+            .filter(n -> n
+                .getName()
+                .equals(name))
             .findFirst();
 
         if (exists.isEmpty()) {
@@ -140,7 +158,9 @@ public final class DockerOperations {
 
             return created.getId();
         } else {
-            return exists.get().getId();
+            return exists
+                .get()
+                .getId();
         }
     }
 
@@ -150,12 +170,16 @@ public final class DockerOperations {
             .exec()
             .stream()
             .filter(i -> i.getRepoTags() != null)
-            .anyMatch(i -> Arrays.asList(i.getRepoTags()).contains(image));
+            .anyMatch(i -> Arrays
+                .asList(i.getRepoTags())
+                .contains(image));
 
         if (!exists) {
             var callback = CompletionStageResultCallback.<PullResponseItem>apply(
                 String.format("docker pull %s", image), log);
-            client.pullImageCmd(image).exec(callback);
+            client
+                .pullImageCmd(image)
+                .exec(callback);
             return callback.result();
         } else {
             return CompletableFuture.completedFuture(Done.getInstance());
@@ -167,11 +191,15 @@ public final class DockerOperations {
             .listContainersCmd()
             .exec()
             .stream()
-            .filter(container -> container.getId().equals(containerId))
+            .filter(container -> container
+                .getId()
+                .equals(containerId))
             .findFirst()
             .map(container -> DockerContainer.apply(client, volumes, config, containerId))
             .orElseGet(() -> {
-                client.startContainerCmd(containerId).exec();
+                client
+                    .startContainerCmd(containerId)
+                    .exec();
                 log.info("`docker start {}` - Container started", containerId);
                 return DockerContainer.apply(client, volumes, config, containerId);
             });

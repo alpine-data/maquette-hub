@@ -8,12 +8,12 @@ import org.apache.avro.Schema;
 @AllArgsConstructor(staticName = "apply")
 public class SuccessfulConnectionTestResult implements ConnectionTestResult {
 
-   Schema schema;
+    Schema schema;
 
-   long records;
+    long records;
 
-   @Override
-   public String getResult() {
-      return "success";
-   }
+    @Override
+    public String getResult() {
+        return "success";
+    }
 }

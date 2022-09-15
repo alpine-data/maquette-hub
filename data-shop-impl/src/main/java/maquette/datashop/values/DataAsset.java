@@ -44,7 +44,9 @@ public final class DataAsset {
     public List<GrantedAuthorization<DataAssetMemberRole>> getMembers(DataAssetMemberRole role) {
         return getMembers()
             .stream()
-            .filter(m -> m.getRole().equals(role))
+            .filter(m -> m
+                .getRole()
+                .equals(role))
             .collect(Collectors.toList());
     }
 
@@ -64,7 +66,9 @@ public final class DataAsset {
         var isSubscriber = this
             .getAccessRequests()
             .stream()
-            .anyMatch(r -> r.getState().equals(DataAccessRequestState.GRANTED));
+            .anyMatch(r -> r
+                .getState()
+                .equals(DataAccessRequestState.GRANTED));
 
         return DataAssetPermissions.apply(isOwner, isSteward, isConsumer, isProducer, isMember, isSubscriber);
     }
@@ -79,8 +83,11 @@ public final class DataAsset {
     public boolean isMember(User user, DataAssetMemberRole role) {
         return getMembers()
             .stream()
-            .anyMatch(granted -> granted.getAuthorization()
-                .authorizes(user) && (Objects.isNull(role) || granted.getRole().equals(role)));
+            .anyMatch(granted -> granted
+                .getAuthorization()
+                .authorizes(user) && (Objects.isNull(role) || granted
+                .getRole()
+                .equals(role)));
     }
 
     /**

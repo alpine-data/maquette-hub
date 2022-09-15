@@ -28,7 +28,8 @@ public class PromoteModelCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .promoteModel(user, workspace, model, version, stage)
             .thenApply(pid -> MessageResult.apply("Successfully approved model version"));

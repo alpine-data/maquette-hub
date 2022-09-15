@@ -42,7 +42,10 @@ public class AnalysisResult {
     }
 
     public static AnalysisResult empty(String dataset, String version) {
-        var columns = DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
+        var columns = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper(true)
+            .createObjectNode();
         return AnalysisResult.apply(columns, "", dataset, version);
     }
 

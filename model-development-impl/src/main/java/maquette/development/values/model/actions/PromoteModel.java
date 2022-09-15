@@ -10,6 +10,6 @@ import lombok.Value;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class PromoteModel implements ModelAction {
 
-   String to;
+    String to;
 
 }

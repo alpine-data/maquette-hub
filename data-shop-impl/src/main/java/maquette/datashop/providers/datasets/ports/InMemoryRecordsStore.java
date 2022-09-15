@@ -23,7 +23,9 @@ public final class InMemoryRecordsStore implements RecordsStore {
     @Override
     public CompletionStage<Done> append(String key, Records records) {
         if (this.records.containsKey(key)) {
-            var existing = this.records.get(key).getRecords();
+            var existing = this.records
+                .get(key)
+                .getRecords();
             var merged = Lists.<GenericData.Record>newArrayList();
             merged.addAll(existing);
             merged.addAll(records.getRecords());

@@ -13,31 +13,31 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeploymentProperties {
 
-   private static final String CONFIG = "config";
-   private static final String PROPERTIES = "properties";
-   private static final String CREATED = "created";
-   private static final String STATUS = "status";
+    private static final String CONFIG = "config";
+    private static final String PROPERTIES = "properties";
+    private static final String CREATED = "created";
+    private static final String STATUS = "status";
 
-   @JsonProperty(CONFIG)
-   DeploymentConfig config;
+    @JsonProperty(CONFIG)
+    DeploymentConfig config;
 
-   @JsonProperty(PROPERTIES)
-   List<ContainerProperties> properties;
+    @JsonProperty(PROPERTIES)
+    List<ContainerProperties> properties;
 
-   @JsonProperty(CREATED)
-   Instant created;
+    @JsonProperty(CREATED)
+    Instant created;
 
-   @JsonProperty(STATUS)
-   DeploymentStatus status;
+    @JsonProperty(STATUS)
+    DeploymentStatus status;
 
-   @JsonCreator
-   public static DeploymentProperties apply(
-       @JsonProperty(CONFIG) DeploymentConfig config,
-       @JsonProperty(PROPERTIES) List<ContainerProperties> properties,
-       @JsonProperty(CREATED) Instant created,
-       @JsonProperty(STATUS) DeploymentStatus status) {
+    @JsonCreator
+    public static DeploymentProperties apply(
+        @JsonProperty(CONFIG) DeploymentConfig config,
+        @JsonProperty(PROPERTIES) List<ContainerProperties> properties,
+        @JsonProperty(CREATED) Instant created,
+        @JsonProperty(STATUS) DeploymentStatus status) {
 
-      return new DeploymentProperties(config, properties, created, status);
-   }
+        return new DeploymentProperties(config, properties, created, status);
+    }
 
 }

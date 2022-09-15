@@ -45,7 +45,9 @@ public final class SandboxEntity {
             .allOf(stacks
                 .stream()
                 .map(stackConfiguration -> {
-                    var stack = Stacks.apply().getStackByConfiguration(stackConfiguration);
+                    var stack = Stacks
+                        .apply()
+                        .getStackByConfiguration(stackConfiguration);
                     var stackConfigurationName = String.format("mq--%s--%s--%s", workspace, id, stack.getName());
                     var workspacePropertiesCS = workspaces.getWorkspaceById(workspace);
 
@@ -64,7 +66,8 @@ public final class SandboxEntity {
             .thenApply(configurations -> configurations
                 .stream()
                 .collect(Collectors.toMap(StackConfiguration::getStackInstanceName, c -> c)))
-            .thenCompose(stackConfigurationNames -> updateProperties(p -> p.withAdditionalStacks(stackConfigurationNames)));
+            .thenCompose(
+                stackConfigurationNames -> updateProperties(p -> p.withAdditionalStacks(stackConfigurationNames)));
     }
 
     /**
@@ -81,7 +84,8 @@ public final class SandboxEntity {
      *
      * @return A map containing all stacks mapped to their current instance parameters.
      */
-    public CompletionStage<Map<String, StackInstanceParameters>> getStackInstanceParameters(EnvironmentType environmentType) {
+    public CompletionStage<Map<String, StackInstanceParameters>> getStackInstanceParameters(
+        EnvironmentType environmentType) {
         return getProperties()
             .thenCompose(properties -> Operators.allOf(properties
                 .getStacks()
@@ -111,7 +115,9 @@ public final class SandboxEntity {
                     var stateCS = infrastructurePort.getStackInstanceStatus(stack);
 
                     return Operators.compose(parametersCS, stateCS, (parameters, state) -> {
-                        var config = properties.getStacks().get(stack);
+                        var config = properties
+                            .getStacks()
+                            .get(stack);
                         return StackRuntimeState.apply(config, state, parameters);
                     });
                 })));

@@ -45,15 +45,23 @@ public final class UserEntities {
         return repository
             .findAuthenticationTokenByTokenId(tokenId)
             .thenCompose(maybeToken -> {
-                if (maybeToken.isPresent() && maybeToken.get().getValidBefore().isAfter(Instant.now())) {
+                if (maybeToken.isPresent() && maybeToken
+                    .get()
+                    .getValidBefore()
+                    .isAfter(Instant.now())) {
                     return repository
-                        .findProfileByAuthenticationToken(maybeToken.get().getId())
+                        .findProfileByAuthenticationToken(maybeToken
+                            .get()
+                            .getId())
                         .thenCompose(maybeProfile -> maybeProfile
-                            .map(userProfile -> CompletableFuture.completedFuture(AuthenticatedUser.apply(userProfile.getId())))
-                            .orElseGet(() -> CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId
-                                .getValue()))));
+                            .map(userProfile -> CompletableFuture.completedFuture(
+                                AuthenticatedUser.apply(userProfile.getId())))
+                            .orElseGet(() -> CompletableFuture.failedFuture(
+                                InvalidAuthenticationTokenException.createUnknownToken(tokenId
+                                    .getValue()))));
                 } else if (maybeToken.isPresent()) {
-                    return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createOutdated(tokenId.getValue()));
+                    return CompletableFuture.failedFuture(
+                        InvalidAuthenticationTokenException.createOutdated(tokenId.getValue()));
                 } else {
                     return CompletableFuture.failedFuture(InvalidAuthenticationTokenException.createUnknownToken(tokenId
                         .getValue()));
@@ -68,7 +76,9 @@ public final class UserEntities {
     public CompletionStage<Done> registerAuthenticationToken(User executor, String randomId) {
         if (executor instanceof AuthenticatedUser) {
             var id = ((AuthenticatedUser) executor).getId();
-            return getUserById(id).thenCompose(user -> user.getAuthenticationToken().thenCompose(token -> tokens.put(randomId, token)));
+            return getUserById(id).thenCompose(user -> user
+                .getAuthenticationToken()
+                .thenCompose(token -> tokens.put(randomId, token)));
         } else {
             return CompletableFuture.failedFuture(UserNotAuthenticatedException.apply());
         }

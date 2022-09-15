@@ -37,10 +37,18 @@ public class GitSettings {
     }
 
     public boolean isEmpty() {
-        return (username == null || username.trim().isEmpty())
-            && (password == null || password.trim().isEmpty())
-            && (privateKey == null || privateKey.trim().isEmpty())
-            && (publicKey == null || publicKey.trim().isEmpty());
+        return (username == null || username
+            .trim()
+            .isEmpty())
+            && (password == null || password
+            .trim()
+            .isEmpty())
+            && (privateKey == null || privateKey
+            .trim()
+            .isEmpty())
+            && (publicKey == null || publicKey
+            .trim()
+            .isEmpty());
     }
 
 }

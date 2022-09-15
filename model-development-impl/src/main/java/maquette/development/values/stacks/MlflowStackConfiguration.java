@@ -114,8 +114,12 @@ public class MlflowStackConfiguration implements StackConfiguration {
     }
 
     public Optional<MlflowConfiguration> getMlflowConfiguration(StackInstanceParameters parameters) {
-        if (parameters.getParameters().containsKey(PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
-            var trackingUrl = parameters.getParametersDecoded().get(PARAM_INTERNAL_MLFLOW_TRACKING_URL);
+        if (parameters
+            .getParameters()
+            .containsKey(PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
+            var trackingUrl = parameters
+                .getParametersDecoded()
+                .get(PARAM_INTERNAL_MLFLOW_TRACKING_URL);
             return Optional.of(MlflowConfiguration.apply(trackingUrl, ""));
         } else {
             return Optional.empty();

@@ -19,7 +19,6 @@ import maquette.datashop.providers.databases.exceptions.QueryNamesMustBeUnique;
 import maquette.datashop.providers.databases.model.DatabaseProperties;
 import maquette.datashop.providers.databases.model.DatabaseQuerySettings;
 import maquette.datashop.providers.databases.model.DatabaseSettings;
-import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.databases.ports.DatabasePort;
 import maquette.datashop.providers.databases.services.DatabaseServices;
@@ -31,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class Databases implements DataAssetProvider {

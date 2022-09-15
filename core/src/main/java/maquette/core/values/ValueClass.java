@@ -2,10 +2,10 @@ package maquette.core.values;
 
 public abstract class ValueClass<T> {
 
-   abstract public T getValue();
+    abstract public T getValue();
 
-   public String toString() {
-      return getValue().toString();
-   }
+    public String toString() {
+        return getValue().toString();
+    }
 
 }

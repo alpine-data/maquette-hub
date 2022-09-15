@@ -58,7 +58,8 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
             .createWorkspace(executor, name, title, summary)
             .thenCompose(project -> workspaces.getWorkspaceById(project.getId()))
             .thenCompose(workspace -> {
-                var adminAddedCS = workspace.members()
+                var adminAddedCS = workspace
+                    .members()
                     .addMember(executor, executor.toAuthorization(), WorkspaceMemberRole.ADMIN);
 
                 var mlFlowInitializedCS = workspace.initializeMlflowEnvironment();
@@ -71,7 +72,9 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Map<String, String>> environment(User user, String workspace, EnvironmentType type) {
-        return workspaces.getWorkspaceByName(workspace).thenCompose(wks -> wks.getEnvironment(type));
+        return workspaces
+            .getWorkspaceByName(workspace)
+            .thenCompose(wks -> wks.getEnvironment(type));
     }
 
     @Override
@@ -85,7 +88,9 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
             .getWorkspaceByName(name)
             .thenCompose(workspace -> {
                 var propertiesCS = workspace.getProperties();
-                var membersCS = workspace.members().getMembers();
+                var membersCS = workspace
+                    .members()
+                    .getMembers();
                 var accessRequestsCS = dataAssets.findDataAccessRequestsByWorkspace(workspace.getId());
                 var dataAssetsCS = dataAssets.findDataAssetsByWorkspace(workspace.getId());
                 var sandboxesCS = sandboxes
@@ -97,7 +102,9 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                                 .getSandboxById(workspace.getId(), properties.getId())
                                 .thenCompose(SandboxEntity::getState)
                                 .thenApply(stacks -> Sandbox.apply(properties, stacks)))));
-                var mlflowStatusCS = workspace.getMlflowStatus().thenApply(opt -> opt.orElse(null));
+                var mlflowStatusCS = workspace
+                    .getMlflowStatus()
+                    .thenApply(opt -> opt.orElse(null));
 
                 return Operators.compose(
                     propertiesCS, accessRequestsCS, membersCS, dataAssetsCS, sandboxesCS, mlflowStatusCS,
@@ -111,7 +118,9 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
             .findWorkspaceByName(workspace)
             .thenCompose(maybeWorkspace -> {
                 if (maybeWorkspace.isPresent()) {
-                    var workspaceId = maybeWorkspace.get().getId();
+                    var workspaceId = maybeWorkspace
+                        .get()
+                        .getId();
 
                     var removeSandboxes = sandboxes.removeSandboxes(workspaceId);
                     var removeWorkspace = workspaces.removeWorkspace(workspaceId);
@@ -152,7 +161,9 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
             .thenApply(models -> models.getModel(model));
 
         var projectMembersCS = projectCS
-            .thenCompose(p -> p.members().getMembers());
+            .thenCompose(p -> p
+                .members()
+                .getMembers());
 
         return Operators
             .compose(modelEntityCS, projectMembersCS, (modelEntity, projectMembers) -> {
@@ -299,14 +310,18 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                                        WorkspaceMemberRole role) {
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(project -> project.members().addMember(user, authorization, role));
+            .thenCompose(project -> project
+                .members()
+                .addMember(user, authorization, role));
     }
 
     @Override
     public CompletionStage<Done> revoke(User user, String workspace, Authorization authorization) {
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(project -> project.members().removeMember(user, authorization));
+            .thenCompose(project -> project
+                .members()
+                .removeMember(user, authorization));
     }
 
     @Override

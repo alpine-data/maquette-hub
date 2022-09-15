@@ -29,7 +29,9 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
 
     @Override
     public CompletionStage<List<Revision>> findAllRevisions(UID dataset) {
-        var result = new ArrayList<>(revisions.getOrDefault(dataset, Maps.newHashMap()).values());
+        var result = new ArrayList<>(revisions
+            .getOrDefault(dataset, Maps.newHashMap())
+            .values());
         return CompletableFuture.completedFuture(result);
     }
 
@@ -39,8 +41,12 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
             .getOrDefault(dataset, Maps.newHashMap())
             .values()
             .stream()
-            .filter(r -> r.getCommit().isPresent())
-            .map(r -> r.getCommit().get())
+            .filter(r -> r
+                .getCommit()
+                .isPresent())
+            .map(r -> r
+                .getCommit()
+                .get())
             .collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(result);
@@ -61,9 +67,15 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
             .getOrDefault(dataset, Maps.newHashMap())
             .values()
             .stream()
-            .filter(r -> r.getCommit().isPresent())
-            .map(r -> r.getCommit().get())
-            .filter(r -> r.getVersion().equals(version))
+            .filter(r -> r
+                .getCommit()
+                .isPresent())
+            .map(r -> r
+                .getCommit()
+                .get())
+            .filter(r -> r
+                .getVersion()
+                .equals(version))
             .findFirst();
 
         return CompletableFuture.completedFuture(result);
@@ -75,7 +87,9 @@ public final class InMemoryDatasetsRepository implements DatasetsRepository {
             revisions.put(dataset, Maps.newHashMap());
         }
 
-        revisions.get(dataset).put(revision.getId(), revision);
+        revisions
+            .get(dataset)
+            .put(revision.getId(), revision);
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 

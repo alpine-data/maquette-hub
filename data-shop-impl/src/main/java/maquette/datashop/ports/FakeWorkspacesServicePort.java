@@ -23,7 +23,9 @@ public final class FakeWorkspacesServicePort implements WorkspacesServicePort {
     private final List<FakeWorkspace> workspaces;
 
     public static FakeWorkspacesServicePort apply() {
-        var om = DefaultObjectMapperFactory.apply().createJsonMapper();
+        var om = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper();
 
         var workspaces = Lists.newArrayList(
             FakeWorkspace.apply(UID.apply("alice-a"), "alice-project-a", List.of("alice")),
@@ -50,7 +52,9 @@ public final class FakeWorkspacesServicePort implements WorkspacesServicePort {
     public CompletionStage<List<Workspace>> getWorkspacesByMember(User user) {
         var result = workspaces
             .stream()
-            .filter(workspace -> workspace.getMembers().contains(user.getDisplayName()))
+            .filter(workspace -> workspace
+                .getMembers()
+                .contains(user.getDisplayName()))
             .map(workspace -> Workspace.apply(workspace.getId(), workspace.name, workspace.name))
             .collect(Collectors.toList());
 
@@ -79,11 +83,16 @@ public final class FakeWorkspacesServicePort implements WorkspacesServicePort {
     public void createWorkspaceIfNotPresent(User owner, String workspaceName) {
         var exists = workspaces
             .stream()
-            .filter(wks -> wks.getName().equals(workspaceName))
+            .filter(wks -> wks
+                .getName()
+                .equals(workspaceName))
             .findFirst();
 
         if (exists.isPresent()) {
-            exists.get().getMembers().add(owner.getDisplayName());
+            exists
+                .get()
+                .getMembers()
+                .add(owner.getDisplayName());
         } else {
             workspaces.add(FakeWorkspace.apply(UID.apply(workspaceName), workspaceName,
                 Lists.newArrayList(owner.getDisplayName())));

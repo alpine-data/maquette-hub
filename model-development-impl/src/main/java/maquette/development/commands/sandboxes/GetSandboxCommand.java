@@ -24,7 +24,8 @@ public class GetSandboxCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getSandboxServices()
             .getSandbox(user, workspace, sandbox)
             .thenApply(DataResult::apply);

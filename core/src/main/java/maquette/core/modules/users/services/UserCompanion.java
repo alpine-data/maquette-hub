@@ -33,7 +33,9 @@ public final class UserCompanion extends ServicesCompanion {
     public <T> CompletionStage<T> withUserOrDefault(User user, T defaultValue, Function<UserEntity,
         CompletionStage<T>> action) {
         if (user instanceof AuthenticatedUser) {
-            return users.getUserById(((AuthenticatedUser) user).getId()).thenCompose(action);
+            return users
+                .getUserById(((AuthenticatedUser) user).getId())
+                .thenCompose(action);
         } else {
             return CompletableFuture.completedFuture(defaultValue);
         }

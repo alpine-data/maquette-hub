@@ -35,18 +35,26 @@ public final class CommandResource {
             var command = ctx.bodyAsClass(Command.class);
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
 
-            var result = command.run(user, runtime).toCompletableFuture();
+            var result = command
+                .run(user, runtime)
+                .toCompletableFuture();
 
             var acceptRaw = ctx.header("Accept");
             var accept = acceptRaw != null ? acceptRaw : "application/json";
 
             if (accept.equals("text/plain")) {
-                ctx.result(result.thenApply(r -> r.toPlainText(runtime)).toCompletableFuture());
+                ctx.result(result
+                    .thenApply(r -> r.toPlainText(runtime))
+                    .toCompletableFuture());
             } else if (accept.equals("application/csv")) {
-                ctx.result(result.thenApply(r -> r.toCSV(runtime).orElseGet(() -> {
-                    ctx.status(404);
-                    return "CSV not available";
-                })).toCompletableFuture());
+                ctx.result(result
+                    .thenApply(r -> r
+                        .toCSV(runtime)
+                        .orElseGet(() -> {
+                            ctx.status(404);
+                            return "CSV not available";
+                        }))
+                    .toCompletableFuture());
             } else {
                 ctx.json(result.toCompletableFuture());
             }

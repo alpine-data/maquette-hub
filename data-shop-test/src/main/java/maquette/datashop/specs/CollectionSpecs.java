@@ -63,7 +63,8 @@ public abstract class CollectionSpecs {
     public abstract Path getResourcePath();
 
     /**
-     * When uploading a single file to a collection and downloading the collection file after, the downloaded file should
+     * When uploading a single file to a collection and downloading the collection file after, the downloaded file
+     * should
      * be identical to the uploaded one.
      */
     @Test
@@ -93,10 +94,10 @@ public abstract class CollectionSpecs {
 
         // Then
         steps.the_uploaded_files_should_be_listed_in_collection_files(
-                context.users.bob,
-                "some-asset",
-                null,
-                Arrays.asList("test_dir/other_test.txt", "test_dir/test.txt")
+            context.users.bob,
+            "some-asset",
+            null,
+            Arrays.asList("test_dir/other_test.txt", "test_dir/test.txt")
         );
     }
 
@@ -118,9 +119,9 @@ public abstract class CollectionSpecs {
 
         // Then
         steps.the_uploaded_files_should_be_listed_in_collection_files(
-                context.users.bob,
-                "some-asset",
-                "test_tag",
+            context.users.bob,
+            "some-asset",
+            "test_tag",
             List.of("test.txt")
         );
     }
@@ -141,8 +142,8 @@ public abstract class CollectionSpecs {
 
         // Then
         steps.the_deleted_files_should_not_be_listed_in_collection_files(
-                context.users.bob,
-                "some-asset",
+            context.users.bob,
+            "some-asset",
             List.of("test.txt")
         );
     }

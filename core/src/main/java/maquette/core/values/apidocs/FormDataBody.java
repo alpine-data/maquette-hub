@@ -19,7 +19,9 @@ public class FormDataBody implements Body {
     List<Field> formData;
 
     public static FormDataBody apply(Field... fields) {
-        return new FormDataBody(Lists.newArrayList(Arrays.stream(fields).iterator()));
+        return new FormDataBody(Lists.newArrayList(Arrays
+            .stream(fields)
+            .iterator()));
     }
 
     @Override

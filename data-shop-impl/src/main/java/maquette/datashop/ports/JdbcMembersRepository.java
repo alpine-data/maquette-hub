@@ -51,11 +51,12 @@ public final class JdbcMembersRepository<T extends Enum<T>> implements HasMember
     public CompletionStage<List<GrantedAuthorization<T>>> findAllMembers(UID parent) {
         var query = Templates.renderTemplateFromResources("db/sql/members/find-members-by-parent.sql");
 
-        var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("type", typeName)
-            .bind("parent", parent.getValue())
-            .map(new GrantedAuthorizationMapper()))
+        var result = jdbi
+            .withHandle(handle -> handle
+                .createQuery(query)
+                .bind("type", typeName)
+                .bind("parent", parent.getValue())
+                .map(new GrantedAuthorizationMapper()))
             .list();
 
         return CompletableFuture.completedFuture(result);
@@ -65,12 +66,13 @@ public final class JdbcMembersRepository<T extends Enum<T>> implements HasMember
     public CompletionStage<List<GrantedAuthorization<T>>> findMembersByRole(UID parent, T role) {
         var query = Templates.renderTemplateFromResources("db/sql/members/find-members-by-parent-and-role.sql");
 
-        var result = jdbi.withHandle(handle -> handle
-            .createQuery(query)
-            .bind("type", typeName)
-            .bind("parent", parent.getValue())
-            .bind("role", mapRoleToString.apply(role))
-            .map(new GrantedAuthorizationMapper()))
+        var result = jdbi
+            .withHandle(handle -> handle
+                .createQuery(query)
+                .bind("type", typeName)
+                .bind("parent", parent.getValue())
+                .bind("role", mapRoleToString.apply(role))
+                .map(new GrantedAuthorizationMapper()))
             .list();
 
         return CompletableFuture.completedFuture(result);
@@ -84,8 +86,12 @@ public final class JdbcMembersRepository<T extends Enum<T>> implements HasMember
             .createUpdate(query)
             .bind("type", typeName)
             .bind("parent", parent.getValue())
-            .bind("granted_by", member.getGranted().getBy())
-            .bind("granted_at", member.getGranted().getAt())
+            .bind("granted_by", member
+                .getGranted()
+                .getBy())
+            .bind("granted_at", member
+                .getGranted()
+                .getAt())
             .bind("role", mapRoleToString.apply(member.getRole()))
             .bind("auth", Operators.suppressExceptions(() -> om.writeValueAsString(member.getAuthorization())))
             .execute());
@@ -111,7 +117,9 @@ public final class JdbcMembersRepository<T extends Enum<T>> implements HasMember
 
         @Override
         public GrantedAuthorization<T> map(ResultSet rs, StatementContext ctx) throws SQLException {
-            var action = ActionMetadata.apply(rs.getString("granted_by"), rs.getDate("granted_at").toInstant());
+            var action = ActionMetadata.apply(rs.getString("granted_by"), rs
+                .getDate("granted_at")
+                .toInstant());
             var authorization = Operators.suppressExceptions(() -> om.readValue(rs.getString("auth"),
                 Authorization.class));
             var role = mapStringToRole.apply(rs.getString("role"));

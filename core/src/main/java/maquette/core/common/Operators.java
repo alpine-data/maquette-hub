@@ -179,7 +179,10 @@ public final class Operators {
     }
 
     public static JsonNode emptyJsonNode() {
-        return DefaultObjectMapperFactory.apply().createJsonMapper(true).createObjectNode();
+        return DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper(true)
+            .createObjectNode();
     }
 
     public static <T> Optional<T> exceptionToNone(ExceptionalSupplier<T> supplier) {
@@ -205,13 +208,19 @@ public final class Operators {
     }
 
     public static boolean isKebabCase(String s, int minLength) {
-        return s.length() >= minLength && Pattern.compile("[a-z][a-z0-9\\-]*").matcher(s).matches();
+        return s.length() >= minLength && Pattern
+            .compile("[a-z][a-z0-9\\-]*")
+            .matcher(s)
+            .matches();
     }
 
     public static boolean isInstantWithinRange(Instant compareFrom,
                                                Instant compareTo,
                                                Duration duration) {
-        return !Duration.between(compareFrom, compareTo).plus(duration).isNegative();
+        return !Duration
+            .between(compareFrom, compareTo)
+            .plus(duration)
+            .isNegative();
     }
 
     public static String randomHash() {
@@ -219,7 +228,9 @@ public final class Operators {
             .goodFastHash(8)
             .newHasher()
             .putLong(System.currentTimeMillis())
-            .putString(UUID.randomUUID().toString(), StandardCharsets.UTF_8)
+            .putString(UUID
+                .randomUUID()
+                .toString(), StandardCharsets.UTF_8)
             .hash()
             .toString();
     }
@@ -238,11 +249,17 @@ public final class Operators {
     public static String extractMessage(Throwable ex) {
         return Optional
             .ofNullable(ExceptionUtils.getRootCause(ex))
-            .map(t -> String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()))
+            .map(t -> String.format("%s: %s", t
+                .getClass()
+                .getSimpleName(), t.getMessage()))
             .orElse(Optional
                 .ofNullable(ex.getMessage())
-                .map(str -> String.format("%s: %s", ex.getClass().getSimpleName(), ex.getMessage()))
-                .orElse(String.format("%s: No details provided.", ex.getClass().getSimpleName())));
+                .map(str -> String.format("%s: %s", ex
+                    .getClass()
+                    .getSimpleName(), ex.getMessage()))
+                .orElse(String.format("%s: No details provided.", ex
+                    .getClass()
+                    .getSimpleName())));
     }
 
     public static void ignoreExceptions(ExceptionalRunnable runnable, Logger log) {
@@ -277,7 +294,9 @@ public final class Operators {
 
     public static String lorem() {
         var f = new Faker();
-        return f.lebowski().quote();
+        return f
+            .lebowski()
+            .quote();
     }
 
     /**
@@ -286,9 +305,10 @@ public final class Operators {
      * @return The random name.
      */
     public static String random_name() {
-        return Nomen.randomName().replace("_", "-");
+        return Nomen
+            .randomName()
+            .replace("_", "-");
     }
-
 
 
     public static void require(boolean condition, String message, Object... args) {

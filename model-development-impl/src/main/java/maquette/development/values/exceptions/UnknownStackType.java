@@ -9,7 +9,10 @@ public class UnknownStackType extends RuntimeException {
     }
 
     public static UnknownStackType apply(StackConfiguration config) {
-        var message = String.format("The stack type of stack `%s` cannot be determined from its configuration (%s).", config.getStackInstanceName(), config.getClass().getName());
+        var message = String.format("The stack type of stack `%s` cannot be determined from its configuration (%s).",
+            config.getStackInstanceName(), config
+                .getClass()
+                .getName());
         return new UnknownStackType(message);
     }
 

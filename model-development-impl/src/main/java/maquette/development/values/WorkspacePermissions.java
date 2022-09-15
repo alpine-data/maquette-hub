@@ -17,8 +17,20 @@ public class WorkspacePermissions {
     boolean member;
 
     public static WorkspacePermissions forUser(User executor, List<GrantedAuthorization<WorkspaceMemberRole>> members) {
-        var isAdmin = members.stream().anyMatch(m -> m.getRole().equals(WorkspaceMemberRole.ADMIN) && m.getAuthorization().authorizes(executor));
-        var isMember = members.stream().anyMatch(m -> m.getRole().equals(WorkspaceMemberRole.MEMBER) && m.getAuthorization().authorizes(executor));
+        var isAdmin = members
+            .stream()
+            .anyMatch(m -> m
+                .getRole()
+                .equals(WorkspaceMemberRole.ADMIN) && m
+                .getAuthorization()
+                .authorizes(executor));
+        var isMember = members
+            .stream()
+            .anyMatch(m -> m
+                .getRole()
+                .equals(WorkspaceMemberRole.MEMBER) && m
+                .getAuthorization()
+                .authorizes(executor));
 
         return apply(isAdmin, isMember);
     }
@@ -29,6 +41,8 @@ public class WorkspacePermissions {
     }
 
     @JsonProperty
-    public boolean canManageAllSandboxes() { return admin; }
+    public boolean canManageAllSandboxes() {
+        return admin;
+    }
 
 }

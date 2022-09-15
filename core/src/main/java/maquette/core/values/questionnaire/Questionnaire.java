@@ -13,16 +13,16 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public class Questionnaire {
 
-   JsonNode questions;
+    JsonNode questions;
 
-   Answers answers;
+    Answers answers;
 
-   public static Questionnaire apply(JsonNode questions) {
-      return apply(questions, null);
-   }
+    public static Questionnaire apply(JsonNode questions) {
+        return apply(questions, null);
+    }
 
-   public Optional<Answers> getAnswers() {
-      return Optional.ofNullable(answers);
-   }
+    public Optional<Answers> getAnswers() {
+        return Optional.ofNullable(answers);
+    }
 
 }

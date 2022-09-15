@@ -28,7 +28,8 @@ public class UpdateWorkspaceCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .update(user, workspace, name, title, summary)
             .thenApply(done -> MessageResult.apply("Successfully updated workspace."));

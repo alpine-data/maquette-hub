@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class RegisteredModelsResponse {
 
-   @JsonProperty("registered_models")
-   private List<RegisteredModel> registeredModels;
+    @JsonProperty("registered_models")
+    private List<RegisteredModel> registeredModels;
 
 }

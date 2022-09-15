@@ -9,8 +9,8 @@ import maquette.core.values.ActionMetadata;
 @AllArgsConstructor(staticName = "apply")
 public class Answers {
 
-   ActionMetadata answered;
+    ActionMetadata answered;
 
-   JsonNode responses;
+    JsonNode responses;
 
 }

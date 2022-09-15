@@ -8,18 +8,18 @@ import maquette.core.common.forms.inputs.InputControl;
 @AllArgsConstructor(staticName = "apply")
 public class FormControl {
 
-   String label;
+    String label;
 
-   InputControl control;
+    InputControl control;
 
-   String helpText;
+    String helpText;
 
-   public static FormControl apply(String label, InputControl control) {
-      return apply(label, control, null);
-   }
+    public static FormControl apply(String label, InputControl control) {
+        return apply(label, control, null);
+    }
 
-   public FormControl withHelpText(String helpText) {
-      return apply(label, control, helpText);
-   }
+    public FormControl withHelpText(String helpText) {
+        return apply(label, control, helpText);
+    }
 
 }

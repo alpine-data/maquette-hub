@@ -108,7 +108,8 @@ public class DatasetStepDefinitions extends DataAssetStepDefinitions {
     }
 
     public void $_downloads_latest_version_from_dataset_$(AuthenticatedUser user,
-                                                          String dataset) throws ExecutionException, InterruptedException {
+                                                          String dataset) throws ExecutionException,
+        InterruptedException {
         var result = runtime
             .getModule(MaquetteDataShop.class)
             .getProviders()

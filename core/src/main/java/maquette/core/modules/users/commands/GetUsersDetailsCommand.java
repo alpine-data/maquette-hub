@@ -41,17 +41,21 @@ public final class GetUsersDetailsCommand implements Command {
                     .addColumns(StringColumn.create("email"))
                     .addColumns(StringColumn.create("phone"));
 
-                profiles.values().forEach(p -> {
-                    var row = table.appendRow();
-                    row.setString("id", p.getId().getValue());
-                    row.setString("name", p.getName());
-                    row.setString("title", p.getTitle());
-                    row.setString("avatar", p.getAvatar());
-                    row.setString("bio", p.getBio());
-                    row.setString("location", p.getLocation());
-                    row.setString("email", p.getEmail());
-                    row.setString("phone", p.getPhone());
-                });
+                profiles
+                    .values()
+                    .forEach(p -> {
+                        var row = table.appendRow();
+                        row.setString("id", p
+                            .getId()
+                            .getValue());
+                        row.setString("name", p.getName());
+                        row.setString("title", p.getTitle());
+                        row.setString("avatar", p.getAvatar());
+                        row.setString("bio", p.getBio());
+                        row.setString("location", p.getLocation());
+                        row.setString("email", p.getEmail());
+                        row.setString("phone", p.getPhone());
+                    });
 
                 return TableResult.apply(table.sortDescendingOn("name"), profiles);
             });

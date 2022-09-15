@@ -35,10 +35,10 @@ public class AdditionalProperties {
 
     @JsonCreator
     public static AdditionalProperties apply(
-            @JsonProperty(TIMELINESS) Timeliness timeliness,
-            @JsonProperty(GEOGRAPHY) String geography,
-            @JsonProperty(BU) String bu,
-            @JsonProperty(LOB) String lob) {
+        @JsonProperty(TIMELINESS) Timeliness timeliness,
+        @JsonProperty(GEOGRAPHY) String geography,
+        @JsonProperty(BU) String bu,
+        @JsonProperty(LOB) String lob) {
 
         return new AdditionalProperties(timeliness, geography, bu, lob);
     }

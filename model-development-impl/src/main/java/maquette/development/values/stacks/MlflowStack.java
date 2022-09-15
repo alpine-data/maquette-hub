@@ -7,7 +7,7 @@ import maquette.core.common.forms.Form;
 import java.util.List;
 
 @AllArgsConstructor(staticName = "apply")
-public final class MlflowStack implements Stack<MlflowStackConfiguration>{
+public final class MlflowStack implements Stack<MlflowStackConfiguration> {
 
     public static final String STACK_NAME = "mlflow";
 

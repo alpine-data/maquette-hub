@@ -7,7 +7,9 @@ public class QuartzSchedulerJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
-        var jdm = context.getJobDetail().getJobDataMap();
+        var jdm = context
+            .getJobDetail()
+            .getJobDataMap();
         var job = (Runnable) jdm.get(QuartzCronScheduler.CONTEXT_KEY);
         job.run();
     }

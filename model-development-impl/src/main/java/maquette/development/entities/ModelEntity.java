@@ -105,9 +105,20 @@ public final class ModelEntity {
             .thenApply(model -> model
                 .getVersions()
                 .stream()
-                .filter(v -> v.getQuestionnaire().getAnswers().isPresent())
-                .sorted(Comparator.<ModelVersion, Instant>comparing(v -> v.getRegistered().getAt()).reversed())
-                .map(v -> v.getQuestionnaire().getAnswers().get().getResponses())
+                .filter(v -> v
+                    .getQuestionnaire()
+                    .getAnswers()
+                    .isPresent())
+                .sorted(Comparator
+                    .<ModelVersion, Instant>comparing(v -> v
+                        .getRegistered()
+                        .getAt())
+                    .reversed())
+                .map(v -> v
+                    .getQuestionnaire()
+                    .getAnswers()
+                    .get()
+                    .getResponses())
                 .findFirst());
     }
 
@@ -135,7 +146,9 @@ public final class ModelEntity {
             .thenCompose(members -> {
                 if (members.isEmpty()) {
                     return getProperties()
-                        .thenApply(p -> p.getCreated().getBy())
+                        .thenApply(p -> p
+                            .getCreated()
+                            .getBy())
                         .thenApply(UserAuthorization::apply)
                         .thenApply(auth -> GrantedAuthorization.apply(ActionMetadata.apply(auth.getName()), auth,
                             ModelMemberRole.OWNER))
@@ -152,16 +165,25 @@ public final class ModelEntity {
 
     public CompletionStage<Done> removeMember(User executor,
                                               UserAuthorization member) {
-        return models.findAllMembers(workspace, name).thenCompose(members -> {
-            var isOwnerRemoved = members.stream()
-                .anyMatch(auth -> auth.getAuthorization().equals(member) &&
-                    auth.getRole().equals(ModelMemberRole.OWNER) &&
-                    auth.getAuthorization().authorizes(executor));
-            if (isOwnerRemoved) {
-                throw MembersException.userCannotRemoveSelf();
-            }
-            return models.removeMember(workspace, name, member);
-        });
+        return models
+            .findAllMembers(workspace, name)
+            .thenCompose(members -> {
+                var isOwnerRemoved = members
+                    .stream()
+                    .anyMatch(auth -> auth
+                        .getAuthorization()
+                        .equals(member) &&
+                        auth
+                            .getRole()
+                            .equals(ModelMemberRole.OWNER) &&
+                        auth
+                            .getAuthorization()
+                            .authorizes(executor));
+                if (isOwnerRemoved) {
+                    throw MembersException.userCannotRemoveSelf();
+                }
+                return models.removeMember(workspace, name, member);
+            });
     }
 
     private CompletionStage<ModelFromRegistry> getPropertiesFromRegistry() {

@@ -8,6 +8,7 @@ import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.entities.DataAssetEntity;
+import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.values.DataAssetProperties;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access.DataAssetMembers;
@@ -17,7 +18,6 @@ import maquette.datashop.values.access_requests.DataAccessRequestProperties;
 import maquette.datashop.values.access_requests.DataAccessRequestState;
 import maquette.datashop.values.access_requests.LinkedWorkspace;
 import maquette.datashop.values.metadata.DataVisibility;
-import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -46,11 +46,14 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
                                                          T passThrough) {
         return entities
             .getByName(asset)
-            .thenCompose(d -> d.getMembers().getMembers())
+            .thenCompose(d -> d
+                .getMembers()
+                .getMembers())
             .thenApply(members -> {
                 var isMember = members
                     .stream()
-                    .anyMatch(granted -> granted.getAuthorization()
+                    .anyMatch(granted -> granted
+                        .getAuthorization()
                         .authorizes(user) && (Objects.isNull(role) || role.equals(granted.getRole())));
 
                 if (isMember) {
@@ -75,33 +78,40 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
         Boolean> check, T passThrough) {
         var entityCS = entities.getByName(name);
         var propertiesCS = entityCS.thenCompose(DataAssetEntity::getProperties);
-        var accessRequestsCS = Operators.compose(entityCS, propertiesCS, (entity, properties) -> entity
-            .getAccessRequests()
-            .getDataAccessRequests()
-            .thenCompose(requests -> Operators.allOf(requests
-                .stream()
-                .map(request -> enrichDataAccessRequest(properties, request)))))
+        var accessRequestsCS = Operators
+            .compose(entityCS, propertiesCS, (entity, properties) -> entity
+                .getAccessRequests()
+                .getDataAccessRequests()
+                .thenCompose(requests -> Operators.allOf(requests
+                    .stream()
+                    .map(request -> enrichDataAccessRequest(properties, request)))))
             .thenCompose(cs -> cs);
-        var membersCS = entityCS.thenCompose(entity -> entity.getMembers().getMembers());
+        var membersCS = entityCS.thenCompose(entity -> entity
+            .getMembers()
+            .getMembers());
         var workspaceUIDsCS = workspaces.getWorkspacesByMember(user);
 
-        return Operators.compose(accessRequestsCS, membersCS, workspaceUIDsCS, (accessRequests, members, workspaceUIDs) -> {
-            // filter access requests to the set of requests which can only be seen by the user.
-            accessRequests = accessRequests
-                .stream()
-                .filter(request -> workspaceUIDs.stream()
-                    .anyMatch(ws -> ws.equals(request.getWorkspace().getId())))
-                .collect(Collectors.toList());
+        return Operators.compose(accessRequestsCS, membersCS, workspaceUIDsCS,
+            (accessRequests, members, workspaceUIDs) -> {
+                // filter access requests to the set of requests which can only be seen by the user.
+                accessRequests = accessRequests
+                    .stream()
+                    .filter(request -> workspaceUIDs
+                        .stream()
+                        .anyMatch(ws -> ws.equals(request
+                            .getWorkspace()
+                            .getId())))
+                    .collect(Collectors.toList());
 
-            var membersCompanion = DataAssetMembers.apply(accessRequests, members);
-            var result = check.apply(membersCompanion.getDataAssetPermissions(user));
+                var membersCompanion = DataAssetMembers.apply(accessRequests, members);
+                var result = check.apply(membersCompanion.getDataAssetPermissions(user));
 
-            if (result) {
-                return Optional.of(passThrough);
-            } else {
-                return Optional.empty();
-            }
-        });
+                if (result) {
+                    return Optional.of(passThrough);
+                } else {
+                    return Optional.empty();
+                }
+            });
     }
 
     /**
@@ -117,10 +127,16 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
     public <T> CompletionStage<Optional<T>> filterRequester(User user, String name, UID accessRequest, T passThrough) {
         return entities
             .getByName(name)
-            .thenCompose(d -> d.getAccessRequests().getDataAccessRequestById(accessRequest))
+            .thenCompose(d -> d
+                .getAccessRequests()
+                .getDataAccessRequestById(accessRequest))
             .thenCompose(r -> workspaces
                 .getWorkspacesByMember(user)
-                .thenApply(workspaces -> workspaces.stream().anyMatch(w -> w.getId().equals(r.getWorkspace()))))
+                .thenApply(workspaces -> workspaces
+                    .stream()
+                    .anyMatch(w -> w
+                        .getId()
+                        .equals(r.getWorkspace()))))
             .thenApply(isMember -> {
                 if (isMember) {
                     return Optional.of(passThrough);
@@ -145,7 +161,9 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
                                                                      T passThrough) {
         var requestsCS = entities
             .getByName(name)
-            .thenCompose(ds -> ds.getAccessRequests().getDataAccessRequests());
+            .thenCompose(ds -> ds
+                .getAccessRequests()
+                .getDataAccessRequests());
 
         var workspacesCS = workspaces
             .getWorkspacesByMember(user)
@@ -157,7 +175,9 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
         return Operators.compose(requestsCS, workspacesCS, (requests, workspaces) -> {
             var request = requests
                 .stream()
-                .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
+                .filter(r -> r
+                    .getState()
+                    .equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
                     .anyMatch(workspaceUID -> workspaceUID.equals(r.getWorkspace())));
@@ -182,17 +202,23 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
     public <T> CompletionStage<Optional<T>> filterSubscribedConsumer(User user, String name, T passThrough) {
         var requestsCS = entities
             .getByName(name)
-            .thenCompose(ds -> ds.getAccessRequests().getDataAccessRequests());
+            .thenCompose(ds -> ds
+                .getAccessRequests()
+                .getDataAccessRequests());
 
         var workspacesCS = workspaces.getWorkspacesByMember(user);
 
         return Operators.compose(requestsCS, workspacesCS, (requests, workspaces) -> {
             var request = requests
                 .stream()
-                .filter(r -> r.getState().equals(DataAccessRequestState.GRANTED))
+                .filter(r -> r
+                    .getState()
+                    .equals(DataAccessRequestState.GRANTED))
                 .anyMatch(r -> workspaces
                     .stream()
-                    .anyMatch(workspaceUID -> workspaceUID.getId().equals(r.getWorkspace())));
+                    .anyMatch(workspaceUID -> workspaceUID
+                        .getId()
+                        .equals(r.getWorkspace())));
 
             if (request) {
                 return Optional.of(passThrough);
@@ -213,13 +239,18 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
     public <T> CompletionStage<Optional<T>> filterVisible(String name, T passThrough) {
         return entities
             .getByName(name)
-            .thenCompose(d -> d.getProperties().thenApply(properties -> {
-                if (properties.getMetadata().getVisibility().equals(DataVisibility.PUBLIC)) {
-                    return Optional.of(passThrough);
-                } else {
-                    return Optional.empty();
-                }
-            }));
+            .thenCompose(d -> d
+                .getProperties()
+                .thenApply(properties -> {
+                    if (properties
+                        .getMetadata()
+                        .getVisibility()
+                        .equals(DataVisibility.PUBLIC)) {
+                        return Optional.of(passThrough);
+                    } else {
+                        return Optional.empty();
+                    }
+                }));
     }
 
     /**
@@ -313,12 +344,13 @@ public final class DataAssetServicesCompanion extends ServicesCompanion {
      * @return The enriched request.
      */
     public CompletionStage<DataAccessRequest> enrichDataAccessRequest(DataAssetProperties asset,
-                                                                       DataAccessRequestProperties req) {
+                                                                      DataAccessRequestProperties req) {
         return workspaces
             .getWorkspacePropertiesByWorkspaceId(req.getWorkspace())
             .thenApply(workspaceProperties -> {
                 var linkedWorkspace = LinkedWorkspace.apply(req.getId(), workspaceProperties);
-                return DataAccessRequest.apply(req.getId(), req.getCreated(), asset, linkedWorkspace, req.getEvents(), req.getState());
+                return DataAccessRequest.apply(req.getId(), req.getCreated(), asset, linkedWorkspace, req.getEvents(),
+                    req.getState());
             });
     }
 

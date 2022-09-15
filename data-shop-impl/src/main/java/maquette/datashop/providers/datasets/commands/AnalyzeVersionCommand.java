@@ -20,23 +20,23 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class AnalyzeVersionCommand implements Command {
 
-   String name;
+    String name;
 
-   DatasetVersion version;
+    DatasetVersion version;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-          .getModule(MaquetteDataShop.class)
-          .getProviders()
-          .getByType(Datasets.class)
-          .getServices()
-          .analyze(user, name, version)
-          .thenApply(done -> MessageResult.create("ok"));
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getProviders()
+            .getByType(Datasets.class)
+            .getServices()
+            .analyze(user, name, version)
+            .thenApply(done -> MessageResult.create("ok"));
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-dataset", DatasetVersion.apply("1.0.0"));
-   }
+    @Override
+    public Command example() {
+        return apply("some-dataset", DatasetVersion.apply("1.0.0"));
+    }
 }

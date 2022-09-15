@@ -10,6 +10,6 @@ import lombok.Value;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CheckOk implements CheckResult {
 
-   String message;
+    String message;
 
 }

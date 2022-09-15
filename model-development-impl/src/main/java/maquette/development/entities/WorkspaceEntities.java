@@ -7,9 +7,9 @@ import maquette.core.common.Operators;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
-import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
+import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.exceptions.WorkspaceAlreadyExistsException;
@@ -38,11 +38,14 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return findWorkspaceByName(name)
             .thenCompose(maybeWorkspace -> {
                 if (maybeWorkspace.isPresent()) {
-                    return maybeWorkspace.get()
+                    return maybeWorkspace
+                        .get()
                         .isMember(executor, WorkspaceMemberRole.ADMIN)
                         .thenCompose(result -> {
                             if (result) {
-                                return maybeWorkspace.get().getProperties();
+                                return maybeWorkspace
+                                    .get()
+                                    .getProperties();
                             } else {
                                 return CompletableFuture.failedFuture(WorkspaceAlreadyExistsException.apply(name));
                             }
@@ -83,7 +86,9 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
     }
 
     public CompletionStage<List<WorkspaceProperties>> getWorkspaces() {
-        return repository.getWorkspaces().thenApply(s -> s.collect(Collectors.toList()));
+        return repository
+            .getWorkspaces()
+            .thenApply(s -> s.collect(Collectors.toList()));
     }
 
     public CompletionStage<List<WorkspaceProperties>> getWorkspacesByMember(User user) {
@@ -99,7 +104,11 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
                 .stream()
                 .filter(p -> {
                     var members = p.second();
-                    return members.stream().anyMatch(granted -> granted.getAuthorization().authorizes(user));
+                    return members
+                        .stream()
+                        .anyMatch(granted -> granted
+                            .getAuthorization()
+                            .authorizes(user));
                 })
                 .map(Pair::first)
                 .collect(Collectors.toList()));

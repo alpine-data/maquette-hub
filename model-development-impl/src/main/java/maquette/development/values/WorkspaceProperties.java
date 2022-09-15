@@ -17,56 +17,56 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorkspaceProperties {
 
-   private static final String ID = "id";
-   private static final String NAME = "name";
-   private static final String TITLE = "title";
-   private static final String SUMMARY = "summary";
-   private static final String CREATED = "created";
-   private static final String MODIFIED = "modified";
-   private static final String ML_FLOW_CONFIGURATION = "mlFlowConfiguration";
+    private static final String ID = "id";
+    private static final String NAME = "name";
+    private static final String TITLE = "title";
+    private static final String SUMMARY = "summary";
+    private static final String CREATED = "created";
+    private static final String MODIFIED = "modified";
+    private static final String ML_FLOW_CONFIGURATION = "mlFlowConfiguration";
 
-   @JsonProperty(ID)
-   UID id;
+    @JsonProperty(ID)
+    UID id;
 
-   @JsonProperty(NAME)
-   String name;
+    @JsonProperty(NAME)
+    String name;
 
-   @JsonProperty(TITLE)
-   String title;
+    @JsonProperty(TITLE)
+    String title;
 
-   @JsonProperty(SUMMARY)
-   String summary;
+    @JsonProperty(SUMMARY)
+    String summary;
 
-   @JsonProperty(CREATED)
-   ActionMetadata created;
+    @JsonProperty(CREATED)
+    ActionMetadata created;
 
-   @JsonProperty(MODIFIED)
-   ActionMetadata modified;
+    @JsonProperty(MODIFIED)
+    ActionMetadata modified;
 
-   @JsonProperty(ML_FLOW_CONFIGURATION)
-   MlflowStackConfiguration mlFlowConfiguration;
+    @JsonProperty(ML_FLOW_CONFIGURATION)
+    MlflowStackConfiguration mlFlowConfiguration;
 
-   @JsonCreator
-   public static WorkspaceProperties apply(
-       @JsonProperty(ID) UID id,
-       @JsonProperty(NAME) String name,
-       @JsonProperty(TITLE) String title,
-       @JsonProperty(SUMMARY) String summary,
-       @JsonProperty(CREATED) ActionMetadata created,
-       @JsonProperty(MODIFIED) ActionMetadata modified,
-       @JsonProperty(ML_FLOW_CONFIGURATION) MlflowStackConfiguration mlFlowConfiguration) {
+    @JsonCreator
+    public static WorkspaceProperties apply(
+        @JsonProperty(ID) UID id,
+        @JsonProperty(NAME) String name,
+        @JsonProperty(TITLE) String title,
+        @JsonProperty(SUMMARY) String summary,
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(MODIFIED) ActionMetadata modified,
+        @JsonProperty(ML_FLOW_CONFIGURATION) MlflowStackConfiguration mlFlowConfiguration) {
 
-      return new WorkspaceProperties(id, name, title, summary, created, modified, mlFlowConfiguration);
-   }
+        return new WorkspaceProperties(id, name, title, summary, created, modified, mlFlowConfiguration);
+    }
 
-   public static WorkspaceProperties apply(
-      UID id, String name, String title, String summary, ActionMetadata created, ActionMetadata modified) {
+    public static WorkspaceProperties apply(
+        UID id, String name, String title, String summary, ActionMetadata created, ActionMetadata modified) {
 
-      return apply(id, name, title, summary, created, modified, null);
-   }
+        return apply(id, name, title, summary, created, modified, null);
+    }
 
-   public Optional<MlflowStackConfiguration> getMlFlowConfiguration() {
-      return Optional.ofNullable(mlFlowConfiguration);
-   }
+    public Optional<MlflowStackConfiguration> getMlFlowConfiguration() {
+        return Optional.ofNullable(mlFlowConfiguration);
+    }
 
 }

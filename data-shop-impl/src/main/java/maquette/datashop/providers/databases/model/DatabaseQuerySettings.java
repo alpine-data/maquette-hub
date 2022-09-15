@@ -29,12 +29,19 @@ public class DatabaseQuerySettings {
     String id;
 
     @JsonCreator
-    public static DatabaseQuerySettings apply(@JsonProperty(NAME) String name, @JsonProperty(QUERY) String query, @JsonProperty(ID) String id) {
-        if (name == null || name.strip().length() == 0) {
+    public static DatabaseQuerySettings apply(@JsonProperty(NAME) String name, @JsonProperty(QUERY) String query,
+                                              @JsonProperty(ID) String id) {
+        if (name == null || name
+            .strip()
+            .length() == 0) {
             throw QueryNameMayNotBeEmptyException.apply();
-        } else if (query == null || query.strip().length() == 0) {
+        } else if (query == null || query
+            .strip()
+            .length() == 0) {
             throw DatabaseQueryMayNotBeEmptyException.apply(name);
-        } else if (id == null || id.strip().length() == 0) {
+        } else if (id == null || id
+            .strip()
+            .length() == 0) {
             throw new IllegalArgumentException("`id` must not be null.");
         }
 

@@ -53,8 +53,10 @@ public final class SandboxEntities {
      * @return The sandbox, if found.
      */
     public CompletionStage<Optional<SandboxEntity>> findSandboxById(UID workspace, UID sandbox) {
-        return sandboxes.findSandboxById(workspace, sandbox)
-            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, sandbox, workspace)));
+        return sandboxes
+            .findSandboxById(workspace, sandbox)
+            .thenApply(opt -> opt.map(
+                sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, sandbox, workspace)));
     }
 
     /**
@@ -65,7 +67,8 @@ public final class SandboxEntities {
      * @return The sandbox. Will throw exception if not found.
      */
     public CompletionStage<SandboxEntity> getSandboxById(UID workspace, UID sandbox) {
-        return findSandboxById(workspace, sandbox).thenApply(sdbx -> sdbx.orElseThrow(() -> SandboxNotFoundException.applyFromId(sandbox)));
+        return findSandboxById(workspace, sandbox).thenApply(
+            sdbx -> sdbx.orElseThrow(() -> SandboxNotFoundException.applyFromId(sandbox)));
     }
 
     /**
@@ -76,9 +79,11 @@ public final class SandboxEntities {
      * @return The sandbox if found.
      */
     public CompletionStage<Optional<SandboxEntity>> findSandboxByName(UID workspace, String sandbox) {
-        return sandboxes.findSandboxByName(workspace, sandbox)
-            .thenApply(opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes,workspaces, infrastructurePort, sdbx.getId(),
-                workspace)));
+        return sandboxes
+            .findSandboxByName(workspace, sandbox)
+            .thenApply(
+                opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, sdbx.getId(),
+                    workspace)));
     }
 
     /**
@@ -89,7 +94,8 @@ public final class SandboxEntities {
      * @return The sandbox. Will throw exception if not found.
      */
     public CompletionStage<SandboxEntity> getSandboxByName(UID workspace, String sandbox) {
-        return findSandboxByName(workspace, sandbox).thenApply(sdbx -> sdbx.orElseThrow(() -> SandboxNotFoundException.applyFromName(sandbox)));
+        return findSandboxByName(workspace, sandbox).thenApply(
+            sdbx -> sdbx.orElseThrow(() -> SandboxNotFoundException.applyFromName(sandbox)));
     }
 
     /**

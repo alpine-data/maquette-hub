@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
+import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
 import maquette.datashop.providers.datasets.commands.*;
 import maquette.datashop.providers.datasets.ports.DatasetDataExplorer;
@@ -11,7 +12,6 @@ import maquette.datashop.providers.datasets.ports.DatasetsRepository;
 import maquette.datashop.providers.datasets.services.DatasetServices;
 import maquette.datashop.providers.datasets.services.DatasetServicesFactory;
 import maquette.datashop.values.DataAssetProperties;
-import maquette.datashop.ports.WorkspacesServicePort;
 
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +30,8 @@ public final class Datasets implements DataAssetProvider {
 
     private MaquetteRuntime runtime;
 
-    public static Datasets apply(DatasetsRepository repository, DatasetDataExplorer explorer, WorkspacesServicePort workspaces) {
+    public static Datasets apply(DatasetsRepository repository, DatasetDataExplorer explorer,
+                                 WorkspacesServicePort workspaces) {
         return apply(repository, explorer, workspaces, null);
     }
 

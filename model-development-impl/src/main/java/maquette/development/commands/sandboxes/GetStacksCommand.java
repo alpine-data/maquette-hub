@@ -1,8 +1,6 @@
 package maquette.development.commands.sandboxes;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
@@ -19,7 +17,8 @@ public class GetStacksCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getSandboxServices()
             .getStacks(user)
             .thenApply(DataResult::apply);

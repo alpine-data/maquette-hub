@@ -22,66 +22,67 @@ import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class Collections implements DataAssetProvider {
-   public static final String TYPE_NAME = "collection";
+    public static final String TYPE_NAME = "collection";
 
-   private final CollectionsRepository repository;
-
-
-   private final WorkspacesServicePort workspaces;
-
-   private MaquetteRuntime runtime;
-   public static Collections apply(CollectionsRepository repository, WorkspacesServicePort workspaces) {
-      return apply(repository, workspaces, null);
-   }
-
-   @Override
-   public void configure(MaquetteRuntime runtime) {
-
-      this.runtime = runtime;
-
-      var handlers = CollectionsAPI.apply(this);
-
-      runtime
-         .getApp()
-         .post("/api/data/collections/:collection", handlers.upload())
-         .get("/api/data/collections/:collection/latest", handlers.download())
-         .get("/api/data/collections/:collection/tags/:tag", handlers.download())
-         .get("/api/data/collections/:collection/latest/*", handlers.downloadFile())
-         .get("/api/data/collections/:collection/tags/:tag/*", handlers.downloadFile())
-         .delete("/api/data/collections/:collection/latest/*", handlers.remove());
-   }
+    private final CollectionsRepository repository;
 
 
-   @Override
-   public Map<String, Class<? extends Command>> getCustomCommands() {
-      Map<String, Class<? extends Command>> commands = Maps.newHashMap();
+    private final WorkspacesServicePort workspaces;
 
-      commands.put("collections tag", CreateCollectionTagCommand.class);
-      commands.put("collections list", ListCollectionFilesCommand.class);
+    private MaquetteRuntime runtime;
 
-      return commands;
-   }
+    public static Collections apply(CollectionsRepository repository, WorkspacesServicePort workspaces) {
+        return apply(repository, workspaces, null);
+    }
 
+    @Override
+    public void configure(MaquetteRuntime runtime) {
 
-   @Override
-   public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
-      var filesCS = repository.getFiles(properties.getId());
-      var tagsCS = repository.findAllTags(properties.getId());
+        this.runtime = runtime;
 
-      return Operators.compose(filesCS, tagsCS, CollectionDetails::apply);
-   }
+        var handlers = CollectionsAPI.apply(this);
 
-   public CollectionServices getServices() {
-      if (Objects.isNull(runtime)) {
-         throw new IllegalStateException("This method can not be called before everything is initialized.");
-      }
-
-      return CollectionServicesFactory.apply(runtime, repository, workspaces);
-   }
+        runtime
+            .getApp()
+            .post("/api/data/collections/:collection", handlers.upload())
+            .get("/api/data/collections/:collection/latest", handlers.download())
+            .get("/api/data/collections/:collection/tags/:tag", handlers.download())
+            .get("/api/data/collections/:collection/latest/*", handlers.downloadFile())
+            .get("/api/data/collections/:collection/tags/:tag/*", handlers.downloadFile())
+            .delete("/api/data/collections/:collection/latest/*", handlers.remove());
+    }
 
 
-   @Override
-   public String getType() {
-      return TYPE_NAME;
-   }
+    @Override
+    public Map<String, Class<? extends Command>> getCustomCommands() {
+        Map<String, Class<? extends Command>> commands = Maps.newHashMap();
+
+        commands.put("collections tag", CreateCollectionTagCommand.class);
+        commands.put("collections list", ListCollectionFilesCommand.class);
+
+        return commands;
+    }
+
+
+    @Override
+    public CompletionStage<?> getDetails(DataAssetProperties properties, Object customSettings) {
+        var filesCS = repository.getFiles(properties.getId());
+        var tagsCS = repository.findAllTags(properties.getId());
+
+        return Operators.compose(filesCS, tagsCS, CollectionDetails::apply);
+    }
+
+    public CollectionServices getServices() {
+        if (Objects.isNull(runtime)) {
+            throw new IllegalStateException("This method can not be called before everything is initialized.");
+        }
+
+        return CollectionServicesFactory.apply(runtime, repository, workspaces);
+    }
+
+
+    @Override
+    public String getType() {
+        return TYPE_NAME;
+    }
 }

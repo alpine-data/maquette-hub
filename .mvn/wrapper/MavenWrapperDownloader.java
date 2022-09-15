@@ -77,10 +77,16 @@ public class MavenWrapperDownloader {
         System.out.println("- Downloading from: " + url);
 
         File outputFile = new File(baseDirectory.getAbsolutePath(), MAVEN_WRAPPER_JAR_PATH);
-        if (!outputFile.getParentFile().exists()) {
-            if (!outputFile.getParentFile().mkdirs()) {
+        if (!outputFile
+            .getParentFile()
+            .exists()) {
+            if (!outputFile
+                .getParentFile()
+                .mkdirs()) {
                 System.out.println(
-                    "- ERROR creating output directory '" + outputFile.getParentFile().getAbsolutePath() + "'");
+                    "- ERROR creating output directory '" + outputFile
+                        .getParentFile()
+                        .getAbsolutePath() + "'");
             }
         }
         System.out.println("- Downloading to: " + outputFile.getAbsolutePath());
@@ -98,7 +104,9 @@ public class MavenWrapperDownloader {
     private static void downloadFileFromURL(String urlString, File destination) throws Exception {
         if (System.getenv("MVNW_USERNAME") != null && System.getenv("MVNW_PASSWORD") != null) {
             String username = System.getenv("MVNW_USERNAME");
-            char[] password = System.getenv("MVNW_PASSWORD").toCharArray();
+            char[] password = System
+                .getenv("MVNW_PASSWORD")
+                .toCharArray();
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
@@ -110,7 +118,9 @@ public class MavenWrapperDownloader {
         ReadableByteChannel rbc;
         rbc = Channels.newChannel(website.openStream());
         FileOutputStream fos = new FileOutputStream(destination);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        fos
+            .getChannel()
+            .transferFrom(rbc, 0, Long.MAX_VALUE);
         fos.close();
         rbc.close();
     }

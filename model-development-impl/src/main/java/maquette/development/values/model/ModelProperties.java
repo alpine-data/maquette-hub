@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
-import maquette.core.values.UID;
 import maquette.development.values.exceptions.ModelVersionNotFoundException;
 
 import java.util.List;
@@ -18,44 +17,48 @@ import java.util.stream.Stream;
 @AllArgsConstructor(staticName = "apply")
 public class ModelProperties {
 
-   String title;
+    String title;
 
-   String name;
+    String name;
 
-   Set<String> flavours;
+    Set<String> flavours;
 
-   String description;
+    String description;
 
-   List<String> warnings;
+    List<String> warnings;
 
-   List<ModelVersion> versions;
+    List<ModelVersion> versions;
 
-   ActionMetadata created;
+    ActionMetadata created;
 
-   ActionMetadata updated;
+    ActionMetadata updated;
 
-   public ModelVersion getVersion(String version){
-      return findVersion(version).orElseThrow(() -> ModelVersionNotFoundException.apply(name, version));
-   }
+    public ModelVersion getVersion(String version) {
+        return findVersion(version).orElseThrow(() -> ModelVersionNotFoundException.apply(name, version));
+    }
 
-   public Optional<ModelVersion> findVersion(String version) {
-      return versions
-         .stream()
-         .filter(v -> v.getVersion().equals(version))
-         .findAny();
-   }
+    public Optional<ModelVersion> findVersion(String version) {
+        return versions
+            .stream()
+            .filter(v -> v
+                .getVersion()
+                .equals(version))
+            .findAny();
+    }
 
-   public ModelProperties withVersion(ModelVersion version) {
-      var filtered = this
-         .versions
-         .stream()
-         .filter(v -> !v.getVersion().equals(version.getVersion()));
+    public ModelProperties withVersion(ModelVersion version) {
+        var filtered = this
+            .versions
+            .stream()
+            .filter(v -> !v
+                .getVersion()
+                .equals(version.getVersion()));
 
-      var versions = Stream
-         .concat(filtered, Stream.of(version))
-         .collect(Collectors.toList());
+        var versions = Stream
+            .concat(filtered, Stream.of(version))
+            .collect(Collectors.toList());
 
-      return withVersions(versions);
-   }
+        return withVersions(versions);
+    }
 
 }

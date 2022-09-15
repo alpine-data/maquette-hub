@@ -35,7 +35,7 @@ public final class UpdateDataAssetCommand implements Command {
     public Command example() {
         var meta = DataAssetMetadata.apply(
             "some-dataset", "title", Operators.lorem(),
-            DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW,null);
+            DataVisibility.PUBLIC, DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, null);
 
         return apply("some-dataset", meta);
     }

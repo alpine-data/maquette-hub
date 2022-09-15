@@ -46,10 +46,21 @@ public class QueryDataAssetsCommand implements Command {
                 datasets.forEach(p -> {
                     var row = table.appendRow();
                     row.setString("type", p.getType());
-                    row.setString("name", p.getMetadata().getName());
-                    row.setString("visibility", p.getMetadata().getVisibility().getValue());
-                    row.setString("classification", p.getMetadata().getClassification().getValue());
-                    row.setString("personal information", p.getMetadata().getPersonalInformation().getValue());
+                    row.setString("name", p
+                        .getMetadata()
+                        .getName());
+                    row.setString("visibility", p
+                        .getMetadata()
+                        .getVisibility()
+                        .getValue());
+                    row.setString("classification", p
+                        .getMetadata()
+                        .getClassification()
+                        .getValue());
+                    row.setString("personal information", p
+                        .getMetadata()
+                        .getPersonalInformation()
+                        .getValue());
                 });
 
                 return TableResult.apply(table.sortDescendingOn("name"), datasets);

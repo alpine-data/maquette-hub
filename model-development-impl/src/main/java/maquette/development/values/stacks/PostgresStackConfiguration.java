@@ -74,7 +74,8 @@ public final class PostgresStackConfiguration implements StackConfiguration {
 
     @Override
     public StackConfiguration withStackInstanceName(String name) {
-        return PostgresStackConfiguration.apply(name, dbUsername, dbPassword, pgEmail, pgPassword, environmentVariables);
+        return PostgresStackConfiguration.apply(name, dbUsername, dbPassword, pgEmail, pgPassword,
+            environmentVariables);
     }
 
     @Override

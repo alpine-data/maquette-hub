@@ -79,7 +79,10 @@ public final class MaquetteDataShop implements MaquetteModule {
         commands.put("data-assets update-custom-settings", UpdateCustomDataAssetSettingsCommand.class);
         commands.put("data-assets update", UpdateDataAssetCommand.class);
 
-        this.providers.toMap().values().forEach(provider -> commands.putAll(provider.getCustomCommands()));
+        this.providers
+            .toMap()
+            .values()
+            .forEach(provider -> commands.putAll(provider.getCustomCommands()));
 
         return commands;
     }
@@ -104,7 +107,10 @@ public final class MaquetteDataShop implements MaquetteModule {
     public void start(MaquetteRuntime runtime) {
         runtime.withObjectMapperFactory(MaquetteDataShopObjectMapperFactory.apply(runtime.getObjectMapperFactory()));
 
-        for (var provider : this.getProviders().toMap().values()) {
+        for (var provider : this
+            .getProviders()
+            .toMap()
+            .values()) {
             provider.configure(runtime);
         }
 

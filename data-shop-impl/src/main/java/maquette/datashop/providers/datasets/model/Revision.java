@@ -9,29 +9,29 @@ import org.apache.avro.Schema;
 import java.util.Optional;
 
 @JsonTypeInfo(
-   use = JsonTypeInfo.Id.NAME,
-   property = "state")
+    use = JsonTypeInfo.Id.NAME,
+    property = "state")
 @JsonSubTypes(
-   {
-      @JsonSubTypes.Type(value = OpenRevision.class, name = "open"),
-      @JsonSubTypes.Type(value = CommittedRevision.class, name = "committed")
-   })
+    {
+        @JsonSubTypes.Type(value = OpenRevision.class, name = "open"),
+        @JsonSubTypes.Type(value = CommittedRevision.class, name = "committed")
+    })
 public interface Revision {
 
-   UID getId();
+    UID getId();
 
-   ActionMetadata getCreated();
+    ActionMetadata getCreated();
 
-   ActionMetadata getModified();
+    ActionMetadata getModified();
 
-   long getRecords();
+    long getRecords();
 
-   Schema getSchema();
+    Schema getSchema();
 
-   Optional<CommittedRevision> getCommit();
+    Optional<CommittedRevision> getCommit();
 
-   Revision withModified(ActionMetadata modified);
+    Revision withModified(ActionMetadata modified);
 
-   Revision withRecords(long newValue);
+    Revision withRecords(long newValue);
 
 }

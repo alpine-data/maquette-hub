@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class SandboxServicesValidated implements  SandboxServices {
+public final class SandboxServicesValidated implements SandboxServices {
 
     private final SandboxServices delegate;
 
@@ -42,7 +42,9 @@ public final class SandboxServicesValidated implements  SandboxServices {
                 String nameValidated;
                 VolumeDefinition volumeValidated;
 
-                if (Objects.isNull(name) || name.trim().equals("")) {
+                if (Objects.isNull(name) || name
+                    .trim()
+                    .equals("")) {
                     nameValidated = Operators.random_name();
                 } else {
                     nameValidated = name;

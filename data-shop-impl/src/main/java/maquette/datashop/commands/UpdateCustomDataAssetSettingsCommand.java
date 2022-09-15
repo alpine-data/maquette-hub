@@ -31,10 +31,13 @@ public final class UpdateCustomDataAssetSettingsCommand implements Command {
             .getServices()
             .get(user, name)
             .thenApply(DataAsset::getProperties)
-            .thenApply(properties -> shop.getProviders().getByName(properties.getType()))
+            .thenApply(properties -> shop
+                .getProviders()
+                .getByName(properties.getType()))
             .thenCompose(assetProvider -> {
                 var customSettings = Operators.suppressExceptions(() ->
-                    runtime.getObjectMapperFactory()
+                    runtime
+                        .getObjectMapperFactory()
                         .createJsonMapper()
                         .treeToValue(this.customSettings, assetProvider.getSettingsType()));
 

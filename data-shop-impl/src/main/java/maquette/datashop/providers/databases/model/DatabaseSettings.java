@@ -65,7 +65,9 @@ public class DatabaseSettings implements DataAssetSettings {
         return this
             .querySettings
             .stream()
-            .filter(query -> query.getId().equals(queryId))
+            .filter(query -> query
+                .getId()
+                .equals(queryId))
             .findFirst();
     }
 
@@ -77,7 +79,9 @@ public class DatabaseSettings implements DataAssetSettings {
         return this
             .querySettings
             .stream()
-            .filter(query -> query.getName().equals(queryName))
+            .filter(query -> query
+                .getName()
+                .equals(queryName))
             .findFirst();
     }
 

@@ -45,9 +45,13 @@ final class AvroRecords implements Records {
     @Override
     public Schema getSchema() {
         if (records.size() > 0) {
-            return records.get(0).getSchema();
+            return records
+                .get(0)
+                .getSchema();
         } else {
-            return SchemaBuilder.builder().nullType();
+            return SchemaBuilder
+                .builder()
+                .nullType();
         }
     }
 
@@ -65,16 +69,18 @@ final class AvroRecords implements Records {
             os.flush();
             return ImmutableList
                 .copyOf(os
-                            .getBufferList()
-                            .stream()
-                            .map(ByteString::fromByteBuffer)
-                            .collect(Collectors.toList()));
+                    .getBufferList()
+                    .stream()
+                    .map(ByteString::fromByteBuffer)
+                    .collect(Collectors.toList()));
         });
     }
 
     @Override
     public Source<ByteBuffer, NotUsed> getSource() {
-        return Source.from(getBytes()).map(ByteString::asByteBuffer);
+        return Source
+            .from(getBytes())
+            .map(ByteString::asByteBuffer);
     }
 
     @Override

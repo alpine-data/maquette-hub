@@ -52,7 +52,9 @@ public class DatabaseAnalysisResult {
         return this
             .queries
             .stream()
-            .filter(query -> query.getId().equals(queryId))
+            .filter(query -> query
+                .getId()
+                .equals(queryId))
             .findFirst();
     }
 

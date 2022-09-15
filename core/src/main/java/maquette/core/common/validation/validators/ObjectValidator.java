@@ -37,9 +37,13 @@ public final class ObjectValidator<T> implements Validator<T> {
             for (var check : checks) {
                 if (cont) {
                     try {
-                        cont = check.first().apply(context, fieldName, value);
+                        cont = check
+                            .first()
+                            .apply(context, fieldName, value);
                     } catch (Exception e) {
-                        Operators.suppressExceptions(() -> check.second().apply(context, fieldName, value, e));
+                        Operators.suppressExceptions(() -> check
+                            .second()
+                            .apply(context, fieldName, value, e));
                     }
                 }
             }

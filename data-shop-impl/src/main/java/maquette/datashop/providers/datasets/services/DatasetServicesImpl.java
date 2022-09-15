@@ -43,7 +43,9 @@ public final class DatasetServicesImpl implements DatasetServices {
                 .getUserById(((AuthenticatedUser) executor).getId())
                 .thenCompose(UserEntity::getAuthenticationToken)
                 .thenCompose(authToken -> getEntity(dataset).thenApply(entity -> {
-                    entity.analyze(version, authToken.getId().getValue(), authToken.getSecret());
+                    entity.analyze(version, authToken
+                        .getId()
+                        .getValue(), authToken.getSecret());
                     return Done.getInstance();
                 }));
         } else {

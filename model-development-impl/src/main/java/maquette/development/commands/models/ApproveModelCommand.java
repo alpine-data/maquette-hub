@@ -26,7 +26,8 @@ public class ApproveModelCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .approveModel(user, workspace, model, version)
             .thenApply(pid -> MessageResult.apply("Successfully approved model version."));

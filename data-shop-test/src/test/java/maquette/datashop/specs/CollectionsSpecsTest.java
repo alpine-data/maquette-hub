@@ -15,7 +15,9 @@ public class CollectionsSpecsTest extends CollectionSpecs {
     @Override
     public CollectionsRepository setupCollectionsRepository() {
         var config = FileSystemRepositoryConfiguration.apply(Path.of("./"));
-        var om = DefaultObjectMapperFactory.apply().createJsonMapper();
+        var om = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper();
         return FileSystemCollectionsRepository.apply(config, om);
     }
 

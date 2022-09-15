@@ -12,7 +12,6 @@ import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.providers.collections.Collections;
 
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -20,24 +19,24 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class ListCollectionFilesCommand implements Command {
 
-   String collection;
+    String collection;
 
-   String tag;
+    String tag;
 
-   @Override
-   public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-      return runtime
-         .getModule(MaquetteDataShop.class)
-         .getProviders()
-         .getByType(Collections.class)
-         .getServices()
-         .listFiles(user, collection, tag)
-         .thenApply(DataResult::apply);
-   }
+    @Override
+    public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
+        return runtime
+            .getModule(MaquetteDataShop.class)
+            .getProviders()
+            .getByType(Collections.class)
+            .getServices()
+            .listFiles(user, collection, tag)
+            .thenApply(DataResult::apply);
+    }
 
-   @Override
-   public Command example() {
-      return apply("some-collection", null);
-   }
+    @Override
+    public Command example() {
+        return apply("some-collection", null);
+    }
 
 }

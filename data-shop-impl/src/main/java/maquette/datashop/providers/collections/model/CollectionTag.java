@@ -10,28 +10,28 @@ import maquette.core.values.ActionMetadata;
 @AllArgsConstructor()
 public class CollectionTag {
 
-   private static final String CREATED = "created";
+    private static final String CREATED = "created";
 
-   private static final String NAME = "name";
+    private static final String NAME = "name";
 
-   private static final String MESSAGE = "message";
+    private static final String MESSAGE = "message";
 
-   private static final String CONTENT = "content";
+    private static final String CONTENT = "content";
 
-   ActionMetadata created;
+    ActionMetadata created;
 
-   String name;
+    String name;
 
-   String message;
+    String message;
 
-   FileEntry.Directory content;
+    FileEntry.Directory content;
 
-   @JsonCreator
-   public static CollectionTag apply(
-           @JsonProperty(CREATED) ActionMetadata created,
-           @JsonProperty(NAME) String name,
-           @JsonProperty(MESSAGE) String message,
-           @JsonProperty(CONTENT) FileEntry.Directory content) {
-      return new CollectionTag(created, name, message, content);
-   }
+    @JsonCreator
+    public static CollectionTag apply(
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(NAME) String name,
+        @JsonProperty(MESSAGE) String message,
+        @JsonProperty(CONTENT) FileEntry.Directory content) {
+        return new CollectionTag(created, name, message, content);
+    }
 }

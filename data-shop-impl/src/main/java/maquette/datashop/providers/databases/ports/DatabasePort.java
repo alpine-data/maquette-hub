@@ -8,8 +8,10 @@ import java.util.concurrent.CompletionStage;
 
 public interface DatabasePort {
 
-    CompletionStage<Records> read(DatabaseDriver driver, String connection, String username, String password, String query);
+    CompletionStage<Records> read(DatabaseDriver driver, String connection, String username, String password,
+                                  String query);
 
-    CompletionStage<ConnectionTestResult> test(DatabaseDriver driver, String connection, String username, String password, String query);
+    CompletionStage<ConnectionTestResult> test(DatabaseDriver driver, String connection, String username,
+                                               String password, String query);
 
 }

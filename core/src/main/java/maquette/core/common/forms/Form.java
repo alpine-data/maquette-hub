@@ -17,45 +17,55 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Form {
 
-   String helpText;
+    String helpText;
 
-   List<FormRow> fields;
+    List<FormRow> fields;
 
-   public static Form apply(String helpText, List<FormRow> fields) {
-      return new Form(helpText, List.copyOf(fields));
-   }
+    public static Form apply(String helpText, List<FormRow> fields) {
+        return new Form(helpText, List.copyOf(fields));
+    }
 
-   public static Form apply(String helpText, FormRow ...fields) {
-      return apply(helpText, Lists.newArrayList(Arrays.stream(fields).iterator()));
-   }
+    public static Form apply(String helpText, FormRow... fields) {
+        return apply(helpText, Lists.newArrayList(Arrays
+            .stream(fields)
+            .iterator()));
+    }
 
-   public static Form apply() {
-      return apply(null);
-   }
+    public static Form apply() {
+        return apply(null);
+    }
 
-   public Form withRow(FormRow row) {
-      var fields = Lists.newArrayList(this.fields.iterator());
-      fields.add(row);
+    public Form withRow(FormRow row) {
+        var fields = Lists.newArrayList(this.fields.iterator());
+        fields.add(row);
 
-      return apply(helpText, fields);
-   }
+        return apply(helpText, fields);
+    }
 
-   public Form withControl(FormControl control) {
-      var fields = Lists.newArrayList(this.fields.iterator());
-      fields.add(FormRow.apply(false).withFormControl(control));
+    public Form withControl(FormControl control) {
+        var fields = Lists.newArrayList(this.fields.iterator());
+        fields.add(FormRow
+            .apply(false)
+            .withFormControl(control));
 
-      return apply(helpText, fields);
-   }
+        return apply(helpText, fields);
+    }
 
-   @JsonProperty("defaults")
-   public Map<String, Object> getDefaults() {
-      Map<String, Object> defaults = Maps.newHashMap();
+    @JsonProperty("defaults")
+    public Map<String, Object> getDefaults() {
+        Map<String, Object> defaults = Maps.newHashMap();
 
-      fields.forEach(row -> row.getControls().forEach(control -> {
-         defaults.put(control.getControl().getName(), control.getControl().getDefaultValue());
-      }));
+        fields.forEach(row -> row
+            .getControls()
+            .forEach(control -> {
+                defaults.put(control
+                    .getControl()
+                    .getName(), control
+                    .getControl()
+                    .getDefaultValue());
+            }));
 
-      return Map.copyOf(defaults);
-   }
+        return Map.copyOf(defaults);
+    }
 
 }

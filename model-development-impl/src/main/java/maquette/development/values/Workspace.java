@@ -32,8 +32,12 @@ public class Workspace {
 
     public boolean isMember(User user, WorkspaceMemberRole role) {
         return members
-           .stream()
-           .anyMatch(granted -> granted.getAuthorization().authorizes(user) && (Objects.isNull(role) || granted.getRole().equals(role)));
+            .stream()
+            .anyMatch(granted -> granted
+                .getAuthorization()
+                .authorizes(user) && (Objects.isNull(role) || granted
+                .getRole()
+                .equals(role)));
     }
 
     public boolean isMember(User user) {

@@ -42,8 +42,14 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
     private final Map<String, Deployment> deployments;
 
     public static DockerInfrastructurePort apply() {
-        var om = DefaultObjectMapperFactory.apply().createJsonMapper(true);
-        var path = SystemUtils.getUserHome().toPath().resolve(".mq").resolve("docker");
+        var om = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper(true);
+        var path = SystemUtils
+            .getUserHome()
+            .toPath()
+            .resolve(".mq")
+            .resolve("docker");
         var docker = Docker.apply(path, om);
         var deploymentConfigurationStore = path.resolve("deployments.json");
 
@@ -60,17 +66,22 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
             return createOrUpdatePython(workspace, (PythonStackConfiguration) configuration);
         } else {
             return CompletableFuture.failedFuture(new RuntimeException(
-                String.format("Unknown stack type `%s`", configuration.getClass().getName())));
+                String.format("Unknown stack type `%s`", configuration
+                    .getClass()
+                    .getName())));
         }
     }
 
     @Override
     public CompletionStage<Done> removeStackInstance(String name) {
         if (deployments.containsKey(name)) {
-            return deployments.get(name).remove().thenApply(done -> {
-                removeDeployedStackConfiguration(name);
-                return done;
-            });
+            return deployments
+                .get(name)
+                .remove()
+                .thenApply(done -> {
+                    removeDeployedStackConfiguration(name);
+                    return done;
+                });
         } else {
             return docker
                 .runDeployment(getDeployedStackConfiguration(name).getDeploymentConfig())
@@ -133,9 +144,12 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
     private void insertOrUpdate(StackDeployment configuration) {
         var current = getDeployedStackConfigurations()
             .stream()
-            .filter(config -> !config.getStackConfiguration()
+            .filter(config -> !config
+                .getStackConfiguration()
                 .getStackInstanceName()
-                .equals(configuration.getStackConfiguration().getStackInstanceName()));
+                .equals(configuration
+                    .getStackConfiguration()
+                    .getStackInstanceName()));
 
         var updated = Streams
             .concat(current, Stream.of(configuration))
@@ -144,10 +158,12 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
         updateDeployedStackConfigurations(updated);
     }
 
-    private  void removeDeployedStackConfiguration(String name) {
+    private void removeDeployedStackConfiguration(String name) {
         var updated = getDeployedStackConfigurations()
             .stream()
-            .filter(d -> !d.getStackInstanceName().equals(name))
+            .filter(d -> !d
+                .getStackInstanceName()
+                .equals(name))
             .collect(Collectors.toList());
 
         updateDeployedStackConfigurations(updated);
@@ -161,13 +177,17 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
     }
 
     private StackDeployment getDeployedStackConfiguration(String stackInstanceName) {
-        return findDeployedStackConfiguration(stackInstanceName).orElseThrow(() -> StackConfigurationNotFoundException.applyFromId(UID.apply(stackInstanceName)));
+        return findDeployedStackConfiguration(stackInstanceName).orElseThrow(
+            () -> StackConfigurationNotFoundException.applyFromId(UID.apply(stackInstanceName)));
     }
 
     private Optional<StackDeployment> findDeployedStackConfiguration(String stackInstanceName) {
         return getDeployedStackConfigurations()
             .stream()
-            .filter(config -> config.getStackConfiguration().getStackInstanceName().equals(stackInstanceName))
+            .filter(config -> config
+                .getStackConfiguration()
+                .getStackInstanceName()
+                .equals(stackInstanceName))
             .findFirst();
     }
 

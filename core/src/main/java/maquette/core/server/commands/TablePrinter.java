@@ -71,14 +71,18 @@ public final class TablePrinter {
      * @return the line format template
      */
     private static String getHeaderTemplate(int[] widths, String[] headers) {
-        return IntStream.range(0, widths.length)
+        return IntStream
+            .range(0, widths.length)
             .mapToObj(
                 i -> {
                     final int width = widths[i];
                     final int length = headers[i].length();
                     final int trailing = width - length;
                     final StringBuilder text = new StringBuilder();
-                    text.append("%").append(i + 1).append("$s");
+                    text
+                        .append("%")
+                        .append(i + 1)
+                        .append("$s");
                     whitespace(text, trailing);
                     text.append("  ");
                     return text.toString();
@@ -93,7 +97,8 @@ public final class TablePrinter {
      * @return the line format template
      */
     private static String getDataTemplate(int[] widths) {
-        return IntStream.range(0, widths.length)
+        return IntStream
+            .range(0, widths.length)
             .mapToObj(i -> "%" + (i + 1) + "$-" + widths[i] + "s  ")
             .collect(Collectors.joining());
     }
@@ -104,7 +109,9 @@ public final class TablePrinter {
      * @param length the length for whitespace
      */
     private static void whitespace(StringBuilder text, int length) {
-        IntStream.range(0, length).forEach(i -> text.append(" "));
+        IntStream
+            .range(0, length)
+            .forEach(i -> text.append(" "));
     }
 
     /**
@@ -119,7 +126,10 @@ public final class TablePrinter {
             final int[] widths = getWidths(headers, data);
             final String dataTemplate = getDataTemplate(widths);
             final String headerTemplate = getHeaderTemplate(widths, headers);
-            final int totalWidth = IntStream.of(widths).map(w -> w + 5).sum() - 1;
+            final int totalWidth = IntStream
+                .of(widths)
+                .map(w -> w + 5)
+                .sum() - 1;
             final int totalHeight = data.length + 1;
             int capacity = totalWidth * totalHeight;
             if (capacity < 0) {
@@ -136,7 +146,9 @@ public final class TablePrinter {
                 text.append(System.lineSeparator());
                 text.append(dataLine);
             }
-            final byte[] bytes = text.toString().getBytes();
+            final byte[] bytes = text
+                .toString()
+                .getBytes();
             this.stream.write(bytes);
             this.stream.flush();
         } catch (IOException ex) {
@@ -153,8 +165,12 @@ public final class TablePrinter {
     private String[] getHeaderTokens(Relation frame) {
         final int colCount = frame.columnCount();
         final String[] header = new String[colCount];
-        IntStream.range(0, colCount)
-            .forEach(colIndex -> header[colIndex] = frame.column(colIndex).name().toUpperCase());
+        IntStream
+            .range(0, colCount)
+            .forEach(colIndex -> header[colIndex] = frame
+                .column(colIndex)
+                .name()
+                .toUpperCase());
 
         return header;
     }

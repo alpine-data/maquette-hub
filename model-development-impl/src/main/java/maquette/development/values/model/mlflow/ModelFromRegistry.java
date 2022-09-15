@@ -10,12 +10,12 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class ModelFromRegistry {
 
-   String name;
+    String name;
 
-   Instant created;
+    Instant created;
 
-   Instant updated;
+    Instant updated;
 
-   List<VersionFromRegistry> versions;
+    List<VersionFromRegistry> versions;
 
 }

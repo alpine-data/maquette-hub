@@ -32,7 +32,8 @@ public class GetWorkspaceEnvironmentCommand implements Command {
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         var environmentType = type != null ? type : EnvironmentType.EXTERNAL;
 
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .environment(user, workspace, environmentType)
             .thenApply(properties -> {
@@ -41,11 +42,13 @@ public class GetWorkspaceEnvironmentCommand implements Command {
                     .addColumns(StringColumn.create(KEY))
                     .addColumns(StringColumn.create(VALUE));
 
-                properties.keySet().forEach(p -> {
-                    var row = table.appendRow();
-                    row.setString(KEY, p);
-                    row.setString(VALUE, properties.get(p));
-                });
+                properties
+                    .keySet()
+                    .forEach(p -> {
+                        var row = table.appendRow();
+                        row.setString(KEY, p);
+                        row.setString(VALUE, properties.get(p));
+                    });
 
                 return TableResult.apply(table.sortOn(KEY), properties);
             });

@@ -2,7 +2,10 @@ package maquette.datashop.providers.databases.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Value;
+import lombok.With;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 
 import java.util.List;

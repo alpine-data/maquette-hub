@@ -31,7 +31,9 @@ public final class CompletionStageResultCallback<T extends ResponseItem> impleme
     @Override
     public void onNext(T object) {
         if (object.isErrorIndicated()) {
-            log.warn("`{}` - {}", executedCommand, object.getErrorDetail() != null ? object.getErrorDetail().getMessage() : object.getStatus());
+            log.warn("`{}` - {}", executedCommand, object.getErrorDetail() != null ? object
+                .getErrorDetail()
+                .getMessage() : object.getStatus());
         } else {
             log.info("`{}` - {}", executedCommand, object.getStatus());
         }

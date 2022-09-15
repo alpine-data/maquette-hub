@@ -28,7 +28,8 @@ public final class WorkspaceServicesCompanion extends ServicesCompanion {
 
     public <T> CompletionStage<Optional<T>> filterMember(User user, String name, WorkspaceMemberRole role,
                                                          T passThrough) {
-        return workspaces.getWorkspaceByName(name)
+        return workspaces
+            .getWorkspaceByName(name)
             .thenCompose(workspace -> workspace.isMember(user, role))
             .thenApply(auth -> {
                 if (auth) {
@@ -48,9 +49,12 @@ public final class WorkspaceServicesCompanion extends ServicesCompanion {
     }
 
     public CompletionStage<Boolean> isSandboxOwner(User user, SandboxProperties sandbox) {
-        return CompletableFuture.completedFuture(user instanceof AuthenticatedUser && ((AuthenticatedUser) user).getId()
+        return CompletableFuture.completedFuture(user instanceof AuthenticatedUser && ((AuthenticatedUser) user)
+            .getId()
             .getValue()
-            .equals(sandbox.getCreated().getBy()));
+            .equals(sandbox
+                .getCreated()
+                .getBy()));
     }
 
     public CompletionStage<Boolean> isSandboxOwner(User user, String workspace, String sandbox) {

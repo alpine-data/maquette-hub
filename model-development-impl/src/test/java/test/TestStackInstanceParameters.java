@@ -1,18 +1,21 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.development.values.stacks.StackInstanceParameters;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class TestStackInstanceParameters {
 
     @Test
     public void test() throws JsonProcessingException {
-        var om = DefaultObjectMapperFactory.apply().createJsonMapper(true);
+        var om = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper(true);
         var params = Maps.<String, String>newHashMap();
 
         params.put("foo", "bar");

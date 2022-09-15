@@ -35,8 +35,10 @@ public final class Docker {
     /**
      * This class manages deployments using local Docker instance.
      *
-     * @param configuration A local (user-specific) configuration directory where current state and volume data is stored.
-     * @param om An object mapper instance which is used to serialize and deserialize properties for saving state and metadata.
+     * @param configuration A local (user-specific) configuration directory where current state and volume data is
+     *                      stored.
+     * @param om            An object mapper instance which is used to serialize and deserialize properties for
+     *                      saving state and metadata.
      * @return A new Docker instance pointing to a local docker daemon.
      */
     public static Docker apply(Path configuration, ObjectMapper om) {
@@ -55,8 +57,14 @@ public final class Docker {
     }
 
     public static Docker apply() {
-        var path = SystemUtils.getUserHome().toPath().resolve(".mq").resolve("docker");
-        var om = DefaultObjectMapperFactory.apply().createJsonMapper(true);
+        var path = SystemUtils
+            .getUserHome()
+            .toPath()
+            .resolve(".mq")
+            .resolve("docker");
+        var om = DefaultObjectMapperFactory
+            .apply()
+            .createJsonMapper(true);
 
         return apply(path, om);
     }
@@ -79,7 +87,9 @@ public final class Docker {
 
         CompletionStage<Done> pulled = CompletableFuture.completedFuture(Done.getInstance());
 
-        if (!config.getImage().startsWith("mq")) {
+        if (!config
+            .getImage()
+            .startsWith("mq")) {
             pulled = ops.pullImage(config.getImage());
         }
 

@@ -11,6 +11,6 @@ import maquette.core.values.ActionMetadata;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class QuestionnaireFilled implements ModelVersionEvent {
 
-   ActionMetadata created;
+    ActionMetadata created;
 
 }

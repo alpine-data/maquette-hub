@@ -29,7 +29,8 @@ public interface WorkspacesRepository extends HasMembers<WorkspaceMemberRole> {
      * @throws WorkspaceNotFoundException if not found,
      */
     default CompletionStage<WorkspaceProperties> getWorkspaceById(UID id) {
-        return findWorkspaceById(id).thenApply(opt -> opt.orElseThrow(() -> WorkspaceNotFoundException.applyFromId(id)));
+        return findWorkspaceById(id).thenApply(
+            opt -> opt.orElseThrow(() -> WorkspaceNotFoundException.applyFromId(id)));
     }
 
     /**
@@ -48,7 +49,8 @@ public interface WorkspacesRepository extends HasMembers<WorkspaceMemberRole> {
      * @throw WorkspaceNotFoundException if workspace not found.
      */
     default CompletionStage<WorkspaceProperties> getWorkspaceByName(String name) {
-        return findWorkspaceByName(name).thenApply(opt -> opt.orElseThrow(() -> WorkspaceNotFoundException.applyFromName(name)));
+        return findWorkspaceByName(name).thenApply(
+            opt -> opt.orElseThrow(() -> WorkspaceNotFoundException.applyFromName(name)));
     }
 
     /**

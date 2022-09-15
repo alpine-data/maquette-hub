@@ -54,10 +54,12 @@ public abstract class DatasetSpecs {
      * Datasets are versioned automatically, based on their schema, following semantic versioning principles.
      * If schemas of consecutive versions are not compatible to each other, the major version is increased.
      * If schemas are compatible, the minor version is increased.
-     *
-     * The patch-version is currently never increased. Might be used in the future, e.g. if versions need to be modified to
-     * be compliant with data protection laws (delete rows including personal data of a specific person who requested that).
-     *
+     * <p>
+     * The patch-version is currently never increased. Might be used in the future, e.g. if versions need to be
+     * modified to
+     * be compliant with data protection laws (delete rows including personal data of a specific person who requested
+     * that).
+     * <p>
      * Schemas are compatible if the newer schema includes all fields of the previous schema.
      */
     @Test
@@ -72,8 +74,12 @@ public abstract class DatasetSpecs {
          * Note:
          * ...country records in the example have a field `capital`, while city records don`t have this field.
          */
-        steps.$_uploads_records_$_to_dataset_$(context.users.bob, Records.getSamples().getCountryRecords(), "some-asset");
-        steps.$_uploads_records_$_to_dataset_$(context.users.bob, Records.getSamples().getCityRecords(), "some-asset");
+        steps.$_uploads_records_$_to_dataset_$(context.users.bob, Records
+            .getSamples()
+            .getCountryRecords(), "some-asset");
+        steps.$_uploads_records_$_to_dataset_$(context.users.bob, Records
+            .getSamples()
+            .getCityRecords(), "some-asset");
         steps.$_lists_versions_of_data_asset_$(context.users.bob, "some-asset");
 
         // Then
@@ -85,9 +91,12 @@ public abstract class DatasetSpecs {
          * ...the user uploads new versions with the same schema, but different to schema of version 2.0.0
          *
          * Note:
-         * ... since county records have the same fields as city records, plus one additional field, the schemas are compatible.
+         * ... since county records have the same fields as city records, plus one additional field, the schemas are
+         * compatible.
          */
-        steps.$_uploads_records_$_to_dataset_$(context.users.bob, Records.getSamples().getCountryRecords(), "some-asset");
+        steps.$_uploads_records_$_to_dataset_$(context.users.bob, Records
+            .getSamples()
+            .getCountryRecords(), "some-asset");
         steps.$_lists_versions_of_data_asset_$(context.users.bob, "some-asset");
 
         // Then
@@ -97,7 +106,7 @@ public abstract class DatasetSpecs {
     /**
      * When reading data, the result should contain all records which have been written. The
      * order might be different.
-     *
+     * <p>
      * When reading data, one may specify a specific version. Specifying nothing will fetch the latest version.
      */
     @Test

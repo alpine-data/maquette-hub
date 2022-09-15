@@ -65,7 +65,9 @@ public final class InMemoryWorkspacesRepository implements WorkspacesRepository 
             .values()
             .stream()
             .map(p -> p.properties)
-            .filter(p -> p.getId().equals(id))
+            .filter(p -> p
+                .getId()
+                .equals(id))
             .findFirst();
 
         return CompletableFuture.completedFuture(result);
@@ -77,7 +79,9 @@ public final class InMemoryWorkspacesRepository implements WorkspacesRepository 
             .values()
             .stream()
             .map(p -> p.properties)
-            .filter(p -> p.getName().equals(name))
+            .filter(p -> p
+                .getName()
+                .equals(name))
             .findFirst();
         return CompletableFuture.completedFuture(result);
     }
@@ -85,7 +89,9 @@ public final class InMemoryWorkspacesRepository implements WorkspacesRepository 
     @Override
     public CompletionStage<Done> insertOrUpdateWorkspace(WorkspaceProperties updated) {
         if (store.containsKey(updated.getId())) {
-            store.put(updated.getId(), store.get(updated.getId()).withProperties(updated));
+            store.put(updated.getId(), store
+                .get(updated.getId())
+                .withProperties(updated));
         } else {
             store.put(updated.getId(), WorkspacePersisted.apply(updated));
         }
@@ -96,7 +102,9 @@ public final class InMemoryWorkspacesRepository implements WorkspacesRepository 
     @Override
     public CompletionStage<Stream<WorkspaceProperties>> getWorkspaces() {
         var result = StreamSupport
-            .stream(store.values().spliterator(), false)
+            .stream(store
+                .values()
+                .spliterator(), false)
             .map(WorkspacePersisted::getProperties);
         return CompletableFuture.completedFuture(result);
     }
@@ -124,7 +132,8 @@ public final class InMemoryWorkspacesRepository implements WorkspacesRepository 
 
         static WorkspacePersisted apply(WorkspaceProperties properties) {
             return apply(properties, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
-                properties.getId()
+                properties
+                    .getId()
                     .getValue());
         }
     }

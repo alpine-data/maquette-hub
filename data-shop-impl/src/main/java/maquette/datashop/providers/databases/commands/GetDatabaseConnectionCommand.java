@@ -11,7 +11,6 @@ import maquette.core.server.commands.DataResult;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.providers.databases.Databases;
-import maquette.datashop.providers.databases.exceptions.LocalSessionsNotAllowedException;
 
 import java.util.concurrent.CompletionStage;
 

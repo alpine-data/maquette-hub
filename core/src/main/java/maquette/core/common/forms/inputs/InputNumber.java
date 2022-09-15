@@ -7,24 +7,24 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class InputNumber implements InputControl {
 
-   String name;
+    String name;
 
-   Integer defaultValue;
+    Integer defaultValue;
 
-   Integer min;
+    Integer min;
 
-   Integer max;
+    Integer max;
 
-   public static InputNumber apply(String name, int defaultValue) {
-      return apply(name, defaultValue, null, null);
-   }
+    public static InputNumber apply(String name, int defaultValue) {
+        return apply(name, defaultValue, null, null);
+    }
 
-   public InputNumber withMin(int min) {
-      return apply(name, defaultValue, min, max);
-   }
+    public InputNumber withMin(int min) {
+        return apply(name, defaultValue, min, max);
+    }
 
-   public InputNumber withMax(int max) {
-      return apply(name, defaultValue, min, max);
-   }
+    public InputNumber withMax(int max) {
+        return apply(name, defaultValue, min, max);
+    }
 
 }

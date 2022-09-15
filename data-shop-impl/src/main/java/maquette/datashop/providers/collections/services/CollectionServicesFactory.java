@@ -11,13 +11,16 @@ import maquette.datashop.services.DataAssetServicesCompanion;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CollectionServicesFactory {
 
-   public static CollectionServices apply(MaquetteRuntime runtime, CollectionsRepository repository, WorkspacesServicePort workspaces) {
-      var dataAssets = runtime.getModule(MaquetteDataShop.class).getEntities();
+    public static CollectionServices apply(MaquetteRuntime runtime, CollectionsRepository repository,
+                                           WorkspacesServicePort workspaces) {
+        var dataAssets = runtime
+            .getModule(MaquetteDataShop.class)
+            .getEntities();
 
-      var comp = DataAssetServicesCompanion.apply(dataAssets, workspaces);
-      var impl = CollectionServicesImpl.apply(dataAssets, repository);
+        var comp = DataAssetServicesCompanion.apply(dataAssets, workspaces);
+        var impl = CollectionServicesImpl.apply(dataAssets, repository);
 
-      return CollectionServicesSecured.apply(impl, comp);
-   }
+        return CollectionServicesSecured.apply(impl, comp);
+    }
 
 }

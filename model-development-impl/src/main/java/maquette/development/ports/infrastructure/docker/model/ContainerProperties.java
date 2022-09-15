@@ -10,10 +10,10 @@ import java.util.Map;
 @AllArgsConstructor(staticName = "apply")
 public class ContainerProperties {
 
-   ContainerConfig config;
+    ContainerConfig config;
 
-   ContainerStatus status;
+    ContainerStatus status;
 
-   Map<Integer, URL> mappedPortUrls;
+    Map<Integer, URL> mappedPortUrls;
 
 }

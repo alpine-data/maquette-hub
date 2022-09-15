@@ -48,7 +48,9 @@ public final class DatasetEntity {
             .compose(
                 revisionCS, datasetCS,
                 (revision, dataset) -> explorer
-                    .analyze(dataset.getMetadata().getName(), revision.getVersion(), authTokenId, authTokenSecret)
+                    .analyze(dataset
+                        .getMetadata()
+                        .getName(), revision.getVersion(), authTokenId, authTokenSecret)
                     .thenApply(revision::withStatistics)
                     .thenCompose(r -> repository.insertOrUpdateRevision(entity.getId(), r)))
             .thenCompose(done -> done)
@@ -96,7 +98,11 @@ public final class DatasetEntity {
             .thenCompose(maybeRevision -> {
                 if (maybeRevision.isPresent()) {
                     var revision = maybeRevision.get();
-                    return repository.getRecordsStore(entity.getId()).get(revision.getId().getValue());
+                    return repository
+                        .getRecordsStore(entity.getId())
+                        .get(revision
+                            .getId()
+                            .getValue());
                 } else {
                     throw VersionNotFoundException.apply(version.toString());
                 }
@@ -105,7 +111,8 @@ public final class DatasetEntity {
 
     public CompletionStage<Records> download(User executor) {
         return getVersions()
-            .thenApply(versions -> versions.stream()
+            .thenApply(versions -> versions
+                .stream()
                 .map(CommittedRevision::getVersion)
                 .findFirst()
                 .orElse(DatasetVersion.apply("1.0.0")))
@@ -119,7 +126,8 @@ public final class DatasetEntity {
     public CompletionStage<CommittedRevision> getVersion(DatasetVersion version) {
         return repository
             .findRevisionByVersion(entity.getId(), version)
-            .thenCompose(maybeRevision -> maybeRevision.<CompletionStage<CommittedRevision>>map(CompletableFuture::completedFuture)
+            .thenCompose(maybeRevision -> maybeRevision
+                .<CompletionStage<CommittedRevision>>map(CompletableFuture::completedFuture)
                 .orElseGet(() -> CompletableFuture.failedFuture(VersionNotFoundException.apply(version.toString()))));
     }
 
@@ -130,7 +138,9 @@ public final class DatasetEntity {
                 .stream()
                 .filter(r -> r instanceof CommittedRevision)
                 .map(r -> (CommittedRevision) r)
-                .sorted(Comparator.comparing(CommittedRevision::getVersion).reversed())
+                .sorted(Comparator
+                    .comparing(CommittedRevision::getVersion)
+                    .reversed())
                 .collect(Collectors.toList()));
     }
 
@@ -143,7 +153,9 @@ public final class DatasetEntity {
 
                     return repository
                         .getRecordsStore(entity.getId())
-                        .append(revision.getId().getValue(), records)
+                        .append(revision
+                            .getId()
+                            .getValue(), records)
                         .thenCompose(d -> {
                             var revisionUpdated = revision
                                 .withRecords(revision.getRecords() + records.size())
@@ -174,7 +186,9 @@ public final class DatasetEntity {
                             return !field.equals(existingField);
                         });
 
-                    var version = versions.get(0).getVersion();
+                    var version = versions
+                        .get(0)
+                        .getVersion();
 
                     if (compatible) {
                         return DatasetVersion.apply(version.getMajor(), version.getMinor() + 1, 0);

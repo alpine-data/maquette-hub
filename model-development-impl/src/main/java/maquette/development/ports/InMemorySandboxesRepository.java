@@ -33,7 +33,11 @@ public final class InMemorySandboxesRepository implements SandboxesRepository {
         var result = sandboxes
             .values()
             .stream()
-            .filter(sdbx -> sdbx.getWorkspace().equals(workspace) && sdbx.getName().equals(sandbox))
+            .filter(sdbx -> sdbx
+                .getWorkspace()
+                .equals(workspace) && sdbx
+                .getName()
+                .equals(sandbox))
             .findFirst();
 
         return CompletableFuture.completedFuture(result);
@@ -51,7 +55,9 @@ public final class InMemorySandboxesRepository implements SandboxesRepository {
         var result = sandboxes
             .values()
             .stream()
-            .filter(sdbx -> sdbx.getWorkspace().equals(workspace))
+            .filter(sdbx -> sdbx
+                .getWorkspace()
+                .equals(workspace))
             .collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(result);

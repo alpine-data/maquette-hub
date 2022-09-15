@@ -66,11 +66,20 @@ public final class PostmanDocsResource {
                     .apply()
                     .withMethod(HttpMethod.POST)
                     .withHeader("Content-Type", "application/json")
-                    .withHeader(runtime.getConfig().getCore().getUserIdHeaderName(), "alice")
-                    .withHeader(runtime.getConfig().getCore().getUserRolesHeaderName(), "a-team,b-team")
+                    .withHeader(runtime
+                        .getConfig()
+                        .getCore()
+                        .getUserIdHeaderName(), "alice")
+                    .withHeader(runtime
+                        .getConfig()
+                        .getCore()
+                        .getUserRolesHeaderName(), "a-team,b-team")
                     .withHeader("x-project", "af10ccfc40")
                     .withBody(RawBody.apply(json))
-                    .withUrl(Url.apply().withHost("{{HOSTNAME}}").withPath("api/commands"));
+                    .withUrl(Url
+                        .apply()
+                        .withHost("{{HOSTNAME}}")
+                        .withPath("api/commands"));
 
                 collection.withItem(Item.apply("/api/commands - " + cmd, request));
             });
@@ -86,10 +95,14 @@ public final class PostmanDocsResource {
             .getSubtypeResolver()
             .collectAndResolveSubtypesByClass(om.getDeserializationConfig(), ac)
             .stream()
-            .filter(type -> !type.getType().isInterface())
+            .filter(type -> !type
+                .getType()
+                .isInterface())
             .map(type -> {
                 try {
-                    var constructor = type.getType().getDeclaredConstructor();
+                    var constructor = type
+                        .getType()
+                        .getDeclaredConstructor();
                     constructor.setAccessible(true);
 
                     var command = (Command) constructor.newInstance();

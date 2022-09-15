@@ -65,9 +65,12 @@ public class CreateDataAssetCommand implements Command {
         var metadata = DataAssetMetadata
             .apply(title, name, summary, visibility, classification, personalInformation, zone, additionalProperties);
 
-        var dataAssetProvider = shop.getProviders().getByName(type);
+        var dataAssetProvider = shop
+            .getProviders()
+            .getByName(type);
         var customSettings = Operators.suppressExceptions(() ->
-            runtime.getObjectMapperFactory()
+            runtime
+                .getObjectMapperFactory()
                 .createJsonMapper()
                 .treeToValue(this.customSettings, dataAssetProvider.getSettingsType()));
 

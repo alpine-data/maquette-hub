@@ -36,7 +36,10 @@ public class DatabasesAPI {
                 .getAnalysisResult(user, database)
                 .thenApply(analysisResult -> {
                     if (analysisResult.isPresent()) {
-                        return analysisResult.get().getQueryById(queryId).getProfile();
+                        return analysisResult
+                            .get()
+                            .getQueryById(queryId)
+                            .getProfile();
                     } else {
                         return "No profiling data available";
                     }

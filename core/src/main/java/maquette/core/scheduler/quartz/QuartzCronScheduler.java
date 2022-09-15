@@ -30,8 +30,9 @@ public final class QuartzCronScheduler implements CronScheduler {
     public static QuartzCronScheduler apply() {
         var properties = new Properties();
         properties.setProperty(StdSchedulerFactory.PROP_SCHED_INSTANCE_NAME, String.format("scheduler-%s",
-            UUID.randomUUID()
-            .toString()));
+            UUID
+                .randomUUID()
+                .toString()));
         properties.setProperty(StdSchedulerFactory.PROP_JOB_STORE_CLASS, RAMJobStore.class.getName());
         properties.setProperty("org.quartz.threadPool.threadCount", String.valueOf(10));
 
@@ -68,7 +69,9 @@ public final class QuartzCronScheduler implements CronScheduler {
             Operators.suppressExceptions(() -> scheduler.scheduleJob(jobDetail, trigger));
 
             if (jobs.containsKey(name)) {
-                Operators.suppressExceptions(() -> this.scheduler.deleteJob(jobs.get(name).getKey()));
+                Operators.suppressExceptions(() -> this.scheduler.deleteJob(jobs
+                    .get(name)
+                    .getKey()));
             }
 
             var scheduled = ScheduledJob.apply(name, cron.getValue(), key, trigger);
@@ -83,7 +86,9 @@ public final class QuartzCronScheduler implements CronScheduler {
     @Override
     public CompletionStage<Optional<JobDetails>> getJob(String name) {
         var result = Optional
-            .ofNullable(jobs.get().get(name))
+            .ofNullable(jobs
+                .get()
+                .get(name))
             .map(job -> JobDetails.apply(job, scheduler));
 
         return CompletableFuture.completedFuture(result);
@@ -105,7 +110,9 @@ public final class QuartzCronScheduler implements CronScheduler {
     public CompletionStage<Done> remove(String name) {
         jobs.getAndUpdate(jobs -> {
             if (jobs.containsKey(name)) {
-                Operators.suppressExceptions(() -> scheduler.deleteJob(jobs.get(name).getKey()));
+                Operators.suppressExceptions(() -> scheduler.deleteJob(jobs
+                    .get(name)
+                    .getKey()));
             }
 
             jobs.remove(name);

@@ -44,20 +44,28 @@ public class DataAssetViewCommand implements Command {
             .get(user, name);
 
         var usersCS = assetCS.thenCompose(asset -> {
-            var accessRequestCreatorsNames = asset.getAccessRequests()
+            var accessRequestCreatorsNames = asset
+                .getAccessRequests()
                 .stream()
-                .map(request -> request.getCreated().getBy())
+                .map(request -> request
+                    .getCreated()
+                    .getBy())
                 .collect(Collectors.toList());
 
-            var accessRequestActorsNames = asset.getAccessRequests()
+            var accessRequestActorsNames = asset
+                .getAccessRequests()
                 .stream()
-                .flatMap(req -> req.getEvents()
+                .flatMap(req -> req
+                    .getEvents()
                     .stream()
                     .filter(e -> e instanceof DataAccessRequestUserTriggeredEvent)
-                    .map(e -> ((DataAccessRequestUserTriggeredEvent) e).getCreated().getBy()))
+                    .map(e -> ((DataAccessRequestUserTriggeredEvent) e)
+                        .getCreated()
+                        .getBy()))
                 .collect(Collectors.toList());
 
-            var membersNames = asset.getMembers()
+            var membersNames = asset
+                .getMembers()
                 .stream()
                 .map(GrantedAuthorization::getAuthorization)
                 .filter(auth -> auth instanceof UserAuthorization)
@@ -72,25 +80,46 @@ public class DataAssetViewCommand implements Command {
             return Operators
                 .allOf(allUserNames
                     .stream()
-                    .map(m -> runtime.getModule(UserModule.class).getServices().getProfile(user, UID.apply(m))))
+                    .map(m -> runtime
+                        .getModule(UserModule.class)
+                        .getServices()
+                        .getProfile(user, UID.apply(m))))
                 .thenApply(list -> list
                     .stream()
-                    .collect(Collectors.toMap((UserProfile p) -> p.getId().getValue(), Function.identity())));
+                    .collect(Collectors.toMap((UserProfile p) -> p
+                        .getId()
+                        .getValue(), Function.identity())));
         });
 
         return Operators.compose(assetCS, usersCS, (asset, users) -> {
             var permissions = asset.getDataAssetPermissions(user);
 
-            var owners = asset.getMembers().stream()
-                .filter(auth -> auth.getRole().equals(DataAssetMemberRole.OWNER))
-                .filter(auth -> users.containsKey(auth.getAuthorization().getName()))
-                .map(auth -> users.get(auth.getAuthorization().getName()))
+            var owners = asset
+                .getMembers()
+                .stream()
+                .filter(auth -> auth
+                    .getRole()
+                    .equals(DataAssetMemberRole.OWNER))
+                .filter(auth -> users.containsKey(auth
+                    .getAuthorization()
+                    .getName()))
+                .map(auth -> users.get(auth
+                    .getAuthorization()
+                    .getName()))
                 .collect(Collectors.toList());
 
-            var stewards = asset.getMembers().stream()
-                .filter(auth -> auth.getRole().equals(DataAssetMemberRole.STEWARD))
-                .filter(auth -> users.containsKey(auth.getAuthorization().getName()))
-                .map(auth -> users.get(auth.getAuthorization().getName()))
+            var stewards = asset
+                .getMembers()
+                .stream()
+                .filter(auth -> auth
+                    .getRole()
+                    .equals(DataAssetMemberRole.STEWARD))
+                .filter(auth -> users.containsKey(auth
+                    .getAuthorization()
+                    .getName()))
+                .map(auth -> users.get(auth
+                    .getAuthorization()
+                    .getName()))
                 .collect(Collectors.toList());
 
             return DataAssetView.apply(asset, permissions, owners, stewards, users);
@@ -100,12 +129,16 @@ public class DataAssetViewCommand implements Command {
     private CompletionStage<List<UserProfile>> getUserProfiles(
         User user, MaquetteRuntime runtime, DataAsset asset, DataAssetMemberRole role) {
 
-        return Operators.allOf(asset.getMembers(role)
+        return Operators.allOf(asset
+            .getMembers(role)
             .stream()
             .map(GrantedAuthorization::getAuthorization)
             .filter(auth -> auth instanceof UserAuthorization)
             .map(auth -> (UserAuthorization) auth)
-            .map(m -> runtime.getModule(UserModule.class).getServices().getProfile(user, UID.apply(m.getName()))));
+            .map(m -> runtime
+                .getModule(UserModule.class)
+                .getServices()
+                .getProfile(user, UID.apply(m.getName()))));
     }
 
     @Override

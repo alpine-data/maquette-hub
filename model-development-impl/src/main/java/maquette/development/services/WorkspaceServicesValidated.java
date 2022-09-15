@@ -216,7 +216,8 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
             .validate("commit", commit, NonEmptyStringValidator.apply(3))
             .validate("issues", issues, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.reportCodeQuality(user, workspace, model, version, commit, score, coverage, issues));
+            .thenCompose(
+                done -> delegate.reportCodeQuality(user, workspace, model, version, commit, score, coverage, issues));
     }
 
     @Override
@@ -232,7 +233,8 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String workspace, String model) {
+    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String workspace,
+                                                                             String model) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
@@ -243,7 +245,8 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> grantModelRole(User user, String workspace, String model, UserAuthorization authorization, ModelMemberRole role) {
+    public CompletionStage<Done> grantModelRole(User user, String workspace, String model,
+                                                UserAuthorization authorization, ModelMemberRole role) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
@@ -269,7 +272,8 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> grant(User user, String workspace, Authorization authorization, WorkspaceMemberRole role) {
+    public CompletionStage<Done> grant(User user, String workspace, Authorization authorization,
+                                       WorkspaceMemberRole role) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())

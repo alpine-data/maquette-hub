@@ -37,7 +37,9 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
     default CompletionStage<Optional<DataAssetProperties>> findDataAssetByNameAndType(String name, String type) {
         return findDataAssetByName(name)
             .thenApply(opt -> opt.flatMap(properties -> {
-                if (properties.getType().equals(type)) {
+                if (properties
+                    .getType()
+                    .equals(type)) {
                     return Optional.of(properties);
                 } else {
                     return Optional.empty();
@@ -165,7 +167,9 @@ public interface DataAssetsRepository extends HasMembers<DataAssetMemberRole> {
     default CompletionStage<Done> removeDataAssetByName(String name) {
         return findDataAssetByName(name).thenCompose(opt -> {
             if (opt.isPresent()) {
-                return removeDataAssetById(opt.get().getId());
+                return removeDataAssetById(opt
+                    .get()
+                    .getId());
             } else {
                 return CompletableFuture.completedFuture(Done.getInstance());
             }

@@ -52,8 +52,11 @@ public final class WorkspaceEntity {
             .getMembers()
             .thenApply(members -> members
                 .stream()
-                .anyMatch(granted -> granted.getAuthorization()
-                    .authorizes(user) && (Objects.isNull(role) || granted.getRole().equals(role))));
+                .anyMatch(granted -> granted
+                    .getAuthorization()
+                    .authorizes(user) && (Objects.isNull(role) || granted
+                    .getRole()
+                    .equals(role))));
     }
 
     public CompletionStage<Done> updateProperties(User executor, String name, String title, String summary) {
@@ -74,7 +77,9 @@ public final class WorkspaceEntity {
     public CompletionStage<Done> initializeMlflowEnvironment() {
         var config = MlflowStackConfiguration.apply(
             getMlflowStackName(id),
-            Instant.now().plus(24, ChronoUnit.HOURS),
+            Instant
+                .now()
+                .plus(24, ChronoUnit.HOURS),
             Lists.newArrayList(getWorkspaceResourceGroupName()),
             Maps.newHashMap());
 
@@ -85,33 +90,42 @@ public final class WorkspaceEntity {
     }
 
     public CompletionStage<Map<String, String>> getEnvironment(EnvironmentType environmentType) {
-        return infrastructurePort.getInstanceParameters(id, getMlflowStackName(id)).thenApply(parameters -> {
-            Map<String, String> result = Maps.newHashMap();
-            result.putAll(parameters.getParameters());
+        return infrastructurePort
+            .getInstanceParameters(id, getMlflowStackName(id))
+            .thenApply(parameters -> {
+                Map<String, String> result = Maps.newHashMap();
+                result.putAll(parameters.getParameters());
 
 
-            if (environmentType.equals(EnvironmentType.SANDBOX)) {
-                /*
-                 * If environment is requested from an internal sandbox environment, we need to change the correct MLflow endpoint urls.
-                 */
-                if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
-                    result.put(MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL, result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL));
+                if (environmentType.equals(EnvironmentType.SANDBOX)) {
+                    /*
+                     * If environment is requested from an internal sandbox environment, we need to change the
+                     * correct MLflow endpoint urls.
+                     */
+                    if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
+                        result.put(MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL,
+                            result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL));
+                    }
+
+                    if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT)) {
+                        result.put(MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT,
+                            result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT));
+                    }
                 }
 
-                if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT)) {
-                    result.put(MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT, result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT));
-                }
-            }
-
-            return result;
-        });
+                return result;
+            });
     }
 
     public CompletionStage<Optional<StackRuntimeState>> getMlflowStatus() {
         return getProperties()
             .thenCompose(properties -> {
-                if (properties.getMlFlowConfiguration().isPresent()) {
-                    var config = properties.getMlFlowConfiguration().get();
+                if (properties
+                    .getMlFlowConfiguration()
+                    .isPresent()) {
+                    var config = properties
+                        .getMlFlowConfiguration()
+                        .get();
 
                     var statusCS = infrastructurePort
                         .getStackInstanceStatus(config.getStackInstanceName());
@@ -134,10 +148,15 @@ public final class WorkspaceEntity {
     public CompletionStage<ModelEntities> getModels() {
         return getProperties()
             .thenCompose(properties -> {
-                if (properties.getMlFlowConfiguration().isPresent()) {
+                if (properties
+                    .getMlFlowConfiguration()
+                    .isPresent()) {
                     return infrastructurePort
                         .getInstanceParameters(this.getId(), getMlflowStackName(id))
-                        .thenApply(params -> properties.getMlFlowConfiguration().get().getMlflowConfiguration(params))
+                        .thenApply(params -> properties
+                            .getMlFlowConfiguration()
+                            .get()
+                            .getMlflowConfiguration(params))
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
                             .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models))
                             .orElse(ModelEntities.noMlflowBackend(id)));

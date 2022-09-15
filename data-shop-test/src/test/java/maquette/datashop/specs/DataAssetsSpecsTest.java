@@ -1,4 +1,3 @@
-
 package maquette.datashop.specs;
 
 import maquette.datashop.ports.DataAssetsRepository;

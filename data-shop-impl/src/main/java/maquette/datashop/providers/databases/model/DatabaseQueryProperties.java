@@ -31,9 +31,9 @@ public class DatabaseQueryProperties {
         @JsonProperty(ID) String id,
         @JsonProperty(RECORDS) long records,
         @JsonProperty(SCHEMA) Schema schema
-        ) {
+    ) {
 
-       return new DatabaseQueryProperties(id, records, schema);
+        return new DatabaseQueryProperties(id, records, schema);
     }
 
 }

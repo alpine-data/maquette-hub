@@ -14,8 +14,6 @@ import maquette.development.values.model.ModelVersion;
 import maquette.development.values.model.governance.GitDetails;
 import maquette.development.values.model.mlflow.ModelFromRegistry;
 
-import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;

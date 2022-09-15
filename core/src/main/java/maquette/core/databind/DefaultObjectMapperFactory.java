@@ -36,7 +36,8 @@ public final class DefaultObjectMapperFactory implements ObjectMapperFactory {
         om.registerModule(new JavaTimeModule());
         om.registerModule(new Jdk8Module());
 
-        om.getSerializationConfig()
+        om
+            .getSerializationConfig()
             .getDefaultVisibilityChecker()
             .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
             .withGetterVisibility(JsonAutoDetect.Visibility.NONE)

@@ -11,22 +11,22 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public class FormRow {
 
-   boolean separatorAfter;
+    boolean separatorAfter;
 
-   List<FormControl> controls;
+    List<FormControl> controls;
 
-   public static FormRow apply(boolean separatorAfter) {
-      return apply(separatorAfter, List.of());
-   }
+    public static FormRow apply(boolean separatorAfter) {
+        return apply(separatorAfter, List.of());
+    }
 
-   public static FormRow apply() {
-      return apply(false);
-   }
+    public static FormRow apply() {
+        return apply(false);
+    }
 
-   public FormRow withFormControl(FormControl control) {
-      var controls = Lists.newArrayList(this.controls.iterator());
-      controls.add(control);
-      return apply(separatorAfter, List.copyOf(controls));
-   }
+    public FormRow withFormControl(FormControl control) {
+        var controls = Lists.newArrayList(this.controls.iterator());
+        controls.add(control);
+        return apply(separatorAfter, List.copyOf(controls));
+    }
 
 }

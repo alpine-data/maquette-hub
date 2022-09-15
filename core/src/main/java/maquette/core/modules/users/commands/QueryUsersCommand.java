@@ -24,35 +24,37 @@ public final class QueryUsersCommand implements Command {
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
-                .getModule(UserModule.class)
-                .getServices()
-                .getUsers(user,query)
-                .thenApply(profiles -> {
-                    var table = Table
-                            .create()
-                            .addColumns(StringColumn.create("id"))
-                            .addColumns(StringColumn.create("name"))
-                            .addColumns(StringColumn.create("title"))
-                            .addColumns(StringColumn.create("avatar"))
-                            .addColumns(StringColumn.create("bio"))
-                            .addColumns(StringColumn.create("location"))
-                            .addColumns(StringColumn.create("email"))
-                            .addColumns(StringColumn.create("phone"));
+            .getModule(UserModule.class)
+            .getServices()
+            .getUsers(user, query)
+            .thenApply(profiles -> {
+                var table = Table
+                    .create()
+                    .addColumns(StringColumn.create("id"))
+                    .addColumns(StringColumn.create("name"))
+                    .addColumns(StringColumn.create("title"))
+                    .addColumns(StringColumn.create("avatar"))
+                    .addColumns(StringColumn.create("bio"))
+                    .addColumns(StringColumn.create("location"))
+                    .addColumns(StringColumn.create("email"))
+                    .addColumns(StringColumn.create("phone"));
 
-                    profiles.forEach(p -> {
-                        var row = table.appendRow();
-                        row.setString("id", p.getId().getValue());
-                        row.setString("name", p.getName());
-                        row.setString("title", p.getTitle());
-                        row.setString("avatar", p.getAvatar());
-                        row.setString("bio", p.getBio());
-                        row.setString("location", p.getLocation());
-                        row.setString("email", p.getEmail());
-                        row.setString("phone", p.getPhone());
-                    });
-
-                    return TableResult.apply(table.sortDescendingOn("name"), profiles);
+                profiles.forEach(p -> {
+                    var row = table.appendRow();
+                    row.setString("id", p
+                        .getId()
+                        .getValue());
+                    row.setString("name", p.getName());
+                    row.setString("title", p.getTitle());
+                    row.setString("avatar", p.getAvatar());
+                    row.setString("bio", p.getBio());
+                    row.setString("location", p.getLocation());
+                    row.setString("email", p.getEmail());
+                    row.setString("phone", p.getPhone());
                 });
+
+                return TableResult.apply(table.sortDescendingOn("name"), profiles);
+            });
     }
 
     @Override

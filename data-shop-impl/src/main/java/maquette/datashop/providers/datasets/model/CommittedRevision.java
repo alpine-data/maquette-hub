@@ -17,63 +17,63 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public class CommittedRevision implements Revision {
 
-   private static final String ID = "id";
-   private static final String CREATED = "created";
-   private static final String MODIFIED = "modified";
-   private static final String COMMITTED = "committed";
-   private static final String RECORDS = "records";
-   private static final String SCHEMA = "schema";
-   private static final String VERSION = "version";
-   private static final String MESSAGE = "message";
-   private static final String STATISTICS = "statistics";
+    private static final String ID = "id";
+    private static final String CREATED = "created";
+    private static final String MODIFIED = "modified";
+    private static final String COMMITTED = "committed";
+    private static final String RECORDS = "records";
+    private static final String SCHEMA = "schema";
+    private static final String VERSION = "version";
+    private static final String MESSAGE = "message";
+    private static final String STATISTICS = "statistics";
 
-   @JsonProperty(ID)
-   UID id;
+    @JsonProperty(ID)
+    UID id;
 
-   @JsonProperty(CREATED)
-   ActionMetadata created;
+    @JsonProperty(CREATED)
+    ActionMetadata created;
 
-   @JsonProperty(MODIFIED)
-   ActionMetadata modified;
+    @JsonProperty(MODIFIED)
+    ActionMetadata modified;
 
-   @JsonProperty(COMMITTED)
-   ActionMetadata committed;
+    @JsonProperty(COMMITTED)
+    ActionMetadata committed;
 
-   @JsonProperty(RECORDS)
-   long records;
+    @JsonProperty(RECORDS)
+    long records;
 
-   @JsonProperty(SCHEMA)
-   Schema schema;
+    @JsonProperty(SCHEMA)
+    Schema schema;
 
-   @JsonProperty(VERSION)
-   DatasetVersion version;
+    @JsonProperty(VERSION)
+    DatasetVersion version;
 
-   @JsonProperty(MESSAGE)
-   String message;
+    @JsonProperty(MESSAGE)
+    String message;
 
-   @JsonProperty(STATISTICS)
-   AnalysisResult statistics;
+    @JsonProperty(STATISTICS)
+    AnalysisResult statistics;
 
-   @JsonCreator
-   public static CommittedRevision apply(
-      @JsonProperty(ID) UID id,
-      @JsonProperty(CREATED) ActionMetadata created,
-      @JsonProperty(MODIFIED) ActionMetadata modified,
-      @JsonProperty(COMMITTED) ActionMetadata committed,
-      @JsonProperty(RECORDS) long records,
-      @JsonProperty(SCHEMA) Schema schema,
-      @JsonProperty(VERSION) DatasetVersion version,
-      @JsonProperty(MESSAGE) String message) {
+    @JsonCreator
+    public static CommittedRevision apply(
+        @JsonProperty(ID) UID id,
+        @JsonProperty(CREATED) ActionMetadata created,
+        @JsonProperty(MODIFIED) ActionMetadata modified,
+        @JsonProperty(COMMITTED) ActionMetadata committed,
+        @JsonProperty(RECORDS) long records,
+        @JsonProperty(SCHEMA) Schema schema,
+        @JsonProperty(VERSION) DatasetVersion version,
+        @JsonProperty(MESSAGE) String message) {
 
-      return apply(id, created, modified, committed, records, schema, version, message, null);
-   }
+        return apply(id, created, modified, committed, records, schema, version, message, null);
+    }
 
-   @Override
-   public Optional<CommittedRevision> getCommit() {
-      return Optional.of(this);
-   }
+    @Override
+    public Optional<CommittedRevision> getCommit() {
+        return Optional.of(this);
+    }
 
-   public Optional<AnalysisResult> getStatistics() {
-      return Optional.ofNullable(statistics);
-   }
+    public Optional<AnalysisResult> getStatistics() {
+        return Optional.ofNullable(statistics);
+    }
 }

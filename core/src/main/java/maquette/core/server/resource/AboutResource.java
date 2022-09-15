@@ -39,7 +39,11 @@ public final class AboutResource {
             .json("200", About.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
-            ctx.json(About.apply(runtime.getConfig().getEnvironment(), runtime.getConfig().getVersion()));
+            ctx.json(About.apply(runtime
+                .getConfig()
+                .getEnvironment(), runtime
+                .getConfig()
+                .getVersion()));
         });
     }
 
@@ -54,7 +58,9 @@ public final class AboutResource {
             .json("200", User.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
-            var services = runtime.getModule(UserModule.class).getServices();
+            var services = runtime
+                .getModule(UserModule.class)
+                .getServices();
             var user = (User) ctx.attribute("user");
 
             var result = services
@@ -91,7 +97,8 @@ public final class AboutResource {
 
         @JsonProperty("login")
         public String getLogin() {
-            return String.format("python -m zurichmars.app login --token %s --secret %s", token.getId(), token.getSecret());
+            return String.format("python -m zurichmars.app login --token %s --secret %s", token.getId(),
+                token.getSecret());
         }
 
     }

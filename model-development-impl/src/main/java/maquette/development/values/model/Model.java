@@ -32,20 +32,34 @@ public class Model {
     }
 
     public Optional<ModelVersion> findVersion(String version) {
-        return properties.getVersions()
+        return properties
+            .getVersions()
             .stream()
-            .filter(v -> v.getVersion().equals(version))
+            .filter(v -> v
+                .getVersion()
+                .equals(version))
             .findAny();
     }
 
     @JsonProperty("exceptions")
     public long getExceptions() {
-        return properties.getVersions()
+        return properties
+            .getVersions()
             .stream()
-            .max(Comparator.comparing(m -> m.getRegistered().getAt()))
+            .max(Comparator.comparing(m -> m
+                .getRegistered()
+                .getAt()))
             .map(version -> {
-                var count = version.getCodeQualityChecks().stream().filter(r -> r instanceof CheckExemption).count();
-                count += version.getDataDependencyChecks().stream().filter(r -> r instanceof CheckExemption).count();
+                var count = version
+                    .getCodeQualityChecks()
+                    .stream()
+                    .filter(r -> r instanceof CheckExemption)
+                    .count();
+                count += version
+                    .getDataDependencyChecks()
+                    .stream()
+                    .filter(r -> r instanceof CheckExemption)
+                    .count();
 
                 return count;
             })
@@ -54,12 +68,23 @@ public class Model {
 
     @JsonProperty("warnings")
     public long getWarnings() {
-        return properties.getVersions()
+        return properties
+            .getVersions()
             .stream()
-            .max(Comparator.comparing(m -> m.getRegistered().getAt()))
+            .max(Comparator.comparing(m -> m
+                .getRegistered()
+                .getAt()))
             .map(version -> {
-                var count = version.getCodeQualityChecks().stream().filter(r -> r instanceof CheckWarning).count();
-                count += version.getDataDependencyChecks().stream().filter(r -> r instanceof CheckWarning).count();
+                var count = version
+                    .getCodeQualityChecks()
+                    .stream()
+                    .filter(r -> r instanceof CheckWarning)
+                    .count();
+                count += version
+                    .getDataDependencyChecks()
+                    .stream()
+                    .filter(r -> r instanceof CheckWarning)
+                    .count();
 
                 return count;
             })

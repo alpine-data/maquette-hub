@@ -1,8 +1,6 @@
 package maquette.datashop.commands;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
@@ -14,7 +12,6 @@ import maquette.datashop.MaquetteDataShop;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -42,10 +39,21 @@ public class ListDataAssetsCommand implements Command {
                 datasets.forEach(p -> {
                     var row = table.appendRow();
                     row.setString("type", p.getType());
-                    row.setString("name", p.getMetadata().getName());
-                    row.setString("visibility", p.getMetadata().getVisibility().getValue());
-                    row.setString("classification", p.getMetadata().getClassification().getValue());
-                    row.setString("personal information", p.getMetadata().getPersonalInformation().getValue());
+                    row.setString("name", p
+                        .getMetadata()
+                        .getName());
+                    row.setString("visibility", p
+                        .getMetadata()
+                        .getVisibility()
+                        .getValue());
+                    row.setString("classification", p
+                        .getMetadata()
+                        .getClassification()
+                        .getValue());
+                    row.setString("personal information", p
+                        .getMetadata()
+                        .getPersonalInformation()
+                        .getValue());
                 });
 
                 return TableResult.apply(table.sortDescendingOn("name"), datasets);

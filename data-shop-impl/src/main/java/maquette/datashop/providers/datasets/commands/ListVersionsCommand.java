@@ -47,10 +47,16 @@ public class ListVersionsCommand implements Command {
                 revisions.forEach(r -> {
                     var row = table.appendRow();
 
-                    row.setString("version", r.getVersion().toString());
-                    row.setString("created by", r.getCreated().getBy());
+                    row.setString("version", r
+                        .getVersion()
+                        .toString());
+                    row.setString("created by", r
+                        .getCreated()
+                        .getBy());
                     row.setDateTime("created at", LocalDateTime
-                        .ofInstant(r.getCreated().getAt(), ZoneOffset.systemDefault()));
+                        .ofInstant(r
+                            .getCreated()
+                            .getAt(), ZoneOffset.systemDefault()));
                     row.setLong("records", r.getRecords());
                 });
 

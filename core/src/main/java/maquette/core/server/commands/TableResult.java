@@ -36,7 +36,11 @@ public class TableResult<T> implements CommandResult {
 
     public Optional<String> toCSV(MaquetteConfiguration runtime) {
         var sw = new StringWriter();
-        Operators.suppressExceptions(() -> table.write().usingOptions(CsvWriteOptions.builder(sw).build()));
+        Operators.suppressExceptions(() -> table
+            .write()
+            .usingOptions(CsvWriteOptions
+                .builder(sw)
+                .build()));
         return Optional.of(sw.toString());
     }
 

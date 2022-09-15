@@ -39,7 +39,9 @@ public final class InMemoryMembersRepository<T extends Enum<T>> implements HasMe
         var result = store
             .getOrDefault(parent, Lists.newArrayList())
             .stream()
-            .filter(a -> a.getRole().equals(role))
+            .filter(a -> a
+                .getRole()
+                .equals(role))
             .collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(result);
@@ -50,9 +52,13 @@ public final class InMemoryMembersRepository<T extends Enum<T>> implements HasMe
         var existing = store
             .getOrDefault(parent, Lists.newArrayList())
             .stream()
-            .filter(a -> !(a.getAuthorization().equals(member.getAuthorization())));
+            .filter(a -> !(a
+                .getAuthorization()
+                .equals(member.getAuthorization())));
 
-        var updated = Stream.concat(existing, Stream.of(member)).collect(Collectors.toList());
+        var updated = Stream
+            .concat(existing, Stream.of(member))
+            .collect(Collectors.toList());
         store.put(parent, updated);
 
         return CompletableFuture.completedFuture(Done.getInstance());
@@ -63,7 +69,9 @@ public final class InMemoryMembersRepository<T extends Enum<T>> implements HasMe
         var updated = store
             .getOrDefault(parent, Lists.newArrayList())
             .stream()
-            .filter(a -> !(a.getAuthorization().equals(member)))
+            .filter(a -> !(a
+                .getAuthorization()
+                .equals(member)))
             .collect(Collectors.toList());
 
         store.put(parent, updated);

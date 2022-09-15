@@ -34,7 +34,9 @@ public class DataAssetMembers {
         return this
             .members
             .stream()
-            .filter(m -> m.getRole().equals(role))
+            .filter(m -> m
+                .getRole()
+                .equals(role))
             .collect(Collectors.toList());
     }
 
@@ -53,7 +55,9 @@ public class DataAssetMembers {
         var isSubscriber = this
             .accessRequests
             .stream()
-            .anyMatch(r -> r.getState().equals(DataAccessRequestState.GRANTED));
+            .anyMatch(r -> r
+                .getState()
+                .equals(DataAccessRequestState.GRANTED));
 
         return DataAssetPermissions.apply(isOwner, isSteward, isConsumer, isProducer, isMember, isSubscriber);
     }
@@ -69,8 +73,11 @@ public class DataAssetMembers {
         return this
             .members
             .stream()
-            .anyMatch(granted -> granted.getAuthorization()
-                .authorizes(user) && (Objects.isNull(role) || granted.getRole().equals(role)));
+            .anyMatch(granted -> granted
+                .getAuthorization()
+                .authorizes(user) && (Objects.isNull(role) || granted
+                .getRole()
+                .equals(role)));
     }
 
     /**

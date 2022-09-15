@@ -17,7 +17,8 @@ public class RedeployInfrastructure implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .redeployInfrastructure(user)
             .thenApply(done -> MessageResult.apply("Successfully initiated re-deployment."));

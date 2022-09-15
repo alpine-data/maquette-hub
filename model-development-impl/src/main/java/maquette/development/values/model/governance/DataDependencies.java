@@ -11,14 +11,14 @@ import java.util.List;
 @AllArgsConstructor(staticName = "apply")
 public class DataDependencies {
 
-   /**
-    * Moment when dependency check was executed.
-    */
-   Instant checked;
+    /**
+     * Moment when dependency check was executed.
+     */
+    Instant checked;
 
-   /**
-    * UIDs of dependent data assets.
-    */
-   List<UID> assets;
+    /**
+     * UIDs of dependent data assets.
+     */
+    List<UID> assets;
 
 }

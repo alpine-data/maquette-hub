@@ -37,19 +37,25 @@ public class ModelsView implements CommandResult {
                 var latestVersion = m
                     .getVersions()
                     .stream()
-                    .max(Comparator.comparing(v -> v.getRegistered().getAt()))
+                    .max(Comparator.comparing(v -> v
+                        .getRegistered()
+                        .getAt()))
                     .map(ModelVersion::getVersion);
 
                 Map<String, ModelVersion> modelVersions = Maps.newHashMap();
-                m.getVersions().forEach(v -> {
-                    modelVersions.put(v.getVersion(), v);
-                });
+                m
+                    .getVersions()
+                    .forEach(v -> {
+                        modelVersions.put(v.getVersion(), v);
+                    });
 
                 modelsMapped.put(m.getName(), m);
                 versions.put(m.getName(), modelVersions);
 
                 return ModelSummary.apply(
-                    m.getTitle(), m.getName(), m.getFlavours(), m.getDescription(), m.getVersions().size(),
+                    m.getTitle(), m.getName(), m.getFlavours(), m.getDescription(), m
+                        .getVersions()
+                        .size(),
                     latestVersion.orElse("-"), m.getCreated(), m.getUpdated());
             })
             .collect(Collectors.toList());

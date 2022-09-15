@@ -46,12 +46,15 @@ public final class MembersCompanion<T extends Enum<T>> {
             .findAllMembers(id)
             .thenApply(members -> members
                 .stream()
-                .filter(m -> m.getRole().equals(role))
+                .filter(m -> m
+                    .getRole()
+                    .equals(role))
                 .collect(Collectors.toList()));
     }
 
     public CompletionStage<Done> removeMember(User executor, Authorization member) {
-        if (member instanceof UserAuthorization && executor instanceof AuthenticatedUser && member.getName()
+        if (member instanceof UserAuthorization && executor instanceof AuthenticatedUser && member
+            .getName()
             .equals(((AuthenticatedUser) executor).getId())) {
             return CompletableFuture.failedFuture(MembersException.userCannotRemoveSelf());
         } else {

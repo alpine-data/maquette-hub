@@ -7,10 +7,10 @@ import java.util.concurrent.CompletionStage;
 
 public interface RecordsStore {
 
-   CompletionStage<Done> append(String key, Records records);
+    CompletionStage<Done> append(String key, Records records);
 
-   CompletionStage<Done> clear(String key);
+    CompletionStage<Done> clear(String key);
 
-   CompletionStage<Records> get(String key);
+    CompletionStage<Records> get(String key);
 
 }

@@ -48,7 +48,9 @@ public final class PythonStack implements Stack<PythonStackConfiguration> {
                     .withItem("37", "Python 3.7"))
             .withHelpText("Select the Python version you prefer.");
 
-        return Form.apply().withControl(version);
+        return Form
+            .apply()
+            .withControl(version);
     }
 
 }

@@ -38,7 +38,9 @@ public final class MaquetteServer {
      * @return The server instance.
      */
     public static MaquetteServer apply(MaquetteRuntime runtime) {
-        var om = runtime.getObjectMapperFactory().createJsonMapper(true);
+        var om = runtime
+            .getObjectMapperFactory()
+            .createJsonMapper(true);
         JavalinJackson.configure(om);
 
         var adminResource = new AboutResource(runtime);
@@ -55,10 +57,14 @@ public final class MaquetteServer {
         /*
          * Register commands from modules
          */
-        runtime.getModules().forEach(module -> module.getCommands().forEach((key, command) -> {
-            var type = new NamedType(command, key);
-            om.registerSubtypes(type);
-        }));
+        runtime
+            .getModules()
+            .forEach(module -> module
+                .getCommands()
+                .forEach((key, command) -> {
+                    var type = new NamedType(command, key);
+                    om.registerSubtypes(type);
+                }));
 
         /*
          * Setup routes
@@ -99,13 +105,17 @@ public final class MaquetteServer {
         /*
          * use custom authentication handler
          */
-        ctx.attribute("user", runtime.getAuthenticationHandler().handleAuthentication(ctx, runtime));
+        ctx.attribute("user", runtime
+            .getAuthenticationHandler()
+            .handleAuthentication(ctx, runtime));
 
         /*
          * handle user details if present in request
          */
         var user = (User) ctx.attribute("user");
-        var userDetails = runtime.getAuthenticationHandler().getUserDetailsFromRequest(ctx, runtime);
+        var userDetails = runtime
+            .getAuthenticationHandler()
+            .getUserDetailsFromRequest(ctx, runtime);
 
         if (userDetails.isPresent() && user instanceof AuthenticatedUser) {
             Operators.ignoreExceptions(() -> runtime
@@ -122,11 +132,23 @@ public final class MaquetteServer {
         var headers = ctx.headerMap();
 
         if (user instanceof AnonymousUser
-            && headers.containsKey(runtime.getConfig().getCore().getAuthTokenSecretHeaderName())
-            && headers.containsKey(runtime.getConfig().getCore().getAuthTokenIdHeaderName())) {
+            && headers.containsKey(runtime
+            .getConfig()
+            .getCore()
+            .getAuthTokenSecretHeaderName())
+            && headers.containsKey(runtime
+            .getConfig()
+            .getCore()
+            .getAuthTokenIdHeaderName())) {
 
-            var tokenId = headers.get(runtime.getConfig().getCore().getAuthTokenIdHeaderName());
-            var tokenSecret = headers.get(runtime.getConfig().getCore().getAuthTokenSecretHeaderName());
+            var tokenId = headers.get(runtime
+                .getConfig()
+                .getCore()
+                .getAuthTokenIdHeaderName());
+            var tokenSecret = headers.get(runtime
+                .getConfig()
+                .getCore()
+                .getAuthTokenSecretHeaderName());
 
 
             try {
@@ -139,7 +161,9 @@ public final class MaquetteServer {
 
                 ctx.attribute("user", authUser);
             } catch (Exception ex) {
-                if (Operators.hasCause(ex, InvalidAuthenticationTokenException.class).isEmpty()) {
+                if (Operators
+                    .hasCause(ex, InvalidAuthenticationTokenException.class)
+                    .isEmpty()) {
                     throw ex;
                 }
             }
@@ -147,13 +171,23 @@ public final class MaquetteServer {
     }
 
     public void start() {
-        runtime.getApp().start(
-            runtime.getConfig().getCore().getHost(),
-            runtime.getConfig().getCore().getPort());
+        runtime
+            .getApp()
+            .start(
+                runtime
+                    .getConfig()
+                    .getCore()
+                    .getHost(),
+                runtime
+                    .getConfig()
+                    .getCore()
+                    .getPort());
     }
 
     public void stop() {
-        runtime.getApp().stop();
+        runtime
+            .getApp()
+            .stop();
     }
 
 }

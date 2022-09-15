@@ -85,7 +85,7 @@ public abstract class DataAssetsSpecs {
      * Data Assets can be discovered by any user (except they have a private visibility).
      * To get access to these assets, users can request access, data owners and stewards can respond to these
      * requests and grant or reject the access.
-     *
+     * <p>
      * Data Access requests are always created on behalf of a workspace, which defines the use-case or initiative
      * for which the data should be used. Thus, also other members of the workspace can view the access request or
      * respond to it.
@@ -112,7 +112,8 @@ public abstract class DataAssetsSpecs {
 
     /**
      * If an access request is made for a data asset which contains sensitive information (e.g. confidential data,
-     * or personal information). The access request must be reviewed by the data owner as well before access is possible.
+     * or personal information). The access request must be reviewed by the data owner as well before access is
+     * possible.
      */
     @Test
     public void dataAssetsAccessRequestProcessWithSensitiveInformation() throws ExecutionException,

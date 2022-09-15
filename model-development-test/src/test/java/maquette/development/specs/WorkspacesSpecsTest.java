@@ -42,7 +42,8 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
                                               String dataAssetName,
                                               String workspaceName,
                                               String workspaceId) {
-        dataAssetsServicePort.createDataAssetWithAccessRequest(accessRequestId, dataAssetName, workspaceName, workspaceId);
+        dataAssetsServicePort.createDataAssetWithAccessRequest(accessRequestId, dataAssetName, workspaceName,
+            workspaceId);
     }
 
     @Override

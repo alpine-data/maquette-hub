@@ -29,7 +29,9 @@ public final class Stacks {
     public Optional<Stack<?>> findStackByName(String name) {
         return stacks
             .stream()
-            .filter(s -> s.getName().equals(name))
+            .filter(s -> s
+                .getName()
+                .equals(name))
             .findFirst();
     }
 
@@ -41,14 +43,19 @@ public final class Stacks {
     public <T extends StackConfiguration> Stack<T> getStackByConfiguration(T config) {
         return stacks
             .stream()
-            .filter(s -> s.getConfigurationType().isInstance(config))
+            .filter(s -> s
+                .getConfigurationType()
+                .isInstance(config))
             .map(s -> (Stack<T>) s)
             .findFirst()
             .orElseThrow(() -> UnknownStackType.apply(config));
     }
 
     public List<StackProperties> getStacks() {
-        return stacks.stream().map(Stack::getProperties).collect(Collectors.toList());
+        return stacks
+            .stream()
+            .map(Stack::getProperties)
+            .collect(Collectors.toList());
     }
 
 }

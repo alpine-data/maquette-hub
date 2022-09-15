@@ -35,14 +35,18 @@ public class Url {
     }
 
     public Url withPath(String path) {
-        this.path.addAll(Arrays.stream(path.split("/")).collect(Collectors.toList()));
+        this.path.addAll(Arrays
+            .stream(path.split("/"))
+            .collect(Collectors.toList()));
         return this;
     }
 
     public Url withPath(String first, String second, String... remaining) {
         this.path.add(first);
         this.path.add(second);
-        this.path.addAll(Arrays.stream(remaining).collect(Collectors.toList()));
+        this.path.addAll(Arrays
+            .stream(remaining)
+            .collect(Collectors.toList()));
         return this;
     }
 

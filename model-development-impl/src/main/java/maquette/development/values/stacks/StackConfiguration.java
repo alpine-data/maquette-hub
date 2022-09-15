@@ -23,7 +23,8 @@ import java.util.Map;
 public interface StackConfiguration {
 
     /**
-     * This parameter might be set by a stack and returned with {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
+     * This parameter might be set by a stack and returned with
+     * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      * It's a unique secret hash only known by the stack instance and can be used for authentication.
      */
     String PARAM_STACK_TOKEN = "MQ_STACK_TOKEN";
@@ -43,6 +44,7 @@ public interface StackConfiguration {
 
     /**
      * Environment variables which are set as input from Mars Hub which should set on all nodes of the stack.
+     *
      * @return A map with environment variables.
      */
     Map<String, String> getEnvironmentVariables();
@@ -67,7 +69,7 @@ public interface StackConfiguration {
     /**
      * Add a single entry to the environment variable.
      *
-     * @param key The environment variable name.
+     * @param key   The environment variable name.
      * @param value The environment variable value.
      * @return A new instance of this configuration with updated environment.
      */

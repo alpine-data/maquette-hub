@@ -35,7 +35,8 @@ public class CreateSandboxCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getSandboxServices()
             .createSandbox(user, workspace, name, comment, volume, stacks)
             .thenApply(done -> MessageResult.apply("Successfully created workspace"));
@@ -43,7 +44,8 @@ public class CreateSandboxCommand implements Command {
 
     @Override
     public Command example() {
-        return apply("some-workspace", "some-sandbox", "some comment", NewVolume.apply("some-volume"), Lists.newArrayList());
+        return apply("some-workspace", "some-sandbox", "some comment", NewVolume.apply("some-volume"),
+            Lists.newArrayList());
     }
 
 }

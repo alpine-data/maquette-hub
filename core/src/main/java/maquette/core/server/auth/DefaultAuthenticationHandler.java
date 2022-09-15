@@ -19,14 +19,22 @@ public class DefaultAuthenticationHandler implements AuthenticationHandler {
 
     @Override
     public User handleAuthentication(Context ctx, MaquetteRuntime runtime) {
-        var userIdHeaderName = runtime.getConfig().getCore().getUserIdHeaderName();
-        var userRolesHeaderName = runtime.getConfig().getCore().getUserRolesHeaderName();
+        var userIdHeaderName = runtime
+            .getConfig()
+            .getCore()
+            .getUserIdHeaderName();
+        var userRolesHeaderName = runtime
+            .getConfig()
+            .getCore()
+            .getUserRolesHeaderName();
         var headers = ctx.headerMap();
         var roles = (List<String>) Lists.<String>newArrayList();
 
         if (headers.containsKey(userRolesHeaderName)) {
             roles = Arrays
-                .stream(headers.get(userRolesHeaderName).split(","))
+                .stream(headers
+                    .get(userRolesHeaderName)
+                    .split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
         }
@@ -42,7 +50,10 @@ public class DefaultAuthenticationHandler implements AuthenticationHandler {
     @Override
     public Optional<String> getUserDetailsFromRequest(Context ctx, MaquetteRuntime runtime) {
         var headers = ctx.headerMap();
-        var userDetailsHeaderName = runtime.getConfig().getCore().getUserDetailsHeaderName();
+        var userDetailsHeaderName = runtime
+            .getConfig()
+            .getCore()
+            .getUserDetailsHeaderName();
 
         if (headers.containsKey(userDetailsHeaderName)) {
             return Optional.ofNullable(headers.get(userDetailsHeaderName));

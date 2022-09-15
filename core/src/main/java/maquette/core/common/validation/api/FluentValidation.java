@@ -66,7 +66,9 @@ public final class FluentValidation {
     public void checkAndThrow() {
         var context = runChecks();
 
-        if (!context.getErrors().isEmpty()) {
+        if (!context
+            .getErrors()
+            .isEmpty()) {
             throw ValidationException.apply(errorMessage, context.getErrors());
         }
     }
@@ -79,7 +81,9 @@ public final class FluentValidation {
     public CompletionStage<Done> checkAndFail() {
         var context = runChecks();
 
-        if (!context.getErrors().isEmpty()) {
+        if (!context
+            .getErrors()
+            .isEmpty()) {
             return CompletableFuture.failedFuture(ValidationException.apply(errorMessage, context.getErrors()));
         } else {
             return CompletableFuture.completedFuture(Done.getInstance());
@@ -92,9 +96,13 @@ public final class FluentValidation {
         for (var check : checks) {
             if (cont) {
                 try {
-                    cont = check.first().apply(context);
+                    cont = check
+                        .first()
+                        .apply(context);
                 } catch (Exception e) {
-                    Operators.suppressExceptions(() -> check.second().apply(context, e));
+                    Operators.suppressExceptions(() -> check
+                        .second()
+                        .apply(context, e));
                 }
             }
         }

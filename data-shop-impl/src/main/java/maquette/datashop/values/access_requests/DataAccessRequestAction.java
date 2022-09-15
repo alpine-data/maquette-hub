@@ -40,7 +40,8 @@ public enum DataAccessRequestAction {
     }
 
     /**
-     * This method tells the caller whether a action can be executed by a user who has rights to edit a data access request.
+     * This method tells the caller whether a action can be executed by a user who has rights to edit a data access
+     * request.
      *
      * @return yes/ no.
      */
@@ -54,6 +55,8 @@ public enum DataAccessRequestAction {
      *
      * @return yes/ no.
      */
-    public boolean isCanReview() { return canReview; }
+    public boolean isCanReview() {
+        return canReview;
+    }
 
 }

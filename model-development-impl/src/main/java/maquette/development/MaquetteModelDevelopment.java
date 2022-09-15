@@ -45,7 +45,8 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
 
     public static MaquetteModelDevelopment apply(
-        MaquetteRuntime runtime, WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository, SandboxesRepository sandboxesRepository,
+        MaquetteRuntime runtime, WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository,
+        SandboxesRepository sandboxesRepository,
         InfrastructurePort infrastructurePort, DataAssetsServicePort dataAssets) {
 
         var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
@@ -117,7 +118,9 @@ public class MaquetteModelDevelopment implements MaquetteModule {
     }
 
     public SandboxServices getSandboxServices() {
-        return WorkspaceServicesFactory.createSandboxServices(workspaces, dataAssets, sandboxes, runtime.getModule(UserModule.class).getUsers());
+        return WorkspaceServicesFactory.createSandboxServices(workspaces, dataAssets, sandboxes, runtime
+            .getModule(UserModule.class)
+            .getUsers());
     }
 
     public WorkspaceServices getWorkspaceServices() {

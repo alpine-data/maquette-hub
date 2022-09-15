@@ -12,9 +12,14 @@ import maquette.datashop.services.DataAssetServicesCompanion;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DatabaseServicesFactory {
 
-    public static DatabaseServices apply(MaquetteRuntime runtime, WorkspacesServicePort workspaces, DatabaseEntities databases) {
-        var users = runtime.getModule(UserModule.class).getUsers();
-        var dataAssets = runtime.getModule(MaquetteDataShop.class).getEntities();
+    public static DatabaseServices apply(MaquetteRuntime runtime, WorkspacesServicePort workspaces,
+                                         DatabaseEntities databases) {
+        var users = runtime
+            .getModule(UserModule.class)
+            .getUsers();
+        var dataAssets = runtime
+            .getModule(MaquetteDataShop.class)
+            .getEntities();
 
         var comp = DataAssetServicesCompanion.apply(dataAssets, workspaces);
         var impl = DatabaseServicesImpl.apply(dataAssets, users, databases);

@@ -7,7 +7,6 @@ import lombok.Value;
 import maquette.core.MaquetteRuntime;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
-import maquette.core.server.commands.DataResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
@@ -23,7 +22,8 @@ public class RemoveWorkspaceCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime.getModule(MaquetteModelDevelopment.class)
+        return runtime
+            .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .remove(user, workspace)
             .thenApply(done -> MessageResult.apply("Successfully removed workspace and its related resources."));

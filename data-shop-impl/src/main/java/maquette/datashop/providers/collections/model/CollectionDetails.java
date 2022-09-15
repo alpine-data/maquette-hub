@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.core.values.ActionMetadata;
 
 import java.util.List;
 
@@ -12,18 +11,18 @@ import java.util.List;
 @AllArgsConstructor()
 public class CollectionDetails {
 
-   private static final String FILES = "files";
+    private static final String FILES = "files";
 
-   private static final String TAGS = "tags";
+    private static final String TAGS = "tags";
 
-   FileEntry.Directory files;
+    FileEntry.Directory files;
 
-   List<CollectionTag> tags;
+    List<CollectionTag> tags;
 
-   @JsonCreator
-   public static CollectionDetails apply(
-           @JsonProperty(FILES) FileEntry.Directory files,
-           @JsonProperty(TAGS) List<CollectionTag> tags) {
-      return new CollectionDetails(files, tags);
-   }
+    @JsonCreator
+    public static CollectionDetails apply(
+        @JsonProperty(FILES) FileEntry.Directory files,
+        @JsonProperty(TAGS) List<CollectionTag> tags) {
+        return new CollectionDetails(files, tags);
+    }
 }

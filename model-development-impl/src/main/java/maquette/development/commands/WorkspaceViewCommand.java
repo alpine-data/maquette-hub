@@ -34,12 +34,16 @@ public class WorkspaceViewCommand implements Command {
             .getSandboxServices()
             .getStacks(user);
 
-        var sandboxOwnedCountCS = workspaceCS.thenApply(wks -> wks.getSandboxes()
+        var sandboxOwnedCountCS = workspaceCS.thenApply(wks -> wks
+            .getSandboxes()
             .stream()
-            .filter(sdbx -> (user instanceof AuthenticatedUser) && sdbx.getProperties()
+            .filter(sdbx -> (user instanceof AuthenticatedUser) && sdbx
+                .getProperties()
                 .getCreated()
                 .getBy()
-                .equals(((AuthenticatedUser) user).getId().getValue()))
+                .equals(((AuthenticatedUser) user)
+                    .getId()
+                    .getValue()))
             .count());
 
         var workspacePermissionsCS = workspaceCS.thenApply(wks -> wks.getWorkspacePermissions(user));

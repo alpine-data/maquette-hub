@@ -12,16 +12,16 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public class ModelExplainer {
 
-   Path file;
+    Path file;
 
-   String externalUrl;
+    String externalUrl;
 
-   public static ModelExplainer apply(Path file) {
-      return apply(file, null);
-   }
+    public static ModelExplainer apply(Path file) {
+        return apply(file, null);
+    }
 
-   public Optional<String> getExternalUrl() {
-      return Optional.ofNullable(externalUrl);
-   }
+    public Optional<String> getExternalUrl() {
+        return Optional.ofNullable(externalUrl);
+    }
 
 }

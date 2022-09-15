@@ -51,6 +51,8 @@ public final class SynapseStack implements Stack<SynapseStackConfiguration> {
                     .withItem("L", "Large"))
             .withHelpText("Select a size for the integrated Spark Cluster.");
 
-        return Form.apply().withControl(version);
+        return Form
+            .apply()
+            .withControl(version);
     }
 }

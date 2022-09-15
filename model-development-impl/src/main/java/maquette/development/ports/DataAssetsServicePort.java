@@ -31,7 +31,7 @@ public interface DataAssetsServicePort {
      * a user only.
      *
      * @param id The unique id of the data asset.
-     * @return  The data asset
+     * @return The data asset
      */
     CompletionStage<JsonNode> getDataAssetEntity(UID id);
 

@@ -12,29 +12,29 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PortSpec {
 
-   private static final String CONTAINER_PORT = "containerPort";
-   private static final String HOST_PORT = "hostPort";
+    private static final String CONTAINER_PORT = "containerPort";
+    private static final String HOST_PORT = "hostPort";
 
-   @JsonProperty(CONTAINER_PORT)
-   Integer containerPort;
+    @JsonProperty(CONTAINER_PORT)
+    Integer containerPort;
 
-   @JsonProperty(HOST_PORT)
-   Integer hostPort;
+    @JsonProperty(HOST_PORT)
+    Integer hostPort;
 
-   @JsonCreator
-   public static PortSpec apply(
-       @JsonProperty(CONTAINER_PORT) Integer containerPort,
-       @JsonProperty(HOST_PORT) Integer hostPort) {
+    @JsonCreator
+    public static PortSpec apply(
+        @JsonProperty(CONTAINER_PORT) Integer containerPort,
+        @JsonProperty(HOST_PORT) Integer hostPort) {
 
-      return new PortSpec(containerPort, hostPort);
-   }
+        return new PortSpec(containerPort, hostPort);
+    }
 
-   public static PortSpec apply(int containerPort) {
-      return apply(containerPort, null);
-   }
+    public static PortSpec apply(int containerPort) {
+        return apply(containerPort, null);
+    }
 
-   public Optional<Integer> getHostPort() {
-      return Optional.ofNullable(hostPort);
-   }
+    public Optional<Integer> getHostPort() {
+        return Optional.ofNullable(hostPort);
+    }
 
 }

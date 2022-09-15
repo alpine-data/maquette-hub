@@ -48,8 +48,14 @@ public final class AccessRequestsCompanion {
                 var requestId = UID.apply();
                 var request = DataAccessRequestProperties.apply(requestId, created, id, project, reason);
 
-                if (properties.getMetadata().getClassification().equals(DataClassification.PUBLIC) &&
-                    properties.getMetadata().getPersonalInformation().equals(PersonalInformation.NONE)) {
+                if (properties
+                    .getMetadata()
+                    .getClassification()
+                    .equals(DataClassification.PUBLIC) &&
+                    properties
+                        .getMetadata()
+                        .getPersonalInformation()
+                        .equals(PersonalInformation.NONE)) {
                     request = request.withEvent(Granted.apply(ActionMetadata.apply(executor), Instant.now(),
                         "Automatically approved access to public data asset.", "any", false));
                 }
@@ -80,7 +86,9 @@ public final class AccessRequestsCompanion {
             .findDataAccessRequestsByAsset(id)
             .thenApply(requests -> requests
                 .stream()
-                .filter(r -> r.getState().equals(DataAccessRequestState.REQUESTED))
+                .filter(r -> r
+                    .getState()
+                    .equals(DataAccessRequestState.REQUESTED))
                 .collect(Collectors.toList()));
     }
 
@@ -89,8 +97,9 @@ public final class AccessRequestsCompanion {
     }
 
     public CompletionStage<DataAccessRequestProperties> getDataAccessRequestById(UID accessRequestId) {
-        return findDataAccessRequestById(accessRequestId).thenApply(opt -> opt.orElseThrow(() -> AccessRequestNotFoundException
-            .apply(accessRequestId)));
+        return findDataAccessRequestById(accessRequestId).thenApply(
+            opt -> opt.orElseThrow(() -> AccessRequestNotFoundException
+                .apply(accessRequestId)));
     }
 
     public CompletionStage<Done> approveDataAccessRequest(User executor, UID accessRequestId,
@@ -115,18 +124,33 @@ public final class AccessRequestsCompanion {
             /*
              * Business rule definition for when a review is required.
              */
-            var reviewRequired = asset.getMetadata().getClassification().equals(DataClassification.CONFIDENTIAL)
-                || asset.getMetadata().getClassification().equals(DataClassification.RESTRICTED)
-                || asset.getMetadata().getPersonalInformation().equals(PersonalInformation.PERSONAL_INFORMATION)
-                || asset.getMetadata()
+            var reviewRequired = asset
+                .getMetadata()
+                .getClassification()
+                .equals(DataClassification.CONFIDENTIAL)
+                || asset
+                .getMetadata()
+                .getClassification()
+                .equals(DataClassification.RESTRICTED)
+                || asset
+                .getMetadata()
+                .getPersonalInformation()
+                .equals(PersonalInformation.PERSONAL_INFORMATION)
+                || asset
+                .getMetadata()
                 .getPersonalInformation()
                 .equals(PersonalInformation.SENSITIVE_PERSONAL_INFORMATION)
-                || asset.getMetadata().getZone().equals(DataZone.GOLD);
+                || asset
+                .getMetadata()
+                .getZone()
+                .equals(DataZone.GOLD);
 
             /*
              * Check whether executor can review by its own, if yes, we do not require the review.
              */
-            var canReview = DataAssetPermissions.forUser(executor, members, false).canReview();
+            var canReview = DataAssetPermissions
+                .forUser(executor, members, false)
+                .canReview();
 
             /*
              * Change the state to require review from reviewer.
@@ -204,7 +228,9 @@ public final class AccessRequestsCompanion {
 
         return withDataAccessRequest(accessRequestId, (request) -> {
             var assetCS = repository.getDataAssetById(id);
-            var membersCS = MembersCompanion.apply(id, repository).getMembers();
+            var membersCS = MembersCompanion
+                .apply(id, repository)
+                .getMembers();
 
             return Operators
                 .compose(assetCS, membersCS, (asset, members) -> func.apply(asset, request, members))

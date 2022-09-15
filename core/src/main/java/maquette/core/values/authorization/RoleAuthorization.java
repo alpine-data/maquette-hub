@@ -15,7 +15,10 @@ public class RoleAuthorization implements Authorization {
 
     @Override
     public boolean authorizes(User user) {
-        return user.getRoles().stream().anyMatch(roleId -> roleId.equals(this.name));
+        return user
+            .getRoles()
+            .stream()
+            .anyMatch(roleId -> roleId.equals(this.name));
     }
 
     @Override

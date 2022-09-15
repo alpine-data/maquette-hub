@@ -35,7 +35,10 @@ public interface Records {
     }
 
     static Records fromByteBuffers(List<ByteBuffer> data) {
-        return fromByteStrings(data.stream().map(ByteString::fromByteBuffer).collect(Collectors.toList()));
+        return fromByteStrings(data
+            .stream()
+            .map(ByteString::fromByteBuffer)
+            .collect(Collectors.toList()));
     }
 
     static Records fromByteStrings(List<ByteString> data) {

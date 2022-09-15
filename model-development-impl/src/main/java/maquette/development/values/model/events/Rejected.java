@@ -12,13 +12,13 @@ import maquette.development.values.model.ModelVersionState;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class Rejected implements ModelVersionEvent, StateChangedEvent {
 
-   ActionMetadata created;
+    ActionMetadata created;
 
-   String reason;
+    String reason;
 
-   @Override
-   public ModelVersionState getState() {
-      return ModelVersionState.REJECTED;
-   }
+    @Override
+    public ModelVersionState getState() {
+        return ModelVersionState.REJECTED;
+    }
 
 }

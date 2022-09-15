@@ -2,8 +2,6 @@ package maquette.datashop.specs.steps;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import maquette.core.MaquetteRuntime;
 import maquette.core.values.authorization.UserAuthorization;

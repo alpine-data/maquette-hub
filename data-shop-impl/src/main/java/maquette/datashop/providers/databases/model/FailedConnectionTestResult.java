@@ -7,10 +7,10 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public class FailedConnectionTestResult implements ConnectionTestResult {
 
-   String message;
+    String message;
 
-   @Override
-   public String getResult() {
-      return "failed";
-   }
+    @Override
+    public String getResult() {
+        return "failed";
+    }
 }
