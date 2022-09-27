@@ -2,6 +2,7 @@ package maquette.development.values;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -9,7 +10,9 @@ import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.development.values.stacks.MlflowStackConfiguration;
+import maquette.development.values.stacks.VolumeConfiguration;
 
+import java.util.List;
 import java.util.Optional;
 
 @With
@@ -24,6 +27,7 @@ public class WorkspaceProperties {
     private static final String CREATED = "created";
     private static final String MODIFIED = "modified";
     private static final String ML_FLOW_CONFIGURATION = "mlFlowConfiguration";
+    private static final String VOLUMES = "volumes";
 
     @JsonProperty(ID)
     UID id;
@@ -46,6 +50,9 @@ public class WorkspaceProperties {
     @JsonProperty(ML_FLOW_CONFIGURATION)
     MlflowStackConfiguration mlFlowConfiguration;
 
+    @JsonProperty(VOLUMES)
+    List<VolumeConfiguration> volumes;
+
     @JsonCreator
     public static WorkspaceProperties apply(
         @JsonProperty(ID) UID id,
@@ -54,15 +61,15 @@ public class WorkspaceProperties {
         @JsonProperty(SUMMARY) String summary,
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(MODIFIED) ActionMetadata modified,
-        @JsonProperty(ML_FLOW_CONFIGURATION) MlflowStackConfiguration mlFlowConfiguration) {
-
-        return new WorkspaceProperties(id, name, title, summary, created, modified, mlFlowConfiguration);
+        @JsonProperty(ML_FLOW_CONFIGURATION) MlflowStackConfiguration mlFlowConfiguration,
+        @JsonProperty(VOLUMES) List<VolumeConfiguration> volumes) {
+        return new WorkspaceProperties(id, name, title, summary, created, modified, mlFlowConfiguration, volumes);
     }
 
     public static WorkspaceProperties apply(
         UID id, String name, String title, String summary, ActionMetadata created, ActionMetadata modified) {
 
-        return apply(id, name, title, summary, created, modified, null);
+        return apply(id, name, title, summary, created, modified, null, Lists.newArrayList());
     }
 
     public Optional<MlflowStackConfiguration> getMlFlowConfiguration() {

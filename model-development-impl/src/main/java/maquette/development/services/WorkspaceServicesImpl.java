@@ -25,6 +25,7 @@ import maquette.development.values.model.events.ReviewRequested;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.governance.CodeQuality;
 import maquette.development.values.sandboxes.Sandbox;
+import maquette.development.values.stacks.VolumeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WorkspaceServicesImpl implements WorkspaceServices {
@@ -87,7 +89,16 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
         return workspaces
             .getWorkspaceByName(name)
             .thenCompose(workspace -> {
-                var propertiesCS = workspace.getProperties();
+                var propertiesCS = workspace
+                    .getProperties()
+                    .thenApply(workspaceProperties -> workspaceProperties.withVolumes(workspaceProperties
+                        .getVolumes()
+                        .stream()
+                        .filter(volume -> volume
+                            .getUser()
+                            .getValue()
+                            .equals(user.getDisplayName()))
+                        .collect(Collectors.toList())));
                 var membersCS = workspace
                     .members()
                     .getMembers();
@@ -98,6 +109,10 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                     .thenCompose(sdbxProperties -> Operators.allOf(
                         sdbxProperties
                             .stream()
+                            .filter(properties -> properties
+                                .getCreated()
+                                .getBy()
+                                .equals(user.getDisplayName()))
                             .map(properties -> sandboxes
                                 .getSandboxById(workspace.getId(), properties.getId())
                                 .thenCompose(SandboxEntity::getState)
@@ -327,6 +342,13 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> redeployInfrastructure(User user) {
         return workspaces.redeployInfrastructure();
+    }
+
+    @Override
+    public CompletionStage<List<VolumeConfiguration>> getVolumes(User user, String workspace) {
+        return workspaces
+            .getWorkspaceByName(workspace)
+            .thenCompose(entity -> entity.getVolumes(user));
     }
 
 }

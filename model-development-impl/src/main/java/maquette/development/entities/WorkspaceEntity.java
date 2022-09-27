@@ -16,16 +16,24 @@ import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
+import maquette.development.values.exceptions.VolumeAlreadyExistsException;
+import maquette.development.values.exceptions.VolumeDoesntExistException;
+import maquette.development.values.sandboxes.volumes.ExistingVolume;
+import maquette.development.values.sandboxes.volumes.NewVolume;
+import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.MlflowStackConfiguration;
 import maquette.development.values.stacks.StackRuntimeState;
+import maquette.development.values.stacks.VolumeConfiguration;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
@@ -174,4 +182,55 @@ public final class WorkspaceEntity {
         return String.format("workspaces--%s", this.id);
     }
 
+    public CompletionStage<VolumeConfiguration> createVolume(User executor, VolumeDefinition volume) {
+        return getProperties()
+            .thenApply(properties -> {
+                var volumes = properties
+                    .getVolumes();
+                if (volume instanceof NewVolume) {
+                    var newVolume = (NewVolume) volume;
+                    if (volumes
+                        .stream()
+                        .anyMatch(v -> v
+                            .getName()
+                            .equals(newVolume.getName()))) {
+                        throw VolumeAlreadyExistsException.apply(newVolume.getName(), id.getValue());
+                    } else {
+                        var volumeConfiguration = VolumeConfiguration.apply(UID.apply(),
+                            UID.apply(executor.getDisplayName()), newVolume.getName(), "5Gi");
+                        volumes.add(volumeConfiguration);
+                        var updated = properties
+                            .withVolumes(volumes)
+                            .withModified(ActionMetadata.apply(executor));
+                        repository.insertOrUpdateWorkspace(updated);
+                        return volumeConfiguration;
+                    }
+                } else if (volume instanceof ExistingVolume) {
+                    var existingVolume = (ExistingVolume) volume;
+                    return volumes
+                        .stream()
+                        .filter(v -> v
+                            .getName()
+                            .equals(existingVolume.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> VolumeDoesntExistException.apply(existingVolume.getName(), id.getValue()));
+                } else {
+                    throw new IllegalArgumentException("Not implemented");
+                }
+            });
+    }
+
+    public CompletionStage<List<VolumeConfiguration>> getVolumes(User user) {
+        return getProperties()
+            .thenApply(WorkspaceProperties::getVolumes)
+            .thenApply(volumes ->
+                volumes
+                    .stream()
+                    .filter(volume -> volume
+                        .getUser()
+                        .getValue()
+                        .equals(user.getDisplayName()))
+                    .collect(Collectors.toList())
+            );
+    }
 }

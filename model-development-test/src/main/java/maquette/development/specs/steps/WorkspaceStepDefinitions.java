@@ -1,15 +1,26 @@
 package maquette.development.specs.steps;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import maquette.core.MaquetteRuntime;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
+import maquette.development.MaquetteModelDevelopment;
 import maquette.development.commands.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
+import maquette.development.commands.sandboxes.CreateSandboxCommand;
+import maquette.development.commands.sandboxes.GetSandboxCommand;
+import maquette.development.commands.sandboxes.RemoveSandboxCommand;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
+import maquette.development.values.sandboxes.volumes.ExistingVolume;
+import maquette.development.values.sandboxes.volumes.NewVolume;
+import maquette.development.values.sandboxes.volumes.VolumeDefinition;
+import maquette.development.values.stacks.PythonStackConfiguration;
+import maquette.development.values.stacks.VolumeConfiguration;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -17,14 +28,21 @@ import java.util.concurrent.ExecutionException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @AllArgsConstructor()
+@Slf4j
 public class WorkspaceStepDefinitions {
 
     protected final MaquetteRuntime runtime;
 
     protected final List<String> results;
 
+    protected String mentionedWorkspace;
+
+    private List<VolumeConfiguration> mentionedVolumes;
+
+    protected Exception exception;
+
     public WorkspaceStepDefinitions(MaquetteRuntime runtime) {
-        this(runtime, Lists.newArrayList());
+        this(runtime, Lists.newArrayList(), null, Lists.newArrayList(), null);
     }
 
     public void $_browses_all_workspaces(AuthenticatedUser user) throws ExecutionException, InterruptedException {
@@ -39,8 +57,8 @@ public class WorkspaceStepDefinitions {
     }
 
     public void $_creates_a_workspace_with_name_$(AuthenticatedUser user,
-                                                  String workspaceName)
-        throws ExecutionException, InterruptedException {
+                                                  String workspaceName) throws ExecutionException,
+        InterruptedException {
         var result = CreateWorkspaceCommand
             .apply(workspaceName, "fake-title", "fake-summary")
             .run(user, runtime)
@@ -48,11 +66,11 @@ public class WorkspaceStepDefinitions {
             .get()
             .toPlainText(runtime);
 
+        mentionedWorkspace = workspaceName;
         results.add(result);
     }
 
-    public void $_updates_a_workspace_with_name_$_to_a_new_name_$(AuthenticatedUser user,
-                                                                  String workspaceName,
+    public void $_updates_a_workspace_with_name_$_to_a_new_name_$(AuthenticatedUser user, String workspaceName,
                                                                   String newWorkspaceName) throws ExecutionException,
         InterruptedException {
         var result = UpdateWorkspaceCommand
@@ -75,10 +93,16 @@ public class WorkspaceStepDefinitions {
             .toPlainText(runtime);
 
         results.add(result);
+
+        mentionedVolumes = this.runtime
+            .getModule(MaquetteModelDevelopment.class)
+            .getWorkspaceServices()
+            .getVolumes(user, workspaceName)
+            .toCompletableFuture()
+            .get();
     }
 
-    public void $_grants_$_access_to_the_$_workspace_for_$(User executor,
-                                                           WorkspaceMemberRole memberRole,
+    public void $_grants_$_access_to_the_$_workspace_for_$(User executor, WorkspaceMemberRole memberRole,
                                                            String workspaceName,
                                                            AuthenticatedUser grantedUser) throws ExecutionException,
         InterruptedException {
@@ -94,8 +118,7 @@ public class WorkspaceStepDefinitions {
         results.add(result);
     }
 
-    public void $_revoke_access_to_the_$_workspace_for_$(User executor,
-                                                         String workspaceName,
+    public void $_revoke_access_to_the_$_workspace_for_$(User executor, String workspaceName,
                                                          AuthenticatedUser grantedUser) throws ExecutionException,
         InterruptedException {
         var result = RevokeWorkspaceMemberCommand
@@ -110,8 +133,7 @@ public class WorkspaceStepDefinitions {
         results.add(result);
     }
 
-    public void $_gets_environment_for_workspace_$_of_type_$(AuthenticatedUser user,
-                                                             String workspaceName,
+    public void $_gets_environment_for_workspace_$_of_type_$(AuthenticatedUser user, String workspaceName,
                                                              EnvironmentType environmentType) throws ExecutionException, InterruptedException {
         var result = GetWorkspaceEnvironmentCommand
             .apply(workspaceName, environmentType)
@@ -123,17 +145,11 @@ public class WorkspaceStepDefinitions {
         results.add(result);
     }
 
-    public void $_configures_workspace_$_to_be_$(AuthenticatedUser user,
-                                                 String workspaceName,
-                                                 String newWorkspaceName,
+    public void $_configures_workspace_$_to_be_$(AuthenticatedUser user, String workspaceName, String newWorkspaceName,
                                                  String title,
                                                  String summary) throws ExecutionException, InterruptedException {
         var result = UpdateWorkspaceCommand
-            .apply(
-                workspaceName,
-                newWorkspaceName,
-                title,
-                summary)
+            .apply(workspaceName, newWorkspaceName, title, summary)
             .run(user, runtime)
             .toCompletableFuture()
             .get()
@@ -174,5 +190,61 @@ public class WorkspaceStepDefinitions {
             .toPlainText(runtime);
 
         results.add(result);
+    }
+
+    public void $_creates_a_$_sandbox_with_a_$_volume_named_$(AuthenticatedUser user, String sandboxName,
+                                                              String newOrExisting,
+                                                              String volumeName) {
+        try {
+            VolumeDefinition volume;
+            if (newOrExisting.equalsIgnoreCase("new")) {
+                volume = NewVolume.apply(volumeName);
+            } else {
+                volume = ExistingVolume.apply(volumeName);
+            }
+            var result = CreateSandboxCommand
+                .apply(mentionedWorkspace, sandboxName, sandboxName, volume, List.of(
+                    PythonStackConfiguration.apply(sandboxName, Lists.newArrayList(), "1Gi", "3.8",
+                        Maps.<String, String>newHashMap())))
+                .run(user, runtime)
+                .toCompletableFuture()
+                .get()
+                .toPlainText(runtime);
+
+            results.add(result);
+        } catch (Exception e) {
+            log.error("Error", e);
+            this.exception = e;
+        }
+    }
+
+    public void the_output_has_exactly_$_volume(int size) {
+        assertThat(mentionedVolumes).hasSize(size);
+    }
+
+    public void $_gets_$_sandbox(AuthenticatedUser user, String sandboxName) throws ExecutionException,
+        InterruptedException {
+        var result = GetSandboxCommand
+            .apply(mentionedWorkspace, sandboxName)
+            .run(user, runtime)
+            .toCompletableFuture()
+            .get()
+            .toPlainText(runtime);
+        results.add(result);
+    }
+
+    public void $_removes_the_$_sandbox(AuthenticatedUser user, String sandboxName) throws ExecutionException,
+        InterruptedException {
+        var result = RemoveSandboxCommand
+            .apply(mentionedWorkspace, sandboxName)
+            .run(user, runtime)
+            .toCompletableFuture()
+            .get()
+            .toPlainText(runtime);
+        results.add(result);
+    }
+
+    public void an_error_occurs_with_a_message_$(String message) {
+        assertThat(this.exception.getMessage()).contains(message);
     }
 }

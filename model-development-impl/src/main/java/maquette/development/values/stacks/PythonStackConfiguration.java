@@ -16,19 +16,12 @@ import java.util.Objects;
 @With
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PythonStackConfiguration implements StackConfiguration {
+public class PythonStackConfiguration extends DefaultStackConfiguration {
 
-    private static final String NAME = "name";
     private static final String RESOURCE_GROUPS = "resourceGroups";
     private static final String VERSION = "version";
     private static final String MEMORY_REQUEST = "memoryRequest";
-    private static final String ENVIRONMENT = "environment";
 
-    /**
-     * The name of the Python instance.
-     */
-    @JsonProperty(NAME)
-    String name;
 
     /**
      * A list of MARS managed resource groups which are related to this instance.
@@ -44,17 +37,12 @@ public class PythonStackConfiguration implements StackConfiguration {
     String version;
 
     /**
-     * Memory to requested and used for the container in the following format https://kubernetes
-     * .io/docs/reference/kubernetes-api/common-definitions/quantity/
+     * Memory to requested and used for the container in the following format
+     * https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/
      */
     @JsonProperty(MEMORY_REQUEST)
     String memoryRequest;
 
-    /**
-     * Environment variables which should be set in the stacks nodes.
-     */
-    @JsonProperty(ENVIRONMENT)
-    Map<String, String> environmentVariables;
 
     @JsonCreator
     public static PythonStackConfiguration apply(
@@ -76,26 +64,15 @@ public class PythonStackConfiguration implements StackConfiguration {
             memoryRequest = "1Gi";
         }
 
-        return new PythonStackConfiguration(name, resourceGroups, version, memoryRequest, environmentVariables);
-    }
-
-    @Override
-    public String getStackInstanceName() {
-        return name;
+        var instance = new PythonStackConfiguration(resourceGroups, version, memoryRequest);
+        instance.name = name;
+        instance.environmentVariables = environmentVariables;
+        return instance;
     }
 
     @Override
     public List<String> getResourceGroups() {
         return resourceGroups;
-    }
-
-    public Map<String, String> getEnvironmentVariables() {
-        return Map.copyOf(environmentVariables);
-    }
-
-    @Override
-    public StackConfiguration withStackInstanceName(String name) {
-        return PythonStackConfiguration.apply(name, resourceGroups, memoryRequest, version, environmentVariables);
     }
 
 }

@@ -20,12 +20,10 @@ import java.util.Optional;
 @With
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class MlflowStackConfiguration implements StackConfiguration {
+public class MlflowStackConfiguration extends DefaultStackConfiguration {
 
-    private static final String NAME = "name";
     private static final String SAS_EXPIRY_TOKEN = "sasExpiryToken";
     private static final String RESOURCE_GROUPS = "resourceGroups";
-    private static final String ENVIRONMENT = "environment";
 
     /**
      * Defines the public URL to access the MLflow instance.
@@ -60,12 +58,6 @@ public class MlflowStackConfiguration implements StackConfiguration {
     public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URI";
 
     /**
-     * The name of the MLflow instance.
-     */
-    @JsonProperty(NAME)
-    String name;
-
-    /**
      * The SASToken used for user authentication against MLFlows object storage.
      */
     @JsonProperty(SAS_EXPIRY_TOKEN)
@@ -79,12 +71,6 @@ public class MlflowStackConfiguration implements StackConfiguration {
     @JsonProperty(RESOURCE_GROUPS)
     List<String> resourceGroups;
 
-    /**
-     * Environment variables which should be set in the stacks nodes.
-     */
-    @JsonProperty(ENVIRONMENT)
-    Map<String, String> environmentVariables;
-
     @JsonCreator
     public static MlflowStackConfiguration apply(
         @JsonProperty(NAME) String name,
@@ -96,16 +82,10 @@ public class MlflowStackConfiguration implements StackConfiguration {
             environmentVariables = Maps.newHashMap();
         }
 
-        return new MlflowStackConfiguration(name, sasTokenExpiry, resourceGroups, environmentVariables);
-    }
-
-    public Map<String, String> getEnvironmentVariables() {
-        return Map.copyOf(environmentVariables);
-    }
-
-    @Override
-    public String getStackInstanceName() {
-        return name;
+        var instance = new MlflowStackConfiguration(sasTokenExpiry, resourceGroups);
+        instance.name = name;
+        instance.environmentVariables = environmentVariables;
+        return instance;
     }
 
     @Override
@@ -125,10 +105,4 @@ public class MlflowStackConfiguration implements StackConfiguration {
             return Optional.empty();
         }
     }
-
-    @Override
-    public StackConfiguration withStackInstanceName(String name) {
-        return MlflowStackConfiguration.apply(name, sasTokenExpiry, resourceGroups, environmentVariables);
-    }
-
 }

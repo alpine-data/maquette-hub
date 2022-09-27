@@ -17,6 +17,7 @@ import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.governance.CodeIssue;
+import maquette.development.values.stacks.VolumeConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -276,5 +277,13 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     @Override
     public CompletionStage<Done> redeployInfrastructure(User user) {
         return delegate.redeployInfrastructure(user);
+    }
+
+    @Override
+    public CompletionStage<List<VolumeConfiguration>> getVolumes(User user, String workspace) {
+        return companion
+            .withAuthorization(
+                () -> companion.isMember(user, workspace))
+            .thenCompose(ok -> delegate.getVolumes(user, workspace));
     }
 }

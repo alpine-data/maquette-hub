@@ -13,6 +13,7 @@ import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.governance.CodeIssue;
+import maquette.development.values.stacks.VolumeConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -297,4 +298,12 @@ public interface WorkspaceServices {
      */
     CompletionStage<Done> redeployInfrastructure(User user);
 
+    /**
+     * Provides all volumes created by a user within a workspace
+     *
+     * @param user      the user who executes the action
+     * @param workspace the workspace
+     * @return list of volumes
+     */
+    CompletionStage<List<VolumeConfiguration>> getVolumes(User user, String workspace);
 }

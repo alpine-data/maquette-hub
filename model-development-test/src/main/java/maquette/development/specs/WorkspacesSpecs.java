@@ -333,6 +333,97 @@ public abstract class WorkspacesSpecs {
         steps.the_output_should_contain("access-request-1");
     }
 
+    /**
+     * Create a sandbox with a new volume
+     */
+    @Test
+    public void createSandboxWithNewVolume() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+
+        // when
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox", "new", "my-volume");
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // then
+        steps.the_output_should_contain("my-volume");
+        steps.the_output_has_exactly_$_volume(1);
+
+        // when creating a second volume
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox", "new", "my-volume2");
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // then
+        steps.the_output_should_contain("my-volume", "my-volume2");
+        steps.the_output_has_exactly_$_volume(2);
+
+        // when
+        steps.$_grants_$_access_to_the_$_workspace_for_$(context.users.bob, WorkspaceMemberRole.MEMBER, "fake",
+            context.users.charly);
+        steps.$_gets_workspace_with_name_$(context.users.charly, "fake");
+
+        // then
+        steps.the_output_should_not_contain("my-volume");
+        steps.the_output_has_exactly_$_volume(0);
+    }
+
+    /**
+     * Create a sandbox with an existing volume
+     */
+    @Test
+    public void createSandboxWithExistingVolume() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+
+        // when
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox", "new", "my-volume");
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox2", "existing", "my-volume");
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // then
+        steps.the_output_should_contain("my-volume");
+        steps.the_output_has_exactly_$_volume(1);
+
+        // when creates a new volume with the same name as existing one
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox3", "new", "my-volume");
+
+        // then
+        steps.an_error_occurs_with_a_message_$("already exists");
+
+        // when
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // then
+        steps.the_output_should_not_contain("newSandbox3");
+    }
+
+    /**
+     * Delete sandbox with a volume used by multiple sandboxes
+     */
+    @Test
+    public void deleteSandbox() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+
+        // when
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox", "new", "my-volume");
+        steps.$_creates_a_$_sandbox_with_a_$_volume_named_$(context.users.bob, "newSandbox2", "existing", "my-volume");
+        steps.$_removes_the_$_sandbox(context.users.bob, "newSandbox2");
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // then
+        steps.the_output_should_contain("my-volume");
+        steps.the_output_has_exactly_$_volume(1);
+
+        // when removes the only existing sandbox
+        steps.$_removes_the_$_sandbox(context.users.bob, "newSandbox");
+        steps.$_gets_workspace_with_name_$(context.users.bob, "fake");
+
+        // then volume shouldn't be deleted
+        steps.the_output_should_contain("my-volume");
+        steps.the_output_has_exactly_$_volume(1);
+    }
+
     protected void there_is_$_access_request_for_$_data_asset_within_$_workspace(String accessRequestId,
                                                                                  String dataAssetName,
                                                                                  String workspaceName) throws ExecutionException, InterruptedException {

@@ -1,6 +1,7 @@
 package maquette.development.services;
 
 import akka.Done;
+import akka.japi.Pair;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.modules.users.UserEntities;
@@ -41,10 +42,17 @@ public final class SandboxServicesImpl implements SandboxServices {
 
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(wks -> sandboxes.createSandbox(user, wks.getId(), UID.apply(), name, comment))
+            .thenCompose(wks -> wks
+                .createVolume(user, volume)
+                .thenApply(volumeConfiguration -> Pair.apply(wks, volumeConfiguration)))
+            .thenCompose(pair -> {
+                var wks = pair.first();
+                var vol = pair.second();
+                return sandboxes.createSandbox(user, wks.getId(), vol.getId(), name, comment);
+            })
             .thenCompose(sdbx -> sandboxes.getSandboxById(sdbx.getWorkspace(), sdbx.getId()))
             .thenCompose(sdbx -> sdbx
-                .addStacks(stacks)
+                .addStacks(stacks) // TODO bn: add to auto-infra
                 .thenCompose(d -> sdbx.getProperties()));
     }
 
