@@ -12,7 +12,10 @@ import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
 import maquette.datashop.providers.databases.Databases;
 import maquette.datashop.providers.databases.model.DatabaseDriver;
+import maquette.datashop.providers.databases.model.DatabaseQuerySettings;
+import maquette.datashop.providers.databases.model.DatabaseSessionSettings;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -20,15 +23,13 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class TestDatabaseConnectionCommand implements Command {
 
-    DatabaseDriver driver;
+    DatabaseSessionSettings sessionSettings;
 
-    String connection;
+    List<DatabaseQuerySettings> queries;
 
-    String username;
+    boolean allowCustomQueries;
 
-    String password;
-
-    String query;
+    boolean allowLocalSession;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
@@ -37,13 +38,17 @@ public class TestDatabaseConnectionCommand implements Command {
             .getProviders()
             .getByType(Databases.class)
             .getServices()
-            .test(driver, connection, username, password, query)
+            .test(sessionSettings.getDriver(), sessionSettings.getConnection(), sessionSettings.getUsername(),
+                sessionSettings.getPassword(), queries
+                    .get(0)
+                    .getQuery())
             .thenApply(DataResult::apply);
     }
 
     @Override
     public Command example() {
-        return apply(DatabaseDriver.POSTGRESQL, "foo/bar", "some-user", "some-password", "query");
+        return apply(DatabaseSessionSettings.apply(DatabaseDriver.POSTGRESQL, "foo/bar", "some-user", "some-password"),
+            List.of(DatabaseQuerySettings.apply("name", "query")), false, false);
     }
 
 }

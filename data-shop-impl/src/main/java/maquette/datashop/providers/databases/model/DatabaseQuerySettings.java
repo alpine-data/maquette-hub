@@ -9,6 +9,8 @@ import maquette.core.common.Operators;
 import maquette.datashop.providers.databases.exceptions.DatabaseQueryMayNotBeEmptyException;
 import maquette.datashop.providers.databases.exceptions.QueryNameMayNotBeEmptyException;
 
+import java.util.UUID;
+
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseQuerySettings {
@@ -42,7 +44,9 @@ public class DatabaseQuerySettings {
         } else if (id == null || id
             .strip()
             .length() == 0) {
-            throw new IllegalArgumentException("`id` must not be null.");
+            return new DatabaseQuerySettings(name, query, UUID
+                .randomUUID()
+                .toString());
         }
 
         return new DatabaseQuerySettings(name, query, id);

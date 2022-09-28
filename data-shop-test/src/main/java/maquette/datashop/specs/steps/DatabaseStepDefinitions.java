@@ -162,8 +162,10 @@ public class DatabaseStepDefinitions extends DataAssetStepDefinitions {
         var connection = this.givenDatabaseSessionSettings;
         var firstQuery = this.givenDatabaseQuerySettings.get(0);
         var result = TestDatabaseConnectionCommand
-            .apply(connection.getDriver(), connection.getConnection(), connection.getUsername(),
-                connection.getPassword(), firstQuery.getQuery())
+            .apply(DatabaseSessionSettings.apply(connection.getDriver(), connection.getConnection(),
+                    connection.getUsername(),
+                    connection.getPassword()),
+                List.of(DatabaseQuerySettings.apply(firstQuery.getName(), firstQuery.getQuery())), false, false)
             .run(user, this.runtime)
             .toCompletableFuture()
             .get()

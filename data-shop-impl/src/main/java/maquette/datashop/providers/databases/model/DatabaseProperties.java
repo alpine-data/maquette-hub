@@ -16,9 +16,9 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseProperties {
 
-    private static final String QUERY_PROPERTIES = "query-properties";
+    private static final String QUERY_PROPERTIES = "queryProperties";
 
-    private static final String QUERY_STATISTICS = "query-statistics";
+    private static final String QUERY_STATISTICS = "queryStatistics";
 
     @JsonProperty(QUERY_PROPERTIES)
     public List<DatabaseQueryProperties> queryProperties;

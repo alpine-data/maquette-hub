@@ -19,13 +19,13 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatabaseSettings implements DataAssetSettings {
 
-    private static final String SESSION_SETTINGS = "session-settings";
+    private static final String SESSION_SETTINGS = "sessionSettings";
 
-    private static final String QUERY_SETTINGS = "query-setting";
+    private static final String QUERY_SETTINGS = "queries";
 
-    private static final String ALLOW_CUSTOM_QUERIES = "allow-custom-queries";
+    private static final String ALLOW_CUSTOM_QUERIES = "allowCustomQueries";
 
-    private static final String ALLOW_LOCAL_SESSION = "allow-local-session";
+    private static final String ALLOW_LOCAL_SESSION = "allowLocalSession";
 
     @JsonProperty(SESSION_SETTINGS)
     DatabaseSessionSettings sessionSettings;
