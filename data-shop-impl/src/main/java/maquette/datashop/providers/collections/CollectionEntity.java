@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -89,15 +90,17 @@ public final class CollectionEntity {
             var hash = Operators.randomHash();
             var insertCS = repository.saveObject(id, hash, data);
 
-            var updateFilesCS = repository
-                .getFiles(id)
-                .thenApply(f -> f.withFile(file,
-                    FileEntry.RegularFile.apply(hash, data.getSize(), mapFilenameToFileType(file), message,
-                        ActionMetadata.apply(executor))))
-                .thenCompose(files -> repository.saveFiles(id, files))
-                .thenCompose(d -> entity.updated(executor));
+            synchronized (this) {
+                var updateFilesCS = repository
+                    .getFiles(id)
+                    .thenApply(f -> f.withFile(file,
+                        FileEntry.RegularFile.apply(hash, data.getSize(), mapFilenameToFileType(file), message,
+                            ActionMetadata.apply(executor))))
+                    .thenCompose(files -> repository.saveFiles(id, files))
+                    .thenCompose(d -> entity.updated(executor));
 
-            return Operators.compose(insertCS, updateFilesCS, (insert, updateFile) -> Done.getInstance());
+                return Operators.compose(insertCS, updateFilesCS, (insert, updateFile) -> Done.getInstance());
+            }
         });
     }
 
