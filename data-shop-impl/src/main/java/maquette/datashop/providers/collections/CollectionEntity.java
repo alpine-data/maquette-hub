@@ -23,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -109,7 +111,8 @@ public final class CollectionEntity {
      */
     public CompletionStage<Done> putAll(User executor, BinaryObject data, String basePath, String message) {
         return Operators.suppressExceptions(() -> {
-            var result = CompletableFuture.completedFuture(Done.getInstance());
+            List<CompletableFuture<CompletionStage<Done>>> futures = new ArrayList<>();
+            var es = Executors.newFixedThreadPool(100);
 
             try (var zis = new ZipInputStream(data.toInputStream())) {
                 var zipEntry = zis.getNextEntry();
@@ -119,19 +122,18 @@ public final class CollectionEntity {
                         var binaryObject = BinaryObjects.fromInputStream(zis);
                         var name = zipEntry.getName();
 
-                        result = result
-                            .thenCompose(d -> put(executor, binaryObject, basePath + "/" + name, message))
-                            .thenApply(done -> {
-                                binaryObject.discard();
-                                return done;
-                            });
+                        futures.add(CompletableFuture.supplyAsync(() -> put(executor, binaryObject, basePath + "/" + name, message)
+                                .thenCompose(done -> binaryObject.discard()), es));
                     }
 
                     zipEntry = zis.getNextEntry();
                 }
             }
 
-            return result;
+            return CompletableFuture
+                .allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(done -> Done.getInstance());
+
         });
     }
 
