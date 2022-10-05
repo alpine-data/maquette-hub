@@ -26,9 +26,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -92,12 +92,12 @@ public final class CollectionEntity {
 
             synchronized (this) {
                 var updateFilesCS = repository
-                        .getFiles(id)
-                        .thenApply(f -> f.withFile(file,
-                                FileEntry.RegularFile.apply(hash, data.getSize(), mapFilenameToFileType(file), message,
-                                        ActionMetadata.apply(executor))))
-                        .thenCompose(files -> repository.saveFiles(id, files))
-                        .thenCompose(d -> entity.updated(executor));
+                    .getFiles(id)
+                    .thenApply(f -> f.withFile(file,
+                        FileEntry.RegularFile.apply(hash, data.getSize(), mapFilenameToFileType(file), message,
+                            ActionMetadata.apply(executor))))
+                    .thenCompose(files -> repository.saveFiles(id, files))
+                    .thenCompose(d -> entity.updated(executor));
 
                 return Operators.compose(insertCS, updateFilesCS, (insert, updateFile) -> Done.getInstance());
             }
@@ -114,8 +114,9 @@ public final class CollectionEntity {
      */
     public CompletionStage<Done> putAll(User executor, BinaryObject data, String basePath, String message) {
         return Operators.suppressExceptions(() -> {
-            List<CompletableFuture<CompletionStage<Done>>> futures = new ArrayList<>();
+            var saveFiles = new ArrayList<CompletionStage<Pair<String, FileEntry.RegularFile>>>();
             var es = Executors.newFixedThreadPool(100);
+            var files = repository.getFiles(id).toCompletableFuture().get();
 
             try (var zis = new ZipInputStream(data.toInputStream())) {
                 var zipEntry = zis.getNextEntry();
@@ -124,19 +125,35 @@ public final class CollectionEntity {
                     if (!zipEntry.isDirectory()) {
                         var binaryObject = BinaryObjects.fromInputStream(zis);
                         var name = zipEntry.getName();
+                        var hash = files.getFile(name)
+                            .map(FileEntry.RegularFile::getKey)
+                            .orElse(Operators.randomHash());
 
-                        futures.add(CompletableFuture.supplyAsync(() -> put(executor, binaryObject, basePath + "/" + name, message)
-                                .thenCompose(done -> binaryObject.discard()), es));
+                        saveFiles.add(CompletableFuture
+                            .supplyAsync(() -> repository
+                                .saveObject(id, hash, data)
+                                .thenCompose(done -> binaryObject.discard())
+                                .thenApply(done -> Pair.apply(name, FileEntry.RegularFile.apply(
+                                    hash, data.getSize(), mapFilenameToFileType(name), message,
+                                    ActionMetadata.apply(executor)))))
+                            .thenCompose(cs -> cs));
                     }
 
                     zipEntry = zis.getNextEntry();
                 }
             }
 
-            return CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
-                .thenApply(done -> Done.getInstance());
+            return Operators
+                .allOf(saveFiles)
+                .thenCompose(updateFiles -> {
+                    var filesUpdated = files;
+                    for (var f : updateFiles) {
+                        filesUpdated = filesUpdated.withFile(f.first(), f.second());
+                    }
 
+                    return repository.saveFiles(id, filesUpdated);
+                })
+                .thenCompose(d -> entity.updated(executor));
         });
     }
 
@@ -368,6 +385,19 @@ public final class CollectionEntity {
      */
     public CompletionStage<List<CollectionTag>> getTags() {
         return repository.findAllTags(id);
+    }
+
+    /**
+     * Returns the has for a file, if the file already exists.
+     *
+     * @param file The path of a file within the collection.
+     * @return Optional of the hash, empty if not existing.
+     */
+    private CompletionStage<Optional<String>> findFileHashByName(String file) {
+        return repository
+            .getFiles(id)
+            .thenApply(files -> files.getFile(file))
+            .thenApply(maybeFile -> maybeFile.map(FileEntry.RegularFile::getKey));
     }
 
     /**
