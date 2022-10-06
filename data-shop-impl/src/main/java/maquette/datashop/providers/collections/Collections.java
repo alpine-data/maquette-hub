@@ -26,7 +26,6 @@ public final class Collections implements DataAssetProvider {
 
     private final CollectionsRepository repository;
 
-
     private final WorkspacesServicePort workspaces;
 
     private MaquetteRuntime runtime;
