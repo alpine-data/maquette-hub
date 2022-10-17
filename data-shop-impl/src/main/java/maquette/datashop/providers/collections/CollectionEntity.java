@@ -23,10 +23,13 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -42,6 +45,8 @@ public final class CollectionEntity {
     private final CollectionsRepository repository;
 
     private final DataAssetEntity entity;
+
+    private final int concurrentRequests;
 
     /**
      * Lists the file paths of all files contained in the collection.
@@ -109,7 +114,10 @@ public final class CollectionEntity {
      */
     public CompletionStage<Done> putAll(User executor, BinaryObject data, String basePath, String message) {
         return Operators.suppressExceptions(() -> {
-            var result = CompletableFuture.completedFuture(Done.getInstance());
+            var savedFiles = new ArrayList<CompletableFuture<CompletionStage<Pair<String, FileEntry.RegularFile>>>>();
+
+            var es = Executors.newFixedThreadPool(concurrentRequests);
+            var files = repository.getFiles(id).toCompletableFuture().get();
 
             try (var zis = new ZipInputStream(data.toInputStream())) {
                 var zipEntry = zis.getNextEntry();
@@ -119,19 +127,47 @@ public final class CollectionEntity {
                         var binaryObject = BinaryObjects.fromInputStream(zis);
                         var name = zipEntry.getName();
 
-                        result = result
-                            .thenCompose(d -> put(executor, binaryObject, basePath + "/" + name, message))
-                            .thenApply(done -> {
-                                binaryObject.discard();
-                                return done;
-                            });
+                        // remove leading folder to add basePath
+                        System.out.println(name);
+                        name = basePath
+                            .replaceAll("^/+", "")
+                            .replaceAll("/+$", "") + "/" + name
+                            .substring(name.indexOf("/", 1) + 1);
+
+                        var hash = files.getFile(name)
+                            .map(FileEntry.RegularFile::getKey)
+                            .orElse(Operators.randomHash());
+
+                        String finalName = name;
+                        savedFiles.add(CompletableFuture
+                            .supplyAsync(() -> repository
+                                .saveObject(id, hash, binaryObject)
+                                .thenApply(done -> Pair.apply(finalName, FileEntry.RegularFile.apply(
+                                    hash, binaryObject.getSize(), mapFilenameToFileType(finalName), message,
+                                    ActionMetadata.apply(executor)))), es)
+                        );
                     }
 
                     zipEntry = zis.getNextEntry();
                 }
             }
 
-            return result;
+            return CompletableFuture
+                .allOf(savedFiles.toArray(new CompletableFuture[savedFiles.size()]))
+                .thenApply(done -> savedFiles
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(cf -> Operators.suppressExceptions(() -> cf.thenCompose(cs -> cs).get()))
+                    .collect(Collectors.toList()))
+                .thenApply(savedFilesList -> {
+                    var filesUpdated = files;
+                    for (var f : savedFilesList) {
+                        filesUpdated = filesUpdated.withFile(f.first(), f.second());
+                    }
+                    return filesUpdated;
+                })
+                .thenApply(filesUpdated -> repository.saveFiles(id, filesUpdated))
+                .thenCompose(done -> entity.updated(executor));
         });
     }
 
@@ -144,25 +180,35 @@ public final class CollectionEntity {
     public CompletionStage<BinaryObject> readAll(User executor) {
         return repository
             .getFiles(id)
-            .thenApply(files -> files
-                .files()
-                .stream()
-                .map(file -> repository
-                    .readObject(id, file
-                        .getFile()
-                        .getKey())
-                    .thenApply(obj -> Pair.apply(file, obj))))
-            .thenCompose(Operators::allOf)
-            .thenApply(objects -> objects
-                .stream()
-                .filter(pair -> pair
-                    .second()
-                    .isPresent())
-                .map(pair -> Pair.apply(pair.first(), pair
-                    .second()
-                    .orElse(BinaryObjects.empty())))
-                .collect(Collectors.toList()))
-            .thenApply(this::createZipFile);
+            .thenApply(files -> {
+                var readFiles = new ArrayList<CompletableFuture<CompletionStage<Pair<FileEntry.NamedRegularFile, Optional<BinaryObject>>>>>();
+                var es = Executors.newFixedThreadPool(concurrentRequests);
+                files
+                    .files()
+                    .forEach(file -> readFiles.add(CompletableFuture
+                        .supplyAsync(() -> repository
+                            .readObject(id, file
+                                .getFile()
+                                .getKey())
+                            .thenApply(obj -> Pair.apply(file, obj)), es)
+                    ));
+
+                return CompletableFuture
+                    .allOf(readFiles.toArray(new CompletableFuture[readFiles.size()]))
+                    .thenApply(done -> readFiles
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .map(cf -> Operators.suppressExceptions(() -> cf.thenCompose(cs -> cs).get()))
+                        .filter(pair -> pair
+                            .second()
+                            .isPresent())
+                        .map(pair -> Pair.apply(pair.first(), pair
+                            .second()
+                            .orElse(BinaryObjects.empty())))
+                        .collect(Collectors.toList()))
+                    .thenApply(this::createZipFile);
+            })
+            .thenCompose(cf -> cf);
     }
 
     /**
@@ -179,26 +225,37 @@ public final class CollectionEntity {
             return repository
                 .findTagByName(id, tag)
                 .thenApply(maybeTag -> maybeTag.orElseThrow(() -> TagNotFoundException.withName(tag)))
-                .thenApply(collectionTag -> collectionTag
-                    .getContent()
-                    .files()
-                    .stream()
-                    .map(file -> repository
-                        .readObject(id, file
-                            .getFile()
-                            .getKey())
-                        .thenApply(obj -> Pair.apply(file, obj))))
-                .thenCompose(Operators::allOf)
-                .thenApply(objects -> objects
-                    .stream()
-                    .filter(pair -> pair
-                        .second()
-                        .isPresent())
-                    .map(pair -> Pair.apply(pair.first(), pair
-                        .second()
-                        .orElse(BinaryObjects.empty())))
-                    .collect(Collectors.toList()))
-                .thenApply(this::createZipFile);
+                .thenApply(collectionTag -> {
+                    var readFiles = new ArrayList<CompletableFuture<CompletionStage<Pair<FileEntry.NamedRegularFile, Optional<BinaryObject>>>>>();
+                    var es = Executors.newFixedThreadPool(concurrentRequests);
+
+                    collectionTag
+                        .getContent()
+                        .files()
+                        .forEach(file -> readFiles.add(CompletableFuture
+                            .supplyAsync(() -> repository
+                                .readObject(id, file
+                                    .getFile()
+                                    .getKey())
+                                .thenApply(obj -> Pair.apply(file, obj)), es)
+                        ));
+
+                    return CompletableFuture
+                        .allOf(readFiles.toArray(new CompletableFuture[readFiles.size()]))
+                        .thenApply(done -> readFiles
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .map(cf -> Operators.suppressExceptions(() -> cf.thenCompose(cs -> cs).get()))
+                            .filter(pair -> pair
+                                .second()
+                                .isPresent())
+                            .map(pair -> Pair.apply(pair.first(), pair
+                                .second()
+                                .orElse(BinaryObjects.empty())))
+                            .collect(Collectors.toList()))
+                        .thenApply(this::createZipFile);
+                })
+                .thenCompose(cf -> cf);
         }
     }
 
@@ -354,15 +411,6 @@ public final class CollectionEntity {
                 })
                 .thenCompose(d -> d);
         }
-    }
-
-    /**
-     * Finds and returns all tags belonging to the collection.
-     *
-     * @return All tags belonging to the collection.
-     */
-    public CompletionStage<List<CollectionTag>> getTags() {
-        return repository.findAllTags(id);
     }
 
     /**

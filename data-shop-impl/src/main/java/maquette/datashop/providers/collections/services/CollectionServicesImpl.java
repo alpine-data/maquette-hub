@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.values.binary.BinaryObject;
 import maquette.core.values.user.User;
+import maquette.datashop.configuration.CollectionsConfiguration;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.providers.collections.CollectionEntity;
 import maquette.datashop.providers.collections.ports.CollectionsRepository;
@@ -17,6 +18,8 @@ public final class CollectionServicesImpl implements CollectionServices {
     private final DataAssetEntities entities;
 
     private final CollectionsRepository repository;
+
+    private final CollectionsConfiguration configuration;
 
     @Override
     public CompletionStage<List<String>> listFiles(User executor, String collection, String tag) {
@@ -67,7 +70,7 @@ public final class CollectionServicesImpl implements CollectionServices {
     private CompletionStage<CollectionEntity> get(String collection) {
         return entities
             .getByName(collection)
-            .thenApply(entity -> CollectionEntity.apply(entity.getId(), repository, entity));
+            .thenApply(entity -> CollectionEntity.apply(entity.getId(), repository, entity, configuration.getConcurrentRequests()));
     }
 
 }

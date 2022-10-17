@@ -95,7 +95,7 @@ public class CollectionStepDefinitions extends DataAssetStepDefinitions {
 
         collections
             .getServices()
-            .putAll(user, collection, bin, "", "upload some test file")
+            .putAll(user, collection, bin, "test_dir", "upload some test file")
             .toCompletableFuture()
             .get();
 

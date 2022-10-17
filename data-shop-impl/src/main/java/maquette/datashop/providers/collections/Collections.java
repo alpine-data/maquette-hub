@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
+import maquette.datashop.configuration.CollectionsConfiguration;
+import maquette.datashop.configuration.DataShopConfiguration;
 import maquette.datashop.ports.WorkspacesServicePort;
 import maquette.datashop.providers.DataAssetProvider;
 import maquette.datashop.providers.collections.commands.CreateCollectionTagCommand;
@@ -26,13 +28,18 @@ public final class Collections implements DataAssetProvider {
 
     private final CollectionsRepository repository;
 
-
     private final WorkspacesServicePort workspaces;
+
+    private final CollectionsConfiguration configuration;
 
     private MaquetteRuntime runtime;
 
     public static Collections apply(CollectionsRepository repository, WorkspacesServicePort workspaces) {
-        return apply(repository, workspaces, null);
+        return apply(repository, workspaces, DataShopConfiguration.apply().getCollections(), null);
+    }
+
+    public static Collections apply(CollectionsRepository repository, WorkspacesServicePort workspaces, MaquetteRuntime runtime) {
+        return apply(repository, workspaces, DataShopConfiguration.apply().getCollections(), runtime);
     }
 
     @Override
@@ -77,7 +84,7 @@ public final class Collections implements DataAssetProvider {
             throw new IllegalStateException("This method can not be called before everything is initialized.");
         }
 
-        return CollectionServicesFactory.apply(runtime, repository, workspaces);
+        return CollectionServicesFactory.apply(runtime, repository, workspaces, configuration);
     }
 
 
