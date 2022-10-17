@@ -20,12 +20,14 @@ import maquette.development.values.sandboxes.volumes.ExistingVolume;
 import maquette.development.values.sandboxes.volumes.NewVolume;
 import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.PythonStackConfiguration;
-import maquette.development.values.stacks.VolumeConfiguration;
+import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @AllArgsConstructor()
 @Slf4j
@@ -37,7 +39,7 @@ public class WorkspaceStepDefinitions {
 
     protected String mentionedWorkspace;
 
-    private List<VolumeConfiguration> mentionedVolumes;
+    private List<VolumeProperties> mentionedVolumes;
 
     protected Exception exception;
 
@@ -246,5 +248,24 @@ public class WorkspaceStepDefinitions {
 
     public void an_error_occurs_with_a_message_$(String message) {
         assertThat(this.exception.getMessage()).contains(message);
+    }
+
+    public void $_waits_until_the_mlflow_stack_is_deployed(AuthenticatedUser user) throws ExecutionException,
+        InterruptedException {
+        var retries = 10;
+        while (retries > 0) {
+            var result = GetWorkspaceCommand
+                .apply(mentionedWorkspace)
+                .run(user, runtime)
+                .toCompletableFuture()
+                .get()
+                .toPlainText(runtime);
+            if (!result.contains("initialized"))
+                break;
+            retries--;
+            TimeUnit.SECONDS.sleep(1);
+        }
+        if (retries == 0)
+            fail("MLflow stack hasn't been initialized");
     }
 }

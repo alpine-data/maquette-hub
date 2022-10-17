@@ -12,6 +12,7 @@ import maquette.core.values.UID;
 import maquette.development.values.stacks.StackConfiguration;
 
 import java.util.Map;
+import java.util.Optional;
 
 @With
 @Value
@@ -104,6 +105,10 @@ public class SandboxProperties {
         stacksUpdated.putAll(stacks);
 
         return withStacks(stacksUpdated);
+    }
+
+    public Optional<UID> getVolume() {
+        return Optional.ofNullable(volume);
     }
 
 }

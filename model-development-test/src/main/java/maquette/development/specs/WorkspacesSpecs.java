@@ -108,6 +108,7 @@ public abstract class WorkspacesSpecs {
     public void workspaceInfrastructure() throws ExecutionException, InterruptedException {
         // Given
         steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+        steps.$_waits_until_the_mlflow_stack_is_deployed(context.users.bob);
 
         // When
         steps.$_gets_environment_for_workspace_$_of_type_$(context.users.bob, "fake", EnvironmentType.SANDBOX);

@@ -1,5 +1,6 @@
 package maquette.development.values.stacks;
 
+import com.github.javafaker.Bool;
 import maquette.core.common.forms.Form;
 
 import java.util.List;
@@ -26,8 +27,12 @@ public interface Stack<T extends StackConfiguration> {
 
     Form getConfigurationForm();
 
+    default Boolean isVolumeSupported() {
+        return false;
+    }
+
     default StackProperties getProperties() {
-        return StackProperties.apply(getTitle(), getName(), getSummary(), getTags(), getConfigurationForm());
+        return StackProperties.apply(getTitle(), getName(), getSummary(), getTags(), getConfigurationForm(), isVolumeSupported());
     }
 
 }

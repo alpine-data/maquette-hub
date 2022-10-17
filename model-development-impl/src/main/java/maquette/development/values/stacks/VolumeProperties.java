@@ -11,7 +11,7 @@ import maquette.core.values.UID;
 @With
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class VolumeConfiguration {
+public class VolumeProperties {
 
     private static final String ID = "id";
 
@@ -47,8 +47,8 @@ public class VolumeConfiguration {
     String size;
 
     @JsonCreator
-    public static VolumeConfiguration apply(@JsonProperty(ID) UID id, @JsonProperty(USER) UID user,
-                                            @JsonProperty(NAME) String name, @JsonProperty(SIZE) String size) {
-        return new VolumeConfiguration(id, user, name, size);
+    public static VolumeProperties apply(@JsonProperty(ID) UID id, @JsonProperty(USER) UID user,
+                                         @JsonProperty(NAME) String name, @JsonProperty(SIZE) String size) {
+        return new VolumeProperties(id, user, name, size);
     }
 }

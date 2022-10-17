@@ -23,7 +23,7 @@ import maquette.development.values.sandboxes.volumes.NewVolume;
 import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.MlflowStackConfiguration;
 import maquette.development.values.stacks.StackRuntimeState;
-import maquette.development.values.stacks.VolumeConfiguration;
+import maquette.development.values.stacks.VolumeProperties;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -182,7 +182,7 @@ public final class WorkspaceEntity {
         return String.format("workspaces--%s", this.id);
     }
 
-    public CompletionStage<VolumeConfiguration> createVolume(User executor, VolumeDefinition volume) {
+    public CompletionStage<VolumeProperties> createVolume(User executor, VolumeDefinition volume) {
         return getProperties()
             .thenApply(properties -> {
                 var volumes = properties
@@ -196,7 +196,7 @@ public final class WorkspaceEntity {
                             .equals(newVolume.getName()))) {
                         throw VolumeAlreadyExistsException.apply(newVolume.getName(), id.getValue());
                     } else {
-                        var volumeConfiguration = VolumeConfiguration.apply(UID.apply(),
+                        var volumeConfiguration = VolumeProperties.apply(UID.apply(),
                             UID.apply(executor.getDisplayName()), newVolume.getName(), "5Gi");
                         volumes.add(volumeConfiguration);
                         var updated = properties
@@ -220,7 +220,7 @@ public final class WorkspaceEntity {
             });
     }
 
-    public CompletionStage<List<VolumeConfiguration>> getVolumes(User user) {
+    public CompletionStage<List<VolumeProperties>> getVolumes(User user) {
         return getProperties()
             .thenApply(WorkspaceProperties::getVolumes)
             .thenApply(volumes ->

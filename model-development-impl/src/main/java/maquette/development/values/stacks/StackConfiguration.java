@@ -7,6 +7,7 @@ import maquette.core.values.UID;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Custom configuration types for defined stacks. See also {@link Stack}.
@@ -50,6 +51,13 @@ public interface StackConfiguration {
     Map<String, String> getEnvironmentVariables();
 
     /**
+     * Provides a volume ID for stack that will be mounted.
+     *
+     * @return A volume ID if a stack supports it, otherwise empty
+     */
+    Optional<UID> getVolume();
+
+    /**
      * Returns a copy of the stack configuration, with updated name. This is required, since the backend
      * sets the instance name.
      *
@@ -79,5 +87,13 @@ public interface StackConfiguration {
         updated.put(key, value);
         return withEnvironmentVariables(updated);
     }
+
+    /**
+     * Add a volume ID to the stack.
+     *
+     * @param volume
+     * @return A new instance of this configuration with updated volume
+     */
+    StackConfiguration withVolume(UID volume);
 
 }

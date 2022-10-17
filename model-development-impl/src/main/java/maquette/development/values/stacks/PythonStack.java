@@ -53,4 +53,8 @@ public final class PythonStack implements Stack<PythonStackConfiguration> {
             .withControl(version);
     }
 
+    @Override
+    public Boolean isVolumeSupported() {
+        return true;
+    }
 }

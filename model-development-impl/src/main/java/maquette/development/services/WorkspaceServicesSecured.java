@@ -17,7 +17,7 @@ import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.governance.CodeIssue;
-import maquette.development.values.stacks.VolumeConfiguration;
+import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
 import java.util.Map;
@@ -280,7 +280,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<List<VolumeConfiguration>> getVolumes(User user, String workspace) {
+    public CompletionStage<List<VolumeProperties>> getVolumes(User user, String workspace) {
         return companion
             .withAuthorization(
                 () -> companion.isMember(user, workspace))

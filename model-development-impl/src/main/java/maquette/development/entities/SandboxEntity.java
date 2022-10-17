@@ -37,10 +37,12 @@ public final class SandboxEntity {
     /**
      * Uses the infrastructure port to deploy the configured stacks for this sandbox.
      *
-     * @param stacks The list of stacks to be added to the sandbox.
+     * @param stacks  The list of stacks to be added to the sandbox.
+     * @param sandbox
      * @return Done.
      */
-    public CompletionStage<Done> addStacks(List<StackConfiguration> stacks) {
+    public CompletionStage<Done> addStacks(List<StackConfiguration> stacks,
+                                           SandboxProperties sandbox) {
         return Operators
             .allOf(stacks
                 .stream()
@@ -56,7 +58,8 @@ public final class SandboxEntity {
                             .withStackInstanceName(stackConfigurationName)
                             .withEnvironmentVariable("MQ_SANDBOX_ID", id.getValue())
                             .withEnvironmentVariable("MQ_WORKSPACE_ID", workspace.getValue())
-                            .withEnvironmentVariable("MQ_WORKSPACE_NAME", workspaceProperties.getName());
+                            .withEnvironmentVariable("MQ_WORKSPACE_NAME", workspaceProperties.getName())
+                            .withVolume(sandbox.getVolume().orElse(null));
 
                         return infrastructurePort
                             .createOrUpdateStackInstance(workspace, updatedStackConfiguration)

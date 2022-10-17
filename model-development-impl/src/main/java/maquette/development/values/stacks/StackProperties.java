@@ -20,4 +20,6 @@ public class StackProperties {
 
     Form configurationForm;
 
+    Boolean isVolumeSupported;
+
 }

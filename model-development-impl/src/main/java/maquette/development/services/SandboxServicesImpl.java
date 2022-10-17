@@ -52,7 +52,8 @@ public final class SandboxServicesImpl implements SandboxServices {
             })
             .thenCompose(sdbx -> sandboxes.getSandboxById(sdbx.getWorkspace(), sdbx.getId()))
             .thenCompose(sdbx -> sdbx
-                .addStacks(stacks) // TODO bn: add to auto-infra
+                .getProperties()
+                .thenApply(prop -> sdbx.addStacks(stacks, prop))
                 .thenCompose(d -> sdbx.getProperties()));
     }
 
@@ -131,9 +132,9 @@ public final class SandboxServicesImpl implements SandboxServices {
         SandboxEntity, CompletionStage<T>> func) {
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(project -> sandboxes
-                .getSandboxByName(project.getId(), sandbox)
-                .thenCompose(sdbx -> func.apply(project, sdbx)));
+            .thenCompose(wks -> sandboxes
+                .getSandboxByName(wks.getId(), sandbox)
+                .thenCompose(sdbx -> func.apply(wks, sdbx)));
     }
 
 }

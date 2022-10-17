@@ -10,7 +10,7 @@ import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.development.values.stacks.MlflowStackConfiguration;
-import maquette.development.values.stacks.VolumeConfiguration;
+import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +51,7 @@ public class WorkspaceProperties {
     MlflowStackConfiguration mlFlowConfiguration;
 
     @JsonProperty(VOLUMES)
-    List<VolumeConfiguration> volumes;
+    List<VolumeProperties> volumes;
 
     @JsonCreator
     public static WorkspaceProperties apply(
@@ -62,7 +62,7 @@ public class WorkspaceProperties {
         @JsonProperty(CREATED) ActionMetadata created,
         @JsonProperty(MODIFIED) ActionMetadata modified,
         @JsonProperty(ML_FLOW_CONFIGURATION) MlflowStackConfiguration mlFlowConfiguration,
-        @JsonProperty(VOLUMES) List<VolumeConfiguration> volumes) {
+        @JsonProperty(VOLUMES) List<VolumeProperties> volumes) {
         return new WorkspaceProperties(id, name, title, summary, created, modified, mlFlowConfiguration, volumes);
     }
 

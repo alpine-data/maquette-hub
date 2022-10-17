@@ -25,7 +25,7 @@ import maquette.development.values.model.events.ReviewRequested;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.governance.CodeQuality;
 import maquette.development.values.sandboxes.Sandbox;
-import maquette.development.values.stacks.VolumeConfiguration;
+import maquette.development.values.stacks.VolumeProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -345,7 +345,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<List<VolumeConfiguration>> getVolumes(User user, String workspace) {
+    public CompletionStage<List<VolumeProperties>> getVolumes(User user, String workspace) {
         return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(entity -> entity.getVolumes(user));

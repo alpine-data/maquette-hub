@@ -70,4 +70,9 @@ public final class PostgresStack implements Stack<PostgresStackConfiguration> {
                 .withFormControl(adminMail)
                 .withFormControl(adminPassword));
     }
+
+    @Override
+    public Boolean isVolumeSupported() {
+        return true;
+    }
 }
