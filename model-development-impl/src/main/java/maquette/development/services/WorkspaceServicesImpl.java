@@ -30,17 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WorkspaceServicesImpl implements WorkspaceServices {
-
-    private static final Logger LOG = LoggerFactory.getLogger(WorkspaceServices.class);
 
     WorkspaceEntities workspaces;
 
@@ -91,14 +87,15 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
             .thenCompose(workspace -> {
                 var propertiesCS = workspace
                     .getProperties()
-                    .thenApply(workspaceProperties -> workspaceProperties.withVolumes(workspaceProperties
-                        .getVolumes()
-                        .stream()
-                        .filter(volume -> volume
-                            .getUser()
-                            .getValue()
-                            .equals(user.getDisplayName()))
-                        .collect(Collectors.toList())));
+                    .thenApply(workspaceProperties -> workspaceProperties
+                        .withVolumes(Optional.ofNullable(workspaceProperties.getVolumes())
+                            .orElseGet(Collections::emptyList)
+                            .stream()
+                            .filter(volume -> volume
+                                .getUser()
+                                .getValue()
+                                .equals(user.getDisplayName()))
+                            .collect(Collectors.toList())));
                 var membersCS = workspace
                     .members()
                     .getMembers();
