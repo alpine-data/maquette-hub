@@ -2,6 +2,7 @@ package maquette.core.modules.users.services;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
+import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.model.*;
 import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
@@ -13,11 +14,12 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class UserServicesSecured implements UserServices {
+public final class UserServicesSecured implements UserServices {
     private static final Logger LOG = LoggerFactory.getLogger(UserServicesSecured.class);
     private final UserCompanion comp;
 
@@ -129,5 +131,15 @@ public class UserServicesSecured implements UserServices {
     @Override
     public CompletionStage<Done> readNotification(User executor, String notificationId) {
         return delegate.readNotification(executor, notificationId);
+    }
+
+    @Override
+    public CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor) {
+        return delegate.getGlobalRoles(executor);
+    }
+
+    @Override
+    public CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role) {
+        return delegate.hasGlobalRole(executor, role);
     }
 }

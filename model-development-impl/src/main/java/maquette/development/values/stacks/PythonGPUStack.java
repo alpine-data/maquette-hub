@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.forms.Form;
 import maquette.core.common.forms.FormControl;
 import maquette.core.common.forms.inputs.InputPicker;
+import maquette.core.modules.users.GlobalRole;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor(staticName = "apply")
 public final class PythonGPUStack implements Stack<PythonGPUStackConfiguration> {
@@ -62,6 +64,11 @@ public final class PythonGPUStack implements Stack<PythonGPUStackConfiguration> 
             .apply()
             .withControl(version)
             .withControl(size);
+    }
+
+    @Override
+    public Optional<GlobalRole> getRequiredRole() {
+        return Optional.of(GlobalRole.ADVANCED_USER);
     }
 
     @Override

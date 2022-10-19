@@ -2,6 +2,7 @@ package maquette.core.modules.users;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.core.modules.ports.AuthenticationTokenStore;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -27,6 +29,15 @@ public final class UserEntities {
     private final AuthenticationTokenStore tokens;
 
     private final ObjectMapper objectMapper;
+
+    public CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor) {
+        // TODO: Implement, read from configuration
+        return CompletableFuture.completedFuture(Sets.newHashSet(GlobalRole.ADVANCED_USER, GlobalRole.ADMIN));
+    }
+
+    public CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role) {
+        return getGlobalRoles(executor).thenApply(roles -> roles.contains(role));
+    }
 
     public CompletionStage<UserEntity> getUserById(UID id) {
         return CompletableFuture.completedFuture(UserEntity.apply(id, repository, objectMapper));

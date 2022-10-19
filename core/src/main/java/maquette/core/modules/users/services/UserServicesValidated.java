@@ -6,6 +6,7 @@ import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.ForAllValidator;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
+import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
@@ -16,6 +17,8 @@ import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -155,5 +158,15 @@ public final class UserServicesValidated implements UserServices {
             .validate("notificationId", notificationId, NonEmptyStringValidator.apply(1))
             .checkAndFail()
             .thenCompose(done -> delegate.readNotification(executor, notificationId));
+    }
+
+    @Override
+    public CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor) {
+        return delegate.getGlobalRoles(executor);
+    }
+
+    @Override
+    public CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role) {
+        return delegate.hasGlobalRole(executor, role);
     }
 }

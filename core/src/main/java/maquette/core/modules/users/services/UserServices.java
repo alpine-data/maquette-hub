@@ -1,6 +1,7 @@
 package maquette.core.modules.users.services;
 
 import akka.Done;
+import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
@@ -11,6 +12,7 @@ import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 public interface UserServices {
@@ -60,5 +62,12 @@ public interface UserServices {
     CompletionStage<List<UserNotification>> getNotifications(User executor);
 
     CompletionStage<Done> readNotification(User executor, String notificationId);
+
+    /*
+     * Global Roles
+     */
+    CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor);
+
+    CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role);
 
 }
