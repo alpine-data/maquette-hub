@@ -18,6 +18,7 @@ public final class Stacks {
         stacks.add(PythonStack.apply());
         stacks.add(PostgresStack.apply());
         stacks.add(SynapseStack.apply());
+        stacks.add(PythonGPUStack.apply());
 
         this.stacks = List.copyOf(stacks);
     }
