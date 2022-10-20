@@ -16,8 +16,10 @@ import maquette.datashop.providers.datasets.records.Records;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatabaseEntities {
@@ -128,24 +130,23 @@ public final class DatabaseEntities {
         return database.test(driver, connection, username, password, query);
     }
 
-    public CompletionStage<ConnectionTestResult> test(DatabaseSettings properties) {
-        return test(
-            properties
-                .getSessionSettings()
-                .getDriver(),
-            properties
-                .getSessionSettings()
-                .getConnection(),
-            properties
-                .getSessionSettings()
-                .getUsername(),
-            properties
-                .getSessionSettings()
-                .getPassword(),
-            properties
-                .getQuerySettings()
-                .get(0)
-                .getQuery()); // TODO: Test all queries.
+    public List<CompletionStage<ConnectionTestResult>> test(DatabaseSettings properties) {
+        return properties.getQuerySettings()
+            .stream()
+            .map(dqs -> test(
+                properties
+                    .getSessionSettings()
+                    .getDriver(),
+                properties
+                    .getSessionSettings()
+                    .getConnection(),
+                properties
+                    .getSessionSettings()
+                    .getUsername(),
+                properties
+                    .getSessionSettings()
+                    .getPassword(),
+                dqs.getQuery()))
+            .collect(Collectors.toList());
     }
-
 }

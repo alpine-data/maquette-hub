@@ -65,11 +65,11 @@ public class DatabasesAPI {
         return OpenApiBuilder.documented(docs, ctx -> {
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
             var database = ctx.pathParam("database");
-            var queryId = ctx.pathParam("query");
+            var queryName = ctx.pathParam("query");
 
             var result = databases
                 .getServices()
-                .executeQueryById(user, database, queryId)
+                .executeQueryByName(user, database, queryName)
                 .thenApply(records -> {
                     var file = Operators.suppressExceptions(() -> Files.createTempFile("mq", "download"));
                     records.toFile(file);
@@ -77,7 +77,7 @@ public class DatabasesAPI {
                 })
                 .toCompletableFuture();
 
-            ctx.header("Content-Disposition", "attachment; filename=" + database + "." + queryId + ".avro");
+            ctx.header("Content-Disposition", "attachment; filename=" + database + "." + queryName + ".avro");
             ctx.header("Content-Type", "application/octet-stream");
             ctx.result(result);
         });

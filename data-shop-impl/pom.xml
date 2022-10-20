@@ -49,6 +49,12 @@
             <version>9.4.1.jre11</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.5.0</version>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>org.assertj</groupId>

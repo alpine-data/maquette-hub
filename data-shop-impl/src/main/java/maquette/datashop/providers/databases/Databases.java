@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
+import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
 import maquette.core.values.user.User;
 import maquette.datashop.MaquetteDataShop;
@@ -15,10 +16,12 @@ import maquette.datashop.providers.DataAssetSettings;
 import maquette.datashop.providers.databases.commands.AnalyzeDatabaseCommand;
 import maquette.datashop.providers.databases.commands.GetDatabaseConnectionCommand;
 import maquette.datashop.providers.databases.commands.TestDatabaseConnectionCommand;
-import maquette.datashop.providers.databases.exceptions.QueryNamesMustBeUnique;
+import maquette.datashop.providers.databases.exceptions.ConnectionTestFailedException;
+import maquette.datashop.providers.databases.exceptions.QueryNamesMustBeUniqueException;
 import maquette.datashop.providers.databases.model.DatabaseProperties;
 import maquette.datashop.providers.databases.model.DatabaseQuerySettings;
 import maquette.datashop.providers.databases.model.DatabaseSettings;
+import maquette.datashop.providers.databases.model.FailedConnectionTestResult;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.databases.ports.DatabasePort;
 import maquette.datashop.providers.databases.services.DatabaseServices;
@@ -107,6 +110,7 @@ public final class Databases implements DataAssetProvider {
     public CompletionStage<Done> beforeCreated(User executor, DataAssetProperties properties, Object customSettings) {
         var dbSettings = (DatabaseSettings) customSettings;
 
+        // check if query names are unique
         if (dbSettings
             .getQuerySettings()
             .size() != dbSettings
@@ -115,10 +119,20 @@ public final class Databases implements DataAssetProvider {
             .map(DatabaseQuerySettings::getName)
             .distinct()
             .count()) {
-            throw QueryNamesMustBeUnique.apply();
+            throw QueryNamesMustBeUniqueException.apply();
         }
 
-        return CompletableFuture.completedFuture(Done.getInstance());
+        // test connection to all queries
+        return Operators
+            .allOf(databases.test(dbSettings))
+            .thenApply(l -> l
+                .stream()
+                .peek(result -> {
+                    if (result instanceof FailedConnectionTestResult) {
+                        throw ConnectionTestFailedException.apply();
+                    }
+                }))
+            .thenCompose(done -> CompletableFuture.completedFuture(Done.getInstance()));
     }
 
     @Override

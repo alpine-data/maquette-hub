@@ -23,7 +23,7 @@ public final class DatabaseJdbiImpl implements DatabasePort {
         DatabaseDriver driver, String connection, String username, String password, String query) {
 
         return CompletableFuture.supplyAsync(() -> {
-            var connectionString = String.format("%s:%s", driver.getConnectionPrefix(), connection);
+            var connectionString = String.format("%s://%s", driver.getConnectionPrefix(), connection);
             Jdbi jdbi = Jdbi.create(connectionString, username, password);
 
             return Operators.suppressExceptions(() -> jdbi.withHandle(handle -> handle
@@ -56,7 +56,7 @@ public final class DatabaseJdbiImpl implements DatabasePort {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                var connectionString = String.format("%s:%s", driver.getConnectionPrefix(), connection);
+                var connectionString = String.format("%s://%s", driver.getConnectionPrefix(), connection);
                 Jdbi jdbi = Jdbi.create(connectionString, username, password);
 
                 return Operators.suppressExceptions(() -> jdbi.withHandle(handle -> handle
