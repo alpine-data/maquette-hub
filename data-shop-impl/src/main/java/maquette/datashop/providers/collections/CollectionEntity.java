@@ -128,7 +128,6 @@ public final class CollectionEntity {
                         var name = zipEntry.getName();
 
                         // remove leading folder to add basePath
-                        System.out.println(name);
                         name = basePath
                             .replaceAll("^/+", "")
                             .replaceAll("/+$", "") + "/" + name

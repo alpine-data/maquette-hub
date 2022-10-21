@@ -141,6 +141,8 @@ public final class DataAssetEntities {
     public CompletionStage<List<LinkedDataAsset>> getDataAssetsByWorkspace(UID workspace) {
         return getDataAccessRequestsByWorkspace(workspace).thenCompose(requests -> Operators.allOf(requests
             .stream()
+            .filter(request -> Operators.suppressExceptions(() -> repository.findDataAssetById(request.getAsset())
+                .thenApply(Optional::isPresent).toCompletableFuture().get()))
             .map(request -> getById(request.getAsset())
                 .getProperties()
                 .thenApply(properties -> LinkedDataAsset.apply(request, properties)))));
