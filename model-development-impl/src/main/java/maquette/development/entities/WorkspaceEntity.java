@@ -189,7 +189,7 @@ public final class WorkspaceEntity {
                     .getVolumes();
                 if (volume instanceof NewVolume) {
                     var newVolume = (NewVolume) volume;
-                    if (volumes
+                    if (volumes != null && volumes
                         .stream()
                         .anyMatch(v -> v
                             .getName()
@@ -198,6 +198,9 @@ public final class WorkspaceEntity {
                     } else {
                         var volumeConfiguration = VolumeProperties.apply(UID.apply(),
                             UID.apply(executor.getDisplayName()), newVolume.getName(), "5Gi");
+                        // case for workspaces created before volumes feature
+                        if (volumes == null)
+                            volumes = Lists.newArrayList();
                         volumes.add(volumeConfiguration);
                         var updated = properties
                             .withVolumes(volumes)
