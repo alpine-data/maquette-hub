@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@With
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PythonStackConfiguration extends DefaultStackConfiguration {

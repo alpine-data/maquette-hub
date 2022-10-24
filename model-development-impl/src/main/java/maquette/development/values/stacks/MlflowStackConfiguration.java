@@ -6,8 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Value;
-import lombok.With;
+import lombok.Getter;
 import maquette.core.values.UID;
 import maquette.development.entities.mlflow.MlflowConfiguration;
 
@@ -17,8 +16,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-@With
-@Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MlflowStackConfiguration extends DefaultStackConfiguration {
 
@@ -62,6 +59,7 @@ public class MlflowStackConfiguration extends DefaultStackConfiguration {
      */
     @JsonProperty(SAS_EXPIRY_TOKEN)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'+00:00'", timezone = "UTC")
+    @Getter
     Instant sasTokenExpiry;
 
     /**
@@ -91,6 +89,17 @@ public class MlflowStackConfiguration extends DefaultStackConfiguration {
     @Override
     public List<String> getResourceGroups() {
         return resourceGroups;
+    }
+
+    /**
+     * Add an expiry timestamp for the sas token to the stack.
+     *
+     * @param sasTokenExpiry The expiry timestamp for the sas token
+     * @return A new instance of this configuration with updated expiry timestamp for the sas token
+     */
+    public MlflowStackConfiguration withSasTokenExpiry(Instant sasTokenExpiry) {
+        this.sasTokenExpiry = sasTokenExpiry;
+        return this;
     }
 
     public Optional<MlflowConfiguration> getMlflowConfiguration(StackInstanceParameters parameters) {
