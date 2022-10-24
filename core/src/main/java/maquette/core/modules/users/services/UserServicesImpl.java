@@ -13,6 +13,8 @@ import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
@@ -152,8 +154,23 @@ public final class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor) {
-        return users.getGlobalRoles(executor);
+    public CompletionStage<List<GrantedAuthorization<GlobalRole>>> getGlobalRoles(User executor) {
+        return users.getGlobalRoles();
+    }
+
+    @Override
+    public CompletionStage<Done> grantGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return users.grantGlobalRole(executor, authorization, role);
+    }
+
+    @Override
+    public CompletionStage<Done> removeGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return users.removeGlobalRole(executor, authorization, role);
+    }
+
+    @Override
+    public CompletionStage<Set<GlobalRole>> getGlobalRolesForUser(User executor) {
+        return users.getGlobalRolesForUser(executor);
     }
 
     @Override

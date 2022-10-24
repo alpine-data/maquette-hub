@@ -10,7 +10,10 @@ import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
 import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserProfile;
+import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class UserEntities {
@@ -30,13 +34,26 @@ public final class UserEntities {
 
     private final ObjectMapper objectMapper;
 
-    public CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor) {
-        // TODO: Implement, read from configuration
-        return CompletableFuture.completedFuture(Sets.newHashSet(GlobalRole.ADVANCED_USER, GlobalRole.ADMIN));
+    public CompletionStage<Set<GlobalRole>> getGlobalRolesForUser(User executor) {
+        if (executor instanceof AuthenticatedUser) {
+            return repository
+                .getAllGlobalAuthorizations()
+                .thenApply(roles -> roles
+                    .stream()
+                    .filter(auth -> auth.getAuthorization().authorizes(executor))
+                    .map(GrantedAuthorization::getRole)
+                    .collect(Collectors.toSet()));
+        } else {
+            return CompletableFuture.completedFuture(Sets.newHashSet());
+        }
+    }
+
+    public CompletionStage<List<GrantedAuthorization<GlobalRole>>> getGlobalRoles() {
+        return repository.getAllGlobalAuthorizations();
     }
 
     public CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role) {
-        return getGlobalRoles(executor).thenApply(roles -> roles.contains(role));
+        return getGlobalRolesForUser(executor).thenApply(roles -> roles.contains(role));
     }
 
     public CompletionStage<UserEntity> getUserById(UID id) {
@@ -93,6 +110,17 @@ public final class UserEntities {
         } else {
             return CompletableFuture.failedFuture(UserNotAuthenticatedException.apply());
         }
+    }
+
+    public CompletionStage<Done> grantGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return this.repository.insertGlobalAuthorization(GrantedAuthorization.apply(
+            ActionMetadata.apply(executor),
+            authorization,
+            role));
+    }
+
+    public CompletionStage<Done> removeGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return this.repository.removeGlobalAuthorization(authorization, role);
     }
 
     public static class UserNotAuthenticatedException extends ApplicationException {

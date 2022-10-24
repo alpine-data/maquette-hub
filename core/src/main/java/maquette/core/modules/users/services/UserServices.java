@@ -7,6 +7,8 @@ import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
@@ -66,7 +68,13 @@ public interface UserServices {
     /*
      * Global Roles
      */
-    CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor);
+    CompletionStage<List<GrantedAuthorization<GlobalRole>>> getGlobalRoles(User executor);
+
+    CompletionStage<Done> grantGlobalRole(User executor, Authorization authorization, GlobalRole role);
+
+    CompletionStage<Done> removeGlobalRole(User executor, Authorization authorization, GlobalRole role);
+
+    CompletionStage<Set<GlobalRole>> getGlobalRolesForUser(User executor);
 
     CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role);
 

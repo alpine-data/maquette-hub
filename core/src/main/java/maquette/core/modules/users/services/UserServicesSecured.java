@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.model.*;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import org.apache.commons.lang3.StringUtils;
@@ -134,8 +136,32 @@ public final class UserServicesSecured implements UserServices {
     }
 
     @Override
-    public CompletionStage<Set<GlobalRole>> getGlobalRoles(User executor) {
-        return delegate.getGlobalRoles(executor);
+    public CompletionStage<List<GrantedAuthorization<GlobalRole>>> getGlobalRoles(User executor) {
+        return comp
+            .withAuthorization(
+                () -> delegate.hasGlobalRole(executor, GlobalRole.ADMIN))
+            .thenCompose(ok -> delegate.getGlobalRoles(executor));
+    }
+
+    @Override
+    public CompletionStage<Done> grantGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return comp
+            .withAuthorization(
+                () -> delegate.hasGlobalRole(executor, GlobalRole.ADMIN))
+            .thenCompose(ok -> delegate.grantGlobalRole(executor, authorization, role));
+    }
+
+    @Override
+    public CompletionStage<Done> removeGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return comp
+            .withAuthorization(
+                () -> delegate.hasGlobalRole(executor, GlobalRole.ADMIN))
+            .thenCompose(ok -> delegate.removeGlobalRole(executor, authorization, role));
+    }
+
+    @Override
+    public CompletionStage<Set<GlobalRole>> getGlobalRolesForUser(User executor) {
+        return delegate.getGlobalRolesForUser(executor);
     }
 
     @Override
