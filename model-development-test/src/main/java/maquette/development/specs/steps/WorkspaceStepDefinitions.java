@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import maquette.core.MaquetteRuntime;
+import maquette.core.modules.users.commands.GrantGlobalRoleCommand;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
@@ -267,5 +268,21 @@ public class WorkspaceStepDefinitions {
         }
         if (retries == 0)
             fail("MLflow stack hasn't been initialized");
+    }
+
+    public void user_$_bob_is_an_advanced_user(AuthenticatedUser user) {
+        // TODO jl
+        // Use GrantGlobalRoleCommand to give the Advanced User Role to the provided user.
+    }
+
+    public void $_creates_a_sandbox_$_with_and_advanced_stack(AuthenticatedUser user, String sandboxName) {
+        // TODO jl
+        // Use CreateSandboxCommand to create the sandbox with the Python GPU stack.
+    }
+
+    public void the_sandbox_$_should_exist_in_workspace_$(String sandboxName, String workspaceName) {
+        // TODO jl
+        // Use runtime.getModule(MaquetteModelDevelopment.class).getSandboxes().listSandboxes()
+        // to fetch available sandboxes and check if the required sandbox exists.
     }
 }

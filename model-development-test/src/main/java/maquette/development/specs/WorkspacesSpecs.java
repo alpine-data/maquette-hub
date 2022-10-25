@@ -399,6 +399,35 @@ public abstract class WorkspacesSpecs {
     }
 
     /**
+     * Create Sandbox with Advance user Permissions.
+     */
+    @Test
+    public void createSandboxAdvancedUserPermissions() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+        steps.user_$_bob_is_an_advanced_user(context.users.bob);
+
+        // when
+        steps.$_creates_a_sandbox_$_with_and_advanced_stack(context.users.bob, "test-sdbx");
+
+        // then
+        steps.the_output_should_contain("Successfully created");
+        steps.the_sandbox_$_should_exist_in_workspace_$("test-sdbx", "fake");
+    }
+
+    @Test
+    public void createSandboxAdvancedUserPermissionsWithoutRequiredRole() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+
+        // when
+        steps.$_creates_a_sandbox_$_with_and_advanced_stack(context.users.bob, "test-sdbx");
+
+        // then
+        steps.the_output_should_contain("Not authorized"); // or similar.
+    }
+
+    /**
      * Delete sandbox with a volume used by multiple sandboxes
      */
     @Test
