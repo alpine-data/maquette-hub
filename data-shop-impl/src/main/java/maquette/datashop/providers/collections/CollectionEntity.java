@@ -281,10 +281,12 @@ public final class CollectionEntity {
 
                 zos.putNextEntry(entry);
 
+                int length;
                 byte[] bytes = new byte[1024];
-                while (fis.read(bytes) >= 0) {
-                    zos.write(bytes);
+                while ((length = fis.read(bytes)) > 0) {
+                    zos.write(bytes, 0, length);
                 }
+                zos.closeEntry();
 
                 fis.close();
             }
