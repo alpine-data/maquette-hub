@@ -97,7 +97,7 @@ public class DatabasesAPI {
         return OpenApiBuilder.documented(docs, ctx -> {
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
             var database = ctx.pathParam("database");
-            var query = ctx.body();
+            var query = ctx.queryParam("query");
 
             var result = databases
                 .getServices()
