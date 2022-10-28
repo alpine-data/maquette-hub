@@ -6,10 +6,7 @@ import maquette.core.common.Operators;
 import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntity;
 import maquette.datashop.providers.databases.exceptions.CustomQueriesNotAllowedException;
-import maquette.datashop.providers.databases.model.ConnectionTestResult;
-import maquette.datashop.providers.databases.model.DatabaseDriver;
-import maquette.datashop.providers.databases.model.DatabaseProperties;
-import maquette.datashop.providers.databases.model.DatabaseSettings;
+import maquette.datashop.providers.databases.model.*;
 import maquette.datashop.providers.databases.ports.DatabaseDataExplorer;
 import maquette.datashop.providers.databases.ports.DatabasePort;
 import maquette.datashop.providers.datasets.records.Records;
@@ -130,23 +127,11 @@ public final class DatabaseEntities {
         return database.test(driver, connection, username, password, query);
     }
 
-    public List<CompletionStage<ConnectionTestResult>> test(DatabaseSettings properties) {
-        return properties.getQuerySettings()
+    public List<CompletionStage<ConnectionTestResult>> test(
+        DatabaseDriver driver, String connection, String username, String password, List<DatabaseQuerySettings> queries) {
+        return queries
             .stream()
-            .map(dqs -> test(
-                properties
-                    .getSessionSettings()
-                    .getDriver(),
-                properties
-                    .getSessionSettings()
-                    .getConnection(),
-                properties
-                    .getSessionSettings()
-                    .getUsername(),
-                properties
-                    .getSessionSettings()
-                    .getPassword(),
-                dqs.getQuery()))
+            .map(dqs -> test(driver, connection, username, password, dqs.getQuery()))
             .collect(Collectors.toList());
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.MaquetteRuntime;
+import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.DataResult;
@@ -33,15 +34,14 @@ public class TestDatabaseConnectionCommand implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
-        return runtime
-            .getModule(MaquetteDataShop.class)
-            .getProviders()
-            .getByType(Databases.class)
-            .getServices()
-            .test(sessionSettings.getDriver(), sessionSettings.getConnection(), sessionSettings.getUsername(),
-                sessionSettings.getPassword(), queries
-                    .get(0)
-                    .getQuery())
+
+        return Operators.allOf(runtime
+                .getModule(MaquetteDataShop.class)
+                .getProviders()
+                .getByType(Databases.class)
+                .getServices()
+                .test(sessionSettings.getDriver(), sessionSettings.getConnection(), sessionSettings.getUsername(),
+                    sessionSettings.getPassword(), queries))
             .thenApply(DataResult::apply);
     }
 

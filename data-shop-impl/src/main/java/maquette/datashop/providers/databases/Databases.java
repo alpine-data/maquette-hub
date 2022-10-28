@@ -124,7 +124,12 @@ public final class Databases implements DataAssetProvider {
 
         // test connection to all queries
         return Operators
-            .allOf(databases.test(dbSettings))
+            .allOf(databases.test(
+                dbSettings.getSessionSettings().getDriver(),
+                dbSettings.getSessionSettings().getConnection(),
+                dbSettings.getSessionSettings().getUsername(),
+                dbSettings.getSessionSettings().getPassword(),
+                dbSettings.getQuerySettings()))
             .thenApply(l -> l
                 .stream()
                 .peek(result -> {

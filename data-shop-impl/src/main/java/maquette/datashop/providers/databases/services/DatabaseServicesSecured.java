@@ -6,6 +6,7 @@ import maquette.core.values.user.User;
 import maquette.datashop.entities.DataAssetEntities;
 import maquette.datashop.providers.databases.model.ConnectionTestResult;
 import maquette.datashop.providers.databases.model.DatabaseDriver;
+import maquette.datashop.providers.databases.model.DatabaseQuerySettings;
 import maquette.datashop.providers.databases.model.DatabaseSettings;
 import maquette.datashop.providers.databases.ports.DatabaseAnalysisResult;
 import maquette.datashop.providers.datasets.records.Records;
@@ -14,6 +15,7 @@ import maquette.datashop.values.access.DataAssetPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
@@ -69,6 +71,12 @@ public final class DatabaseServicesSecured implements DatabaseServices {
     public CompletionStage<ConnectionTestResult> test(DatabaseDriver driver, String connection, String username,
                                                       String password, String query) {
         return delegate.test(driver, connection, username, password, query);
+    }
+
+    @Override
+    public List<CompletionStage<ConnectionTestResult>> test(DatabaseDriver driver, String connection, String username,
+                                                            String password, List<DatabaseQuerySettings> queries) {
+        return delegate.test(driver, connection, username, password, queries);
     }
 
     @Override
