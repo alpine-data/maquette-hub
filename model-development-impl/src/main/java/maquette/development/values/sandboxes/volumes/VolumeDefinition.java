@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes(
     {
         @JsonSubTypes.Type(value = ExistingVolume.class, name = "existing"),
-        @JsonSubTypes.Type(value = NewVolume.class, name = "existing")
+        @JsonSubTypes.Type(value = NewVolume.class, name = "new")
     })
 public interface VolumeDefinition {
 
