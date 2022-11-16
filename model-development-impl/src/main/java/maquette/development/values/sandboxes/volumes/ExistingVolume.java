@@ -20,7 +20,7 @@ public class ExistingVolume implements VolumeDefinition {
     String name;
 
     @JsonCreator
-    public static ExistingVolume apply(@JsonProperty String name) {
+    public static ExistingVolume apply(@JsonProperty(NAME) String name) {
         if (!Operators.isKebabCase(name, 3)) {
             throw InvalidVolumeNameException.apply(name);
         }
