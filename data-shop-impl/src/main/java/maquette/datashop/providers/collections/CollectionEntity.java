@@ -340,6 +340,30 @@ public final class CollectionEntity {
     }
 
     /**
+     * Deletes all files contained in a directory from the object store.
+     *
+     * @param executor  The user who executes the action.
+     * @param directory The path of the directory to be deleted.
+     * @return Done.
+     */
+    public CompletionStage<Done> removeAll(User executor, String directory) {
+        var deletedFiles = new ArrayList<CompletionStage<Done>>();
+        return repository
+            .getFiles(id)
+            .thenCompose(files -> {
+                var dir = files.getDirectory(directory);
+                if (dir.isPresent()) {
+                    System.out.println(dir.get().files());
+                    for (FileEntry.NamedRegularFile file: dir.get().files()) {
+                        deletedFiles.add(this.remove(executor, directory + "/" + file.getName()));
+                    }
+                }
+                return Operators.allOf(deletedFiles);
+            })
+            .thenApply(done -> Done.getInstance());
+    }
+
+    /**
      * Deletes a single file from the object store.
      *
      * @param executor The user who executes the action.

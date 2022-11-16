@@ -143,6 +143,41 @@ public abstract class FileEntry {
         }
 
         /**
+         * Finds a subdirectory with the given directory name in the directory.
+         *
+         * @param name The name of the directory.
+         * @return The file object.
+         */
+        public Optional<Directory> getDirectory(String name) {
+            var path = getPathFromName(name);
+
+            if (path.isEmpty()) {
+                throw new IllegalArgumentException("Invalid file name");
+            } else if (path.size() == 1) {
+                var elementName = path.get(0);
+                var exists = children.get(elementName);
+
+                if (exists instanceof Directory) {
+                    return Optional.of((Directory) exists);
+                } else {
+                    return Optional.empty();
+                }
+            } else {
+                var elementName = path.get(0);
+                var exists = children.get(elementName);
+                var remaining = String.join("/", path.subList(1, path.size()));
+
+                if (exists != null && !(exists instanceof Directory)) {
+                    return Optional.empty();
+                } else if (exists != null) { // is a Directory ...
+                    return ((Directory) exists).getDirectory(remaining);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+
+        /**
          * Finds a file with the given file name in the directory.
          *
          * @param name The name of the file.

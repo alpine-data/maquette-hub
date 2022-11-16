@@ -25,6 +25,8 @@ public interface CollectionServices {
 
     CompletionStage<Done> remove(User executor, String collection, String file);
 
+    CompletionStage<Done> removeAll(User executor, String collection, String file);
+
     CompletionStage<Done> tag(User executor, String collection, String tag, String message);
 
 }

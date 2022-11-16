@@ -63,6 +63,11 @@ public final class CollectionServicesImpl implements CollectionServices {
     }
 
     @Override
+    public CompletionStage<Done> removeAll(User executor, String collection, String file) {
+        return get(collection).thenCompose(c -> c.removeAll(executor, file));
+    }
+
+    @Override
     public CompletionStage<Done> tag(User executor, String collection, String tag, String message) {
         return get(collection).thenCompose(c -> c.tag(executor, tag, message));
     }

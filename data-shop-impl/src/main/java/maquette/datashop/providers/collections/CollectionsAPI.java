@@ -161,13 +161,23 @@ public final class CollectionsAPI {
         return OpenApiBuilder.documented(docs, ctx -> {
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
             var collection = ctx.pathParam("collection");
+            var basePath = ctx.queryParam("basePath");
             var file = getRemainingPath(ctx);
 
-            var result = collections
-                .getServices()
-                .remove(user, collection, file)
-                .thenApply(done -> "Successfully deleted file")
-                .toCompletableFuture();
+            CompletableFuture<String> result;
+            if (Objects.isNull(basePath)) {
+                result = collections
+                    .getServices()
+                    .remove(user, collection, file)
+                    .thenApply(done -> "Successfully deleted file")
+                    .toCompletableFuture();
+            } else {
+                result = collections
+                    .getServices()
+                    .removeAll(user, collection, file)
+                    .thenApply(done -> "Successfully deleted directory")
+                    .toCompletableFuture();
+            }
 
             ctx.result(result);
         });

@@ -75,6 +75,13 @@ public final class CollectionServicesSecured implements CollectionServices {
     }
 
     @Override
+    public CompletionStage<Done> removeAll(User executor, String collection, String file) {
+        return comp
+            .withAuthorization(() -> comp.hasPermission(executor, collection, DataAssetPermissions::canProduce))
+            .thenCompose(ok -> delegate.removeAll(executor, collection, file));
+    }
+
+    @Override
     public CompletionStage<Done> tag(User executor, String collection, String tag, String message) {
         return comp
             .withAuthorization(() -> comp.hasPermission(executor, collection, DataAssetPermissions::canProduce))
