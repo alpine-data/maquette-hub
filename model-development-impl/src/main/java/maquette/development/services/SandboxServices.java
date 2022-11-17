@@ -11,12 +11,13 @@ import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackProperties;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 public interface SandboxServices {
 
     CompletionStage<SandboxProperties> createSandbox(
-        User user, String workspace, String name, String comment, VolumeDefinition volume,
+        User user, String workspace, String name, String comment, Optional<VolumeDefinition> volume,
         List<StackConfiguration> stacks);
 
     /**

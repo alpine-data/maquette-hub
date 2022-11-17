@@ -12,13 +12,13 @@ import maquette.core.values.UID;
 import maquette.core.values.user.User;
 import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.sandboxes.SandboxProperties;
-import maquette.development.values.sandboxes.volumes.NewVolume;
 import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackProperties;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -29,7 +29,7 @@ public final class SandboxServicesValidated implements SandboxServices {
     @Override
     public CompletionStage<SandboxProperties> createSandbox(
         User user, String workspace, String name, String comment,
-        VolumeDefinition volume, List<StackConfiguration> stacks) {
+        Optional<VolumeDefinition> volume, List<StackConfiguration> stacks) {
 
         return FluentValidation
             .apply()
@@ -40,7 +40,6 @@ public final class SandboxServicesValidated implements SandboxServices {
             .checkAndFail()
             .thenCompose(done -> {
                 String nameValidated;
-                VolumeDefinition volumeValidated;
 
                 if (Objects.isNull(name) || name
                     .trim()
@@ -50,13 +49,7 @@ public final class SandboxServicesValidated implements SandboxServices {
                     nameValidated = name;
                 }
 
-                if (Objects.isNull(volume)) {
-                    volumeValidated = NewVolume.apply(String.format("%s--volume", nameValidated));
-                } else {
-                    volumeValidated = volume;
-                }
-
-                return delegate.createSandbox(user, workspace, nameValidated, comment, volumeValidated, stacks);
+                return delegate.createSandbox(user, workspace, nameValidated, comment, volume, stacks);
             });
     }
 

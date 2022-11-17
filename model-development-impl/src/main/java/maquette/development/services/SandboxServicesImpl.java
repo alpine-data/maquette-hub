@@ -20,8 +20,10 @@ import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackProperties;
 import maquette.development.values.stacks.Stacks;
+import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
@@ -37,18 +39,19 @@ public final class SandboxServicesImpl implements SandboxServices {
 
     @Override
     public CompletionStage<SandboxProperties> createSandbox(
-        User user, String workspace, String name, String comment, VolumeDefinition volume,
+        User user, String workspace, String name, String comment, Optional<VolumeDefinition> volume,
         List<StackConfiguration> stacks) {
 
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(wks -> wks
-                .createVolume(user, volume)
-                .thenApply(volumeConfiguration -> Pair.apply(wks, volumeConfiguration)))
+            .thenCompose(wks -> volume.map(v -> wks
+                    .createVolume(user, v)
+                    .thenApply(volumeConfiguration -> Pair.apply(wks, volumeConfiguration)))
+                .orElse(CompletableFuture.completedFuture(Pair.apply(wks, null))))
             .thenCompose(pair -> {
                 var wks = pair.first();
-                var vol = pair.second();
-                return sandboxes.createSandbox(user, wks.getId(), vol.getId(), name, comment);
+                var vol = Optional.ofNullable(pair.second());
+                return sandboxes.createSandbox(user, wks.getId(), vol.map(VolumeProperties::getId).orElse(null), name, comment);
             })
             .thenCompose(sdbx -> sandboxes.getSandboxById(sdbx.getWorkspace(), sdbx.getId()))
             .thenCompose(sdbx -> sdbx
