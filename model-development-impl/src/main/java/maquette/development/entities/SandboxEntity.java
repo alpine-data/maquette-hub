@@ -4,15 +4,13 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.values.UID;
+import maquette.development.configuration.StacksConfiguration;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.sandboxes.SandboxProperties;
-import maquette.development.values.stacks.StackConfiguration;
-import maquette.development.values.stacks.StackInstanceParameters;
-import maquette.development.values.stacks.StackRuntimeState;
-import maquette.development.values.stacks.Stacks;
+import maquette.development.values.stacks.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -29,6 +27,8 @@ public final class SandboxEntity {
     private final WorkspacesRepository workspaces;
 
     private final InfrastructurePort infrastructurePort;
+
+    private final StacksConfiguration stacksConfiguration;
 
     private final UID id;
 
@@ -121,9 +121,23 @@ public final class SandboxEntity {
                         var config = properties
                             .getStacks()
                             .get(stack);
+
+                        config = config.withCost(mapStackNameToCost(config));
                         return StackRuntimeState.apply(config, state, parameters);
                     });
                 })));
+    }
+
+    private double mapStackNameToCost(StackConfiguration config) {
+        if (config instanceof PythonGPUStackConfiguration) {
+            return Operators.suppressExceptions(() -> stacksConfiguration
+                .getPythonGpu().getPriceBySize(((PythonGPUStackConfiguration) config).getSize()));
+        } else if (config instanceof PythonStackConfiguration) {
+            return Operators.suppressExceptions(() -> stacksConfiguration
+                .getPython().getPriceByMemoryRequest(((PythonStackConfiguration) config).getMemoryRequest()));
+        } else {
+            return 0.0;
+        }
     }
 
     /**

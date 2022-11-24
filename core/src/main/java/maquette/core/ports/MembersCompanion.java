@@ -55,7 +55,8 @@ public final class MembersCompanion<T extends Enum<T>> {
     public CompletionStage<Done> removeMember(User executor, Authorization member) {
         if (member instanceof UserAuthorization && executor instanceof AuthenticatedUser && member
             .getName()
-            .equals(((AuthenticatedUser) executor).getId())) {
+            .equals(((AuthenticatedUser) executor).getId().getValue())) {
+
             return CompletableFuture.failedFuture(MembersException.userCannotRemoveSelf());
         } else {
             return repository.removeMember(id, member);

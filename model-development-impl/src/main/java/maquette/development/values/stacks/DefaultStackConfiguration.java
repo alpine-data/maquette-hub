@@ -3,9 +3,7 @@ package maquette.development.values.stacks;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NoArgsConstructor;
 import maquette.core.values.UID;
-import org.checkerframework.checker.nullness.Opt;
 
-import javax.swing.text.html.Option;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,13 +13,13 @@ public abstract class DefaultStackConfiguration implements StackConfiguration {
     protected static final String NAME = "name";
     protected static final String ENVIRONMENT = "environment";
     protected static final String VOLUME = "volume";
+    protected static final String COST = "cost";
 
     /**
      * The name of the Python instance.
      */
     @JsonProperty(NAME)
     String name;
-
 
     /**
      * Environment variables which should be set in the stacks nodes.
@@ -34,6 +32,12 @@ public abstract class DefaultStackConfiguration implements StackConfiguration {
      */
     @JsonProperty(VOLUME)
     UID volume;
+
+    /**
+     * The cost of the stack.
+     */
+    @JsonProperty(COST)
+    double cost;
 
     @Override
     public String getStackInstanceName() {
@@ -64,6 +68,12 @@ public abstract class DefaultStackConfiguration implements StackConfiguration {
     @Override
     public StackConfiguration withVolume(UID volume) {
         this.volume = volume;
+        return this;
+    }
+
+    @Override
+    public StackConfiguration withCost(double cost) {
+        this.cost = cost;
         return this;
     }
 

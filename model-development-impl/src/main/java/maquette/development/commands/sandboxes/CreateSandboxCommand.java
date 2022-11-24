@@ -16,7 +16,6 @@ import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.StackConfiguration;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @Value
@@ -39,8 +38,8 @@ public class CreateSandboxCommand implements Command {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getSandboxServices()
-            .createSandbox(user, workspace, name, comment, Optional.ofNullable(volume), stacks)
-            .thenApply(done -> MessageResult.apply("Successfully created workspace"));
+            .createSandbox(user, workspace, name, comment, volume, stacks)
+            .thenApply(done -> MessageResult.apply("Successfully created sandbox."));
     }
 
     @Override

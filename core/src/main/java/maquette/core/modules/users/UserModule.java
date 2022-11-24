@@ -88,6 +88,9 @@ public final class UserModule implements MaquetteModule {
         commands.put("users create", CreateUserCommand.class);
         commands.put("users isRegistered", IsUserRegisteredCommand.class);
         commands.put("users list", QueryUsersCommand.class); // TODO mw: Rename to users query
+        commands.put("global-roles grant", GrantGlobalRoleCommand.class);
+        commands.put("global-roles revoke", RevokeGlobalRoleCommand.class);
+        commands.put("global-roles get", GetGlobalRoleCommand.class);
         return commands;
     }
 
