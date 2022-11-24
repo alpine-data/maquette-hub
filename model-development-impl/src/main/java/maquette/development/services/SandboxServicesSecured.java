@@ -16,6 +16,7 @@ import maquette.development.values.stacks.StackProperties;
 import maquette.development.values.stacks.Stacks;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -30,7 +31,7 @@ public final class SandboxServicesSecured implements SandboxServices {
 
     @Override
     public CompletionStage<SandboxProperties> createSandbox(User user, String workspace, String name, String comment,
-                                                            VolumeDefinition volume, List<StackConfiguration> stacks) {
+                                                            Optional<VolumeDefinition> volume, List<StackConfiguration> stacks) {
         return workspaces
             .withAuthorization(
                 /*
