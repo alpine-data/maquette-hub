@@ -1,18 +1,27 @@
 package maquette.operations.entities;
 
 import akka.Done;
+import lombok.AllArgsConstructor;
+import maquette.core.common.exceptions.ApplicationException;
+import maquette.operations.ports.DeployedModelServicesRepository;
+import maquette.operations.value.DeployedModelInstance;
 import maquette.operations.value.DeployedModelServiceProperties;
+import maquette.operations.value.DeployedModelServiceStatus;
 import maquette.operations.value.EDeployedModelServiceStatus;
 
+import java.time.Instant;
 import java.util.concurrent.CompletionStage;
 
+@AllArgsConstructor(staticName = "apply")
 public class DeployedModelEntity {
 
     String name;
 
+    private final DeployedModelServicesRepository deployedModelServicesRepository;
+
     public CompletionStage<Done> registerModelService(DeployedModelServiceProperties properties) {
         // Add a new service to the database.
-        return null;
+        return deployedModelServicesRepository.insertOrUpdate(properties);
     }
 
     /**
@@ -29,7 +38,23 @@ public class DeployedModelEntity {
      */
     public CompletionStage<Done> registerModelServiceInstance(String modelServiceName, String url, String version,
                                                               String environment) {
-        return null;
+        return deployedModelServicesRepository.findInstanceByUrl(modelServiceName, url)
+            .thenCompose(inst ->
+                inst
+                    .map(instance ->
+                        deployedModelServicesRepository.insertOrUpdateInstance(
+                            modelServiceName,
+                            instance
+                                .withModelVersion(version)
+                                .withEnvironment(environment)
+                        )
+                    )
+                    .orElseGet(() -> deployedModelServicesRepository.insertOrUpdateInstance(
+                        modelServiceName,
+                        DeployedModelInstance.apply(url, version, environment,
+                            DeployedModelServiceStatus.apply(EDeployedModelServiceStatus.NOT_AVAILABLE, Instant.now()))
+                    ))
+            );
     }
 
     /**
@@ -39,16 +64,32 @@ public class DeployedModelEntity {
      * @param url              The url of the instance.
      * @param status           The detected status.
      * @return Done.
+     * @throws InstanceException If instance doesn't exist.
      */
-    public CompletionStage<Done> updateModelServiceInstanceService(String modelServiceName, String url,
-                                                                   EDeployedModelServiceStatus status) {
-        return null;
+    public CompletionStage<Done> updateModelServiceInstance(String modelServiceName, String url,
+                                                            EDeployedModelServiceStatus status) {
+        return deployedModelServicesRepository.findInstanceByUrl(modelServiceName, url)
+            .thenCompose(inst ->
+                inst.map(instance ->
+                        deployedModelServicesRepository.insertOrUpdateInstance(modelServiceName,
+                            instance.withStatus(DeployedModelServiceStatus.apply(status, Instant.now()))))
+                    .orElseThrow(InstanceException::instanceNotFound));
     }
 
     public CompletionStage<Done> removeRegisteredModelService(String name) {
-        // Remove information about all instances.
-        // Remove service from database.
-        return null;
+        return deployedModelServicesRepository
+            .removeByName(name)
+            .thenCompose((status) -> deployedModelServicesRepository.removeAllInstances(name));
+    }
+
+    public static class InstanceException extends ApplicationException {
+        private InstanceException(String message) {
+            super(message);
+        }
+
+        public static InstanceException instanceNotFound() {
+            return new InstanceException("instance not found");
+        }
     }
 
 }
