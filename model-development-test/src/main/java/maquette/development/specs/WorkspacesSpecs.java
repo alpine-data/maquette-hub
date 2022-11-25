@@ -1,6 +1,10 @@
 package maquette.development.specs;
 
 import maquette.core.MaquetteRuntime;
+import maquette.core.common.exceptions.NotAuthorizedException;
+import maquette.core.modules.users.GlobalRole;
+import maquette.core.values.ActionMetadata;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.ports.DataAssetsServicePort;
 import maquette.development.ports.ModelsRepository;
@@ -43,6 +47,13 @@ public abstract class WorkspacesSpecs {
                 this.runtime, this.workspacesRepository, setupModelsRepository(),
                 setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort()))
             .initialize(context.system, context.app);
+        this.runtime.getUsersRepository().insertGlobalAuthorization(
+            GrantedAuthorization.apply(
+                ActionMetadata.apply(context.users.alice),
+                context.authorizations.alice,
+                GlobalRole.ADMIN
+            )
+        );
         this.steps = new WorkspaceStepDefinitions(this.runtime);
     }
 
@@ -396,6 +407,37 @@ public abstract class WorkspacesSpecs {
 
         // then
         steps.the_output_should_not_contain("newSandbox3");
+    }
+
+    /**
+     * Create Sandbox with Advance user Permissions.
+     */
+    @Test
+    public void createSandboxAdvancedUserPermissions() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "fake");
+        steps.$_grants_advanced_user_to_user_$(context.users.alice, context.users.bob);
+
+        // when
+        steps.$_creates_a_sandbox_$_with_and_advanced_stack(context.users.bob, "test-sdbx-gpu-1");
+
+        // then
+        steps.the_output_should_contain("Successfully created");
+        steps.$_gets_$_sandbox(context.users.bob, "test-sdbx-gpu-1");
+    }
+
+    @Test
+    public void createSandboxAdvancedUserPermissionsWithoutRequiredRole() throws ExecutionException,
+        InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.charly, "fake");
+
+        // when
+        var thrown = Assertions.assertThrows(ExecutionException.class, () -> steps.$_creates_a_sandbox_$_with_and_advanced_stack(context.users.charly, "test-sdbx-gpu-2"));
+
+        // then
+        Assertions.assertEquals(thrown.getMessage(), "maquette.core.common.exceptions.NotAuthorizedException: You are" +
+            " not authorized to execute this action.");
     }
 
     /**

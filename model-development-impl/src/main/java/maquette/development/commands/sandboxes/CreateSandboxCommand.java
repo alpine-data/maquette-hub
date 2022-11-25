@@ -40,7 +40,7 @@ public class CreateSandboxCommand implements Command {
             .getModule(MaquetteModelDevelopment.class)
             .getSandboxServices()
             .createSandbox(user, workspace, name, comment, Optional.ofNullable(volume), stacks)
-            .thenApply(done -> MessageResult.apply("Successfully created workspace"));
+            .thenApply(done -> MessageResult.apply("Successfully created sandbox."));
     }
 
     @Override

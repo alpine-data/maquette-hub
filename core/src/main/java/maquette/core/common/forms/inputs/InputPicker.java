@@ -28,6 +28,13 @@ public class InputPicker implements InputControl {
         return apply(name, List.copyOf(items), defaultValue);
     }
 
+    public InputPicker withItem(String key, String label, String description) {
+        var items = Lists.newArrayList(this.items.iterator());
+        items.add(DataItem.apply(key, label, description));
+
+        return apply(name, List.copyOf(items), defaultValue);
+    }
+
     public String getDefaultValue() {
         return defaultValue != null ? defaultValue : items.isEmpty() ? "" : items
             .get(0)

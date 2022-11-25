@@ -13,6 +13,7 @@ import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.models.GetModelsViewCommand;
 import maquette.development.commands.sandboxes.*;
+import maquette.development.configuration.ModelDevelopmentConfiguration;
 import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
 import maquette.development.ports.DataAssetsServicePort;
@@ -37,8 +38,6 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
     private final SandboxEntities sandboxes;
 
-    private final InfrastructurePort infrastructurePort;
-
     private final DataAssetsServicePort dataAssets;
 
     private MaquetteRuntime runtime;
@@ -46,14 +45,16 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
     public static MaquetteModelDevelopment apply(
         MaquetteRuntime runtime, WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository,
-        SandboxesRepository sandboxesRepository,
-        InfrastructurePort infrastructurePort, DataAssetsServicePort dataAssets) {
+        SandboxesRepository sandboxesRepository, InfrastructurePort infrastructurePort,
+        DataAssetsServicePort dataAssets) {
+
+        var configuration = ModelDevelopmentConfiguration.apply();
 
         var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
-        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort);
+        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort, configuration.getStacks());
 
         var workspaceServices = WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, sandboxes);
-        return apply(workspaces, workspaceServices, sandboxes, infrastructurePort, dataAssets, runtime);
+        return apply(workspaces, workspaceServices, sandboxes, dataAssets, runtime);
     }
 
     @Override

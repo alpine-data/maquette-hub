@@ -1,6 +1,8 @@
 package maquette.development.services;
 
 import maquette.core.modules.users.UserEntities;
+import maquette.core.modules.users.services.UserServices;
+import maquette.core.modules.users.services.UserServicesFactory;
 import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
 import maquette.development.ports.DataAssetsServicePort;
@@ -23,9 +25,10 @@ public final class WorkspaceServicesFactory {
                                                         SandboxEntities sandboxes, UserEntities users) {
         var workspacesCompanion = WorkspaceServicesCompanion.apply(workspaces, sandboxes);
         var workspaceServices = WorkspaceServicesImpl.apply(workspaces, sandboxes, provider);
+        var userServices = UserServicesFactory.apply(users);
 
         var impl = SandboxServicesImpl.apply(sandboxes, workspaces, users);
-        var secured = SandboxServicesSecured.apply(impl, workspacesCompanion);
+        var secured = SandboxServicesSecured.apply(impl, userServices, workspacesCompanion);
         return SandboxServicesValidated.apply(secured);
     }
 

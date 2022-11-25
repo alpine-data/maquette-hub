@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
+import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.UserEntities;
 import maquette.core.modules.users.UserEntity;
 import maquette.core.modules.users.model.UserAuthenticationToken;
@@ -12,12 +13,15 @@ import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -147,6 +151,31 @@ public final class UserServicesImpl implements UserServices {
     @Override
     public CompletionStage<Done> readNotification(User executor, String notificationId) {
         return companion.withUserOrDefault(executor, Done.getInstance(), user -> user.readNotification(notificationId));
+    }
+
+    @Override
+    public CompletionStage<List<GrantedAuthorization<GlobalRole>>> getGlobalRoles(User executor) {
+        return users.getGlobalRoles();
+    }
+
+    @Override
+    public CompletionStage<Done> grantGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return users.grantGlobalRole(executor, authorization, role);
+    }
+
+    @Override
+    public CompletionStage<Done> removeGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return users.removeGlobalRole(executor, authorization, role);
+    }
+
+    @Override
+    public CompletionStage<Set<GlobalRole>> getGlobalRolesForUser(User executor) {
+        return users.getGlobalRolesForUser(executor);
+    }
+
+    @Override
+    public CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role) {
+        return users.hasGlobalRole(executor, role);
     }
 
 }

@@ -6,16 +6,20 @@ import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.ForAllValidator;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
+import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -155,5 +159,40 @@ public final class UserServicesValidated implements UserServices {
             .validate("notificationId", notificationId, NonEmptyStringValidator.apply(1))
             .checkAndFail()
             .thenCompose(done -> delegate.readNotification(executor, notificationId));
+    }
+
+    @Override
+    public CompletionStage<List<GrantedAuthorization<GlobalRole>>> getGlobalRoles(User executor) {
+        return delegate.getGlobalRoles(executor);
+    }
+
+    @Override
+    public CompletionStage<Done> grantGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return FluentValidation
+            .apply()
+            .validate("authorization", authorization, NotNullValidator.apply())
+            .validate("role", role, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.grantGlobalRole(executor, authorization, role));
+    }
+
+    @Override
+    public CompletionStage<Done> removeGlobalRole(User executor, Authorization authorization, GlobalRole role) {
+        return FluentValidation
+            .apply()
+            .validate("authorization", authorization, NotNullValidator.apply())
+            .validate("role", role, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.removeGlobalRole(executor, authorization, role));
+    }
+
+    @Override
+    public CompletionStage<Set<GlobalRole>> getGlobalRolesForUser(User executor) {
+        return delegate.getGlobalRolesForUser(executor);
+    }
+
+    @Override
+    public CompletionStage<Boolean> hasGlobalRole(User executor, GlobalRole role) {
+        return delegate.hasGlobalRole(executor, role);
     }
 }

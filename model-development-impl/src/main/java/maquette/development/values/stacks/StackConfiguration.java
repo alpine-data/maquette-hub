@@ -19,6 +19,7 @@ import java.util.Optional;
     @JsonSubTypes.Type(value = MlflowStackConfiguration.class, name = MlflowStack.STACK_NAME),
     @JsonSubTypes.Type(value = PostgresStackConfiguration.class, name = PostgresStack.STACK_NAME),
     @JsonSubTypes.Type(value = PythonStackConfiguration.class, name = PythonStack.STACK_NAME),
+    @JsonSubTypes.Type(value = PythonGPUStackConfiguration.class, name = PythonGPUStack.STACK_NAME),
     @JsonSubTypes.Type(value = SynapseStackConfiguration.class, name = SynapseStack.STACK_NAME)
 })
 public interface StackConfiguration {
@@ -95,5 +96,13 @@ public interface StackConfiguration {
      * @return A new instance of this configuration with updated volume
      */
     StackConfiguration withVolume(UID volume);
+
+    /**
+     * Add a configured cost to the stack.
+     *
+     * @param cost
+     * @return A new instance of this configuration with updated cost
+     */
+    StackConfiguration withCost(double cost);
 
 }

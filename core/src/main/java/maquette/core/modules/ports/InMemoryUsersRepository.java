@@ -5,11 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.modules.users.GlobalRole;
 import maquette.core.modules.users.model.UserAuthenticationToken;
 import maquette.core.modules.users.model.UserNotification;
 import maquette.core.modules.users.model.UserProfile;
 import maquette.core.modules.users.model.UserSettings;
 import maquette.core.values.UID;
+import maquette.core.values.authorization.Authorization;
+import maquette.core.values.authorization.GrantedAuthorization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +33,11 @@ public final class InMemoryUsersRepository implements UsersRepository {
 
     private final Map<UID, UserAuthenticationToken> tokens;
 
+    private final List<GrantedAuthorization<GlobalRole>> roles;
+
     public static InMemoryUsersRepository apply() {
-        return apply(Lists.newArrayList(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap());
+        return apply(Lists.newArrayList(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(),
+            Lists.newArrayList());
     }
 
     @Override
@@ -164,6 +170,34 @@ public final class InMemoryUsersRepository implements UsersRepository {
             .collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(result);
+    }
+
+    @Override
+    public CompletionStage<List<GrantedAuthorization<GlobalRole>>> getAllGlobalAuthorizations() {
+        return CompletableFuture.completedFuture(List.copyOf(this.roles));
+    }
+
+    @Override
+    public CompletionStage<Done> insertGlobalAuthorization(GrantedAuthorization<GlobalRole> globalRole) {
+        this.removeGlobalAuthorization(globalRole.getAuthorization(), globalRole.getRole());
+        this.roles.add(globalRole);
+
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
+
+    @Override
+    public CompletionStage<Done> removeGlobalAuthorization(Authorization authorization, GlobalRole role) {
+        var updated = this.roles
+            .stream()
+            .filter(granted -> !(
+                (granted.getAuthorization().equals(authorization))
+                    && (granted.getRole().equals(role))))
+            .collect(Collectors.toList());
+
+        this.roles.clear();
+        this.roles.addAll(updated);
+
+        return CompletableFuture.completedFuture(Done.getInstance());
     }
 
     @Value

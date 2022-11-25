@@ -5,6 +5,8 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import maquette.core.MaquetteRuntime;
+import maquette.core.modules.users.GlobalRole;
+import maquette.core.modules.users.commands.GrantGlobalRoleCommand;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
@@ -19,10 +21,12 @@ import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.sandboxes.volumes.ExistingVolume;
 import maquette.development.values.sandboxes.volumes.NewVolume;
 import maquette.development.values.sandboxes.volumes.VolumeDefinition;
+import maquette.development.values.stacks.PythonGPUStackConfiguration;
 import maquette.development.values.stacks.PythonStackConfiguration;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -263,9 +267,28 @@ public class WorkspaceStepDefinitions {
             if (!result.contains("initialized"))
                 break;
             retries--;
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(5);
         }
         if (retries == 0)
             fail("MLflow stack hasn't been initialized");
+    }
+
+    public void $_grants_advanced_user_to_user_$(AuthenticatedUser executor, AuthenticatedUser user) throws ExecutionException, InterruptedException {
+        GrantGlobalRoleCommand
+            .apply(user.toAuthorization().toGenericAuthorizationDefinition(), GlobalRole.ADVANCED_USER)
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_creates_a_sandbox_$_with_and_advanced_stack(AuthenticatedUser user, String sandboxName) throws ExecutionException, InterruptedException {
+        results.add(CreateSandboxCommand
+            .apply(mentionedWorkspace, sandboxName, sandboxName, NewVolume.apply("new-gpu"), List.of(
+                PythonGPUStackConfiguration.apply(sandboxName, List.of(), "gpu_small", "3.10", Map.of())
+            ))
+            .run(user, runtime)
+            .toCompletableFuture()
+            .get()
+            .toPlainText(runtime));
     }
 }

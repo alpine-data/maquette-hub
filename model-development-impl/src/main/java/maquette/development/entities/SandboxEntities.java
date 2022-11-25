@@ -6,6 +6,7 @@ import maquette.core.common.Operators;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
+import maquette.development.configuration.StacksConfiguration;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
@@ -24,6 +25,8 @@ public final class SandboxEntities {
     private final SandboxesRepository sandboxes;
 
     private final InfrastructurePort infrastructurePort;
+
+    private final StacksConfiguration stacksConfiguration;
 
     /**
      * Creates a new sandbox.
@@ -56,7 +59,8 @@ public final class SandboxEntities {
         return sandboxes
             .findSandboxById(workspace, sandbox)
             .thenApply(opt -> opt.map(
-                sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, sandbox, workspace)));
+                sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, stacksConfiguration, sandbox,
+                    workspace)));
     }
 
     /**
@@ -82,8 +86,8 @@ public final class SandboxEntities {
         return sandboxes
             .findSandboxByName(workspace, sandbox)
             .thenApply(
-                opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort, sdbx.getId(),
-                    workspace)));
+                opt -> opt.map(sdbx -> SandboxEntity.apply(sandboxes, workspaces, infrastructurePort,
+                    stacksConfiguration, sdbx.getId(), workspace)));
     }
 
     /**
