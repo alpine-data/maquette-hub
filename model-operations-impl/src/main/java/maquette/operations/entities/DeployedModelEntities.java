@@ -9,6 +9,7 @@ import maquette.operations.value.DeployedModel;
 import maquette.operations.value.DeployedModelService;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -61,6 +62,17 @@ public class DeployedModelEntities {
                         )
                 ).orElse(CompletableFuture.completedFuture(null))
             ).thenApply(Optional::ofNullable);
+    }
+
+    /**
+     * Assign service to deployed model
+     *
+     * @param modelName   The name of model.
+     * @param serviceName The name of service to be assigned.
+     * @return Done.
+     */
+    public CompletionStage<Done> assignService(String modelName, String serviceName) {
+        return deployedModelsRepository.assignServices(modelName, Set.of(serviceName));
     }
 
 }
