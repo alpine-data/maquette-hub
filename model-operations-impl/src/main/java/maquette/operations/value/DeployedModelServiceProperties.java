@@ -1,12 +1,11 @@
 package maquette.operations.value;
 
-import lombok.AllArgsConstructor;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class DeployedModelServiceProperties {
 
     String name;

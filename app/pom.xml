@@ -39,6 +39,12 @@
             <artifactId>model-development-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>model-operations-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

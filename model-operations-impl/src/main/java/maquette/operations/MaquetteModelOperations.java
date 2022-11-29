@@ -8,7 +8,11 @@ import maquette.core.server.commands.Command;
 import maquette.operations.commands.CreateDeployedModelCommand;
 import maquette.operations.commands.CreateDeployedModelServiceCommand;
 import maquette.operations.commands.GetDeployedModelCommand;
+import maquette.operations.entities.DeployedModelEntities;
+import maquette.operations.ports.DeployedModelServicesRepository;
+import maquette.operations.ports.DeployedModelsRepository;
 import maquette.operations.services.DeployedModelServices;
+import maquette.operations.services.DeployedModelServicesImpl;
 
 import java.util.Map;
 
@@ -17,6 +21,10 @@ public class MaquetteModelOperations implements MaquetteModule {
     public static final String MODULE_NAME = "model-operations";
 
     private final DeployedModelServices deployedModelServices;
+
+    public static MaquetteModelOperations apply(DeployedModelsRepository deployedModelsRepository, DeployedModelServicesRepository deployedModelServicesRepository) {
+        return MaquetteModelOperations.apply(DeployedModelServicesImpl.apply(DeployedModelEntities.apply(deployedModelsRepository, deployedModelServicesRepository)));
+    }
 
     @Override
     public String getName() {

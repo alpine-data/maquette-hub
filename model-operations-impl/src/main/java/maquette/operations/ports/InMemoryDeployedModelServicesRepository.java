@@ -1,6 +1,7 @@
 package maquette.operations.ports;
 
 import akka.Done;
+import lombok.AllArgsConstructor;
 import maquette.operations.value.DeployedModelInstance;
 import maquette.operations.value.DeployedModelService;
 import maquette.operations.value.DeployedModelServiceProperties;
@@ -11,6 +12,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor(staticName = "apply")
 public class InMemoryDeployedModelServicesRepository implements DeployedModelServicesRepository {
     static final Map<String, DeployedModelService> services = new ConcurrentHashMap<>();
 

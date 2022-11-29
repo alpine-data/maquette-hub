@@ -4,7 +4,6 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.values.user.User;
 import maquette.operations.entities.DeployedModelEntities;
-import maquette.operations.entities.DeployedModelEntity;
 import maquette.operations.value.DeployedModel;
 import maquette.operations.value.DeployedModelServiceProperties;
 
@@ -16,7 +15,6 @@ public class DeployedModelServicesImpl implements DeployedModelServices {
 
     private final DeployedModelEntities deployedModelEntities;
 
-    private final DeployedModelEntity deployedModelEntity;
 
     @Override
     public CompletionStage<Done> createDeployedModel(User user, String name, String title, String url) {
@@ -26,9 +24,12 @@ public class DeployedModelServicesImpl implements DeployedModelServices {
     @Override
     public CompletionStage<Done> createDeployedModelService(User user, String modelName,
                                                             DeployedModelServiceProperties properties) {
-        return deployedModelEntity
-            .registerModelService(properties)
-            .thenCompose((done) -> deployedModelEntities.assignService(modelName, properties.getName()));
+        return deployedModelEntities.getDeployedModelEntity(modelName)
+            .thenCompose((entity) ->
+                entity
+                    .registerModelService(properties)
+                    .thenCompose((done) ->
+                        deployedModelEntities.assignService(modelName, properties.getName())));
     }
 
     @Override

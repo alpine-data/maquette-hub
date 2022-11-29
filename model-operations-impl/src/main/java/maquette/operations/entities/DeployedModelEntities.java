@@ -75,4 +75,8 @@ public class DeployedModelEntities {
         return deployedModelsRepository.assignServices(modelName, Set.of(serviceName));
     }
 
+    public CompletionStage<DeployedModelEntity> getDeployedModelEntity(String modelName) {
+        return CompletableFuture.completedFuture(DeployedModelEntity.apply(modelName, deployedModelServicesRepository));
+    }
+
 }

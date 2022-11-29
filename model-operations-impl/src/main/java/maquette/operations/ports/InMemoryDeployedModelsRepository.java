@@ -1,6 +1,7 @@
 package maquette.operations.ports;
 
 import akka.Done;
+import lombok.AllArgsConstructor;
 import maquette.operations.value.DeployedModel;
 
 import java.util.*;
@@ -8,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 
+@AllArgsConstructor(staticName = "apply")
 public class InMemoryDeployedModelsRepository implements DeployedModelsRepository {
 
     static final Map<String, DeployedModel> models = new ConcurrentHashMap<>();
