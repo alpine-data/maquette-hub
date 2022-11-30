@@ -44,7 +44,7 @@ public class DeployedModelEntities {
             .findByUrl(modelUrl)
             .thenCompose(mdl -> mdl.map(model ->
                     deployedModelsRepository
-                        .findServiceReferences(model.getName())
+                        .findServiceReferences(model.getUrl())
                         .thenCompose(references ->
                             Operators.allOf(references.stream().map(deployedModelServicesRepository::findByName))
                                 .thenApply(refs -> refs.stream()

@@ -34,7 +34,7 @@ public class CreateDeployedModelServiceCommand implements Command {
 
     @Override
     public Command example() {
-        return apply("some-model", DeployedModelServiceProperties.apply("some-model-service", "git://some-repo/model" +
+        return apply("http://localhost/my_model", DeployedModelServiceProperties.apply("some-model-service", "git://some-repo/model" +
             ".git", "https://backstage-zurich/model-service", "https://dev.azure.com/pipelines/some-pipeline"));
     }
 }

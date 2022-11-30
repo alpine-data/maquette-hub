@@ -32,6 +32,6 @@ public class GetDeployedModelCommand implements Command {
 
     @Override
     public Command example() {
-        return apply("some-model");
+        return apply("http://localhost/my_model");
     }
 }
