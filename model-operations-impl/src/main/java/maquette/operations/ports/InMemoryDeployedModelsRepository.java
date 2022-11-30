@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public class InMemoryDeployedModelsRepository implements DeployedModelsRepository {
@@ -16,33 +17,43 @@ public class InMemoryDeployedModelsRepository implements DeployedModelsRepositor
     static final Map<String, Set<String>> serviceReferences = new ConcurrentHashMap<>();
 
     @Override
-    public CompletionStage<Optional<DeployedModel>> findByName(String name) {
-        return CompletableFuture.completedFuture(Optional.ofNullable(models.get(name)));
+    public CompletionStage<List<DeployedModel>> findByName(String name) {
+        return CompletableFuture.completedFuture(models
+            .values()
+            .stream()
+            .filter(model -> model.getName().equals(name))
+            .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public CompletionStage<Optional<DeployedModel>> findByUrl(String url) {
+        return CompletableFuture.completedFuture(Optional.ofNullable(models.get(url)));
     }
 
     @Override
     public CompletionStage<Done> insertOrUpdate(String name, String title, String url) {
-        models.put(name, models.getOrDefault(name, DeployedModel.apply(name, title, url, List.of())));
+        models.put(url, models.getOrDefault(url, DeployedModel.apply(name, title, url, List.of())));
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
     @Override
-    public CompletionStage<Set<String>> findServiceReferences(String name) {
-        serviceReferences.putIfAbsent(name, new HashSet<>());
-        return CompletableFuture.completedFuture(serviceReferences.get(name));
+    public CompletionStage<Set<String>> findServiceReferences(String modelUrl) {
+        serviceReferences.putIfAbsent(modelUrl, new HashSet<>());
+        return CompletableFuture.completedFuture(serviceReferences.get(modelUrl));
     }
 
     @Override
-    public CompletionStage<Done> assignServices(String name, Set<String> serviceNames) {
-        serviceReferences.putIfAbsent(name, new HashSet<>());
-        serviceReferences.get(name).addAll(serviceNames);
+    public CompletionStage<Done> assignServices(String modelUrl, Set<String> serviceNames) {
+        serviceReferences.putIfAbsent(modelUrl, new HashSet<>());
+        serviceReferences.get(modelUrl).addAll(serviceNames);
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
     @Override
-    public CompletionStage<Done> removeServices(String name, Set<String> serviceNames) {
-        if (serviceReferences.containsKey(name)) {
-            serviceReferences.get(name).removeAll(serviceNames);
+    public CompletionStage<Done> removeServices(String modelUrl, Set<String> serviceNames) {
+        if (serviceReferences.containsKey(modelUrl)) {
+            serviceReferences.get(modelUrl).removeAll(serviceNames);
         }
         return CompletableFuture.completedFuture(Done.getInstance());
     }

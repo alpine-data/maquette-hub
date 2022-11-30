@@ -19,7 +19,7 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDeployedModelServiceCommand implements Command {
 
-    String modelName;
+    String modelUrl;
 
     DeployedModelServiceProperties properties;
 
@@ -28,7 +28,7 @@ public class CreateDeployedModelServiceCommand implements Command {
         return runtime
             .getModule(MaquetteModelOperations.class)
             .getDeployedModelServices()
-            .createDeployedModelService(user, modelName, properties)
+            .createDeployedModelService(user, modelUrl, properties)
             .thenApply(result -> MessageResult.apply("successfuly created"));
     }
 

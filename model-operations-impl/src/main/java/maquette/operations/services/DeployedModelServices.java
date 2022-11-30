@@ -12,8 +12,8 @@ public interface DeployedModelServices {
 
     CompletionStage<Done> createDeployedModel(User user, String name, String title, String url);
 
-    CompletionStage<Done> createDeployedModelService(User user, String modelName,
+    CompletionStage<Done> createDeployedModelService(User user, String modelUrl,
                                                      DeployedModelServiceProperties properties);
 
-    CompletionStage<Optional<DeployedModel>> findDeployedModel(User user, String name);
+    CompletionStage<Optional<DeployedModel>> findDeployedModel(User user, String modelUrl);
 }

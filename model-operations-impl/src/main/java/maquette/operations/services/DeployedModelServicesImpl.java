@@ -22,18 +22,18 @@ public class DeployedModelServicesImpl implements DeployedModelServices {
     }
 
     @Override
-    public CompletionStage<Done> createDeployedModelService(User user, String modelName,
+    public CompletionStage<Done> createDeployedModelService(User user, String modelUrl,
                                                             DeployedModelServiceProperties properties) {
-        return deployedModelEntities.getDeployedModelEntity(modelName)
+        return deployedModelEntities.getDeployedModelEntity(modelUrl)
             .thenCompose((entity) ->
                 entity
                     .registerModelService(properties)
                     .thenCompose((done) ->
-                        deployedModelEntities.assignService(modelName, properties.getName())));
+                        deployedModelEntities.assignService(modelUrl, properties.getName())));
     }
 
     @Override
-    public CompletionStage<Optional<DeployedModel>> findDeployedModel(User user, String name) {
-        return deployedModelEntities.findByName(name);
+    public CompletionStage<Optional<DeployedModel>> findDeployedModel(User user, String url) {
+        return deployedModelEntities.findByUrl(url);
     }
 }

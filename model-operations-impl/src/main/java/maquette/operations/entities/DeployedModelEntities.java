@@ -36,12 +36,12 @@ public class DeployedModelEntities {
     /**
      * Find the model by name, including its services nd instances
      *
-     * @param name The name of the model.
+     * @param modelUrl The URL of the model.
      * @return Model.
      */
-    public CompletionStage<Optional<DeployedModel>> findByName(String name) {
+    public CompletionStage<Optional<DeployedModel>> findByUrl(String modelUrl) {
         return deployedModelsRepository
-            .findByName(name)
+            .findByUrl(modelUrl)
             .thenCompose(mdl -> mdl.map(model ->
                     deployedModelsRepository
                         .findServiceReferences(model.getName())
@@ -67,16 +67,21 @@ public class DeployedModelEntities {
     /**
      * Assign service to deployed model
      *
-     * @param modelName   The name of model.
+     * @param modelUrl   The URL of model.
      * @param serviceName The name of service to be assigned.
      * @return Done.
      */
-    public CompletionStage<Done> assignService(String modelName, String serviceName) {
-        return deployedModelsRepository.assignServices(modelName, Set.of(serviceName));
+    public CompletionStage<Done> assignService(String modelUrl, String serviceName) {
+        return deployedModelsRepository.assignServices(modelUrl, Set.of(serviceName));
     }
 
-    public CompletionStage<DeployedModelEntity> getDeployedModelEntity(String modelName) {
-        return CompletableFuture.completedFuture(DeployedModelEntity.apply(modelName, deployedModelServicesRepository));
+    /**
+     * Get entity of the deployed model
+     * @param modelUrl  The url of the model
+     * @return Model entity.
+     */
+    public CompletionStage<DeployedModelEntity> getDeployedModelEntity(String modelUrl) {
+        return CompletableFuture.completedFuture(DeployedModelEntity.apply(modelUrl, deployedModelServicesRepository));
     }
 
 }
