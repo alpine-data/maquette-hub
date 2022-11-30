@@ -17,6 +17,7 @@ import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.governance.CodeIssue;
+import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
@@ -44,6 +45,14 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
             var message = "Only authenticated users are allowed to create new projects.";
             return CompletableFuture.failedFuture(NotAuthorizedException.apply(message));
         }
+    }
+
+    @Override
+    public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
+                                                                      String version, String service) {
+        return companion
+            .withAuthorization(() -> companion.isMember(user, workspace))
+            .thenCompose(ok -> delegate.createModelService(user, workspace, model, version, service));
     }
 
     @Override

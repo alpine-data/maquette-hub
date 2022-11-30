@@ -21,6 +21,8 @@ public class ModelProperties {
 
     String name;
 
+    String url;
+
     Set<String> flavours;
 
     String description;

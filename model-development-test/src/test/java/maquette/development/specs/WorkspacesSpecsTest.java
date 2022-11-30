@@ -3,6 +3,10 @@ package maquette.development.specs;
 import maquette.development.ports.*;
 import maquette.development.ports.infrastructure.FakeInfrastructurePort;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.models.FakeModelOperationsPort;
+import maquette.development.ports.models.InMemoryModelServing;
+import maquette.development.ports.models.ModelOperationsPort;
+import maquette.development.ports.models.ModelServingPort;
 
 public class WorkspacesSpecsTest extends WorkspacesSpecs {
 
@@ -30,6 +34,16 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
     public DataAssetsServicePort setupDataAssetsServicePort() {
         dataAssetsServicePort = FakeDataAssetsServicePort.apply();
         return dataAssetsServicePort;
+    }
+
+    @Override
+    public ModelOperationsPort setupModelOperationsPort() {
+        return FakeModelOperationsPort.apply();
+    }
+
+    @Override
+    public ModelServingPort setupModelServingPort() {
+        return InMemoryModelServing.apply();
     }
 
     @Override

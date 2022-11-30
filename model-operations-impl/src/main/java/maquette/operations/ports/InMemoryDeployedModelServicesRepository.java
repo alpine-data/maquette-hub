@@ -2,7 +2,7 @@ package maquette.operations.ports;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.operations.value.DeployedModelInstance;
+import maquette.operations.value.DeployedModelServiceInstance;
 import maquette.operations.value.DeployedModelService;
 import maquette.operations.value.DeployedModelServiceProperties;
 
@@ -37,7 +37,7 @@ public class InMemoryDeployedModelServicesRepository implements DeployedModelSer
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
-    public CompletionStage<List<DeployedModelInstance>> findAllInstances(String serviceName) {
+    public CompletionStage<List<DeployedModelServiceInstance>> findAllInstances(String serviceName) {
         final var service = services.get(serviceName);
         return CompletableFuture.completedFuture(service == null ? new LinkedList<>() : service.getInstances());
     }
@@ -48,7 +48,7 @@ public class InMemoryDeployedModelServicesRepository implements DeployedModelSer
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
-    public CompletionStage<Optional<DeployedModelInstance>> findInstanceByUrl(String serviceName, String url) {
+    public CompletionStage<Optional<DeployedModelServiceInstance>> findInstanceByUrl(String serviceName, String url) {
         return findAllInstances(serviceName).thenApply(
             instances -> instances
                 .stream()
@@ -57,9 +57,9 @@ public class InMemoryDeployedModelServicesRepository implements DeployedModelSer
         );
     }
 
-    public CompletionStage<Done> insertOrUpdateInstance(String serviceName, DeployedModelInstance instance) {
+    public CompletionStage<Done> insertOrUpdateInstance(String serviceName, DeployedModelServiceInstance instance) {
         final DeployedModelService service = Objects.requireNonNull(services.get(serviceName));
-        final var instances = new LinkedList<DeployedModelInstance>();
+        final var instances = new LinkedList<DeployedModelServiceInstance>();
         instances.add(instance);
         instances.addAll(service.getInstances()
             .stream()

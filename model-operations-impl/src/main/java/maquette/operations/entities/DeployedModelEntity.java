@@ -4,10 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.common.exceptions.ApplicationException;
 import maquette.operations.ports.DeployedModelServicesRepository;
-import maquette.operations.value.DeployedModelInstance;
-import maquette.operations.value.DeployedModelServiceProperties;
-import maquette.operations.value.DeployedModelServiceStatus;
-import maquette.operations.value.EDeployedModelServiceStatus;
+import maquette.operations.value.*;
 
 import java.time.Instant;
 import java.util.concurrent.CompletionStage;
@@ -22,6 +19,11 @@ public class DeployedModelEntity {
     public CompletionStage<Done> registerModelService(DeployedModelServiceProperties properties) {
         // Add a new service to the database.
         return deployedModelServicesRepository.insertOrUpdate(properties);
+    }
+
+    public CompletionStage<Done> registerModelServiceInstance(DeployedModelServiceProperties service, DeployedModelServiceInstanceProperties instance) {
+        // TODO: Implement.
+        return null;
     }
 
     /**
@@ -51,7 +53,7 @@ public class DeployedModelEntity {
                     )
                     .orElseGet(() -> deployedModelServicesRepository.insertOrUpdateInstance(
                         modelServiceName,
-                        DeployedModelInstance.apply(url, version, environment,
+                        DeployedModelServiceInstance.apply(url, version, environment,
                             DeployedModelServiceStatus.apply(EDeployedModelServiceStatus.NOT_AVAILABLE, Instant.now()))
                     ))
             );

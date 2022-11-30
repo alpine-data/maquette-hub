@@ -23,12 +23,16 @@ public class Model {
 
     ModelPermissions permissions;
 
+    List<Object> services;
+
     public static Model fromProperties(ModelProperties properties,
                                        List<GrantedAuthorization<ModelMemberRole>> members,
-                                       ModelPermissions permissions) {
+                                       ModelPermissions permissions,
+                                       List<Object> services) {
         return apply(properties,
             members,
-            permissions);
+            permissions,
+            services);
     }
 
     public Optional<ModelVersion> findVersion(String version) {

@@ -1,4 +1,4 @@
-package maquette.ports;
+package maquette.adapters.dataexplorer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;

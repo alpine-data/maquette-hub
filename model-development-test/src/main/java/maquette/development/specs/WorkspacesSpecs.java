@@ -1,7 +1,6 @@
 package maquette.development.specs;
 
 import maquette.core.MaquetteRuntime;
-import maquette.core.common.exceptions.NotAuthorizedException;
 import maquette.core.modules.users.GlobalRole;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.GrantedAuthorization;
@@ -11,6 +10,8 @@ import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.models.ModelOperationsPort;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.specs.steps.WorkspaceStepDefinitions;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
@@ -45,7 +46,8 @@ public abstract class WorkspacesSpecs {
         this.runtime
             .withModule(MaquetteModelDevelopment.apply(
                 this.runtime, this.workspacesRepository, setupModelsRepository(),
-                setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort()))
+                setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort(),
+                setupModelOperationsPort(), setupModelServingPort()))
             .initialize(context.system, context.app);
         this.runtime.getUsersRepository().insertGlobalAuthorization(
             GrantedAuthorization.apply(
@@ -70,6 +72,10 @@ public abstract class WorkspacesSpecs {
     public abstract InfrastructurePort setupInfrastructurePort();
 
     public abstract DataAssetsServicePort setupDataAssetsServicePort();
+
+    public abstract ModelOperationsPort setupModelOperationsPort();
+
+    public abstract ModelServingPort setupModelServingPort();
 
     public abstract SandboxesRepository setupSandboxesRepository();
 

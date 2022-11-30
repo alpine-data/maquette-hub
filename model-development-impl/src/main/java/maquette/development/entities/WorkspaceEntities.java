@@ -7,6 +7,7 @@ import maquette.core.common.Operators;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
@@ -30,6 +31,8 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
     private final ModelsRepository models;
 
     private final InfrastructurePort infrastructurePort;
+
+    private final ModelServingPort modelServing;
 
     public CompletionStage<WorkspaceProperties> createWorkspace(User executor,
                                                                 String name,
@@ -65,14 +68,14 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return repository
             .findWorkspaceById(id)
             .thenApply(maybeWorkspace -> maybeWorkspace.map(project ->
-                WorkspaceEntity.apply(project.getId(), repository, models, infrastructurePort)));
+                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, infrastructurePort)));
     }
 
     public CompletionStage<Optional<WorkspaceEntity>> findWorkspaceByName(String name) {
         return repository
             .findWorkspaceByName(name)
             .thenApply(maybeWorkspace -> maybeWorkspace.map(project ->
-                WorkspaceEntity.apply(project.getId(), repository, models, infrastructurePort)));
+                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, infrastructurePort)));
     }
 
     public CompletionStage<WorkspaceEntity> getWorkspaceById(UID id) {
@@ -96,7 +99,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
             .getWorkspaces()
             .thenCompose(all -> Operators.allOf(all
                 .map(p -> WorkspaceEntity
-                    .apply(p.getId(), repository, models, infrastructurePort)
+                    .apply(p.getId(), repository, models, modelServing, infrastructurePort)
                     .members()
                     .getMembers()
                     .thenApply(members -> Pair.create(p, members)))))

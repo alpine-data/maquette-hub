@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
+import maquette.core.common.validation.validators.TechnicalNameValidator;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -17,6 +18,7 @@ import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.governance.CodeIssue;
+import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
@@ -39,6 +41,20 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
             .validate("summary", summary, NonEmptyStringValidator.apply(3))
             .checkAndFail()
             .thenCompose(done -> delegate.create(user, name, title, summary));
+    }
+
+    @Override
+    public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
+                                                                      String version, String service) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
+            .validate("model", model, NonEmptyStringValidator.apply(3))
+            .validate("version", version, NonEmptyStringValidator.apply())
+            .validate("service", service, TechnicalNameValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.createModelService(user, workspace, model, version, service));
     }
 
     @Override

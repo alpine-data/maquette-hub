@@ -10,6 +10,7 @@ import maquette.core.ports.MembersCompanion;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.User;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
@@ -44,6 +45,8 @@ public final class WorkspaceEntity {
     private final WorkspacesRepository repository;
 
     private final ModelsRepository models;
+
+    private final ModelServingPort modelServingPort;
 
     private final InfrastructurePort infrastructurePort;
 
@@ -166,7 +169,7 @@ public final class WorkspaceEntity {
                             .get()
                             .getMlflowConfiguration(params))
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
-                            .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models))
+                            .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models, modelServingPort))
                             .orElse(ModelEntities.noMlflowBackend(id)));
                 } else {
                     return CompletableFuture.completedFuture(ModelEntities.noMlflowBackend(id));

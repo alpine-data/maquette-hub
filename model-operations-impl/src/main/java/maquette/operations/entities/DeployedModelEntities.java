@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.operations.ports.DeployedModelServicesRepository;
 import maquette.operations.ports.DeployedModelsRepository;
-import maquette.operations.value.DeployedModel;
 import maquette.operations.value.DeployedModelService;
 
 import java.util.Optional;
@@ -39,14 +38,17 @@ public class DeployedModelEntities {
      * @param name The name of the model.
      * @return Model.
      */
-    public CompletionStage<Optional<DeployedModel>> findByName(String name) {
+    public CompletionStage<Optional<DeployedModelEntity>> findByName(String name) {
+        /* Minor refactoring required.
+
         return deployedModelsRepository
             .findByName(name)
             .thenCompose(mdl -> mdl.map(model ->
                     deployedModelsRepository
                         .findServiceReferences(model.getName())
                         .thenCompose(references ->
-                            Operators.allOf(references.stream().map(deployedModelServicesRepository::findByName))
+                            Operators
+                                .allOf(references.stream().map(deployedModelServicesRepository::findByName))
                                 .thenApply(refs -> refs.stream()
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
@@ -62,6 +64,9 @@ public class DeployedModelEntities {
                         )
                 ).orElse(CompletableFuture.completedFuture(null))
             ).thenApply(Optional::ofNullable);
+         */
+
+        return null;
     }
 
     /**

@@ -14,6 +14,7 @@ import maquette.core.values.questionnaire.Answers;
 import maquette.core.values.user.User;
 import maquette.development.entities.mlflow.MlflowClient;
 import maquette.development.entities.mlflow.ModelCompanion;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.values.exceptions.ModelNotFoundException;
 import maquette.development.values.model.ModelMemberRole;
@@ -21,6 +22,7 @@ import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
 import maquette.development.values.model.events.QuestionnaireFilled;
 import maquette.development.values.model.mlflow.ModelFromRegistry;
+import maquette.development.values.model.services.ModelServiceProperties;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -38,12 +40,20 @@ public final class ModelEntity {
 
     private final ModelsRepository models;
 
+    private final ModelServingPort modelServing;
+
     private final ModelCompanion companion;
 
     private final String name;
 
     public CompletionStage<ModelProperties> getProperties() {
         return getPropertiesFromRegistry().thenCompose(companion::mapModel);
+    }
+
+    public CompletionStage<ModelServiceProperties> createService(String version, String service) {
+        return this.modelServing.createModel(
+            this.mlflowClient.getModel(this.name).getName(), // TODO: Get Model URL?
+            name, version, service);
     }
 
     public CompletionStage<Done> updateModel(User executor,

@@ -7,7 +7,7 @@ import lombok.With;
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class DeployedModelInstance {
+public class DeployedModelServiceInstance {
 
     String url;
 

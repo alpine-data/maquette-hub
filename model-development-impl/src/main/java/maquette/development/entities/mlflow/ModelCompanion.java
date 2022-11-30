@@ -45,16 +45,14 @@ public final class ModelCompanion {
                     .get(registeredModel
                         .getVersions()
                         .size() - 1)
-                    .getUser()
-                    .replace("michaelwellner", "michael"); // TODO ensure right user names tracked by MLflow.
+                    .getUser();
 
                 var created = ActionMetadata.apply(createdBy, registeredModel.getCreated());
 
                 var updatedBy = registeredModel
                     .getVersions()
                     .get(0)
-                    .getUser()
-                    .replace("michaelwellner", "michael"); // TODO ensure right user names tracked by MLflow.
+                    .getUser();
 
                 var updatedTime = registeredModel
                     .getVersions()
@@ -70,10 +68,7 @@ public final class ModelCompanion {
                     .stream()
                     .map(v -> {
                         var registered = ActionMetadata.apply(
-                            v
-                                .getUser()
-                                .replace("michaelwellner", "michael"),
-                            // TODO ensure right user names tracked by MLflow.
+                            v.getUser(),
                             v.getCreated());
 
                         var version = ModelVersion.apply(
@@ -113,9 +108,11 @@ public final class ModelCompanion {
                     })
                     .collect(Collectors.toList());
 
+                var url = "http://some-url/" + name; // TODO mw: Calculate proper URL.
+
                 var merged = maybeModel
                     .orElse(
-                        ModelProperties.apply(title, name, flavors, description, List.of(), versions, created, updated))
+                        ModelProperties.apply(title, name, url, flavors, description, List.of(), versions, created, updated))
                     .withFlavours(flavors);
 
                 var versionsMap = merged

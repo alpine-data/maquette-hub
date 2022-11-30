@@ -4,16 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 
-import java.util.List;
-
-
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class DeployedModelService {
+public class DeployedModelServiceInstanceProperties {
 
-    DeployedModelServiceProperties properties;
+    String url;
 
-    List<DeployedModelServiceInstance> instances;
+    String modelVersion;
+
+    String environment;
 
 }

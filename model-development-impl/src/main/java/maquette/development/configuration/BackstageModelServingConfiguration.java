@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import maquette.core.config.Configs;
 import maquette.core.config.annotations.ConfigurationProperties;
 import maquette.core.config.annotations.Value;
 
@@ -12,16 +11,12 @@ import maquette.core.config.annotations.Value;
 @ConfigurationProperties
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor(staticName = "apply")
-public class ModelDevelopmentConfiguration {
+public class BackstageModelServingConfiguration {
 
-    @Value("stacks")
-    private StacksConfiguration stacks;
+    @Value("url")
+    private String url;
 
-    @Value("model-serving")
-    private ModelServingConfiguration modelServing;
-
-    public static ModelDevelopmentConfiguration apply() {
-        return Configs.mapToConfigClass(ModelDevelopmentConfiguration.class, "maquette.model-development");
-    }
+    @Value("component-template")
+    private String componentTemplate;
 
 }

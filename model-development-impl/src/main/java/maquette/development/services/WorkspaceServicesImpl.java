@@ -11,6 +11,7 @@ import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
 import maquette.development.entities.*;
 import maquette.development.ports.DataAssetsServicePort;
+import maquette.development.ports.models.ModelOperationsPort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspaceMemberRole;
@@ -24,13 +25,15 @@ import maquette.development.values.model.events.Rejected;
 import maquette.development.values.model.events.ReviewRequested;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.governance.CodeQuality;
+import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.stacks.VolumeProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -44,10 +47,12 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     DataAssetsServicePort dataAssets;
 
-    public static WorkspaceServicesImpl apply(
-        WorkspaceEntities projects, SandboxEntities sandboxes, DataAssetsServicePort dataAssets) {
+    ModelOperationsPort modelOperations;
 
-        return new WorkspaceServicesImpl(projects, sandboxes, dataAssets);
+    public static WorkspaceServicesImpl apply(
+        WorkspaceEntities projects, SandboxEntities sandboxes, DataAssetsServicePort dataAssets, ModelOperationsPort modelOperations) {
+
+        return new WorkspaceServicesImpl(projects, sandboxes, dataAssets, modelOperations);
     }
 
     @Override
@@ -66,6 +71,16 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                     adminAddedCS, mlFlowInitializedCS,
                     (adminAdded, mlFlowInitialized) -> Done.getInstance());
             });
+    }
+
+    @Override
+    public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
+                                                                      String version, String service) {
+        return workspaces
+            .getWorkspaceByName(workspace)
+            .thenCompose(WorkspaceEntity::getModels)
+            .thenApply(models -> models.getModel(model))
+            .thenCompose(mdl -> mdl.createService(version, service));
     }
 
     @Override
@@ -177,6 +192,8 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                 .members()
                 .getMembers());
 
+
+
         return Operators
             .compose(modelEntityCS, projectMembersCS, (modelEntity, projectMembers) -> {
                 var propertiesCS = modelEntity.getProperties();
@@ -184,8 +201,10 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                 var permissionsCS = membersCS
                     .thenApply(members -> ModelMembersCompanion.apply(members, projectMembers))
                     .thenApply(comp -> comp.getDataAssetPermissions(user));
+                var servicesCS = modelEntity.getProperties()
+                    .thenCompose(properties -> modelOperations.getServices(properties.getUrl()));
 
-                return Operators.compose(propertiesCS, membersCS, permissionsCS, Model::fromProperties);
+                return Operators.compose(propertiesCS, membersCS, permissionsCS, servicesCS, Model::fromProperties);
             })
             .thenCompose(cs -> cs);
     }

@@ -13,6 +13,7 @@ import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.governance.CodeIssue;
+import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
@@ -32,6 +33,21 @@ public interface WorkspaceServices {
      * @return Done.
      */
     CompletionStage<Done> create(User user, String name, String title, String summary);
+
+    /**
+     * Creates a service to serve the model as an API.
+     * This will create a new Git repository including the required code to serve a model and the DevOps Pipeline
+     * to deploy the service.
+     *
+     * @param user      The user who executes the action.
+     * @param workspace The name of the workspace the model belongs to.
+     * @param model     The name of the model.
+     * @param version   The version of the model.
+     * @param service   The name of the service to create.
+     * @return ModelServiceProperties which contain links to the created service.
+     */
+    CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
+                                                               String version, String service);
 
     /**
      * Get environment variables/ properties for a workspace.

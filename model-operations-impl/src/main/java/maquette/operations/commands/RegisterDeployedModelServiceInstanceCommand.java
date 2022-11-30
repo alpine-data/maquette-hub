@@ -10,6 +10,8 @@ import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 import maquette.operations.MaquetteModelOperations;
+import maquette.operations.value.DeployedModelProperties;
+import maquette.operations.value.DeployedModelServiceInstanceProperties;
 import maquette.operations.value.DeployedModelServiceProperties;
 
 import java.util.concurrent.CompletionStage;
@@ -17,24 +19,30 @@ import java.util.concurrent.CompletionStage;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CreateDeployedModelServiceCommand implements Command {
+public class RegisterDeployedModelServiceInstanceCommand implements Command {
 
-    String modelName;
+    DeployedModelProperties model;
 
-    DeployedModelServiceProperties properties;
+    DeployedModelServiceProperties service;
+
+    DeployedModelServiceInstanceProperties instance;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(MaquetteModelOperations.class)
             .getServices()
-            .createDeployedModelService(user, modelName, properties)
-            .thenApply(result -> MessageResult.apply("successfuly created"));
+            .registerModelServiceInstance(user, model, service, instance)
+            .thenApply(result -> MessageResult.apply("Successfully registered."));
     }
 
     @Override
     public Command example() {
-        return apply("some-model", DeployedModelServiceProperties.apply("some-model-service", "git://some-repo/model" +
-            ".git", "https://backstage-zurich/model-service", "https://dev.azure.com/pipelines/some-pipeline"));
+        return apply(
+            DeployedModelProperties.apply("model_name", "http://some-mlwflow/models/model_name"),
+            DeployedModelServiceProperties.apply("some-service", "http://foo", "http://bar", "http://lorem"),
+            DeployedModelServiceInstanceProperties.apply("http://service.com", "1.0.2", "sit")
+        );
     }
+
 }

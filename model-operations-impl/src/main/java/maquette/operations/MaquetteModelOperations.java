@@ -8,6 +8,7 @@ import maquette.core.server.commands.Command;
 import maquette.operations.commands.CreateDeployedModelCommand;
 import maquette.operations.commands.CreateDeployedModelServiceCommand;
 import maquette.operations.commands.GetDeployedModelCommand;
+import maquette.operations.commands.RegisterDeployedModelServiceInstanceCommand;
 import maquette.operations.entities.DeployedModelEntities;
 import maquette.operations.ports.DeployedModelServicesRepository;
 import maquette.operations.ports.DeployedModelsRepository;
@@ -18,12 +19,18 @@ import java.util.Map;
 
 @AllArgsConstructor(staticName = "apply")
 public class MaquetteModelOperations implements MaquetteModule {
+
     public static final String MODULE_NAME = "model-operations";
 
     private final DeployedModelServices deployedModelServices;
 
+    private final DeployedModelEntities entities;
+
     public static MaquetteModelOperations apply(DeployedModelsRepository deployedModelsRepository, DeployedModelServicesRepository deployedModelServicesRepository) {
-        return MaquetteModelOperations.apply(DeployedModelServicesImpl.apply(DeployedModelEntities.apply(deployedModelsRepository, deployedModelServicesRepository)));
+        var deployedModels = DeployedModelEntities.apply(deployedModelsRepository, deployedModelServicesRepository);
+        var services = DeployedModelServicesImpl.apply(deployedModels);
+
+        return MaquetteModelOperations.apply(services, deployedModels);
     }
 
     @Override
@@ -47,10 +54,16 @@ public class MaquetteModelOperations implements MaquetteModule {
         commands.put("operations create-deployed-model", CreateDeployedModelCommand.class);
         commands.put("operations create-deployed-model-service", CreateDeployedModelServiceCommand.class);
         commands.put("operations get-deployed-model", GetDeployedModelCommand.class);
+
+        commands.put("operations register-model", RegisterDeployedModelServiceInstanceCommand.class);
         return commands;
     }
 
-    public DeployedModelServices getDeployedModelServices() {
+    public DeployedModelEntities getEntities() {
+        return entities;
+    }
+
+    public DeployedModelServices getServices() {
         return deployedModelServices;
     }
 }

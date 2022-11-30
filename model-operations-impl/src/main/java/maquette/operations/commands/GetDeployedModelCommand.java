@@ -25,7 +25,7 @@ public class GetDeployedModelCommand implements Command {
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(MaquetteModelOperations.class)
-            .getDeployedModelServices()
+            .getServices()
             .findDeployedModel(user, modelName)
             .thenApply(DataResult::apply);
     }
