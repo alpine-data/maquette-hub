@@ -19,7 +19,7 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CreateDeployedModelServiceCommand implements Command {
 
-    String modelName;
+    String modelUrl;
 
     DeployedModelServiceProperties properties;
 
@@ -28,13 +28,13 @@ public class CreateDeployedModelServiceCommand implements Command {
         return runtime
             .getModule(MaquetteModelOperations.class)
             .getServices()
-            .createDeployedModelService(user, modelName, properties)
-            .thenApply(result -> MessageResult.apply("successfuly created"));
+            .createDeployedModelService(user, modelUrl, properties)
+            .thenApply(result -> MessageResult.apply("successfully created"));
     }
 
     @Override
     public Command example() {
-        return apply("some-model", DeployedModelServiceProperties.apply("some-model-service", "git://some-repo/model" +
+        return apply("http://localhost/my_model", DeployedModelServiceProperties.apply("some-model-service", "git://some-repo/model" +
             ".git", "https://backstage-zurich/model-service", "https://dev.azure.com/pipelines/some-pipeline"));
     }
 }

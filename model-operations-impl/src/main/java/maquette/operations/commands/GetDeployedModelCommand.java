@@ -18,7 +18,7 @@ import java.util.concurrent.CompletionStage;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class GetDeployedModelCommand implements Command {
 
-    String modelName;
+    String modelUrl;
 
 
     @Override
@@ -26,12 +26,12 @@ public class GetDeployedModelCommand implements Command {
         return runtime
             .getModule(MaquetteModelOperations.class)
             .getServices()
-            .findDeployedModel(user, modelName)
+            .findDeployedModel(user, modelUrl)
             .thenApply(DataResult::apply);
     }
 
     @Override
     public Command example() {
-        return apply("some-model");
+        return apply("http://localhost/my_model");
     }
 }

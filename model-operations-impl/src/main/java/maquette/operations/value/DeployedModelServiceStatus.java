@@ -1,14 +1,13 @@
 package maquette.operations.value;
 
-import lombok.AllArgsConstructor;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 
 import java.time.Instant;
 
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class DeployedModelServiceStatus {
 
     /**

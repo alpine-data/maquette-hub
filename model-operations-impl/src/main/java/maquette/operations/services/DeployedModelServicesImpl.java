@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class DeployedModelServicesImpl implements DeployedModelServices {
+public final class DeployedModelServicesImpl implements DeployedModelServices {
 
     private final DeployedModelEntities deployedModelEntities;
 
@@ -25,14 +25,14 @@ public class DeployedModelServicesImpl implements DeployedModelServices {
     }
 
     @Override
-    public CompletionStage<Done> createDeployedModelService(User user, String modelName,
+    public CompletionStage<Done> createDeployedModelService(User user, String modelUrl,
                                                             DeployedModelServiceProperties properties) {
-        return deployedModelEntities.getDeployedModelEntity(modelName)
+        return deployedModelEntities.getDeployedModelEntity(modelUrl)
             .thenCompose((entity) ->
                 entity
                     .registerModelService(properties)
                     .thenCompose((done) ->
-                        deployedModelEntities.assignService(modelName, properties.getName())));
+                        deployedModelEntities.assignService(modelUrl, properties.getName())));
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DeployedModelServicesImpl implements DeployedModelServices {
                                                               DeployedModelServiceProperties service,
                                                               DeployedModelServiceInstanceProperties instance) {
         return deployedModelEntities
-            .findByName(model.getUrl())
+            .findByUrl(model.getUrl())
             .thenCompose(maybeModel -> {
                 if (maybeModel.isEmpty()) {
                     return deployedModelEntities
@@ -54,18 +54,10 @@ public class DeployedModelServicesImpl implements DeployedModelServices {
     }
 
     @Override
-    public CompletionStage<Optional<DeployedModel>> findDeployedModel(User user, String name) {
-        /* TODO: Refactor. DeployedModel should be returned form DeployedModelEntity.
-
-        return deployedModelEntities
-            .findByName(name)
-            .thenApply(entity -> {
-                if (entity.isPresent()) {
-                    //
-                }
-            });
-
-        */
+    public CompletionStage<Optional<DeployedModel>> findDeployedModel(User user, String url) {
+        /* TODO: Implement properly
+        return deployedModelEntities.findByUrl(url);
+         */
 
         return null;
     }

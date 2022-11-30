@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage;
 @AllArgsConstructor(staticName = "apply")
 public class DeployedModelEntity {
 
-    String name;
+    String url;
 
     private final DeployedModelServicesRepository deployedModelServicesRepository;
 
@@ -34,13 +34,13 @@ public class DeployedModelEntity {
      *
      * @param modelServiceName The unique name of the service.
      * @param version          The current model version which is deployed in that instance.
-     * @param url              The URL of the service.
+     * @param instanceUrl      The URL of the instance.
      * @param environment      The environment to which the service is deployed.
      * @return Done.
      */
-    public CompletionStage<Done> registerModelServiceInstance(String modelServiceName, String url, String version,
+    public CompletionStage<Done> registerModelServiceInstance(String modelServiceName, String instanceUrl, String version,
                                                               String environment) {
-        return deployedModelServicesRepository.findInstanceByUrl(modelServiceName, url)
+        return deployedModelServicesRepository.findInstanceByUrl(modelServiceName, instanceUrl)
             .thenCompose(inst ->
                 inst
                     .map(instance ->
@@ -53,7 +53,7 @@ public class DeployedModelEntity {
                     )
                     .orElseGet(() -> deployedModelServicesRepository.insertOrUpdateInstance(
                         modelServiceName,
-                        DeployedModelServiceInstance.apply(url, version, environment,
+                        DeployedModelServiceInstance.apply(instanceUrl, version, environment,
                             DeployedModelServiceStatus.apply(EDeployedModelServiceStatus.NOT_AVAILABLE, Instant.now()))
                     ))
             );
@@ -63,14 +63,14 @@ public class DeployedModelEntity {
      * Checks and updates the status of the model instance if status has changed.
      *
      * @param modelServiceName The unique name of the service.
-     * @param url              The url of the instance.
+     * @param instanceUrl      The url of the instance.
      * @param status           The detected status.
      * @return Done.
      * @throws InstanceException If instance doesn't exist.
      */
-    public CompletionStage<Done> updateModelServiceInstance(String modelServiceName, String url,
+    public CompletionStage<Done> updateModelServiceInstance(String modelServiceName, String instanceUrl,
                                                             EDeployedModelServiceStatus status) {
-        return deployedModelServicesRepository.findInstanceByUrl(modelServiceName, url)
+        return deployedModelServicesRepository.findInstanceByUrl(modelServiceName, instanceUrl)
             .thenCompose(inst ->
                 inst.map(instance ->
                         deployedModelServicesRepository.insertOrUpdateInstance(modelServiceName,
@@ -78,10 +78,10 @@ public class DeployedModelEntity {
                     .orElseThrow(InstanceException::instanceNotFound));
     }
 
-    public CompletionStage<Done> removeRegisteredModelService(String name) {
+    public CompletionStage<Done> removeRegisteredModelService(String serviceName) {
         return deployedModelServicesRepository
-            .removeByName(name)
-            .thenCompose((status) -> deployedModelServicesRepository.removeAllInstances(name));
+            .removeByName(serviceName)
+            .thenCompose((status) -> deployedModelServicesRepository.removeAllInstances(serviceName));
     }
 
     public static class InstanceException extends ApplicationException {

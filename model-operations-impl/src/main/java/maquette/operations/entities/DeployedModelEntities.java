@@ -2,16 +2,13 @@ package maquette.operations.entities;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.core.common.Operators;
 import maquette.operations.ports.DeployedModelServicesRepository;
 import maquette.operations.ports.DeployedModelsRepository;
-import maquette.operations.value.DeployedModelService;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public class DeployedModelEntities {
@@ -35,17 +32,17 @@ public class DeployedModelEntities {
     /**
      * Find the model by name, including its services nd instances
      *
-     * @param name The name of the model.
+     * @param modelUrl The URL of the model.
      * @return Model.
      */
-    public CompletionStage<Optional<DeployedModelEntity>> findByName(String name) {
+    public CompletionStage<Optional<DeployedModelEntity>> findByUrl(String modelUrl) {
         /* Minor refactoring required.
 
         return deployedModelsRepository
-            .findByName(name)
+            .findByUrl(modelUrl)
             .thenCompose(mdl -> mdl.map(model ->
                     deployedModelsRepository
-                        .findServiceReferences(model.getName())
+                        .findServiceReferences(model.getUrl())
                         .thenCompose(references ->
                             Operators
                                 .allOf(references.stream().map(deployedModelServicesRepository::findByName))
@@ -72,16 +69,21 @@ public class DeployedModelEntities {
     /**
      * Assign service to deployed model
      *
-     * @param modelName   The name of model.
+     * @param modelUrl   The URL of model.
      * @param serviceName The name of service to be assigned.
      * @return Done.
      */
-    public CompletionStage<Done> assignService(String modelName, String serviceName) {
-        return deployedModelsRepository.assignServices(modelName, Set.of(serviceName));
+    public CompletionStage<Done> assignService(String modelUrl, String serviceName) {
+        return deployedModelsRepository.assignServices(modelUrl, Set.of(serviceName));
     }
 
-    public CompletionStage<DeployedModelEntity> getDeployedModelEntity(String modelName) {
-        return CompletableFuture.completedFuture(DeployedModelEntity.apply(modelName, deployedModelServicesRepository));
+    /**
+     * Get entity of the deployed model
+     * @param modelUrl  The url of the model
+     * @return Model entity.
+     */
+    public CompletionStage<DeployedModelEntity> getDeployedModelEntity(String modelUrl) {
+        return CompletableFuture.completedFuture(DeployedModelEntity.apply(modelUrl, deployedModelServicesRepository));
     }
 
 }
