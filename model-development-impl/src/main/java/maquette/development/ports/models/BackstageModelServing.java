@@ -96,6 +96,8 @@ public final class BackstageModelServing implements ModelServingPort {
     @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
     private static class ComponentProperties {
 
+        // TODO: Component
+
         String name;
         String modelUrl;
         String modelName;

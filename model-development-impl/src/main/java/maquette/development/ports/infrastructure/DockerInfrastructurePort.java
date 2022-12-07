@@ -19,6 +19,8 @@ import maquette.development.ports.infrastructure.docker.deployments.StackDeploym
 import maquette.development.values.exceptions.StackConfigurationNotFoundException;
 import maquette.development.values.stacks.*;
 import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +34,8 @@ import java.util.stream.Stream;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DockerInfrastructurePort implements InfrastructurePort {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DockerInfrastructurePort.class);
 
     private final Docker docker;
 
@@ -53,7 +57,9 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
         var docker = Docker.apply(path, om);
         var deploymentConfigurationStore = path.resolve("deployments.json");
 
-        return apply(docker, deploymentConfigurationStore, om, Maps.newHashMap());
+        var inst = apply(docker, deploymentConfigurationStore, om, Maps.newHashMap());
+        Runtime.getRuntime().addShutdownHook(new Thread(inst::clean));
+        return inst;
     }
 
     @Override
@@ -79,6 +85,7 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
                 .get(name)
                 .remove()
                 .thenApply(done -> {
+                    deployments.remove(name);
                     removeDeployedStackConfiguration(name);
                     return done;
                 });
@@ -87,6 +94,7 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
                 .runDeployment(getDeployedStackConfiguration(name).getDeploymentConfig())
                 .thenCompose(Deployment::remove)
                 .thenApply(done -> {
+                    deployments.remove(name);
                     removeDeployedStackConfiguration(name);
                     return done;
                 });
@@ -128,6 +136,19 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
                         return StackInstanceStatus.DEPLOYED;
                     }))
                 .orElse(CompletableFuture.completedFuture(StackInstanceStatus.FAILED));
+        }
+    }
+
+    public void clean() {
+        LOG.info("Cleaning local infrastructure ...");
+
+        while (!this.deployments.isEmpty()) {
+            var maybeDeployment = this.deployments.values().stream().findFirst();
+            maybeDeployment.ifPresent(deployment -> {
+                LOG.info("Destroying deployment `{}`", deployment.getConfig().getName());
+                Operators.ignoreExceptions(() -> this.removeStackInstance(deployment.getConfig()
+                    .getName()).toCompletableFuture().get());
+            });
         }
     }
 
