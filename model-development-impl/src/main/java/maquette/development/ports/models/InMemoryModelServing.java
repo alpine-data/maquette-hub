@@ -19,8 +19,13 @@ public final class InMemoryModelServing implements ModelServingPort {
     }
 
     @Override
-    public CompletionStage<ModelServiceProperties> createModel(String modelMlflowUrl, String modelName,
-                                                               String modelVersion, String serviceName) {
+    public CompletionStage<ModelServiceProperties> createModel(String modelName,
+                                                               String modelVersion,
+                                                               String environment,
+                                                               String serviceName,
+                                                               String mlflowInstanceId,
+                                                               String maintainerName,
+                                                               String maintainerEmail) {
 
         var properties = ModelServiceProperties.apply(serviceName, Maps.newHashMap());
         this.services.add(properties);

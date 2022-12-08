@@ -75,12 +75,15 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                                      String version, String service) {
+                                                                      String version, String service,
+                                                                      String environment, String mlflowInstanceId,
+                                                                      String maintainerName, String maintainerEmail) {
         return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
-            .thenCompose(mdl -> mdl.createService(version, service));
+            .thenCompose(mdl -> mdl.createService(version, service, environment, mlflowInstanceId, maintainerName,
+                maintainerEmail));
     }
 
     @Override

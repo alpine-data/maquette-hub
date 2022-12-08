@@ -49,10 +49,16 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
 
     @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                                      String version, String service) {
+                                                                      String version, String service,
+                                                                      String environment, String mlflowInstanceId,
+                                                                      String maintainerName, String maintainerEmail) {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.createModelService(user, workspace, model, version, service));
+            .thenCompose(ok -> delegate.createModelService(
+                user, workspace, model, version, service,
+                environment, mlflowInstanceId,
+                maintainerName, maintainerEmail
+            ));
     }
 
     @Override

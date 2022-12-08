@@ -39,15 +39,19 @@ public interface WorkspaceServices {
      * This will create a new Git repository including the required code to serve a model and the DevOps Pipeline
      * to deploy the service.
      *
-     * @param user      The user who executes the action.
-     * @param workspace The name of the workspace the model belongs to.
-     * @param model     The name of the model.
-     * @param version   The version of the model.
-     * @param service   The name of the service to create.
+     * @param user            The user who executes the action.
+     * @param workspace       The name of the workspace the model belongs to.
+     * @param model           The name of the model.
+     * @param version         The version of the model.
+     * @param service         The name of the service to create.
+     * @param maintainerName  The name of the service maintainer.
+     * @param maintainerEmail The email of the service maintainer.
      * @return ModelServiceProperties which contain links to the created service.
      */
     CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                               String version, String service);
+                                                               String version, String service,
+                                                               String environment, String mlflowInstanceId,
+                                                               String maintainerName, String maintainerEmail);
 
     /**
      * Get environment variables/ properties for a workspace.

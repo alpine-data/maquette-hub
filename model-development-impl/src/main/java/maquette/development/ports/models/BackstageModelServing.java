@@ -40,13 +40,26 @@ public final class BackstageModelServing implements ModelServingPort {
     }
 
     @Override
-    public CompletionStage<ModelServiceProperties> createModel(String modelMlflowUrl, String modelName,
-                                                               String modelVersion, String serviceName) {
+    public CompletionStage<ModelServiceProperties> createModel(
+        String modelName,
+        String modelVersion,
+        String environment,
+        String serviceName,
+        String mlflowInstanceId,
+        String maintainerName,
+        String maintainerEmail
+    ) {
 
         var backstageRequest = BackstageRequest.apply(
             this.config.getComponentTemplate(),
             ComponentProperties.apply(
-                serviceName, modelMlflowUrl, modelName, modelVersion
+                modelName,
+                modelVersion,
+                environment,
+                serviceName,
+                mlflowInstanceId,
+                maintainerName,
+                maintainerEmail
             ));
 
         var json = Operators.suppressExceptions(() -> this.om.writeValueAsString(backstageRequest));
@@ -95,13 +108,14 @@ public final class BackstageModelServing implements ModelServingPort {
     @AllArgsConstructor(staticName = "apply")
     @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
     private static class ComponentProperties {
-
-        // TODO: Component
-
-        String name;
-        String modelUrl;
         String modelName;
         String modelVersion;
+        String environment;
+
+        String serviceName;
+        String mlflowInstanceId;
+        String maintainerName;
+        String maintainerEmail;
 
     }
 

@@ -7,14 +7,25 @@ import java.util.concurrent.CompletionStage;
 public interface ModelServingPort {
 
     /**
-     * Trigger the creation of a model.
+     * Trigger the creation of model
      *
-     * @param modelMlflowUrl The MLflow URL of the model (not including the version).
-     * @param modelName      The name of the model.
-     * @param modelVersion
-     * @param serviceName    The name of the service.
-     * @return The properties of the generated service.
+     * @param modelName        the name of the model
+     * @param modelVersion     the version of the model
+     * @param environment      the environment where model is created
+     * @param serviceName      the service name of the model
+     * @param mlflowInstanceId the MLFlow instance ID
+     * @param maintainerName   the name of the maintainer
+     * @param maintainerEmail  the e-mail of the maintainer
+     * @return Model.
      */
-    CompletionStage<ModelServiceProperties> createModel(String modelMlflowUrl, String modelName, String modelVersion, String serviceName);
+    CompletionStage<ModelServiceProperties> createModel(
+        String modelName,
+        String modelVersion,
+        String environment,
+        String serviceName,
+        String mlflowInstanceId,
+        String maintainerName,
+        String maintainerEmail
+    );
 
 }

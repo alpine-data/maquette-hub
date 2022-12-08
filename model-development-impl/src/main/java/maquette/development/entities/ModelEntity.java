@@ -14,8 +14,8 @@ import maquette.core.values.questionnaire.Answers;
 import maquette.core.values.user.User;
 import maquette.development.entities.mlflow.MlflowClient;
 import maquette.development.entities.mlflow.ModelCompanion;
-import maquette.development.ports.models.ModelServingPort;
 import maquette.development.ports.ModelsRepository;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.values.exceptions.ModelNotFoundException;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
@@ -50,10 +50,18 @@ public final class ModelEntity {
         return getPropertiesFromRegistry().thenCompose(companion::mapModel);
     }
 
-    public CompletionStage<ModelServiceProperties> createService(String version, String service) {
+    public CompletionStage<ModelServiceProperties> createService(String version, String service, String environment,
+                                                                 String mlflowInstanceId, String maintainerName,
+                                                                 String maintainerEmail) {
         return this.modelServing.createModel(
-            this.mlflowClient.getModel(this.name).getName(), // TODO: Get Model URL?
-            name, version, service);
+            this.mlflowClient.getModel(this.name).getName(),
+            version,
+            environment,
+            service,
+            mlflowInstanceId,
+            maintainerName,
+            maintainerEmail
+        );
     }
 
     public CompletionStage<Done> updateModel(User executor,

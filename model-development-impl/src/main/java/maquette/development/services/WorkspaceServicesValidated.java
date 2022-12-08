@@ -4,6 +4,7 @@ import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import maquette.core.common.validation.api.FluentValidation;
+import maquette.core.common.validation.validators.EnumStringValidator;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
 import maquette.core.common.validation.validators.TechnicalNameValidator;
@@ -45,7 +46,9 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
 
     @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                                      String version, String service) {
+                                                                      String version, String service,
+                                                                      String environment, String mlflowInstanceId,
+                                                                      String maintainerName, String maintainerEmail) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
@@ -53,8 +56,13 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
             .validate("model", model, NonEmptyStringValidator.apply(3))
             .validate("version", version, NonEmptyStringValidator.apply())
             .validate("service", service, TechnicalNameValidator.apply())
+            .validate("environment", environment, EnumStringValidator.apply(List.of("devsit", "uatprod")))
+            .validate("mlflowInstanceId", mlflowInstanceId, NonEmptyStringValidator.apply())
+            .validate("maintainerName", maintainerName, NonEmptyStringValidator.apply())
+            .validate("maintainerEmail", maintainerEmail, NonEmptyStringValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.createModelService(user, workspace, model, version, service));
+            .thenCompose(done -> delegate.createModelService(user, workspace, model, version, service, environment,
+                mlflowInstanceId, maintainerName, maintainerEmail));
     }
 
     @Override

@@ -26,18 +26,27 @@ public class CreateModelServiceCommand implements Command {
 
     String service;
 
+    String environment;
+
+    String mlflowInstanceId;
+
+    String maintainerName;
+
+    String maintainerEmail;
+
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
-            .createModelService(user, workspace, model, version, service)
+            .createModelService(user, workspace, model, version, service, environment, mlflowInstanceId,
+                maintainerName, maintainerEmail)
             .thenApply(DataResult::apply);
     }
 
     @Override
     public Command example() {
-        return apply("some-workspace", "model", "1.0.0", "some-service");
+        return apply("some-workspace", "model", "1.0.0", "some-service", "devsit", "mars-123", "John Doe", "john.doe@zurich.ch");
     }
 
 }
