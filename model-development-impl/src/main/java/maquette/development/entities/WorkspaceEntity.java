@@ -87,7 +87,7 @@ public final class WorkspaceEntity {
             getMlflowStackName(id),
             Instant
                 .now()
-                .plus(24, ChronoUnit.HOURS),
+                .plus(5, ChronoUnit.DAYS),
             Lists.newArrayList(getWorkspaceResourceGroupName()),
             Maps.newHashMap());
 
