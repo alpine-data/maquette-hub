@@ -60,7 +60,7 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
         }
 
         if (Objects.isNull(memoryRequest)) {
-            memoryRequest = "1Gi";
+            memoryRequest = "4Gi";
         }
 
         var instance = new PythonStackConfiguration(resourceGroups, version, memoryRequest);

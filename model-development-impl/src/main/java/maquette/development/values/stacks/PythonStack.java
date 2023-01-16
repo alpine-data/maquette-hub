@@ -64,6 +64,11 @@ public final class PythonStack implements Stack<PythonStackConfiguration> {
                         String.format("Medium (%s CHF/hour)", config.getMemoryRequestM().getPrice()),
                         String.format("Medium includes %s memory. This setup is best used for normal training workloads.", config.getMemoryRequestM().getMemoryRequestString())
                     )
+                    .withItem(
+                        config.getMemoryRequestL().getMemoryRequest(),
+                        String.format("Large (%s CHF/hour)", config.getMemoryRequestL().getPrice()),
+                        String.format("Large includes %s memory. This setup is suggested for large scale machine learning.", config.getMemoryRequestL().getMemoryRequestString())
+                    )
             )
             .withHelpText("Select the memory size of the stack instance.");
 
