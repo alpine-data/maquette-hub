@@ -11,6 +11,7 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.commands.*;
+import maquette.development.commands.applications.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.sandboxes.CreateSandboxCommand;
@@ -290,5 +291,45 @@ public class WorkspaceStepDefinitions {
             .toCompletableFuture()
             .get()
             .toPlainText(runtime));
+    }
+
+    public void $_creates_an_application_$_in_workspace_$(User executor, String applicationName,
+                                                          String workspaceName) throws ExecutionException,
+        InterruptedException {
+        CreateApplicationCommand
+            .apply(workspaceName, applicationName, "")
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_removes_an_application_$_in_workspace_$(User executor, String applicationName,
+                                                          String workspaceName) throws ExecutionException,
+        InterruptedException {
+        RemoveApplicationCommand
+            .apply(workspaceName, applicationName)
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_oauth_application_gets_self(User executor) throws ExecutionException, InterruptedException {
+        OauthGetSelfCommand
+            .apply()
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_lists_applications_in_workspace_$(User executor, String workspaceName) throws ExecutionException,
+        InterruptedException {
+        results.add(
+            ListApplicationsCommand
+                .apply(workspaceName)
+                .run(executor, runtime)
+                .toCompletableFuture()
+                .get()
+                .toPlainText(runtime)
+        );
     }
 }

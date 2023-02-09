@@ -2,12 +2,19 @@ package maquette.development.services;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
+import maquette.core.modules.applications.ApplicationModule;
+import maquette.core.modules.applications.model.Application;
 import maquette.core.values.ActionMetadata;
+import maquette.core.values.UID;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.user.ApplicationUser;
+import maquette.core.values.user.OauthProxyUser;
 import maquette.core.values.user.User;
 import maquette.development.entities.*;
 import maquette.development.ports.DataAssetsServicePort;
@@ -26,9 +33,8 @@ import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.governance.CodeQuality;
 import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.stacks.VolumeProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -346,6 +352,106 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
         return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(entity -> entity.getVolumes(user));
+    }
+
+    private String generateRandomKey(int strength) {
+        byte[] secret = new byte[strength];
+        var random = new SecureRandom();
+        random.nextBytes(secret);
+        return Base64.getEncoder().encodeToString(secret);
+    }
+
+    @Override
+    public CompletionStage<Application> createApplication(MaquetteRuntime runtime,
+                                                          User user,
+                                                          String workspaceName,
+                                                          String name,
+                                                          String metaInfo) {
+        final var applications = runtime.getModule(ApplicationModule.class).getApplications();
+        final var secretStrength = runtime.getConfig().getCore().getApplicationSecretStrength();
+        return workspaces
+            .getWorkspaceByName(workspaceName)
+            .thenCompose(entity ->
+                applications
+                    .getApplicationByNameAndWorkspaceId(name, entity.getId())
+                    .thenCompose(existingApp -> {
+                        // check if app already exists to not create it twice
+                        if (existingApp.isPresent())
+                            return CompletableFuture.completedFuture(existingApp.get());
+                        // otherwise create new app with new randomly generated ID
+                        final var app = Application.apply(
+                            UID.apply(), entity.getId(), generateRandomKey(secretStrength), name, metaInfo
+                        );
+                        final var appUser = ApplicationUser.apply(app.getId(), Lists.newArrayList());
+                        return applications
+                            .save(app)
+                            .thenCompose(result ->
+                                entity
+                                    .members()
+                                    .addMember(user, appUser.toAuthorization(), WorkspaceMemberRole.MEMBER)
+                            )
+                            .thenApply(result -> app);
+                    })
+            );
+    }
+
+    @Override
+    public CompletionStage<Done> renewApplicationSecret(MaquetteRuntime runtime,
+                                                        User user,
+                                                        String workspaceName,
+                                                        String name) {
+        final var applications = runtime.getModule(ApplicationModule.class).getApplications();
+        final var secretStrength = runtime.getConfig().getCore().getApplicationSecretStrength();
+        return workspaces
+            .getWorkspaceByName(workspaceName)
+            .thenCompose(entity -> applications.getApplicationByNameAndWorkspaceId(name, entity.getId()))
+            .thenCompose(application ->
+                application
+                    .map(entity -> applications.save(entity.withSecret(generateRandomKey(secretStrength))))
+                    .orElse(CompletableFuture.completedFuture(Done.getInstance())));
+    }
+
+    @Override
+    public CompletionStage<Done> removeApplication(MaquetteRuntime runtime, User user, String workspaceName,
+                                                   String applicationName) {
+        final var applications = runtime.getModule(ApplicationModule.class).getApplications();
+        return workspaces
+            .getWorkspaceByName(workspaceName)
+            .thenCompose(entity ->
+                applications.getApplicationByNameAndWorkspaceId(applicationName, entity.getId())
+                    .thenCompose(app ->
+                        app
+                            .map(result -> {
+                                final var appUser = ApplicationUser.apply(result.getId(), Lists.newArrayList());
+                                return entity.members()
+                                    .removeMember(user, appUser.toAuthorization())
+                                    .thenCompose(removeResult -> applications.removeApplication(result));
+                            })
+                            .orElse(CompletableFuture.completedFuture(Done.getInstance()))
+                    )
+            );
+    }
+
+    @Override
+    public CompletionStage<Application> getOauthSelfApplication(MaquetteRuntime runtime, User user) {
+        final var applications = runtime.getModule(ApplicationModule.class).getApplications();
+        final var self = (OauthProxyUser) user;
+        return workspaces
+            .getWorkspaceByName(self.getWorkspace())
+            .thenCompose(entity ->
+                applications
+                    .getApplicationByNameAndWorkspaceId(self.getName(), entity.getId())
+                    .thenApply(Optional::orElseThrow)
+            );
+    }
+
+    @Override
+    public CompletionStage<List<Application>> findApplicationsInWorkspace(MaquetteRuntime runtime, User user,
+                                                                          String workspaceName) {
+        final var applications = runtime.getModule(ApplicationModule.class).getApplications();
+        return workspaces
+            .getWorkspaceByName(workspaceName)
+            .thenCompose(entity -> applications.findByWorkspaceId(entity.getId()));
     }
 
 }

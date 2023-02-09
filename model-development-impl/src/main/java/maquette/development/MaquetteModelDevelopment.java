@@ -9,6 +9,7 @@ import maquette.core.server.commands.Command;
 import maquette.core.values.UID;
 import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
+import maquette.development.commands.applications.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.models.GetModelsViewCommand;
@@ -44,15 +45,19 @@ public class MaquetteModelDevelopment implements MaquetteModule {
 
 
     public static MaquetteModelDevelopment apply(
-        MaquetteRuntime runtime, WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository,
-        SandboxesRepository sandboxesRepository, InfrastructurePort infrastructurePort,
-        DataAssetsServicePort dataAssets) {
+        MaquetteRuntime runtime,
+        WorkspacesRepository workspacesRepository,
+        ModelsRepository modelsRepository,
+        SandboxesRepository sandboxesRepository,
+        InfrastructurePort infrastructurePort,
+        DataAssetsServicePort dataAssets
+    ) {
 
         var configuration = ModelDevelopmentConfiguration.apply();
 
         var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
-        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort, configuration.getStacks());
-
+        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort,
+            configuration.getStacks());
         var workspaceServices = WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, sandboxes);
         return apply(workspaces, workspaceServices, sandboxes, dataAssets, runtime);
     }
@@ -102,6 +107,11 @@ public class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("workspaces members grant", GrantWorkspaceMemberCommand.class);
         commands.put("workspaces members revoke", RevokeWorkspaceMemberCommand.class);
 
+        commands.put("workspaces applications create", CreateApplicationCommand.class);
+        commands.put("workspaces applications remove", RemoveApplicationCommand.class);
+        commands.put("workspaces applications oauth-self", OauthGetSelfCommand.class);
+        commands.put("workspaces applications list", ListApplicationsCommand.class);
+
         commands.put("workspaces models view", GetModelsViewCommand.class);
 
         commands.put("workspaces admin redeploy", RedeployInfrastructure.class);
@@ -119,9 +129,11 @@ public class MaquetteModelDevelopment implements MaquetteModule {
     }
 
     public SandboxServices getSandboxServices() {
-        return WorkspaceServicesFactory.createSandboxServices(workspaces, dataAssets, sandboxes, runtime
-            .getModule(UserModule.class)
-            .getUsers());
+        return WorkspaceServicesFactory
+            .createSandboxServices(
+                workspaces, dataAssets, sandboxes,
+                runtime.getModule(UserModule.class).getUsers()
+            );
     }
 
     public WorkspaceServices getWorkspaceServices() {

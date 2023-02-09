@@ -49,6 +49,30 @@ public class CoreConfiguration {
     @Value("user-details-header-name")
     String userDetailsHeaderName;
 
+    /**
+     * The HTTP header name which contains the application ID
+     */
+    @Value("application-id-header-name")
+    String applicationIdHeaderName;
+
+    /**
+     * The HTTP header name which contains the application secret
+     */
+    @Value("application-secret-header-name")
+    String applicationSecretHeaderName;
+
+    /**
+     * OauthProxy User related login
+     */
+    @Value("oauth-app-name-header-name")
+    String oauthAppNameHeaderName;
+
+    @Value("oauth-workspace-header-name")
+    String oauthWorkspaceHeaderName;
+
+    @Value("application-secret-strength")
+    int applicationSecretStrength;
+
 
     @Value("rootURL")
     String rootURL;

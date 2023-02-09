@@ -14,6 +14,9 @@ import maquette.core.config.MaquetteConfiguration;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.databind.ObjectMapperFactory;
 import maquette.core.modules.MaquetteModule;
+import maquette.core.modules.applications.ApplicationModule;
+import maquette.core.modules.ports.ApplicationsRepository;
+import maquette.core.modules.ports.InMemoryApplicationsRepository;
 import maquette.core.modules.ports.InMemoryUsersRepository;
 import maquette.core.modules.ports.UsersRepository;
 import maquette.core.modules.users.UserModule;
@@ -90,6 +93,12 @@ public final class MaquetteRuntime {
     UsersRepository usersRepository;
 
     /**
+     * An instance of a database port where application information can be stored.
+     */
+    @With
+    ApplicationsRepository applicationsRepository;
+
+    /**
      * A list of modules which should be initialized during initialization. The list can only be modified before
      * initialization.
      */
@@ -121,9 +130,10 @@ public final class MaquetteRuntime {
         var omf = DefaultObjectMapperFactory.apply();
         var ath = DefaultAuthenticationHandler.apply();
         var usr = InMemoryUsersRepository.apply();
+        var app = InMemoryApplicationsRepository.apply();
         var scheduler = QuartzCronScheduler.apply();
 
-        return apply(null, null, cfg, omf, scheduler, ath, usr, Lists.newArrayList(),
+        return apply(null, null, cfg, omf, scheduler, ath, usr, app, Lists.newArrayList(),
             Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
     }
 
@@ -140,6 +150,7 @@ public final class MaquetteRuntime {
          * Initialize core modules.
          */
         this.withModule(UserModule.apply(this, this.getUsersRepository()));
+        this.withModule(ApplicationModule.apply(this, this.getApplicationsRepository()));
 
         /*
          * Set core components

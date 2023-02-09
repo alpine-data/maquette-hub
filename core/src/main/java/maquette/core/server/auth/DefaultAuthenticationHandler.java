@@ -10,7 +10,6 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,17 +26,16 @@ public class DefaultAuthenticationHandler implements AuthenticationHandler {
             .getConfig()
             .getCore()
             .getUserRolesHeaderName();
-        var headers = ctx.headerMap();
-        var roles = (List<String>) Lists.<String>newArrayList();
 
-        if (headers.containsKey(userRolesHeaderName)) {
-            roles = Arrays
-                .stream(headers
-                    .get(userRolesHeaderName)
-                    .split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
-        }
+        var headers = ctx.headerMap();
+        var roles = headers.containsKey(userRolesHeaderName)
+            ? Arrays
+            .stream(headers
+                .get(userRolesHeaderName)
+                .split(","))
+            .map(String::trim)
+            .collect(Collectors.toList())
+            : Lists.<String>newArrayList();
 
         if (headers.containsKey(userIdHeaderName)) {
             var userId = headers.get(userIdHeaderName);

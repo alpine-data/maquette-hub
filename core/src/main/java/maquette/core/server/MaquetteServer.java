@@ -9,6 +9,7 @@ import maquette.core.Maquette;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
+import maquette.core.modules.applications.ApplicationModule;
 import maquette.core.modules.users.UserModule;
 import maquette.core.modules.users.exceptions.InvalidAuthenticationTokenException;
 import maquette.core.server.commands.AboutCommand;
@@ -17,8 +18,10 @@ import maquette.core.server.commands.MessageResult;
 import maquette.core.server.resource.AboutResource;
 import maquette.core.server.resource.CommandResource;
 import maquette.core.server.resource.PostmanDocsResource;
+import maquette.core.values.UID;
 import maquette.core.values.user.AnonymousUser;
 import maquette.core.values.user.AuthenticatedUser;
+import maquette.core.values.user.OauthProxyUser;
 import maquette.core.values.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,35 +134,49 @@ public final class MaquetteServer {
          */
         var headers = ctx.headerMap();
 
-        if (user instanceof AnonymousUser
-            && headers.containsKey(runtime
-            .getConfig()
-            .getCore()
-            .getAuthTokenSecretHeaderName())
-            && headers.containsKey(runtime
-            .getConfig()
-            .getCore()
-            .getAuthTokenIdHeaderName())) {
-
-            var tokenId = headers.get(runtime
+        if (user instanceof AnonymousUser) {
+            var cfg = runtime
                 .getConfig()
-                .getCore()
-                .getAuthTokenIdHeaderName());
-            var tokenSecret = headers.get(runtime
-                .getConfig()
-                .getCore()
-                .getAuthTokenSecretHeaderName());
-
-
+                .getCore();
             try {
-                var authUser = Operators.suppressExceptions(() -> runtime
-                    .getModule(UserModule.class)
-                    .getServices()
-                    .getUserForAuthenticationToken(tokenId, tokenSecret)
-                    .toCompletableFuture()
-                    .get());
+                // check for application based auth
+                if (headers.containsKey(cfg.getApplicationIdHeaderName())
+                    && headers.containsKey(cfg.getApplicationSecretHeaderName())) {
+                    String id = headers.get(cfg.getApplicationIdHeaderName());
+                    String secret = headers.get(cfg.getApplicationSecretHeaderName());
+                    var appUser = Operators.suppressExceptions(() -> runtime
+                        .getModule(ApplicationModule.class)
+                        .getApplications()
+                        .getApplicationUserByIdAndSecret(UID.apply(id), secret)
+                        .toCompletableFuture()
+                        .get());
+                    if (appUser.isEmpty())
+                        throw InvalidAuthenticationTokenException.apply("invalid application id or secret");
+                    ctx.attribute("user", appUser.get());
+                }
+                // trusted oauth login for OauthProxyUser
+                else if (headers.containsKey(cfg.getOauthAppNameHeaderName())
+                    && headers.containsKey(cfg.getOauthWorkspaceHeaderName())) {
+                    String name = headers.get(cfg.getOauthAppNameHeaderName());
+                    String workspace = headers.get(cfg.getOauthWorkspaceHeaderName());
+                    if (name.isEmpty() || workspace.isEmpty())
+                        throw InvalidAuthenticationTokenException.apply("invalid application name or workspace name");
+                    ctx.attribute("user", OauthProxyUser.apply(name, workspace));
+                }
+                // check for token id/secret auth
+                else if (headers.containsKey(cfg.getAuthTokenSecretHeaderName())
+                    && headers.containsKey(cfg.getAuthTokenIdHeaderName())) {
+                    var tokenId = headers.get(cfg.getAuthTokenIdHeaderName());
+                    var tokenSecret = headers.get(cfg.getAuthTokenSecretHeaderName());
+                    var authUser = Operators.suppressExceptions(() -> runtime
+                        .getModule(UserModule.class)
+                        .getServices()
+                        .getUserForAuthenticationToken(tokenId, tokenSecret)
+                        .toCompletableFuture()
+                        .get());
 
-                ctx.attribute("user", authUser);
+                    ctx.attribute("user", authUser);
+                }
             } catch (Exception ex) {
                 if (Operators
                     .hasCause(ex, InvalidAuthenticationTokenException.class)

@@ -3,11 +3,14 @@ package maquette.development.services;
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.common.exceptions.NotAuthorizedException;
+import maquette.core.modules.applications.model.Application;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.AuthenticatedUser;
+import maquette.core.values.user.OauthProxyUser;
 import maquette.core.values.user.User;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
@@ -285,5 +288,48 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
             .withAuthorization(
                 () -> companion.isMember(user, workspace))
             .thenCompose(ok -> delegate.getVolumes(user, workspace));
+    }
+
+    @Override
+    public CompletionStage<Application> createApplication(MaquetteRuntime runtime, User user, String workspaceName,
+                                                          String name,
+                                                          String metaInfo) {
+
+        return companion
+            .withAuthorization(() -> companion.isMember(user, workspaceName, WorkspaceMemberRole.ADMIN))
+            .thenCompose(ok -> delegate.createApplication(runtime, user, workspaceName, name, metaInfo));
+    }
+
+    @Override
+    public CompletionStage<Done> renewApplicationSecret(MaquetteRuntime runtime, User user, String workspaceName,
+                                                        String name) {
+
+        return companion
+            .withAuthorization(() -> companion.isMember(user, workspaceName, WorkspaceMemberRole.ADMIN))
+            .thenCompose(ok -> delegate.renewApplicationSecret(runtime, user, workspaceName, name));
+    }
+
+    @Override
+    public CompletionStage<Done> removeApplication(MaquetteRuntime runtime, User user, String workspaceName,
+                                                   String applicationName) {
+        return companion
+            .withAuthorization(() -> companion.isMember(user, workspaceName, WorkspaceMemberRole.ADMIN))
+            .thenCompose(ok -> delegate.removeApplication(runtime, user, workspaceName, applicationName));
+    }
+
+    @Override
+    public CompletionStage<Application> getOauthSelfApplication(MaquetteRuntime runtime, User user) {
+        return companion
+            // only available to proxy user
+            .withAuthorization(() -> CompletableFuture.completedFuture(user instanceof OauthProxyUser))
+            .thenCompose(ok -> delegate.getOauthSelfApplication(runtime, user));
+    }
+
+    @Override
+    public CompletionStage<List<Application>> findApplicationsInWorkspace(MaquetteRuntime runtime, User user,
+                                                                          String workspaceName) {
+        return companion
+            .withAuthorization(() -> companion.isMember(user, workspaceName))
+            .thenCompose(ok -> delegate.findApplicationsInWorkspace(runtime, user, workspaceName));
     }
 }

@@ -3,9 +3,11 @@ package maquette.development.services;
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
+import maquette.core.MaquetteRuntime;
 import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
+import maquette.core.modules.applications.model.Application;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -304,6 +306,72 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     @Override
     public CompletionStage<List<VolumeProperties>> getVolumes(User user, String workspace) {
         return delegate.getVolumes(user, workspace);
+    }
+
+    @Override
+    public CompletionStage<Application> createApplication(MaquetteRuntime runtime,
+                                                          User user,
+                                                          String workspaceName,
+                                                          String applicationName,
+                                                          String metaInfo) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspaceName, NonEmptyStringValidator.apply(3))
+            .validate("application", applicationName, NonEmptyStringValidator.apply(3))
+            .validate("metaInfo", metaInfo, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.createApplication(runtime, user, workspaceName, applicationName, metaInfo));
+    }
+
+    @Override
+    public CompletionStage<Done> removeApplication(MaquetteRuntime runtime,
+                                                   User user,
+                                                   String workspaceName,
+                                                   String applicationName) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspaceName, NonEmptyStringValidator.apply(3))
+            .validate("application", applicationName, NonEmptyStringValidator.apply(3))
+            .checkAndFail()
+            .thenCompose(done -> delegate.removeApplication(runtime, user, workspaceName, applicationName));
+    }
+
+    @Override
+    public CompletionStage<Done> renewApplicationSecret(MaquetteRuntime runtime,
+                                                        User user,
+                                                        String workspaceName,
+                                                        String applicationName) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspaceName, NonEmptyStringValidator.apply(3))
+            .validate("application", applicationName, NonEmptyStringValidator.apply(3))
+            .checkAndFail()
+            .thenCompose(done -> delegate.renewApplicationSecret(runtime, user, workspaceName, applicationName));
+    }
+
+    @Override
+    public CompletionStage<Application> getOauthSelfApplication(MaquetteRuntime runtime,
+                                                                User user) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.getOauthSelfApplication(runtime, user));
+    }
+
+    @Override
+    public CompletionStage<List<Application>> findApplicationsInWorkspace(MaquetteRuntime runtime,
+                                                                          User user,
+                                                                          String workspaceName) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspaceName, NonEmptyStringValidator.apply(3))
+            .checkAndFail()
+            .thenCompose(done -> delegate.findApplicationsInWorkspace(runtime, user, workspaceName));
     }
 
 }
