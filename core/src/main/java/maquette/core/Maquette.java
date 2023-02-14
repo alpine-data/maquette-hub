@@ -2,6 +2,7 @@ package maquette.core;
 
 import akka.actor.ActorSystem;
 import akka.japi.Function;
+import co.elastic.apm.attach.ElasticApmAttacher;
 import com.google.common.collect.Maps;
 import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
@@ -63,6 +64,7 @@ public final class Maquette {
      * @return The Maquette instance itself.
      */
     public Maquette start() {
+        ElasticApmAttacher.attach();
         LOG.info("Starting Maquette Core ...");
 
         /*
