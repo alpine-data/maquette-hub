@@ -359,6 +359,33 @@ public final class Operators {
         return p.format(time);
     }
 
+    public static <T> T retryWithBackOffTimeout(ExceptionalSupplier<T> supplier) {
+        return retryWithBackOffTimeout(supplier, 5, 3);
+    }
+
+    public static <T> T retryWithBackOffTimeout(ExceptionalSupplier<T> supplier, int retries, int initialTimeoutSeconds) {
+        var successful = false;
+        var retryCount = 0;
+        var timeout = initialTimeoutSeconds;
+
+
+        while (true) {
+            try {
+                return supplier.get();
+            } catch (Exception e) {
+                if (retryCount < retries) {
+                    retryCount += 1;
+
+                    var currentTimeout = timeout;
+                    Operators.suppressExceptions(() -> Thread.sleep(currentTimeout * 1000));
+                    timeout = timeout * 2;
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
     @FunctionalInterface
     public interface ExceptionalRunnable {
 

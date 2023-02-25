@@ -24,20 +24,20 @@ public class RejectModelCommand implements Command {
 
     String version;
 
-    String stage;
+    String reason;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
-            .rejectModel(user, workspace, model, version, stage)
+            .rejectModel(user, workspace, model, version, reason)
             .thenApply(pid -> MessageResult.apply("Successfully rejected model version"));
     }
 
     @Override
     public Command example() {
-        return apply("some-workspace", "model", "1.0", "uat");
+        return apply("some-workspace", "model", "1.0", "some reason");
     }
 
 }

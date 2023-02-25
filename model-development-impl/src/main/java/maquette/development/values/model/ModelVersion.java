@@ -1,13 +1,15 @@
 package maquette.development.values.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
-import maquette.core.values.questionnaire.Questionnaire;
+import maquette.development.entities.mlflow.explainer.ExplainerArtifact;
 import maquette.development.values.model.actions.*;
 import maquette.development.values.model.events.Approved;
 import maquette.development.values.model.events.ModelVersionEvent;
@@ -16,102 +18,220 @@ import maquette.development.values.model.events.StateChangedEvent;
 import maquette.development.values.model.governance.*;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * This class represents a model version.
+ */
 @With
 @Value
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ModelVersion {
 
+    private final static String VERSION = "version";
+    private final static String REGISTERED = "registered";
+    private final static String UPDATED = "updated";
+    private static final String FLAVOURS = "flavours";
+    private final static String STAGE = "stage";
+    private final static String CODE_QUALITY = "codeQuality";
+    private final static String GIT_DETAILS = "gitDetails";
+    private final static String DATA_DEPENDENCIES = "dataDependencies";
+    private final static String EXPLAINERS = "explainers";
+    private final static String EVENTS = "events";
+
+    private final static String ACTIONS = "actions";
+    private final static String CODE_QUALITY_CHECKS = "codeQualityChecks";
+    private final static String CODE_QUALITY_SUMMARY = "codeQualitySummary";
+    private final static String DATA_DEPENDENCY_CHECKS = "dataDependencyChecks";
+    private final static String DATA_DEPENDENCY_SUMMARY = "dataDependencySummary";
+    private final static String STATE = "state";
+
+    /**
+     * The version identifier as listed in MLflow.
+     */
+    @JsonProperty(VERSION)
     String version;
 
-    String description;
-
+    /**
+     * The moment in which the version was registered in MLflow.
+     */
+    @JsonProperty(REGISTERED)
     ActionMetadata registered;
 
+    /**
+     * The moment in which properties of the model have been updated.
+     */
+    @JsonProperty(UPDATED)
     ActionMetadata updated;
 
+    /**
+     * The flavours of the model, as identified my MLflow.
+     */
+    @JsonProperty(FLAVOURS)
     Set<String> flavours;
 
-    String stage;
+    /**
+     * The stage in which the model is currently (should be in sync with MLflow).
+     */
+    @JsonProperty(STAGE)
+    ModelVersionStage stage;
 
-    Questionnaire questionnaire;
-
+    /**
+     * Extracted information about code quality of the model.
+     */
+    @JsonProperty(CODE_QUALITY)
     CodeQuality codeQuality;
 
+    /**
+     * Information about the Git repository in which model code is managed.
+     */
+    @JsonProperty(GIT_DETAILS)
     GitDetails gitDetails;
 
+    /**
+     * Information about tracked data dependencies of the model.
+     * This information is collected during training of the model within
+     * a Sandbox.
+     */
+    @JsonProperty(DATA_DEPENDENCIES)
     DataDependencies dataDependencies;
 
+    /**
+     * Information about a model explainer which might have been logged with MLflow.
+     */
+    @JsonProperty(EXPLAINERS)
+    List<ExplainerArtifact> explainers;
+
+    /**
+     * A list of (user-)actions which have been taken on the model.
+     */
+    @JsonProperty(EVENTS)
     List<ModelVersionEvent> events;
 
-    ModelExplainer explainer;
 
+    /**
+     * Creates a new instance (from JSON).
+     *
+     * @param version See {@link ModelVersion#version}.
+     * @param registered See {@link ModelVersion#registered}.
+     * @param updated See {@link ModelVersion#updated}.
+     * @param stage See {@link ModelVersion#stage}.
+     * @param codeQuality See {@link ModelVersion#codeQuality}.
+     * @param gitDetails See {@link ModelVersion#gitDetails}.
+     * @param dataDependencies See {@link ModelVersion#dataDependencies}.
+     * @param events See {@link ModelVersion#events}.
+     * @param explainers See {@link ModelVersion#explainers}.
+     * @return A new instance.
+     */
+    @JsonCreator
     public static ModelVersion apply(
-        String version, String description, ActionMetadata registered, Set<String> flavours, String stage,
-        Questionnaire questionnaire) {
-        return apply(
-            version, description, registered, registered, flavours, stage,
-            questionnaire, null, null, null, List.of(Registered.apply(registered)), null);
+        @JsonProperty(VERSION) String version,
+        @JsonProperty(REGISTERED) ActionMetadata registered,
+        @JsonProperty(UPDATED) ActionMetadata updated,
+        @JsonProperty(FLAVOURS) Set<String> flavours,
+        @JsonProperty(STAGE) ModelVersionStage stage,
+        @JsonProperty(CODE_QUALITY) CodeQuality codeQuality,
+        @JsonProperty(GIT_DETAILS) GitDetails gitDetails,
+        @JsonProperty(DATA_DEPENDENCIES) DataDependencies dataDependencies,
+        @JsonProperty(EXPLAINERS) List<ExplainerArtifact> explainers,
+        @JsonProperty(EVENTS) List<ModelVersionEvent> events
+    ) {
+        if (Objects.isNull(explainers)) {
+            explainers = List.of();
+        }
+
+        if (Objects.isNull(events)) {
+            events = List.of();
+        }
+
+        return new ModelVersion(
+            version, registered, updated, Set.copyOf(flavours), stage,
+            codeQuality, gitDetails, dataDependencies, List.copyOf(explainers), List.copyOf(events)
+        );
     }
 
-    @JsonProperty("actions")
+    /**
+     * Creates a new instance with properties retrieved from MLflow.
+     *
+     * @param version See {@link ModelVersion#version}.
+     * @param registered See {@link ModelVersion#registered}.
+     * @param flavours See {@link ModelVersion#flavours}.
+     * @param stage See {@link ModelVersion#stage}.
+     * @return A new instance.
+     */
+    public static ModelVersion apply(
+        String version, ActionMetadata registered, Set<String> flavours, ModelVersionStage stage) {
+        return apply(
+            version, registered, registered, flavours, stage, null, null, null, List.of(), List.of(Registered.apply(registered)));
+    }
+
+    /**
+     * Creates a fake instance of the object. Might be used for simple tests.
+     *
+     * @return A new dummy instance.
+     */
+    public static ModelVersion fake() {
+        return apply("1", ActionMetadata.apply("egon"), Set.of("python", "java"), ModelVersionStage.NONE);
+    }
+
+    /**
+     * Returns a set of potential next actions for the model version. The actions are selected
+     * based upon current state of the model.
+     *
+     * This method does not decide whether a user who requests the model version has the authorization
+     * to execute these actions. The UI will only display actions according to related authorizations,
+     * the service layer will ensure that actions are only executed by authorized users.
+     *
+     * @return A list of potential next actions.
+     */
+    @JsonProperty(ACTIONS)
     public List<ModelAction> getActions() {
         var actions = Lists.<ModelAction>newArrayList();
 
-        if (questionnaire
-            .getAnswers()
-            .isEmpty()) {
-            actions.add(FillQuestionnaire.apply());
-        } else {
-            actions.add(ReviewQuestionnaire.apply());
-        }
-
-        if (getApproved().isEmpty() && questionnaire
-            .getAnswers()
-            .isPresent() && !getState().equals(ModelVersionState.REVIEW_REQUESTED)) {
+        /*
+         * Add option to request a review if not done already.
+         */
+        if (getApproved().isEmpty()  && !getState().equals(ModelVersionState.REVIEW_REQUESTED)) {
             actions.add(RequestReview.apply());
         }
 
+        /*
+         * Add option to approve/ review the model.
+         */
         if (getState().equals(ModelVersionState.REVIEW_REQUESTED)) {
             actions.add(ApproveModel.apply());
         }
 
-        getGitDetails()
-            .flatMap(GitDetails::getTransferUrl)
-            .ifPresent(url -> actions.add(ViewSource.apply(url)));
-
-        if (!stage.equals("Archived")) {
-            if (stage.equals("None")) {
-                actions.add(PromoteModel.apply("Staging"));
+        /*
+         * Add options to promote the model to one of the next stages.
+         */
+        if (!stage.equals(ModelVersionStage.ARCHIVED)) {
+            if (stage.equals(ModelVersionStage.NONE)) {
+                actions.add(PromoteModel.apply(ModelVersionStage.STAGING));
             }
 
-            if ((stage.equals("Staging") || stage.equals("None")) && getApproved().isPresent()) {
-                actions.add(PromoteModel.apply("Production"));
+            if ((stage.equals(ModelVersionStage.STAGING) || stage.equals(ModelVersionStage.NONE)) && getApproved().isPresent()) {
+                actions.add(PromoteModel.apply(ModelVersionStage.PRODUCTION));
             }
         }
 
-        if (!stage.equals("Archived")) {
+        /*
+         * Add options to archive the model.
+         */
+        if (!stage.equals(ModelVersionStage.ARCHIVED)) {
             actions.add(ArchiveModel.apply());
-        } else {
-            actions.add(RestoreModel.apply());
         }
 
         return actions;
     }
 
-    @JsonProperty("actions")
-    @SuppressWarnings("unused")
-    private void setActions(List<ModelAction> actions) {
-        // ignore
-    }
-
+    /**
+     * Checks whether the model version has been approved. If yes, the metadata of the action are returned.
+     * @return The metadata of when the model has been approved, if approved, otherwise nothing.
+     */
     public Optional<ActionMetadata> getApproved() {
         return events
             .stream()
@@ -125,11 +245,22 @@ public class ModelVersion {
             .findFirst();
     }
 
+    /**
+     * Return code quality details if available.
+     *
+     * @return Code quality details.
+     */
     public Optional<CodeQuality> getCodeQuality() {
         return Optional.ofNullable(codeQuality);
     }
 
-    @JsonProperty("codeQualityChecks")
+    /**
+     * Based on code quality and git information we execute several checks to make an indication
+     * of the overall code quality.
+     *
+     * @return A list of check results for each check which is executed.
+     */
+    @JsonProperty(CODE_QUALITY_CHECKS)
     public List<CheckResult> getCodeQualityChecks() {
         List<CheckResult> result = Lists.newArrayList();
 
@@ -204,13 +335,13 @@ public class ModelVersion {
         return result;
     }
 
-    @SuppressWarnings("unused")
-    @JsonProperty("codeQualityChecks")
-    private void setCodeQualityChecks(List<CheckResult> value) {
-        // ignore
-    }
-
-    @JsonProperty("codeQualitySummary")
+    /**
+     * Returns a single sentence summary of all model version checks. It's intended to be displayed in model
+     * overviews on the UI.
+     *
+     * @return A short statement about the model versions quality.
+     */
+    @JsonProperty(CODE_QUALITY_SUMMARY)
     public String getCodeQualitySummary() {
         var checks = getCodeQualityChecks();
         var exceptions = checks
@@ -227,15 +358,25 @@ public class ModelVersion {
         } else if (warnings > 0) {
             return String.format("%d warnings", warnings);
         } else {
-            return "Diddly doodly fine";
+            return "Ned Flanders says \"Everything is diddly doodly fine!\"";
         }
     }
 
+    /**
+     * Return data dependency information if present.
+     *
+     * @return Data dependency information or nothing.
+     */
     public Optional<DataDependencies> getDataDependencies() {
         return Optional.ofNullable(dataDependencies);
     }
 
-    @JsonProperty("dataDependencyChecks")
+    /**
+     * Several checks which are made based on data dependencies tracked during model training.
+     *
+     * @return A list of check results.
+     */
+    @JsonProperty(DATA_DEPENDENCY_CHECKS)
     public List<CheckResult> getDataDependencyChecks() {
         List<CheckResult> result = Lists.newArrayList();
 
@@ -243,30 +384,18 @@ public class ModelVersion {
             result.add(CheckWarning.apply("Data dependencies not tracked."));
         } else {
             result.add(CheckOk.apply("Data dependencies tracked"));
-
-            if (this.isDependantOnSensitivePersonalInformation()) {
-                result.add(CheckWarning.apply("The model depends on sensitive personal information"));
-            }
-
-            if (this.isDependantOnPersonalInformation()) {
-                result.add(CheckWarning.apply("The model depends on personal information"));
-            }
-
-            if (this.isDependantOnRawData()) {
-                result.add(CheckWarning.apply("The model depends on raw data sets"));
-            }
         }
 
         return result;
     }
 
-    @JsonProperty("dataDependencyChecks")
-    @SuppressWarnings("unused")
-    private void setDataDependenciesChecks(List<CheckResult> value) {
-        // ignore
-    }
-
-    @JsonProperty("dataDependencySummary")
+    /**
+     * Return a short summary statement about dependency checks. It's intended to be displayed on model overviews
+     * on the UI.
+     *
+     * @return A single statement summarizing data dependency checks.
+     */
+    @JsonProperty(DATA_DEPENDENCY_SUMMARY)
     public String getDataDependencySummary() {
         var checks = getDataDependencyChecks();
         var exceptions = checks
@@ -283,36 +412,26 @@ public class ModelVersion {
         } else if (warnings > 0) {
             return String.format("%d warnings", warnings);
         } else {
-            return "Okily Dokily!";
+            return "Homer Simpson says \"We'll just sit back, relax, and enjoy the sweet taste of success. Woo hoo!\"";
         }
     }
 
-    @JsonProperty("dataGovernanceSummary")
-    public String getDataGovernanceSummary() {
-        var state = getState();
-
-        if (questionnaire == null) {
-            return "Questionnaire not filled";
-        } else if (state.equals(ModelVersionState.REVIEW_REQUESTED)) {
-            return "Review requested";
-        } else if (state.equals(ModelVersionState.REJECTED)) {
-            return "Model rejected";
-        } else if (state.equals(ModelVersionState.APPROVED)) {
-            return "Model is approved";
-        } else {
-            return "Requires review";
-        }
-    }
-
+    /**
+     * Return Git details if present.
+     *
+     * @return Git details or nothing.
+     */
     public Optional<GitDetails> getGitDetails() {
         return Optional.ofNullable(gitDetails);
     }
 
-    public Optional<ModelExplainer> getExplainer() {
-        return Optional.ofNullable(explainer);
-    }
-
-    @JsonProperty("state")
+    /**
+     * Get the current state of the model version. The current state is derived from
+     * logged events of the model version.
+     *
+     * @return The current state.
+     */
+    @JsonProperty(STATE)
     public ModelVersionState getState() {
         return events
             .stream()
@@ -328,39 +447,14 @@ public class ModelVersion {
             .orElse(ModelVersionState.REGISTERED);
     }
 
-    @JsonProperty("isDependantOnPI")
-    public boolean isDependantOnPersonalInformation() {
-        if (dataDependencies == null) {
-            return false;
-        } else {
-            // TODO mw: Implement Lookup.
-            return false;
-        }
-    }
 
-    @JsonProperty("isDependantOnRawData")
-    public boolean isDependantOnRawData() {
-        // TODO mw: Implement Lookup.
-        if (dataDependencies == null) {
-            return false;
-        } else {
-            return false;
-        }
-    }
-
-    @JsonProperty("isDependantOnSPI")
-    public boolean isDependantOnSensitivePersonalInformation() {
-        // TODO mw: Implement Lookup.
-        if (dataDependencies == null) {
-            return false;
-        } else {
-            return false;
-        }
-    }
-
+    /**
+     * Create a new instance of the model version with a new logged event.
+     *
+     * @param event The event which has happened.
+     * @return A new instance.
+     */
     public ModelVersion withEvent(ModelVersionEvent event) {
-        // TODO mw: Check state / invalid transitions
-
         var events = Stream
             .concat(Stream.of(event), this.events.stream())
             .collect(Collectors.toList());

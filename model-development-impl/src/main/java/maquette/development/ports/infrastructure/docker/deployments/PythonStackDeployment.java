@@ -54,16 +54,8 @@ public class PythonStackDeployment implements StackDeployment {
         var jupyterToken = Operators.randomHash();
         var stackHash = Operators.randomHash();
 
-        var version = "3.8";
-
-        if (configuration
-            .getVersion()
-            .equals("310")) {
-            version = "3.10";
-        }
-
         var pythonContainer = ContainerConfig
-            .builder(configuration.getStackInstanceName(), String.format("mq--python:%s", version))
+            .builder(configuration.getStackInstanceName(), "spacereg.azurecr.io/space-python-jupyter38:latest")
             .withEnvironmentVariable("MQ_JUPYTER_TOKEN", jupyterToken)
             .withEnvironmentVariable(StackConfiguration.PARAM_STACK_TOKEN, stackHash)
             .withEnvironmentVariables(configuration.getEnvironmentVariables())

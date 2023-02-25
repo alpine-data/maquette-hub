@@ -9,11 +9,12 @@ import maquette.core.common.Operators;
 import maquette.core.ports.MembersCompanion;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
-import maquette.development.ports.models.ModelServingPort;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
@@ -100,7 +101,7 @@ public final class WorkspaceEntity {
             .thenCompose(properties -> repository.insertOrUpdateWorkspace(properties.withMlFlowConfiguration(config)));
     }
 
-    public CompletionStage<Map<String, String>> getEnvironment(EnvironmentType environmentType) {
+    public CompletionStage<Map<String, String>> getEnvironment(User user, EnvironmentType environmentType) {
         return infrastructurePort
             .getInstanceParameters(id, getMlflowStackName(id))
             .thenApply(parameters -> {
@@ -114,14 +115,29 @@ public final class WorkspaceEntity {
                      * correct MLflow endpoint urls.
                      */
                     if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL)) {
-                        result.put(MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL,
+                        result.put(
+                            MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL,
                             result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL));
                     }
 
                     if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT)) {
-                        result.put(MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT,
+                        result.put(
+                            MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT,
                             result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT));
                     }
+
+                    if (result.containsKey(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_S3_ENDPOINT_URL)) {
+                        result.put(
+                            MlflowStackConfiguration.PARAM_MLFLOW_S3_ENDPOINT_URL,
+                            result.get(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_S3_ENDPOINT_URL));
+                    }
+                }
+
+                /*
+                 * Add username information used by MLflow.
+                 */
+                if (user instanceof AuthenticatedUser) {
+                    result.put("LOGNAME", ((AuthenticatedUser) user).getId().getValue());
                 }
 
                 return result;
@@ -168,9 +184,12 @@ public final class WorkspaceEntity {
                             .getMlFlowConfiguration()
                             .get()
                             .getMlflowConfiguration(params))
-                        .thenApply(optMlflowConfiguration -> optMlflowConfiguration
-                            .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models, modelServingPort))
-                            .orElse(ModelEntities.noMlflowBackend(id)));
+                        .thenApply(optMlflowConfiguration -> {
+                            return optMlflowConfiguration
+                                .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models,
+                                    modelServingPort))
+                                .orElse(ModelEntities.noMlflowBackend(id));
+                        });
                 } else {
                     return CompletableFuture.completedFuture(ModelEntities.noMlflowBackend(id));
                 }

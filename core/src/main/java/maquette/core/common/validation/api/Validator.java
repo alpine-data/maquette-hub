@@ -17,6 +17,7 @@ public interface Validator<T> {
 
     /**
      * Will be called if validate has thrown an Exception.
+     * This will actually throw an exception because such an exception
      *
      * @param context   The validation context
      * @param fieldName The name of the parameter/ field which has been passed by the user.
@@ -24,7 +25,7 @@ public interface Validator<T> {
      * @param ex        The exception which was thrown.
      */
     default void onException(ValidationContext context, String fieldName, T value, Exception ex) {
-        // TODO mw: Default exception handling.
+        throw ValidationExecutionException.apply(fieldName, value, ex);
     }
 
 }

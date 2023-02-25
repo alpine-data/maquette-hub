@@ -11,7 +11,6 @@ public interface ModelServingPort {
      *
      * @param modelName        the name of the model
      * @param modelVersion     the version of the model
-     * @param environment      the environment where model is created
      * @param serviceName      the service name of the model
      * @param mlflowInstanceId the MLFlow instance ID
      * @param maintainerName   the name of the maintainer
@@ -21,7 +20,6 @@ public interface ModelServingPort {
     CompletionStage<ModelServiceProperties> createModel(
         String modelName,
         String modelVersion,
-        String environment,
         String serviceName,
         String mlflowInstanceId,
         String maintainerName,

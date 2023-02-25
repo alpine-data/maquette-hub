@@ -16,6 +16,7 @@ import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
+import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.stacks.VolumeProperties;
@@ -49,25 +50,23 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
 
     @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                                      String version, String service,
-                                                                      String environment, String mlflowInstanceId,
-                                                                      String maintainerName, String maintainerEmail) {
+                                                                      String version, String service) {
         return companion
-            .withAuthorization(() -> companion.isMember(user, workspace))
+            .withAuthorization(
+                () -> companion.isMember(user, workspace),
+                () -> companion.isAuthenticatedUser(user))
             .thenCompose(ok -> delegate.createModelService(
-                user, workspace, model, version, service,
-                environment, mlflowInstanceId,
-                maintainerName, maintainerEmail
+                user, workspace, model, version, service
             ));
     }
 
     @Override
-    public CompletionStage<Map<String, String>> environment(User user,
-                                                            String workspace,
-                                                            EnvironmentType environmentType) {
+    public CompletionStage<Map<String, String>> getEnvironment(User user,
+                                                               String workspace,
+                                                               EnvironmentType environmentType) {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.environment(user, workspace, environmentType));
+            .thenCompose(ok -> delegate.getEnvironment(user, workspace, environmentType));
     }
 
     @Override
@@ -139,33 +138,10 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     public CompletionStage<Done> updateModel(User user,
                                              String workspace,
                                              String model,
-                                             String title,
                                              String description) {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.updateModel(user, workspace, model, title, description));
-    }
-
-    @Override
-    public CompletionStage<Done> updateModelVersion(User user,
-                                                    String workspace,
-                                                    String model,
-                                                    String version,
-                                                    String description) {
-        return companion
-            .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.updateModelVersion(user, workspace, model, version, description));
-    }
-
-    @Override
-    public CompletionStage<Done> answerQuestionnaire(User user,
-                                                     String workspace,
-                                                     String model,
-                                                     String version,
-                                                     JsonNode responses) {
-        return companion
-            .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.answerQuestionnaire(user, workspace, model, version, responses));
+            .thenCompose(ok -> delegate.updateModel(user, workspace, model, description));
     }
 
     @Override
@@ -182,7 +158,7 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
                                               String workspace,
                                               String model,
                                               String version,
-                                              String stage) {
+                                              ModelVersionStage stage) {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace, WorkspaceMemberRole.ADMIN))
             .thenCompose(ok -> delegate.promoteModel(user, workspace, model, version, stage));
@@ -231,15 +207,6 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace))
             .thenCompose(ok -> delegate.runExplainer(user, workspace, model, version));
-    }
-
-    @Override
-    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user,
-                                                                             String workspace,
-                                                                             String model) {
-        return companion
-            .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.getLatestQuestionnaireAnswers(user, workspace, model));
     }
 
     @Override

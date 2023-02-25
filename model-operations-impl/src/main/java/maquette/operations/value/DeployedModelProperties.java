@@ -19,6 +19,6 @@ public class DeployedModelProperties {
     /**
      * Model-Repository URL of the Model (usually MLFlow URL).
      */
-    String url;
+    String mlflowInstanceId;
 
 }

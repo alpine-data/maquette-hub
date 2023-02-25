@@ -43,7 +43,6 @@ public final class BackstageModelServing implements ModelServingPort {
     public CompletionStage<ModelServiceProperties> createModel(
         String modelName,
         String modelVersion,
-        String environment,
         String serviceName,
         String mlflowInstanceId,
         String maintainerName,
@@ -55,7 +54,7 @@ public final class BackstageModelServing implements ModelServingPort {
             ComponentProperties.apply(
                 modelName,
                 modelVersion,
-                environment,
+                config.getEnvironment(),
                 serviceName,
                 mlflowInstanceId,
                 maintainerName,
@@ -108,9 +107,15 @@ public final class BackstageModelServing implements ModelServingPort {
     @AllArgsConstructor(staticName = "apply")
     @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
     private static class ComponentProperties {
+
+        private static final String ATTR_MODEL_NAME = "model_name";
+        private static final String ATTR_MODEL_VERSION = "model_version";
+        private static final String ENVIRONMENT = "environment";
+        private static final String ATTR_MLFLOW_INSTANCE_ID = "mlflow_instance_id";
+
         String modelName;
         String modelVersion;
-        String environment;
+        String environment; // TODO mw: Use enumeration?
 
         String serviceName;
         String mlflowInstanceId;

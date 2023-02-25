@@ -1,10 +1,8 @@
 package maquette.development.services;
 
 import akka.Done;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import maquette.core.common.validation.api.FluentValidation;
-import maquette.core.common.validation.validators.EnumStringValidator;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
 import maquette.core.common.validation.validators.TechnicalNameValidator;
@@ -18,13 +16,13 @@ import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
+import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.governance.CodeIssue;
 import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
@@ -46,9 +44,7 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
 
     @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                                      String version, String service,
-                                                                      String environment, String mlflowInstanceId,
-                                                                      String maintainerName, String maintainerEmail) {
+                                                                      String version, String service) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
@@ -56,25 +52,21 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
             .validate("model", model, NonEmptyStringValidator.apply(3))
             .validate("version", version, NonEmptyStringValidator.apply())
             .validate("service", service, TechnicalNameValidator.apply())
-            .validate("environment", environment, EnumStringValidator.apply(List.of("devsit", "uatprod")))
-            .validate("mlflowInstanceId", mlflowInstanceId, NonEmptyStringValidator.apply())
-            .validate("maintainerName", maintainerName, NonEmptyStringValidator.apply())
-            .validate("maintainerEmail", maintainerEmail, NonEmptyStringValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.createModelService(user, workspace, model, version, service, environment,
-                mlflowInstanceId, maintainerName, maintainerEmail));
+            .thenCompose(done -> delegate.createModelService(user, workspace, model, version, service
+            ));
     }
 
     @Override
-    public CompletionStage<Map<String, String>> environment(User user, String workspace,
-                                                            EnvironmentType environmentType) {
+    public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace,
+                                                               EnvironmentType environmentType) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
             .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
             .validate("environmentType", environmentType, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.environment(user, workspace, environmentType));
+            .thenCompose(done -> delegate.getEnvironment(user, workspace, environmentType));
     }
 
     @Override
@@ -137,46 +129,16 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> updateModel(User user, String workspace, String model, String title,
+    public CompletionStage<Done> updateModel(User user, String workspace, String model,
                                              String description) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
             .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
             .validate("model", model, NonEmptyStringValidator.apply(3))
-            .validate("title", title, NonEmptyStringValidator.apply(3))
             .validate("description", description, NonEmptyStringValidator.apply(3))
             .checkAndFail()
-            .thenCompose(done -> delegate.updateModel(user, workspace, model, title, description));
-    }
-
-    @Override
-    public CompletionStage<Done> updateModelVersion(User user, String workspace, String model, String version,
-                                                    String description) {
-        return FluentValidation
-            .apply()
-            .validate("user", user, NotNullValidator.apply())
-            .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
-            .validate("model", model, NonEmptyStringValidator.apply(3))
-            .validate("version", version, NonEmptyStringValidator.apply(3))
-            .validate("description", description, NonEmptyStringValidator.apply(3))
-            .checkAndFail()
-            .thenCompose(done -> delegate.updateModelVersion(user, workspace, model, version, description));
-    }
-
-    @Override
-    public CompletionStage<Done> answerQuestionnaire(User user, String workspace, String model, String version,
-                                                     JsonNode responses) {
-
-        return FluentValidation
-            .apply()
-            .validate("user", user, NotNullValidator.apply())
-            .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
-            .validate("model", model, NonEmptyStringValidator.apply(3))
-            .validate("version", version, NonEmptyStringValidator.apply(3))
-            .validate("response", responses, NotNullValidator.apply())
-            .checkAndFail()
-            .thenCompose(done -> delegate.answerQuestionnaire(user, workspace, model, version, responses));
+            .thenCompose(done -> delegate.updateModel(user, workspace, model, description));
     }
 
     @Override
@@ -192,7 +154,7 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> promoteModel(User user, String workspace, String model, String version, String stage) {
+    public CompletionStage<Done> promoteModel(User user, String workspace, String model, String version, ModelVersionStage stage) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
@@ -255,18 +217,6 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
             .validate("version", version, NonEmptyStringValidator.apply(3))
             .checkAndFail()
             .thenCompose(done -> delegate.runExplainer(user, workspace, model, version));
-    }
-
-    @Override
-    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String workspace,
-                                                                             String model) {
-        return FluentValidation
-            .apply()
-            .validate("user", user, NotNullValidator.apply())
-            .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
-            .validate("model", model, NonEmptyStringValidator.apply(3))
-            .checkAndFail()
-            .thenCompose(done -> delegate.getLatestQuestionnaireAnswers(user, workspace, model));
     }
 
     @Override

@@ -2,7 +2,6 @@ package maquette.development.entities;
 
 import akka.Done;
 import akka.japi.Function;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
@@ -10,7 +9,6 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.authorization.UserAuthorization;
-import maquette.core.values.questionnaire.Answers;
 import maquette.core.values.user.User;
 import maquette.development.entities.mlflow.MlflowClient;
 import maquette.development.entities.mlflow.ModelCompanion;
@@ -20,17 +18,18 @@ import maquette.development.values.exceptions.ModelNotFoundException;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
-import maquette.development.values.model.events.QuestionnaireFilled;
+import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.mlflow.ModelFromRegistry;
 import maquette.development.values.model.services.ModelServiceProperties;
 
-import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * Entity representing a single model. All transformations within a single model instance must be done within the
+ * scope of this entity.
+ */
 @AllArgsConstructor(staticName = "apply")
 public final class ModelEntity {
 
@@ -50,13 +49,23 @@ public final class ModelEntity {
         return getPropertiesFromRegistry().thenCompose(companion::mapModel);
     }
 
-    public CompletionStage<ModelServiceProperties> createService(String version, String service, String environment,
+    /**
+     * Creates a new model service instance using the model serving port.
+     *
+     * @param version          See {@link ModelServingPort#createModel(String, String, String, String, String, String)}.
+     * @param service          See {@link ModelServingPort#createModel(String, String, String, String, String, String)}.
+     * @param mlflowInstanceId See {@link ModelServingPort#createModel(String, String, String, String, String, String)}.
+     * @param maintainerName   See {@link ModelServingPort#createModel(String, String, String, String, String, String)}.
+     * @param maintainerEmail  See {@link ModelServingPort#createModel(String, String, String, String, String, String)}.
+     * @return A set of links which can be displayed on the UI. See also
+     * {@link ModelServingPort#createModel(String, String, String, String, String, String)}-
+     */
+    public CompletionStage<ModelServiceProperties> createService(String version, String service,
                                                                  String mlflowInstanceId, String maintainerName,
                                                                  String maintainerEmail) {
         return this.modelServing.createModel(
-            this.mlflowClient.getModel(this.name).getName(),
+            this.name,
             version,
-            environment,
             service,
             mlflowInstanceId,
             maintainerName,
@@ -64,17 +73,29 @@ public final class ModelEntity {
         );
     }
 
-    public CompletionStage<Done> updateModel(User executor,
-                                             String title,
-                                             String description) {
+    /**
+     * Update model properties based upon user request/ action.
+     *
+     * @param executor    The user executing the action.
+     * @param description The new description for the model.
+     * @return Done.
+     */
+    public CompletionStage<Done> updateModel(User executor, String description) {
         return getProperties()
             .thenApply(model -> model
-                .withTitle(title)
                 .withDescription(description)
                 .withUpdated(ActionMetadata.apply(executor)))
             .thenCompose(model -> models.insertOrUpdateModel(workspace, model));
     }
 
+    /**
+     * Update properties of a single model version.
+     *
+     * @param executor The user executing the action.
+     * @param version  The version to be updated.
+     * @param update   A function to map the previous version to a new instance with updated properties.
+     * @return Done.
+     */
     public CompletionStage<Done> updateModelVersion(User executor,
                                                     String version,
                                                     Function<ModelVersion, ModelVersion> update) {
@@ -88,68 +109,54 @@ public final class ModelEntity {
             });
     }
 
-    public CompletionStage<Done> answerQuestionnaire(User executor,
-                                                     String version,
-                                                     JsonNode responses) {
-        return getProperties()
-            .thenCompose(model -> {
-                var answers = Answers.apply(ActionMetadata.apply(executor), responses);
-                var updatedVersion = model.getVersion(version);
-                var questionnaire = updatedVersion
-                    .getQuestionnaire()
-                    .withAnswers(answers);
-
-                updatedVersion = updatedVersion
-                    .withQuestionnaire(questionnaire)
-                    .withEvent(QuestionnaireFilled.apply(ActionMetadata.apply(executor)))
-                    .withUpdated(ActionMetadata.apply(executor));
-
-                return models.insertOrUpdateModel(workspace, model.withVersion(updatedVersion));
-            });
-    }
-
+    /**
+     * Transfer a model version from the current stage into a new model stage.
+     * The transition will be done via MLflow.
+     *
+     * @param executor The user executing the action.
+     * @param version  The version which should be promoted.
+     * @param stage    The new stage of the version.
+     * @return Done.
+     */
     public CompletionStage<Done> promoteModel(User executor,
                                               String version,
-                                              String stage) {
+                                              ModelVersionStage stage) {
         return getProperties()
             .thenApply(model -> {
-                mlflowClient.transitionStage(model.getName(), version, stage);
+                mlflowClient.transitionStage(model.getName(), version, stage.getValue());
                 return Done.getInstance();
             });
     }
 
-    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers() {
-        return getProperties()
-            .thenApply(model -> model
-                .getVersions()
-                .stream()
-                .filter(v -> v
-                    .getQuestionnaire()
-                    .getAnswers()
-                    .isPresent())
-                .sorted(Comparator
-                    .<ModelVersion, Instant>comparing(v -> v
-                        .getRegistered()
-                        .getAt())
-                    .reversed())
-                .map(v -> v
-                    .getQuestionnaire()
-                    .getAnswers()
-                    .get()
-                    .getResponses())
-                .findFirst());
-    }
-
+    /**
+     * Returns the models name.
+     *
+     * @return The name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the workspace id to which the model belongs to.
+     *
+     * @return The workspace id.
+     */
     public UID getWorkspace() {
         return workspace;
     }
 
     /*
      * Manage members/ roles
+     */
+
+    /**
+     * Add/ assign a user to a member role for the model.
+     *
+     * @param executor The user executing the action.
+     * @param member   The member to be added.
+     * @param role     The role the member should have for the model.
+     * @return Done.
      */
     public CompletionStage<Done> addMember(User executor,
                                            UserAuthorization member,
@@ -158,6 +165,14 @@ public final class ModelEntity {
         return models.insertOrUpdateMember(workspace, name, granted);
     }
 
+    /**
+     * Return a list of all members of the model. The function also derives standard roles based upon
+     * meta-information of the model, if nothing else has been configured.
+     * <p>
+     * E.g., the model owner is the person who registered the model if not specified differently.
+     *
+     * @return The list of members.
+     */
     public CompletionStage<List<GrantedAuthorization<ModelMemberRole>>> getMembers() {
         return models
             .findAllMembers(workspace, name)
@@ -181,6 +196,13 @@ public final class ModelEntity {
             });
     }
 
+    /**
+     * Remove a member assignment from the model.
+     *
+     * @param executor The user executing the action.
+     * @param member   The member which should be removed.
+     * @return Done.
+     */
     public CompletionStage<Done> removeMember(User executor,
                                               UserAuthorization member) {
         return models
@@ -204,6 +226,11 @@ public final class ModelEntity {
             });
     }
 
+    /**
+     * Retrieve model properties from MLflow.
+     *
+     * @return The model properties as retrieved from MLflow.
+     */
     private CompletionStage<ModelFromRegistry> getPropertiesFromRegistry() {
         var maybeModel = mlflowClient.findModel(name);
 
@@ -212,6 +239,9 @@ public final class ModelEntity {
             .orElseGet(() -> CompletableFuture.failedFuture(ModelNotFoundException.apply(name)));
     }
 
+    /**
+     * Specific exceptions thrown if member role assignments cannot be full-filled.
+     */
     public static class MembersException extends ApplicationException {
 
         private MembersException(String message) {

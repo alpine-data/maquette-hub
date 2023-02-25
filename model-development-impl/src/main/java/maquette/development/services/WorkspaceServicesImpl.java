@@ -2,12 +2,16 @@ package maquette.development.services;
 
 import akka.Done;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
+import maquette.core.modules.users.UserEntities;
+import maquette.core.modules.users.UserEntity;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
+import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.entities.*;
 import maquette.development.ports.DataAssetsServicePort;
@@ -16,10 +20,7 @@ import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
-import maquette.development.values.model.Model;
-import maquette.development.values.model.ModelMemberRole;
-import maquette.development.values.model.ModelMembersCompanion;
-import maquette.development.values.model.ModelProperties;
+import maquette.development.values.model.*;
 import maquette.development.values.model.events.Approved;
 import maquette.development.values.model.events.Rejected;
 import maquette.development.values.model.events.ReviewRequested;
@@ -30,10 +31,7 @@ import maquette.development.values.sandboxes.Sandbox;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -45,14 +43,17 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     SandboxEntities sandboxes;
 
+    UserEntities users;
+
     DataAssetsServicePort dataAssets;
 
     ModelOperationsPort modelOperations;
 
     public static WorkspaceServicesImpl apply(
-        WorkspaceEntities projects, SandboxEntities sandboxes, DataAssetsServicePort dataAssets, ModelOperationsPort modelOperations) {
+        WorkspaceEntities projects, SandboxEntities sandboxes, UserEntities users, DataAssetsServicePort dataAssets,
+        ModelOperationsPort modelOperations) {
 
-        return new WorkspaceServicesImpl(projects, sandboxes, dataAssets, modelOperations);
+        return new WorkspaceServicesImpl(projects, sandboxes, users, dataAssets, modelOperations);
     }
 
     @Override
@@ -75,22 +76,62 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
-                                                                      String version, String service,
-                                                                      String environment, String mlflowInstanceId,
-                                                                      String maintainerName, String maintainerEmail) {
-        return workspaces
-            .getWorkspaceByName(workspace)
+                                                                      String version, String service) {
+
+        if (!(user instanceof AuthenticatedUser)) {
+            /*
+             * `WorkspaceServicesSecured` checks whether the user is an authenticated user.
+             * This function can only be called by individual users.
+             */
+
+            throw new IllegalArgumentException("This method can only be called by authenticated users.");
+        }
+
+        var workspaceEntityCS = workspaces
+            .getWorkspaceByName(workspace);
+
+        var profileCS = users
+            .getUserById(((AuthenticatedUser) user).getId())
+            .thenCompose(UserEntity::getProfileById);
+
+        var modelEntityCS = workspaceEntityCS
             .thenCompose(WorkspaceEntity::getModels)
-            .thenApply(models -> models.getModel(model))
-            .thenCompose(mdl -> mdl.createService(version, service, environment, mlflowInstanceId, maintainerName,
-                maintainerEmail));
+            .thenApply(models -> models.getModel(model));
+
+        return Operators
+            .compose(workspaceEntityCS, profileCS, modelEntityCS, (workspaceEntity, profile, modelEntity) -> {
+                var mlflowId = WorkspaceEntity.getMlflowStackName(workspaceEntity.getId());
+
+                return modelEntity.createService(version, service, mlflowId, profile.getName(), profile.getEmail());
+            })
+            .thenCompose(cs -> cs);
     }
 
     @Override
-    public CompletionStage<Map<String, String>> environment(User user, String workspace, EnvironmentType type) {
+    public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType type) {
+        /*
+         * TODO mw: The environment should also contain the users name (used for MLflow metadata), e.g. MQ__USERNAME
+         * Maybe we need to add a method to Python SDK to simplify. Configuration of MLflow, because user name must
+         * be set when initiating the training:
+         *
+         * ```python
+         * mlflow.start_run(tags={ 'mlflow.user': "michael", 'mlflow.runName': 'LinearRegression'})
+         * ```
+         */
         return workspaces
             .getWorkspaceByName(workspace)
-            .thenCompose(wks -> wks.getEnvironment(type));
+            .thenCompose(wks -> wks.getEnvironment(user, type))
+            .thenApply(parameters -> Maps.transformValues(parameters, (v) -> {
+                if (org.apache.commons.codec.binary.Base64.isBase64(v)) {
+                    try {
+                        return new String(Base64.getDecoder().decode(v));
+                    } catch (Exception e) {
+                        return v;
+                    }
+                } else {
+                    return v;
+                }
+            }));
     }
 
     @Override
@@ -114,11 +155,15 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                                 .getValue()
                                 .equals(user.getDisplayName()))
                             .collect(Collectors.toList())));
+
                 var membersCS = workspace
                     .members()
                     .getMembers();
+
                 var accessRequestsCS = dataAssets.findDataAccessRequestsByWorkspace(workspace.getId());
+
                 var dataAssetsCS = dataAssets.findDataAssetsByWorkspace(workspace.getId());
+
                 var sandboxesCS = sandboxes
                     .listSandboxes(workspace.getId())
                     .thenCompose(sdbxProperties -> Operators.allOf(
@@ -132,6 +177,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                                 .getSandboxById(workspace.getId(), properties.getId())
                                 .thenCompose(SandboxEntity::getState)
                                 .thenApply(stacks -> Sandbox.apply(properties, stacks)))));
+
                 var mlflowStatusCS = workspace
                     .getMlflowStatus()
                     .thenApply(opt -> opt.orElse(null));
@@ -183,29 +229,30 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Model> getModel(User user, String project, String model) {
-        var projectCS = workspaces
+        var workspaceCS = workspaces
             .getWorkspaceByName(project);
 
-        var modelEntityCS = projectCS
+        var modelEntityCS = workspaceCS
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model));
 
-        var projectMembersCS = projectCS
+        var workspaceMembersCS = workspaceCS
             .thenCompose(p -> p
                 .members()
                 .getMembers());
 
-
+        var modelUrlCS = Operators.compose(workspaceCS, modelEntityCS.thenCompose(ModelEntity::getProperties),
+            (workspace, modelProperties) -> WorkspaceEntity.getMlflowStackName(workspace.getId()) + "/" + modelProperties.getName());
 
         return Operators
-            .compose(modelEntityCS, projectMembersCS, (modelEntity, projectMembers) -> {
+            .compose(modelEntityCS, workspaceMembersCS, modelUrlCS, (modelEntity, projectMembers, modelUrl) -> {
                 var propertiesCS = modelEntity.getProperties();
                 var membersCS = modelEntity.getMembers();
                 var permissionsCS = membersCS
                     .thenApply(members -> ModelMembersCompanion.apply(members, projectMembers))
                     .thenApply(comp -> comp.getDataAssetPermissions(user));
                 var servicesCS = modelEntity.getProperties()
-                    .thenCompose(properties -> modelOperations.getServices(properties.getUrl()));
+                    .thenCompose(properties -> modelOperations.getServices(modelUrl));
 
                 return Operators.compose(propertiesCS, membersCS, permissionsCS, servicesCS, Model::fromProperties);
             })
@@ -213,33 +260,13 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> updateModel(User user, String project, String model, String title,
+    public CompletionStage<Done> updateModel(User user, String project, String model,
                                              String description) {
         return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
             .thenApply(models -> models.getModel(model))
-            .thenCompose(m -> m.updateModel(user, title, description));
-    }
-
-    @Override
-    public CompletionStage<Done> updateModelVersion(User user, String project, String model, String version,
-                                                    String description) {
-        return workspaces
-            .getWorkspaceByName(project)
-            .thenCompose(WorkspaceEntity::getModels)
-            .thenApply(models -> models.getModel(model))
-            .thenCompose(m -> m.updateModelVersion(user, version, mdl -> mdl.withDescription(description)));
-    }
-
-    @Override
-    public CompletionStage<Done> answerQuestionnaire(User user, String project, String model, String version,
-                                                     JsonNode responses) {
-        return workspaces
-            .getWorkspaceByName(project)
-            .thenCompose(WorkspaceEntity::getModels)
-            .thenApply(models -> models.getModel(model))
-            .thenCompose(m -> m.answerQuestionnaire(user, version, responses));
+            .thenCompose(m -> m.updateModel(user, description));
     }
 
     @Override
@@ -254,7 +281,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> promoteModel(User user, String project, String model, String version, String stage) {
+    public CompletionStage<Done> promoteModel(User user, String project, String model, String version, ModelVersionStage stage) {
         return workspaces
             .getWorkspaceByName(project)
             .thenCompose(WorkspaceEntity::getModels)
@@ -299,15 +326,6 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     @Override
     public CompletionStage<Done> runExplainer(User user, String project, String model, String version) {
         return CompletableFuture.completedFuture(Done.getInstance());
-    }
-
-    @Override
-    public CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String project, String model) {
-        return workspaces
-            .getWorkspaceByName(project)
-            .thenCompose(WorkspaceEntity::getModels)
-            .thenApply(models -> models.getModel(model))
-            .thenCompose(ModelEntity::getLatestQuestionnaireAnswers);
     }
 
     /*

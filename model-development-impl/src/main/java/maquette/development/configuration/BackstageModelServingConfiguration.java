@@ -19,4 +19,7 @@ public class BackstageModelServingConfiguration {
     @Value("component-template")
     private String componentTemplate;
 
+    @Value("environment")
+    private String environment;
+
 }

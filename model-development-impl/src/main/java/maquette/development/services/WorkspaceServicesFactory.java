@@ -14,9 +14,9 @@ public final class WorkspaceServicesFactory {
     }
 
     public static WorkspaceServices createWorkspaceServices(WorkspaceEntities workspaces,
-                                                            DataAssetsServicePort provider, ModelOperationsPort modelOperations, SandboxEntities sandboxes) {
+                                                            DataAssetsServicePort provider, ModelOperationsPort modelOperations, SandboxEntities sandboxes, UserEntities users) {
         var companion = WorkspaceServicesCompanion.apply(workspaces, sandboxes);
-        var impl = WorkspaceServicesImpl.apply(workspaces, sandboxes, provider, modelOperations);
+        var impl = WorkspaceServicesImpl.apply(workspaces, sandboxes, users, provider, modelOperations);
         var secured = WorkspaceServicesSecured.apply(impl, companion);
         return WorkspaceServicesValidated.apply(secured);
     }
@@ -24,7 +24,7 @@ public final class WorkspaceServicesFactory {
     public static SandboxServices createSandboxServices(WorkspaceEntities workspaces, DataAssetsServicePort provider, ModelOperationsPort modelOperations,
                                                         SandboxEntities sandboxes, UserEntities users) {
         var workspacesCompanion = WorkspaceServicesCompanion.apply(workspaces, sandboxes);
-        var workspaceServices = WorkspaceServicesImpl.apply(workspaces, sandboxes, provider, modelOperations);
+        var workspaceServices = WorkspaceServicesImpl.apply(workspaces, sandboxes, users, provider, modelOperations);
         var userServices = UserServicesFactory.apply(users);
 
         var impl = SandboxServicesImpl.apply(sandboxes, workspaces, users);

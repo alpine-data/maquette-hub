@@ -40,11 +40,11 @@ public final class DeployedModelServicesImpl implements DeployedModelServices {
                                                               DeployedModelServiceProperties service,
                                                               DeployedModelServiceInstanceProperties instance) {
         return deployedModelEntities
-            .findByUrl(model.getUrl())
+            .findByUrl(model.getMlflowInstanceId())
             .thenCompose(maybeModel -> {
                 if (maybeModel.isEmpty()) {
                     return deployedModelEntities
-                        .registerModel(model.getUrl(), model.getName(), model.getUrl())
+                        .registerModel(model.getMlflowInstanceId(), model.getName(), model.getMlflowInstanceId())
                         .thenCompose(done -> deployedModelEntities.getDeployedModelEntity(model.getName()));
                 } else {
                     return CompletableFuture.completedFuture(maybeModel.get());

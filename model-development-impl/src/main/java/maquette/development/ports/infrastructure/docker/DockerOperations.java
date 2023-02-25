@@ -177,6 +177,7 @@ public final class DockerOperations {
         if (!exists) {
             var callback = CompletionStageResultCallback.<PullResponseItem>apply(
                 String.format("docker pull %s", image), log);
+
             client
                 .pullImageCmd(image)
                 .exec(callback);

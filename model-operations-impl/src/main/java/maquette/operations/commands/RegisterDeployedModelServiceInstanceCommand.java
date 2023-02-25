@@ -16,6 +16,12 @@ import maquette.operations.value.DeployedModelServiceProperties;
 
 import java.util.concurrent.CompletionStage;
 
+/**
+ * This command is intended to be called from a DevOps Pipeline to register/ inform about a
+ * model deployment.
+ *
+ *
+ */
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -39,7 +45,7 @@ public class RegisterDeployedModelServiceInstanceCommand implements Command {
     @Override
     public Command example() {
         return apply(
-            DeployedModelProperties.apply("model_name", "http://some-mlwflow/models/model_name"),
+            DeployedModelProperties.apply("model_name", "mlflowid/model_name"),
             DeployedModelServiceProperties.apply("some-service", "http://foo", "http://bar", "http://lorem"),
             DeployedModelServiceInstanceProperties.apply("http://service.com", "1.0.2", "sit")
         );

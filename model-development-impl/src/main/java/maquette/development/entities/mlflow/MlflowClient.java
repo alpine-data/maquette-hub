@@ -3,6 +3,7 @@ package maquette.development.entities.mlflow;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import maquette.core.common.Operators;
@@ -10,6 +11,8 @@ import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.values.UID;
 import maquette.core.values.binary.BinaryObject;
 import maquette.core.values.binary.BinaryObjects;
+import maquette.development.entities.mlflow.explainer.ExplainerArtifact;
+import maquette.development.entities.mlflow.explainer.ShapashExplainer;
 import maquette.development.entities.mlflow.model.MLModel;
 import maquette.development.entities.mlflow.model.ModelVersionsResponse;
 import maquette.development.entities.mlflow.model.RegisteredModelsResponse;
@@ -29,6 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
@@ -47,6 +51,9 @@ public final class MlflowClient {
     private final org.mlflow.tracking.MlflowClient mlflowClient;
 
     public static MlflowClient apply(MlflowConfiguration mlflowConfiguration, UID project, ObjectMapper om) {
+        // TODO mw: Remove following line. Only for debugging purposes.
+        java.util.logging.Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
+
         OkHttpClient client = new OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.MINUTES)
             .build();
@@ -118,12 +125,23 @@ public final class MlflowClient {
                             .createYamlMapper()
                             .readValue(download(downloadPath), MLModel.class));
 
+                        /*
+                         * Collect explainers.
+                         */
+                        var explainers = Lists.<ExplainerArtifact>newArrayList();
+
+                        // Check existence of Shapash Explainer
+                        // TODO mw: Improvements 1) Do not download artifact, use list artifact endpoint and check
+                        //  for existence, 2) Search for artifacts with specified ending for Shapash explainers, not
+                        //  full path/ filename.
                         var explainerPath = String.format(
                             "%s/get-artifact?path=xpl.pkl&run_uuid=%s",
                             mlflowConfiguration.getMlflowBasePath(),
                             version.getRunId());
 
-                        var explainer = downloadFile(explainerPath).orElse(null);
+                        downloadFile(explainerPath).ifPresent(file -> explainers.add(ShapashExplainer.apply("xpl.pkl")));
+
+                        // TODO mw: Extend here to add additional supported explainers.
 
                         return VersionFromRegistry.apply(
                             version.getVersion(),
@@ -138,7 +156,7 @@ public final class MlflowClient {
                             mlModel
                                 .getFlavors()
                                 .keySet(),
-                            explainer);
+                            explainers);
                     })
                     .sorted(Comparator
                         .comparing(VersionFromRegistry::getCreated)
@@ -196,23 +214,23 @@ public final class MlflowClient {
 
     private <T> T query(Request request, Class<T> responseType) {
         try {
-            var response = Operators.suppressExceptions(() -> client
+            try (var response = Operators.suppressExceptions(() -> client
                 .newCall(request)
-                .execute());
+                .execute())) {
 
-            if (!response.isSuccessful()) {
-                var body = response.body();
-                var content = body != null ? Operators.suppressExceptions(body::string) : "";
-                content = StringUtils.leftPad(content, 3);
-                if (body != null) body.close();
-                throw new RuntimeException(
-                    "Received non-successful response from MLflow `" + request.url() + "`:\n" + content);
-            } else {
-                var body = response.body();
-                var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
-                var result = Operators.suppressExceptions(() -> om.readValue(content, responseType));
-                if (body != null) body.close();
-                return result;
+                if (!response.isSuccessful()) {
+                    try (var body = response.body()) {
+                        var content = body != null ? Operators.suppressExceptions(body::string) : "";
+                        content = StringUtils.leftPad(content, 3);
+                        throw new RuntimeException(
+                            "Received non-successful response from MLflow `" + request.url() + "`:\n" + content);
+                    }
+                } else {
+                    try (var body = response.body()) {
+                        var content = body != null ? Operators.suppressExceptions(body::string) : "{}";
+                        return Operators.suppressExceptions(() -> om.readValue(content, responseType));
+                    }
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred requesting information from MLflow `" + request.url() + "`",
@@ -227,21 +245,21 @@ public final class MlflowClient {
             .build();
 
         try {
-            var response = Operators.suppressExceptions(() -> client
+            try (var response = Operators.suppressExceptions(() -> client
                 .newCall(request)
-                .execute());
+                .execute())) {
 
-            if (!response.isSuccessful()) {
-                var body = response.body();
-                var content = body != null ? Operators.suppressExceptions(body::string) : "";
-                content = StringUtils.leftPad(content, 3);
-                if (body != null) body.close();
-                throw new RuntimeException("Received non-successful response from MLflow:\n" + content);
-            } else {
-                var body = response.body();
-                var result = body != null ? Operators.suppressExceptions(body::string) : "";
-                if (body != null) body.close();
-                return result;
+                if (!response.isSuccessful()) {
+                    try (var body = response.body()) {
+                        var content = body != null ? Operators.suppressExceptions(body::string) : "";
+                        content = StringUtils.leftPad(content, 3);
+                        throw new RuntimeException("Received non-successful response from MLflow:\n" + content);
+                    }
+                } else {
+                    try (var body = response.body()) {
+                        return body != null ? Operators.suppressExceptions(body::string) : "";
+                    }
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred requesting information from MLflow", e);
@@ -255,21 +273,20 @@ public final class MlflowClient {
             .build();
 
         try {
-            var response = Operators.suppressExceptions(() -> client
+            try (var response = Operators.suppressExceptions(() -> client
                 .newCall(request)
-                .execute());
+                .execute())) {
 
-            if (!response.isSuccessful()) {
-                return Optional.empty();
-            } else {
-                var body = response.body();
-
-                if (body != null) {
-                    var result = Optional.ofNullable(BinaryObjects.fromInputStream(body.byteStream()));
-                    body.close();
-                    return result;
-                } else {
+                if (!response.isSuccessful()) {
                     return Optional.empty();
+                } else {
+                    try (var body = response.body()) {
+                        if (body != null) {
+                            return Optional.ofNullable(BinaryObjects.fromInputStream(body.byteStream()));
+                        } else {
+                            return Optional.empty();
+                        }
+                    }
                 }
             }
         } catch (Exception e) {

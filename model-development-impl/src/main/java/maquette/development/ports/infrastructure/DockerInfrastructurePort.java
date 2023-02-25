@@ -3,6 +3,11 @@ package maquette.development.ports.infrastructure;
 import akka.Done;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.transport.DockerHttpClient;
+import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
@@ -18,6 +23,7 @@ import maquette.development.ports.infrastructure.docker.deployments.StackDeploym
 import maquette.development.ports.infrastructure.docker.deployments.StackDeploymentList;
 import maquette.development.values.exceptions.StackConfigurationNotFoundException;
 import maquette.development.values.stacks.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +117,6 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
     @Override
     public CompletionStage<StackInstanceParameters> getInstanceParameters(UID workspace, String name) {
-        var parameters = Maps.<String, String>newHashMap();
         var deployedStackConfiguration = getDeployedStackConfiguration(name);
 
         if (deployments.containsKey(name)) {
@@ -141,15 +146,9 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
     public void clean() {
         LOG.info("Cleaning local infrastructure ...");
+        Operators.ignoreExceptions(() -> FileUtils.forceDelete(this.deploymentConfigurationStore.toFile()), LOG);
 
-        while (!this.deployments.isEmpty()) {
-            var maybeDeployment = this.deployments.values().stream().findFirst();
-            maybeDeployment.ifPresent(deployment -> {
-                LOG.info("Destroying deployment `{}`", deployment.getConfig().getName());
-                Operators.ignoreExceptions(() -> this.removeStackInstance(deployment.getConfig()
-                    .getName()).toCompletableFuture().get());
-            });
-        }
+        this.docker.cleanDockerResources();
     }
 
     private CompletionStage<Done> createOrUpdateMlflow(UID workspace, MlflowStackConfiguration configuration) {
