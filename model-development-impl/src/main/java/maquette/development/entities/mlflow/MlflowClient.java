@@ -51,9 +51,6 @@ public final class MlflowClient {
     private final org.mlflow.tracking.MlflowClient mlflowClient;
 
     public static MlflowClient apply(MlflowConfiguration mlflowConfiguration, UID project, ObjectMapper om) {
-        // TODO mw: Remove following line. Only for debugging purposes.
-        java.util.logging.Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
-
         OkHttpClient client = new OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.MINUTES)
             .build();

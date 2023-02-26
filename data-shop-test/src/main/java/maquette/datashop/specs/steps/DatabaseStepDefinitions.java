@@ -20,10 +20,7 @@ import maquette.datashop.providers.databases.model.DatabaseSessionSettings;
 import maquette.datashop.providers.databases.model.DatabaseSettings;
 import maquette.datashop.providers.databases.services.DatabaseServices;
 import maquette.datashop.providers.datasets.records.Records;
-import maquette.datashop.values.metadata.DataClassification;
-import maquette.datashop.values.metadata.DataVisibility;
-import maquette.datashop.values.metadata.DataZone;
-import maquette.datashop.values.metadata.PersonalInformation;
+import maquette.datashop.values.metadata.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -72,10 +69,19 @@ public class DatabaseStepDefinitions extends DataAssetStepDefinitions {
                 .getObjectMapperFactory()
                 .createJsonMapper();
             var result = CreateDataAssetCommand
-                .apply(Databases.TYPE_NAME, name, name, "Some nice speaking summary.", DataVisibility.PRIVATE,
-                    DataClassification.PUBLIC, PersonalInformation.NONE, DataZone.RAW, user
-                        .getId()
-                        .getValue(), null, null, om.convertValue(customSettings, JsonNode.class))
+                .apply(
+                    Databases.TYPE_NAME,
+                    name,
+                    name,
+                    "Some nice speaking summary.",
+                    DataVisibility.PRIVATE,
+                    DataClassification.PUBLIC,
+                    PersonalInformation.NONE,
+                    DataZone.RAW,
+                    user.getId().getValue(),
+                    "bob",
+                    AdditionalProperties.fake(),
+                    om.convertValue(customSettings, JsonNode.class))
                 .run(user, runtime)
                 .toCompletableFuture()
                 .get()

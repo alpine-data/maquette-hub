@@ -5,13 +5,9 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.server.commands.Command;
-import maquette.operations.commands.CreateDeployedModelCommand;
-import maquette.operations.commands.CreateDeployedModelServiceCommand;
-import maquette.operations.commands.GetDeployedModelCommand;
 import maquette.operations.commands.RegisterDeployedModelServiceInstanceCommand;
-import maquette.operations.entities.DeployedModelEntities;
+import maquette.operations.entities.DeployedModelServiceEntities;
 import maquette.operations.ports.DeployedModelServicesRepository;
-import maquette.operations.ports.DeployedModelsRepository;
 import maquette.operations.services.DeployedModelServices;
 import maquette.operations.services.DeployedModelServicesImpl;
 
@@ -22,15 +18,15 @@ public class MaquetteModelOperations implements MaquetteModule {
 
     public static final String MODULE_NAME = "model-operations";
 
+    private final DeployedModelServiceEntities entities;
+
     private final DeployedModelServices deployedModelServices;
 
-    private final DeployedModelEntities entities;
+    public static MaquetteModelOperations apply(DeployedModelServicesRepository deployedModelServicesRepository) {
+        var entities = DeployedModelServiceEntities.apply(deployedModelServicesRepository);
+        var services = DeployedModelServicesImpl.apply(entities);
 
-    public static MaquetteModelOperations apply(DeployedModelsRepository deployedModelsRepository, DeployedModelServicesRepository deployedModelServicesRepository) {
-        var deployedModels = DeployedModelEntities.apply(deployedModelsRepository, deployedModelServicesRepository);
-        var services = DeployedModelServicesImpl.apply(deployedModels);
-
-        return MaquetteModelOperations.apply(services, deployedModels);
+        return MaquetteModelOperations.apply(entities, services);
     }
 
     @Override
@@ -51,15 +47,11 @@ public class MaquetteModelOperations implements MaquetteModule {
     @Override
     public Map<String, Class<? extends Command>> getCommands() {
         var commands = Maps.<String, Class<? extends Command>>newHashMap();
-        commands.put("operations create-deployed-model", CreateDeployedModelCommand.class);
-        commands.put("operations create-deployed-model-service", CreateDeployedModelServiceCommand.class);
-        commands.put("operations get-deployed-model", GetDeployedModelCommand.class);
-
         commands.put("operations register-model", RegisterDeployedModelServiceInstanceCommand.class);
         return commands;
     }
 
-    public DeployedModelEntities getEntities() {
+    public DeployedModelServiceEntities getEntities() {
         return entities;
     }
 

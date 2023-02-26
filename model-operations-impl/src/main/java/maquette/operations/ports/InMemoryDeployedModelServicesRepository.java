@@ -1,71 +1,69 @@
 package maquette.operations.ports;
 
 import akka.Done;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
-import maquette.operations.value.DeployedModelServiceInstance;
 import maquette.operations.value.DeployedModelService;
-import maquette.operations.value.DeployedModelServiceProperties;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AllArgsConstructor(staticName = "apply")
-public class InMemoryDeployedModelServicesRepository implements DeployedModelServicesRepository {
-    static final Map<String, DeployedModelService> services = new ConcurrentHashMap<>();
+public final class InMemoryDeployedModelServicesRepository implements DeployedModelServicesRepository {
 
-    public CompletionStage<Optional<DeployedModelServiceProperties>> findByName(String serviceName) {
-        return CompletableFuture.completedFuture(Optional.ofNullable(services.get(serviceName))
-            .map(DeployedModelService::getProperties));
+    private List<DeployedModelService> services;
+
+    public static InMemoryDeployedModelServicesRepository apply() {
+        return apply(Lists.newArrayList());
     }
 
-    public CompletionStage<Done> insertOrUpdate(DeployedModelServiceProperties deployedModelServiceProperties) {
-        services.put(
-            deployedModelServiceProperties.getName(),
-            services
-                .getOrDefault(deployedModelServiceProperties.getName(),
-                    DeployedModelService.apply(deployedModelServiceProperties, new LinkedList<>()))
-                .withProperties(deployedModelServiceProperties)
-        );
-        return CompletableFuture.completedFuture(Done.getInstance());
-    }
-
-    public CompletionStage<Done> removeByName(String serviceName) {
-        services.remove(serviceName);
-        return CompletableFuture.completedFuture(Done.getInstance());
-    }
-
-    public CompletionStage<List<DeployedModelServiceInstance>> findAllInstances(String serviceName) {
-        final var service = services.get(serviceName);
-        return CompletableFuture.completedFuture(service == null ? new LinkedList<>() : service.getInstances());
-    }
-
-    public CompletionStage<Done> removeAllInstances(String serviceName) {
-        final var service = services.get(serviceName);
-        services.put(serviceName, service.withInstances(new LinkedList<>()));
-        return CompletableFuture.completedFuture(Done.getInstance());
-    }
-
-    public CompletionStage<Optional<DeployedModelServiceInstance>> findInstanceByUrl(String serviceName, String url) {
-        return findAllInstances(serviceName).thenApply(
-            instances -> instances
-                .stream()
-                .filter(instance -> url.equals(instance.getUrl()))
-                .findFirst()
-        );
-    }
-
-    public CompletionStage<Done> insertOrUpdateInstance(String serviceName, DeployedModelServiceInstance instance) {
-        final DeployedModelService service = Objects.requireNonNull(services.get(serviceName));
-        final var instances = new LinkedList<DeployedModelServiceInstance>();
-        instances.add(instance);
-        instances.addAll(service.getInstances()
+    @Override
+    public CompletionStage<Optional<DeployedModelService>> findByNameAndGitUrl(String serviceName, String gitUrl) {
+        return CompletableFuture.completedFuture(services
             .stream()
-            .filter(inst -> !inst.getUrl().equals(instance.getUrl()))
+            .filter(service -> service.getName().equals(serviceName) && service.getGitRepositoryUrl().equals(gitUrl))
+            .findFirst());
+    }
+
+    @Override
+    public CompletionStage<List<DeployedModelService>> findByModelUrl(String modelUrl) {
+        return CompletableFuture.completedFuture(services
+            .stream()
+            .filter(service -> service
+                .getInstances()
+                .stream()
+                .anyMatch(instance -> instance
+                    .getModels()
+                    .stream()
+                    .anyMatch(model -> model.getModelUrl().equals(modelUrl))))
             .collect(Collectors.toList()));
-        services.put(serviceName, service.withInstances(instances));
+    }
+
+    @Override
+    public CompletionStage<Done> insertOrUpdate(DeployedModelService service) {
+        this.services = Stream
+            .concat(
+                services
+                    .stream()
+                    .filter(existingService -> !(existingService.sameIdentity(service))),
+                Stream.of(service))
+            .collect(Collectors.toList());
+
         return CompletableFuture.completedFuture(Done.getInstance());
     }
+
+    @Override
+    public CompletionStage<Done> removeByNameAndGitUrl(String serviceName, String gitUrl) {
+        this.services = services
+            .stream()
+            .filter(existingService -> !(existingService.sameIdentity(serviceName, gitUrl)))
+            .collect(Collectors.toList());
+
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
+
 }

@@ -1,7 +1,6 @@
 package maquette.development.services;
 
 import akka.Done;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -109,15 +108,6 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
 
     @Override
     public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType type) {
-        /*
-         * TODO mw: The environment should also contain the users name (used for MLflow metadata), e.g. MQ__USERNAME
-         * Maybe we need to add a method to Python SDK to simplify. Configuration of MLflow, because user name must
-         * be set when initiating the training:
-         *
-         * ```python
-         * mlflow.start_run(tags={ 'mlflow.user': "michael", 'mlflow.runName': 'LinearRegression'})
-         * ```
-         */
         return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(wks -> wks.getEnvironment(user, type))
@@ -241,6 +231,10 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                 .members()
                 .getMembers());
 
+        /*
+         * The model URL consists of "{WORKSPACE_UID}/{MODEL_NAME}". This convention must also be used when registering a model
+         * from within an Azure DevOps Pipeline. Otherwise, we cannot find service instances.
+         */
         var modelUrlCS = Operators.compose(workspaceCS, modelEntityCS.thenCompose(ModelEntity::getProperties),
             (workspace, modelProperties) -> WorkspaceEntity.getMlflowStackName(workspace.getId()) + "/" + modelProperties.getName());
 

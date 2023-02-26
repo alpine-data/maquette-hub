@@ -6,6 +6,7 @@ import maquette.operations.MaquetteModelOperations;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteModelOperationsAdapter implements ModelOperationsPort {
@@ -20,11 +21,10 @@ public final class MaquetteModelOperationsAdapter implements ModelOperationsPort
     public CompletionStage<List<Object>> getServices(String modelUrl) {
         return operations
             .getEntities()
-            .getDeployedModelEntity(modelUrl)
-            .thenApply(entity -> {
-                // TODO: Implement List method on ModelEntity.
-                return List.of();
-            });
+            .findServicesByModelUrl(modelUrl)
+            .thenApply(list -> list.stream()
+                .map(m -> (Object) m)
+                .collect(Collectors.toList())); // Just to make Java typing happy.
     }
 
     public void setMaquetteModule(MaquetteModelOperations module) {

@@ -31,8 +31,7 @@ public class CreateModelServiceCommand implements Command {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
-            .createModelService(user, workspace, model, version, service
-            )
+            .createModelService(user, workspace, model, version, service)
             .thenApply(DataResult::apply);
     }
 

@@ -18,10 +18,7 @@ import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -189,9 +186,11 @@ public final class Configs {
                 .toLowerCase()
                 .contains("password") || key
                 .toLowerCase()
-                .contains("secret")) || key
+                .contains("secret") || key
                 .toLowerCase()
-                .contains("pwd")) {
+                .contains("pwd") || key
+                .toLowerCase()
+                .contains("key"))) {
                 value = "***";
             }
 

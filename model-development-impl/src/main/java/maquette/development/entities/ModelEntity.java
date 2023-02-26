@@ -161,6 +161,7 @@ public final class ModelEntity {
     public CompletionStage<Done> addMember(User executor,
                                            UserAuthorization member,
                                            ModelMemberRole role) {
+        /* TODO mw: Validate that owners/ Developers cannot assign themselves as reviewer. */
         var granted = GrantedAuthorization.apply(ActionMetadata.apply(executor), member, role);
         return models.insertOrUpdateMember(workspace, name, granted);
     }
@@ -186,9 +187,6 @@ public final class ModelEntity {
                         .thenApply(auth -> GrantedAuthorization.apply(ActionMetadata.apply(auth.getName()), auth,
                             ModelMemberRole.OWNER))
                         .thenCompose(owner -> models.insertOrUpdateMember(workspace, name, owner))
-                        .thenCompose(done -> models.insertOrUpdateMember(workspace, name, GrantedAuthorization.apply(
-                            ActionMetadata.apply("alice"), UserAuthorization.apply("alice"),
-                            ModelMemberRole.REVIEWER))) // TODO get default review from Project configuration.
                         .thenCompose(done -> getMembers());
                 } else {
                     return CompletableFuture.completedFuture(members);

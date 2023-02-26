@@ -29,7 +29,7 @@ public final class ObjectValidator<T> implements Validator<T> {
     @Override
     public boolean validate(ValidationContext context, String fieldName, T value) {
         if (required && Objects.isNull(value)) {
-            context.addErrorMessage("`%s` must be specified");
+            context.addErrorMessage("`%s` must be specified", fieldName);
         }
 
         if (!Objects.isNull(value)) {

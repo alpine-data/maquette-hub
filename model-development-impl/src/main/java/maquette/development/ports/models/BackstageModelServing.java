@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import maquette.core.common.Operators;
+import maquette.core.common.Templates;
 import maquette.development.configuration.BackstageModelServingConfiguration;
 import maquette.development.configuration.ModelDevelopmentConfiguration;
 import maquette.development.values.model.services.ModelServiceProperties;
@@ -83,11 +84,27 @@ public final class BackstageModelServing implements ModelServingPort {
                 var content = responseBody != null ? Operators.suppressExceptions(responseBody::string) : "";
                 var backstageTaskId = this.om.readValue(content, BackstageResponse.class).getId();
 
+                var templateParameters = Maps.<String, Object>newHashMap();
+                templateParameters.put("serviceName", serviceName);
+                templateParameters.put("backstageTaskId", backstageTaskId);
+                templateParameters.put("backstageUrl", this.config.getUrl());
+
                 var urlsMap = Maps.<String, String>newHashMap();
-                urlsMap.put("Deployment Status", this.config.getUrl() + "/foo/bar/" + backstageTaskId);
-                urlsMap.put("Service Catalog", this.config.getUrl() + "/catalog/" + serviceName);
-                urlsMap.put("Git Repository", "http://i-dont-know-yet.com");
-                urlsMap.put("Build Pipeline", "http://i-dont-know-yet.com");
+                urlsMap.put(
+                    "Deployment Status",
+                    Templates.renderTemplateFromString(config.getDeploymentStatusUrlTemplate(), templateParameters)); // this.config.getUrl() + "/foo/bar/" + backstageTaskId);
+
+                urlsMap.put(
+                    "Service Catalog",
+                    Templates.renderTemplateFromString(config.getServiceCatalogUrlTemplate(), templateParameters)); // this.config.getUrl() + "/catalog/" + serviceName);
+
+                urlsMap.put(
+                    "Git Repository",
+                    Templates.renderTemplateFromString(config.getGitRepositoryUrlTemplate(), templateParameters));
+
+                urlsMap.put(
+                    "Build Pipeline",
+                    Templates.renderTemplateFromString(config.getBuildPipelineUrlTemplate(), templateParameters));
 
                 return CompletableFuture.completedFuture(
                     ModelServiceProperties.apply(

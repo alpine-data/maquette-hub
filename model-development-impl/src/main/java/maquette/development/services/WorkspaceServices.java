@@ -1,7 +1,6 @@
 package maquette.development.services;
 
 import akka.Done;
-import com.fasterxml.jackson.databind.JsonNode;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -19,7 +18,6 @@ import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 public interface WorkspaceServices {
@@ -34,13 +32,6 @@ public interface WorkspaceServices {
      * @return Done.
      */
     CompletionStage<Done> create(User user, String name, String title, String summary);
-
-    /*
-     * TODO mw: Why is MLFlow instance ID required here? It can be derived from the Workspace.
-     * Same for maintainerName and maintainerEmail - Should be retrieved from user.
-     *
-     * # TODO mw: environment must be `devsit` or `uatprod`.
-     */
 
     /**
      * Creates a service to serve the model as an API.

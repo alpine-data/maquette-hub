@@ -47,46 +47,39 @@ public final class MaquetteRuntime {
     /**
      * The underlying webserver. This will be set and initialized during initialization.
      */
-    @With
     @Nullable
     Javalin app;
 
     /**
      * The underlying actor system. This will be set and initilaized during intialization.
      */
-    @With
     @Nullable
     ActorSystem system;
 
     /**
      * The application configuration of this Maquette instance.
      */
-    @With
     MaquetteConfiguration config;
 
     /**
      * The default object mapper factory of Maquette.
      */
-    @With
     ObjectMapperFactory objectMapperFactory;
 
     /**
      * The default quartz cron scheduler of Maquette.
      */
-    @With
     CronScheduler scheduler;
 
     /**
      * The authentication handler configured for the Maquette instance. It's responsible to identify (authenticate)
      * as user based on the HTTP request, received by Maquette's webserver.
      */
-    @With
     AuthenticationHandler authenticationHandler;
 
     /**
      * An instance of a database port where user information can be stored.
      */
-    @With
     UsersRepository usersRepository;
 
     /**
@@ -125,6 +118,16 @@ public final class MaquetteRuntime {
 
         return apply(null, null, cfg, omf, scheduler, ath, usr, Lists.newArrayList(),
             Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
+    }
+
+    public MaquetteRuntime withObjectMapperFactory(ObjectMapperFactory om) {
+        this.objectMapperFactory = om;
+        return this;
+    }
+
+    public MaquetteRuntime withUsersRepository(UsersRepository users) {
+        this.usersRepository = users;
+        return this;
     }
 
     /**

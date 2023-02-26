@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 public class ModelProperties {
 
     private static final String NAME = "name";
-    private static final String URL = "url";
     private static final String DESCRIPTION = "description";
     private static final String VERSIONS = "versions";
     private static final String CREATED = "created";
@@ -32,44 +31,37 @@ public class ModelProperties {
     /**
      * The name of the model. Should be the same name as within MLflow.
      */
-    @JsonProperty("NAME")
+    @JsonProperty(NAME)
     String name;
-
-    /**
-     * The MLflow URL of the model.
-     */
-    @JsonProperty("URL")
-    String url;
 
     /**
      * The description of the model.
      */
-    @JsonProperty("DESCRIPTION")
+    @JsonProperty(DESCRIPTION)
     String description;
 
     /**
      * Available versions of the model. There is always as at least one version.
      */
-    @JsonProperty("VERSIONS")
+    @JsonProperty(VERSIONS)
     List<ModelVersion> versions;
 
     /**
      * The moment in which the first version of the model was registered in MLflow.
      */
-    @JsonProperty("CREATED")
+    @JsonProperty(CREATED)
     ActionMetadata created;
 
     /**
      * The moment when the model was updated.
      */
-    @JsonProperty("UPDATED")
+    @JsonProperty(UPDATED)
     ActionMetadata updated;
 
     /**
      * Creates a new instance. Also used to create instances from JSON representation.
      *
      * @param name See {@link ModelProperties#name}.
-     * @param url See {@link ModelProperties#url}.
      * @param description See {@link ModelProperties#description}.
      * @param versions See {@link ModelProperties#versions}.
      * @param created See {@link ModelProperties#created}.
@@ -79,13 +71,12 @@ public class ModelProperties {
     @JsonCreator
     public static ModelProperties apply(
         @JsonProperty("NAME") String name,
-        @JsonProperty("URL") String url,
         @JsonProperty("DESCRIPTION") String description,
         @JsonProperty("VERSIONS") List<ModelVersion> versions,
         @JsonProperty("CREATED") ActionMetadata created,
         @JsonProperty("UPDATED") ActionMetadata updated
     ) {
-        return new ModelProperties(name, url, description, versions, created, updated);
+        return new ModelProperties(name, description, versions, created, updated);
     }
 
     /**
@@ -95,7 +86,7 @@ public class ModelProperties {
      */
     public static ModelProperties fake() {
         return ModelProperties.apply(
-            "some-model", "http://foo",
+            "some-model",
             "Lorem ipsum", List.of(ModelVersion.fake()),
             ActionMetadata.apply("Egon Olsen"), ActionMetadata.apply("Donald Duck"));
     }
