@@ -21,13 +21,18 @@ public class PythonStackConfiguration {
     @Value("memory-request-m")
     PythonStackMemoryRequest memoryRequestM;
 
+    @Value("memory-request-l")
+    PythonStackMemoryRequest memoryRequestL;
+
     public double getPriceByMemoryRequest(String size) throws RuntimeException {
         if (Objects.equals(size, memoryRequestS.memoryRequest)) {
             return this.memoryRequestS.price;
         } else if (Objects.equals(size, memoryRequestM.memoryRequest)) {
             return this.memoryRequestM.price;
+        } else if (Objects.equals(size, memoryRequestL.memoryRequest)) {
+            return this.memoryRequestL.price;
         } else {
-            throw new RuntimeException("Not yet implemented");
+            return 0.0;
         }
     }
 

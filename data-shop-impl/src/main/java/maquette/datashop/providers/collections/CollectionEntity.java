@@ -347,20 +347,49 @@ public final class CollectionEntity {
      * @return Done.
      */
     public CompletionStage<Done> removeAll(User executor, String directory) {
-        var deletedFiles = new ArrayList<CompletionStage<Done>>();
         return repository
             .getFiles(id)
             .thenCompose(files -> {
                 var dir = files.getDirectory(directory);
+                var newFiles = files;
+                var blobsToBeDeleted = new ArrayList<String>();
+                var deletedFiles = new ArrayList<CompletionStage<Done>>();
+
                 if (dir.isPresent()) {
-                    System.out.println(dir.get().files());
-                    for (FileEntry.NamedRegularFile file: dir.get().files()) {
-                        deletedFiles.add(this.remove(executor, directory + "/" + file.getName()));
+                    for (FileEntry.NamedRegularFile file : dir.get().files()) {
+                        var fileName = directory + "/" + file.getName();
+                        newFiles = newFiles.withoutFile(fileName);
+
+                        deletedFiles.add(repository
+                            .findAllTags(id)
+                            .thenCompose(tags -> {
+                                var isTaggedFile = tags
+                                    .stream()
+                                    .anyMatch(collectionTag -> collectionTag
+                                        .getContent()
+                                        .getFile(fileName)
+                                        .isPresent());
+
+                                if (!isTaggedFile) {
+                                    blobsToBeDeleted.add(file.getFile().getKey());
+                                }
+                                return CompletableFuture.completedFuture(Done.getInstance());
+                            })
+                        );
                     }
                 }
-                return Operators.allOf(deletedFiles);
-            })
-            .thenApply(done -> Done.getInstance());
+
+                var es = Executors.newFixedThreadPool(concurrentRequests);
+                FileEntry.Directory finalNewFiles = newFiles;
+
+                return Operators.allOf(deletedFiles)
+                    .thenCompose(done -> repository.saveFiles(id, finalNewFiles))
+                    .thenCompose(done -> Operators.allOf(blobsToBeDeleted
+                        .stream().map(blob ->
+                            CompletableFuture.supplyAsync(() -> repository
+                                .deleteObject(id, blob), es))))
+                    .thenCompose(done -> entity.updated(executor));
+            });
     }
 
     /**

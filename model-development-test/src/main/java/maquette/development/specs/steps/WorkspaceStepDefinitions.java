@@ -11,6 +11,7 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.commands.*;
+import maquette.development.commands.applications.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.sandboxes.CreateSandboxCommand;
@@ -210,7 +211,7 @@ public class WorkspaceStepDefinitions {
             }
             var result = CreateSandboxCommand
                 .apply(mentionedWorkspace, sandboxName, sandboxName, volume, List.of(
-                    PythonStackConfiguration.apply(sandboxName, Lists.newArrayList(), "1Gi", "3.8",
+                    PythonStackConfiguration.apply(sandboxName, Lists.newArrayList(), "4Gi", "3.8",
                         Maps.<String, String>newHashMap())))
                 .run(user, runtime)
                 .toCompletableFuture()
@@ -284,11 +285,51 @@ public class WorkspaceStepDefinitions {
     public void $_creates_a_sandbox_$_with_and_advanced_stack(AuthenticatedUser user, String sandboxName) throws ExecutionException, InterruptedException {
         results.add(CreateSandboxCommand
             .apply(mentionedWorkspace, sandboxName, sandboxName, NewVolume.apply("new-gpu"), List.of(
-                PythonGPUStackConfiguration.apply(sandboxName, List.of(), "gpu_small", "3.10", Map.of())
+                PythonGPUStackConfiguration.apply(sandboxName, List.of(), "gpusmall", "3.10", Map.of())
             ))
             .run(user, runtime)
             .toCompletableFuture()
             .get()
             .toPlainText(runtime));
+    }
+
+    public void $_creates_an_application_$_in_workspace_$(User executor, String applicationName,
+                                                          String workspaceName) throws ExecutionException,
+        InterruptedException {
+        CreateApplicationCommand
+            .apply(workspaceName, applicationName, "")
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_removes_an_application_$_in_workspace_$(User executor, String applicationName,
+                                                          String workspaceName) throws ExecutionException,
+        InterruptedException {
+        RemoveApplicationCommand
+            .apply(workspaceName, applicationName)
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_oauth_application_gets_self(User executor) throws ExecutionException, InterruptedException {
+        OauthGetSelfCommand
+            .apply()
+            .run(executor, runtime)
+            .toCompletableFuture()
+            .get().toPlainText(runtime);
+    }
+
+    public void $_lists_applications_in_workspace_$(User executor, String workspaceName) throws ExecutionException,
+        InterruptedException {
+        results.add(
+            ListApplicationsCommand
+                .apply(workspaceName)
+                .run(executor, runtime)
+                .toCompletableFuture()
+                .get()
+                .toPlainText(runtime)
+        );
     }
 }

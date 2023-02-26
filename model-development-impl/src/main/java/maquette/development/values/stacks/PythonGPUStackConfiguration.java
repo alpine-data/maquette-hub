@@ -60,7 +60,7 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
         }
 
         if (Objects.isNull(size)) {
-            size = "gpu_small";
+            size = "gpusmall";
         }
 
         var instance = new PythonGPUStackConfiguration(resourceGroups, version, size);

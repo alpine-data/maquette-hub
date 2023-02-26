@@ -127,14 +127,18 @@ public final class SandboxEntities {
     }
 
     /**
-     * Removes a sandbox from the store.
+     * Removes a sandbox and all linked stacks from the store.
      *
      * @param workspace The unique id of the workspace the sandbox belongs to.
      * @param sandbox   The unique id of the sandbox to remove.
      * @return Done.
      */
     public CompletionStage<Done> removeSandboxById(UID workspace, UID sandbox) {
-        return sandboxes.removeSandboxById(workspace, sandbox);
+        return getSandboxById(workspace, sandbox)
+            .thenCompose(SandboxEntity::getProperties)
+            .thenCompose(sandboxProperties ->
+                Operators.allOf(sandboxProperties.getStacks().keySet().stream().map(infrastructurePort::removeStackInstance)))
+            .thenCompose(done -> sandboxes.removeSandboxById(workspace, sandbox));
     }
 
     /**

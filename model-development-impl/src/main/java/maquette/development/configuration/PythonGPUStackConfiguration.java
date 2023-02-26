@@ -32,7 +32,7 @@ public class PythonGPUStackConfiguration {
         } else if (Objects.equals(size, sizeL.size)) {
             return this.sizeL.price;
         } else {
-            throw new RuntimeException("Not yet implemented");
+            return 0.0;
         }
     }
 

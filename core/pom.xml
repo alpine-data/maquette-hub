@@ -107,6 +107,12 @@
 
         <dependency>
             <groupId>io.javalin</groupId>
+            <artifactId>javalin-bundle</artifactId>
+            <version>3.13.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.javalin</groupId>
             <artifactId>javalin-openapi</artifactId>
             <version>3.13.8</version>
         </dependency>
@@ -130,9 +136,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.30</version>
+            <groupId>co.elastic.logging</groupId>
+            <artifactId>logback-ecs-encoder</artifactId>
+            <version>1.5.0</version>
         </dependency>
 
         <dependency>
@@ -152,11 +158,24 @@
             <artifactId>quartz</artifactId>
             <version>2.3.2</version>
         </dependency>
+
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>2.4.7</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-attach</artifactId>
+            <version>1.36.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-api</artifactId>
+            <version>1.36.0</version>
         </dependency>
     </dependencies>
 

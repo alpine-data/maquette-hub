@@ -9,6 +9,7 @@ import maquette.core.server.commands.Command;
 import maquette.core.values.UID;
 import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
+import maquette.development.commands.applications.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.models.CreateModelServiceCommand;
@@ -48,9 +49,14 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
 
 
     public static MaquetteModelDevelopment apply(
-        MaquetteRuntime runtime, WorkspacesRepository workspacesRepository, ModelsRepository modelsRepository,
-        SandboxesRepository sandboxesRepository, InfrastructurePort infrastructurePort,
-        DataAssetsServicePort dataAssets, ModelOperationsPort modelOperations, ModelServingPort modelServing) {
+        MaquetteRuntime runtime,
+        WorkspacesRepository workspacesRepository,
+        ModelsRepository modelsRepository,
+        SandboxesRepository sandboxesRepository,
+        InfrastructurePort infrastructurePort,
+        DataAssetsServicePort dataAssets,
+        ModelOperationsPort modelOperations,
+        ModelServingPort modelServing) {
 
         var configuration = ModelDevelopmentConfiguration.apply();
 
@@ -104,6 +110,11 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
 
         commands.put("workspaces members grant", GrantWorkspaceMemberCommand.class);
         commands.put("workspaces members revoke", RevokeWorkspaceMemberCommand.class);
+
+        commands.put("workspaces applications create", CreateApplicationCommand.class);
+        commands.put("workspaces applications remove", RemoveApplicationCommand.class);
+        commands.put("workspaces applications oauth-self", OauthGetSelfCommand.class);
+        commands.put("workspaces applications list", ListApplicationsCommand.class);
 
         commands.put("workspaces models view", GetModelsViewCommand.class);
         commands.put("workspaces model view", GetModelViewCommand.class);

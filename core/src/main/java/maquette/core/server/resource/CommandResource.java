@@ -1,5 +1,6 @@
 package maquette.core.server.resource;
 
+import co.elastic.apm.api.ElasticApm;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
@@ -32,8 +33,12 @@ public final class CommandResource {
             .json("200", CommandResult.class);
 
         return OpenApiBuilder.documented(docs, ctx -> {
+            var currentApmTransaction = ElasticApm.currentTransaction();
             var command = ctx.bodyAsClass(Command.class);
             var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+
+            currentApmTransaction.setName("Command: " + command.getClass().getSimpleName());
+            currentApmTransaction.setLabel("handler", command.getClass().getCanonicalName());
 
             var result = command
                 .run(user, runtime)

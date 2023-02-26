@@ -4,6 +4,8 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.modules.users.GlobalRole;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.authorization.GrantedAuthorization;
+import maquette.core.values.user.ApplicationUser;
+import maquette.core.values.user.OauthProxyUser;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.ports.DataAssetsServicePort;
 import maquette.development.ports.ModelsRepository;
@@ -246,6 +248,59 @@ public abstract class WorkspacesSpecs {
                 context.users.charly), "Unauthorized was expected");
 
         // Then
+        Assertions.assertEquals(thrown.getMessage(), "maquette.core.common.exceptions.NotAuthorizedException: You are" +
+            " not authorized to execute this action.");
+    }
+
+    /**
+     * Application based authentication tests
+     */
+    @Test
+    public void workspaceApplicationAuthorization() throws ExecutionException, InterruptedException {
+        // Given
+        steps.$_creates_a_workspace_with_name_$(context.users.bob, "app-fake");
+        steps.$_creates_an_application_$_in_workspace_$(context.users.bob, "app-1", "app-fake");
+
+        // only this way we can get Application object required to create Application user later in the test
+        // as we wouldn't know UID ahead of time
+        var apps = runtime
+            .getModule(MaquetteModelDevelopment.class)
+            .getWorkspaceServices()
+            .findApplicationsInWorkspace(runtime, context.users.bob, "app-fake")
+            .toCompletableFuture()
+            .get();
+
+        Assertions.assertEquals(1, apps.size());
+
+        // get our app user info
+        var app = apps.get(0);
+        var appUser = ApplicationUser.apply(app.getId());
+
+        // app user shouldn't have privileges to create another app
+        var thrown = Assertions.assertThrows(ExecutionException.class, () ->
+                steps.$_creates_an_application_$_in_workspace_$(appUser, "app-2", "app-fake"),
+            "Unauthorized was expected");
+        Assertions.assertEquals(thrown.getMessage(), "maquette.core.common.exceptions.NotAuthorizedException: You are" +
+            " not authorized to execute this action.");
+
+        // app user should have access to list of apps
+        steps.$_lists_applications_in_workspace_$(appUser, "app-fake");
+        steps.the_output_should_contain("app-1");
+        steps.the_output_should_not_contain("app-2");
+
+        // test oauth
+        steps.$_oauth_application_gets_self(OauthProxyUser.apply("app-1", "app-fake"));
+        steps.the_output_should_contain("app-1");
+
+        // clean-up
+        steps.$_removes_an_application_$_in_workspace_$(context.users.bob, "app-1", "app-fake");
+        steps.$_lists_applications_in_workspace_$(context.users.bob, "app-fake");
+        steps.the_output_should_not_contain("app-1");
+
+        // this should fail
+        thrown = Assertions.assertThrows(ExecutionException.class, () ->
+                steps.$_lists_applications_in_workspace_$(appUser, "app-fake"),
+            "Unauthorized was expected");
         Assertions.assertEquals(thrown.getMessage(), "maquette.core.common.exceptions.NotAuthorizedException: You are" +
             " not authorized to execute this action.");
     }

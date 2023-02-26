@@ -1,6 +1,8 @@
 package maquette.development.services;
 
 import akka.Done;
+import maquette.core.MaquetteRuntime;
+import maquette.core.modules.applications.model.Application;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
@@ -45,7 +47,8 @@ public interface WorkspaceServices {
      * @param service   The name of the service to create.
      * @return ModelServiceProperties which contain links to the created service.
      */
-    CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model, String version, String service);
+    CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
+                                                               String version, String service);
 
     /**
      * Get environment variables/ properties for a workspace.
@@ -162,7 +165,8 @@ public interface WorkspaceServices {
      * @param stage     The stage to which the model should be promoted.
      * @return Done.
      */
-    CompletionStage<Done> promoteModel(User user, String workspace, String model, String version, ModelVersionStage stage);
+    CompletionStage<Done> promoteModel(User user, String workspace, String model, String version,
+                                       ModelVersionStage stage);
 
     /**
      * Reject a model version for production usage.
@@ -283,4 +287,62 @@ public interface WorkspaceServices {
      * @return list of volumes
      */
     CompletionStage<List<VolumeProperties>> getVolumes(User user, String workspace);
+
+    /**
+     * Create an application for app-based access to given workspace
+     *
+     * @param runtime       maquette runtime
+     * @param user          the user who executes the action
+     * @param workspaceName the workspace name
+     * @param name          the application name
+     * @param metaInfo      additional meta data
+     * @return application object with secret
+     */
+    CompletionStage<Application> createApplication(MaquetteRuntime runtime, User user, String workspaceName,
+                                                   String name,
+                                                   String metaInfo);
+
+    /**
+     * Renew application secret
+     *
+     * @param runtime       maquette runtime
+     * @param user          the user who executes the action
+     * @param workspaceName the workspace name
+     * @param name          the application name
+     * @return application object with secret
+     */
+    CompletionStage<Done> renewApplicationSecret(MaquetteRuntime runtime, User user, String workspaceName,
+                                                 String name);
+
+    /**
+     * Get information about signed-in application
+     *
+     * @param runtime maquette runtime
+     * @param user    the user who executes the action
+     * @return application object with secret
+     */
+    CompletionStage<Application> getOauthSelfApplication(MaquetteRuntime runtime, User user);
+
+    /**
+     * Remove an application from given workspace access
+     *
+     * @param runtime         maquette runtime
+     * @param user            the user who executes the action
+     * @param workspaceName   the workspace name
+     * @param applicationName the application name
+     * @return Done.
+     */
+    CompletionStage<Done> removeApplication(MaquetteRuntime runtime, User user, String workspaceName,
+                                            String applicationName);
+
+    /**
+     * Find all applications with access to given workspace
+     *
+     * @param runtime       maquette runtime
+     * @param user          the user who executes the action
+     * @param workspaceName the workspace name
+     * @return List of all applications in the workspace.
+     */
+    CompletionStage<List<Application>> findApplicationsInWorkspace(MaquetteRuntime runtime, User user,
+                                                                   String workspaceName);
 }
