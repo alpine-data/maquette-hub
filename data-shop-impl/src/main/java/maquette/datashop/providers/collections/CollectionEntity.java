@@ -347,48 +347,47 @@ public final class CollectionEntity {
      * @return Done.
      */
     public CompletionStage<Done> removeAll(User executor, String directory) {
+        var es = Executors.newFixedThreadPool(concurrentRequests);
         return repository
             .getFiles(id)
             .thenCompose(files -> {
                 var dir = files.getDirectory(directory);
-                var newFiles = files;
                 var blobsToBeDeleted = new ArrayList<String>();
-                var deletedFiles = new ArrayList<CompletionStage<Done>>();
-
-                if (dir.isPresent()) {
-                    for (FileEntry.NamedRegularFile file : dir.get().files()) {
-                        var fileName = directory + "/" + file.getName();
-                        newFiles = newFiles.withoutFile(fileName);
-
-                        deletedFiles.add(repository
-                            .findAllTags(id)
-                            .thenCompose(tags -> {
-                                var isTaggedFile = tags
-                                    .stream()
-                                    .anyMatch(collectionTag -> collectionTag
-                                        .getContent()
-                                        .getFile(fileName)
-                                        .isPresent());
-
-                                if (!isTaggedFile) {
-                                    blobsToBeDeleted.add(file.getFile().getKey());
+                repository
+                    .findAllTags(id)
+                    .thenCompose(
+                        tags -> {
+                            var newFiles = files;
+                            if (dir.isPresent()) {
+                                for (FileEntry.NamedRegularFile file : dir
+                                    .get()
+                                    .files()) {
+                                    var fileName = directory + "/" + file.getName();
+                                    newFiles = newFiles.withoutFile(fileName);
+                                    var isTaggedFile = tags
+                                        .stream()
+                                        .anyMatch(collectionTag -> collectionTag
+                                            .getContent()
+                                            .getFile(fileName)
+                                            .isPresent());
+                                    if (!isTaggedFile) {
+                                        blobsToBeDeleted.add(file
+                                            .getFile()
+                                            .getKey());
+                                    }
                                 }
-                                return CompletableFuture.completedFuture(Done.getInstance());
-                            })
-                        );
-                    }
-                }
-
-                var es = Executors.newFixedThreadPool(concurrentRequests);
-                FileEntry.Directory finalNewFiles = newFiles;
-
-                return Operators.allOf(deletedFiles)
-                    .thenCompose(done -> repository.saveFiles(id, finalNewFiles))
+                            }
+                            return CompletableFuture.completedFuture(newFiles);
+                        }
+                    )
+                    .thenCompose(newFiles -> repository.saveFiles(id, newFiles))
                     .thenCompose(done -> Operators.allOf(blobsToBeDeleted
-                        .stream().map(blob ->
+                        .stream()
+                        .map(blob ->
                             CompletableFuture.supplyAsync(() -> repository
                                 .deleteObject(id, blob), es))))
                     .thenCompose(done -> entity.updated(executor));
+                return CompletableFuture.completedFuture(Done.getInstance());
             });
     }
 
