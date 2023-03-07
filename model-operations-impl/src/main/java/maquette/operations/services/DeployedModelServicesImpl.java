@@ -4,6 +4,7 @@ import akka.Done;
 import lombok.AllArgsConstructor;
 import maquette.core.values.user.User;
 import maquette.operations.entities.DeployedModelServiceEntities;
+import maquette.operations.ports.ModelDevelopmentPort;
 import maquette.operations.value.DeployedModelService;
 import maquette.operations.value.RegisterDeployedModelServiceInstanceParameters;
 import maquette.operations.value.RegisterDeployedModelServiceParameters;
@@ -16,11 +17,16 @@ public final class DeployedModelServicesImpl implements DeployedModelServices {
 
     private final DeployedModelServiceEntities entities;
 
+    private final ModelDevelopmentPort modelDevelopmentPort;
+
     @Override
     public CompletionStage<Done> registerModelServiceInstance(
         User user, RegisterDeployedModelServiceParameters service, RegisterDeployedModelServiceInstanceParameters instance) {
 
-        return entities.registerModelServiceInstance(service, instance);
+        return entities
+            .registerModelServiceInstance(service, instance)
+            // Also inform model development about the registration.
+            .thenCompose(done -> modelDevelopmentPort.modelDeployedEvent(service, instance));
     }
 
     @Override

@@ -61,14 +61,14 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
 
     @Override
     public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace,
-                                                               EnvironmentType environmentType) {
+                                                               EnvironmentType environmentType, boolean returnBase64) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
             .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
             .validate("environmentType", environmentType, NotNullValidator.apply())
             .checkAndFail()
-            .thenCompose(done -> delegate.getEnvironment(user, workspace, environmentType));
+            .thenCompose(done -> delegate.getEnvironment(user, workspace, environmentType, returnBase64));
     }
 
     @Override

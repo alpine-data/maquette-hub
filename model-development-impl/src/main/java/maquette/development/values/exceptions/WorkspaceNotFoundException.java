@@ -19,6 +19,11 @@ public final class WorkspaceNotFoundException extends ApplicationException {
         return new WorkspaceNotFoundException(msg);
     }
 
+    public static WorkspaceNotFoundException applyFromMLflowId(String mlflowId) {
+        String msg = String.format("Workspace noz found for MLflow id `%s`.", mlflowId);
+        return new WorkspaceNotFoundException(msg);
+    }
+
     @Override
     public int getHttpStatus() {
         return 404;

@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 public final class WorkspaceEntity {
 
+    public static final String MLFLOW_INSTANCE_PREFIX = "mlflow--";
+
     private final UID id;
 
     private final WorkspacesRepository repository;
@@ -197,7 +199,7 @@ public final class WorkspaceEntity {
     }
 
     public static String getMlflowStackName(UID id) {
-        return String.format("mlflow--%s", id.getValue());
+        return String.format("%s%s", MLFLOW_INSTANCE_PREFIX, id.getValue());
     }
 
     private String getWorkspaceResourceGroupName() {

@@ -56,20 +56,24 @@ public interface WorkspaceServices {
      * @param user            The user who requests the environment.
      * @param workspace       The name of the workspace for which the environment should be provided.
      * @param environmentType The type of the environment.
+     * @param returnBase64    If true, all environment values are returned as Base64 string. Under some circumstances
+     *                        this is required, e.g. if Azure Storage Authentication keys are shared.
+     *                        If unsure, enable `returnBase64` and decode the response on client-side.
      * @return The environment variables for the workspace.
      */
-    CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType);
+    CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType,
+                                                        boolean returnBase64);
 
     /**
-     * See {@link WorkspaceServices#getEnvironment(User, String, EnvironmentType)}. The environment type defaults to
-     * {@link EnvironmentType#EXTERNAL}
+     * Get environment variables/ properties for a workspace.
      *
-     * @param user      The user who requests the environment.
-     * @param workspace The name of the workspace for which the environment should be provided.
+     * @param user            The user who requests the environment.
+     * @param workspace       The name of the workspace for which the environment should be provided.
+     * @param environmentType The type of the environment.
      * @return The environment variables for the workspace.
      */
-    default CompletionStage<Map<String, String>> getEnvironment(User user, String workspace) {
-        return getEnvironment(user, workspace, EnvironmentType.EXTERNAL);
+    default CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType) {
+        return getEnvironment(user, workspace, environmentType, true);
     }
 
     /**

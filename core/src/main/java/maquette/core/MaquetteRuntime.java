@@ -8,7 +8,6 @@ import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.With;
 import maquette.core.common.Operators;
 import maquette.core.config.MaquetteConfiguration;
 import maquette.core.databind.DefaultObjectMapperFactory;
@@ -33,12 +32,13 @@ import java.util.Objects;
 
 /**
  * MaquetteRuntime encapsulates all core elements of Maquette, to enabled modules to access these (e.g. the
- * underlying Actor System,
- * the Web Server, configuration, etc.),
- * <p>
+ * underlying Actor System, the Web Server, configuration, etc.).
+ *
  * The runtime has two states: Before initialization and after initialization. Before initialization new modules (or
  * module factories) can be registered.
- * Afterwards (after initialization) all values are only for read only.
+ *
+ * Afterwards (after initialization) all values are only for read only. Be aware that this class is implemented as
+ * **mutable** class. Thus avoid to return new instances on Methods which have a return type {@link MaquetteRuntime}.
  */
 @Getter
 @Setter
@@ -54,7 +54,7 @@ public final class MaquetteRuntime {
     Javalin app;
 
     /**
-     * The underlying actor system. This will be set and initilaized during intialization.
+     * The underlying actor system. This will be set and initialized during initialization.
      */
     @Nullable
     ActorSystem system;
@@ -88,7 +88,6 @@ public final class MaquetteRuntime {
     /**
      * An instance of a database port where application information can be stored.
      */
-    @With
     ApplicationsRepository applicationsRepository;
 
     /**
@@ -136,7 +135,16 @@ public final class MaquetteRuntime {
     }
 
     public MaquetteRuntime withUsersRepository(UsersRepository users) {
+        shouldNotBeInitialized();
+
         this.usersRepository = users;
+        return this;
+    }
+
+    public MaquetteRuntime withApplicationsRepository(ApplicationsRepository applicationsRepository) {
+        shouldNotBeInitialized();
+
+        this.applicationsRepository = applicationsRepository;
         return this;
     }
 

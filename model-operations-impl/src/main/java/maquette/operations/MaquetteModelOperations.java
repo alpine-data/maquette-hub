@@ -8,6 +8,7 @@ import maquette.core.server.commands.Command;
 import maquette.operations.commands.RegisterDeployedModelServiceInstanceCommand;
 import maquette.operations.entities.DeployedModelServiceEntities;
 import maquette.operations.ports.DeployedModelServicesRepository;
+import maquette.operations.ports.ModelDevelopmentPort;
 import maquette.operations.services.DeployedModelServices;
 import maquette.operations.services.DeployedModelServicesImpl;
 
@@ -22,9 +23,9 @@ public class MaquetteModelOperations implements MaquetteModule {
 
     private final DeployedModelServices deployedModelServices;
 
-    public static MaquetteModelOperations apply(DeployedModelServicesRepository deployedModelServicesRepository) {
+    public static MaquetteModelOperations apply(DeployedModelServicesRepository deployedModelServicesRepository, ModelDevelopmentPort modelDevelopmentPort) {
         var entities = DeployedModelServiceEntities.apply(deployedModelServicesRepository);
-        var services = DeployedModelServicesImpl.apply(entities);
+        var services = DeployedModelServicesImpl.apply(entities, modelDevelopmentPort);
 
         return MaquetteModelOperations.apply(entities, services);
     }
@@ -58,4 +59,5 @@ public class MaquetteModelOperations implements MaquetteModule {
     public DeployedModelServices getServices() {
         return deployedModelServices;
     }
+
 }

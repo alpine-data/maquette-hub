@@ -19,9 +19,12 @@ import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
 import maquette.development.values.model.ModelVersionStage;
+import maquette.development.values.model.events.AutomaticallyPromoted;
+import maquette.development.values.model.events.ModelVersionEvent;
 import maquette.development.values.model.mlflow.ModelFromRegistry;
 import maquette.development.values.model.services.ModelServiceProperties;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -122,9 +125,40 @@ public final class ModelEntity {
                                               String version,
                                               ModelVersionStage stage) {
         return getProperties()
-            .thenApply(model -> {
+            .thenCompose(model -> {
                 mlflowClient.transitionStage(model.getName(), version, stage.getValue());
-                return Done.getInstance();
+
+                var updated = ActionMetadata.apply(executor);
+                var updateModel = model
+                    .withUpdated(updated)
+                    .withVersion(model.getVersion(version).withUpdated(updated));
+
+                return models.insertOrUpdateModel(workspace, updateModel);
+            });
+    }
+
+    /**
+     * Transfer a model version from the current stage into a new model stage.
+     * The transition will be done via MLflow.
+     *
+     * Us this method only if the system does the promotion automatically. If the action
+     * is triggered by a human user, use {@link ModelEntity#promoteModel(User, String, ModelVersionStage)}.
+     *
+     * @param version  The version which should be promoted.
+     * @param stage    The new stage of the version.
+     * @return Done.
+     */
+    public CompletionStage<Done> promoteModel(String version, ModelVersionStage stage) {
+        return getProperties()
+            .thenCompose(model -> {
+                mlflowClient.transitionStage(model.getName(), version, stage.getValue());
+
+                var updateModel = model
+                    .withVersion(model
+                        .getVersion(version)
+                        .withEvent(AutomaticallyPromoted.apply(Instant.now(), stage)));
+
+                return models.insertOrUpdateModel(workspace, updateModel);
             });
     }
 

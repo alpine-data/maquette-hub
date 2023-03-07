@@ -115,12 +115,13 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType type) {
+    public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType type,
+                                                               boolean returnBase64) {
         return workspaces
             .getWorkspaceByName(workspace)
             .thenCompose(wks -> wks.getEnvironment(user, type))
             .thenApply(parameters -> Maps.transformValues(parameters, (v) -> {
-                if (org.apache.commons.codec.binary.Base64.isBase64(v)) {
+                if (org.apache.commons.codec.binary.Base64.isBase64(v) && !returnBase64) {
                     try {
                         return new String(Base64.getDecoder().decode(v));
                     } catch (Exception e) {

@@ -1,7 +1,6 @@
 package maquette.development.services;
 
 import akka.Done;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
@@ -66,10 +65,10 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     @Override
     public CompletionStage<Map<String, String>> getEnvironment(User user,
                                                                String workspace,
-                                                               EnvironmentType environmentType) {
+                                                               EnvironmentType environmentType, boolean returnBase64) {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace))
-            .thenCompose(ok -> delegate.getEnvironment(user, workspace, environmentType));
+            .thenCompose(ok -> delegate.getEnvironment(user, workspace, environmentType, returnBase64));
     }
 
     @Override
