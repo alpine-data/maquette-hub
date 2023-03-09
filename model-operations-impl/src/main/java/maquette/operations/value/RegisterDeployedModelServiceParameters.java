@@ -23,8 +23,8 @@ public class RegisterDeployedModelServiceParameters {
     String gitRepositoryUrl;
 
     /**
-     * The catalog URL for the service in Backstage.
+     * The catalog URL for the service (e.g. in Backstage).
      */
-    String backstageCatalogUrl;
+    String catalogUrl;
 
 }

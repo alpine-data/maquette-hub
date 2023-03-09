@@ -49,7 +49,9 @@ public class RegisterDeployedModelServiceInstanceCommand implements Command {
             .getModule(MaquetteModelOperations.class)
             .getServices()
             .registerModelServiceInstance(user, service, instance)
-            .thenApply(result -> MessageResult.apply("Successfully registered."));
+            .thenApply(result -> MessageResult.apply(
+                "Successfully registered model service instance."
+            ));
     }
 
     @Override

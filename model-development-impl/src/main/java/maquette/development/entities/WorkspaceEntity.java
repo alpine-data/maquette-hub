@@ -187,7 +187,7 @@ public final class WorkspaceEntity {
                     return infrastructurePort
                         .getInstanceParameters(this.getId(), getMlflowStackName(id))
                         .thenApply(params -> {
-                            LOG.info("Stack instance parameters for workspace `{}`: {}", id, params);
+                            LOG.trace("Stack instance parameters for workspace `{}`: {}", id, params);
 
                             return properties
                                 .getMlFlowConfiguration()
@@ -196,7 +196,7 @@ public final class WorkspaceEntity {
                         })
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
                             .map(mlflowConfiguration -> {
-                                LOG.info("Current MLflow configuration for workspace `{}`: {}", id, mlflowConfiguration);
+                                LOG.trace("Current MLflow configuration for workspace `{}`: {}", id, mlflowConfiguration);
 
                                 return ModelEntities.apply(id, mlflowConfiguration, models,
                                     modelServingPort);

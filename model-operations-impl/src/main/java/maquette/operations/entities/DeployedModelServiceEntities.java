@@ -66,12 +66,12 @@ public final class DeployedModelServiceEntities {
                 if (maybeModelService.isPresent()) {
                     modelService = maybeModelService
                         .get()
-                        .withBackstageCatalogUrl(service.getBackstageCatalogUrl())
+                        .withBackstageCatalogUrl(service.getCatalogUrl())
                         .withInstance(newInstance);
                 } else {
                     modelService = DeployedModelService.apply(
                         service.getName(), service.getGitRepositoryUrl(),
-                        service.getBackstageCatalogUrl(), List.of(newInstance));
+                        service.getCatalogUrl(), List.of(newInstance));
                 }
 
                 return deployedModelServicesRepository.insertOrUpdate(modelService);

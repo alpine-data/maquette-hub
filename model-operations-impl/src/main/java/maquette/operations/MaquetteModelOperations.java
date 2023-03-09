@@ -48,7 +48,7 @@ public class MaquetteModelOperations implements MaquetteModule {
     @Override
     public Map<String, Class<? extends Command>> getCommands() {
         var commands = Maps.<String, Class<? extends Command>>newHashMap();
-        commands.put("operations register-model", RegisterDeployedModelServiceInstanceCommand.class);
+        commands.put("operations register-model-service-instance", RegisterDeployedModelServiceInstanceCommand.class);
         return commands;
     }
 

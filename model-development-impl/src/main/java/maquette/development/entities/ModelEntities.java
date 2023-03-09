@@ -53,7 +53,7 @@ public final class ModelEntities {
     }
 
     public CompletionStage<List<ModelProperties>> getModels() {
-        LOG.info("Running `getModels` for workspace `{}`", workspace);
+        LOG.trace("Running `getModels` for workspace `{}`", workspace);
 
         if (Objects.isNull(mlflowClient)) {
             LOG.warn("MLflowClient missing `getModels` for workspace `{}`", workspace);
