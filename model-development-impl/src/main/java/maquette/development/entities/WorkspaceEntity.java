@@ -186,10 +186,14 @@ public final class WorkspaceEntity {
                     .isPresent()) {
                     return infrastructurePort
                         .getInstanceParameters(this.getId(), getMlflowStackName(id))
-                        .thenApply(params -> properties
-                            .getMlFlowConfiguration()
-                            .get()
-                            .getMlflowConfiguration(params))
+                        .thenApply(params -> {
+                            LOG.info("Stack instance parameters for workspace `{}`: {}", id, params);
+
+                            return properties
+                                .getMlFlowConfiguration()
+                                .get()
+                                .getMlflowConfiguration(params)
+                        })
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
                             .map(mlflowConfiguration -> {
                                 LOG.info("Current MLflow configuration for workspace `{}`: {}", id, mlflowConfiguration);
