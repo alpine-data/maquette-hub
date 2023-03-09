@@ -26,6 +26,8 @@ import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.MlflowStackConfiguration;
 import maquette.development.values.stacks.StackRuntimeState;
 import maquette.development.values.stacks.VolumeProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -40,6 +42,8 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor(staticName = "apply")
 public final class WorkspaceEntity {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WorkspaceEntity.class);
 
     public static final String MLFLOW_INSTANCE_PREFIX = "mlflow--";
 
@@ -186,12 +190,17 @@ public final class WorkspaceEntity {
                             .getMlFlowConfiguration()
                             .get()
                             .getMlflowConfiguration(params))
-                        .thenApply(optMlflowConfiguration -> {
-                            return optMlflowConfiguration
-                                .map(mlflowConfiguration -> ModelEntities.apply(id, mlflowConfiguration, models,
-                                    modelServingPort))
-                                .orElse(ModelEntities.noMlflowBackend(id));
-                        });
+                        .thenApply(optMlflowConfiguration -> optMlflowConfiguration
+                            .map(mlflowConfiguration -> {
+                                LOG.info("Current MLflow configuration for workspace `{}`: {}", id, mlflowConfiguration);
+
+                                return ModelEntities.apply(id, mlflowConfiguration, models,
+                                    modelServingPort);
+                            })
+                            .orElseGet(() -> {
+                                LOG.warn("No MLflow configuration available for workspace `{}`", id);
+                                return ModelEntities.noMlflowBackend(id);
+                            }));
                 } else {
                     return CompletableFuture.completedFuture(ModelEntities.noMlflowBackend(id));
                 }
