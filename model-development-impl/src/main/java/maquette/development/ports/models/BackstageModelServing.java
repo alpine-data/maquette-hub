@@ -1,5 +1,6 @@
 package maquette.development.ports.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
@@ -92,11 +93,11 @@ public final class BackstageModelServing implements ModelServingPort {
                 var urlsMap = Maps.<String, String>newHashMap();
                 urlsMap.put(
                     "Deployment Status",
-                    Templates.renderTemplateFromString(config.getDeploymentStatusUrlTemplate(), templateParameters)); // this.config.getUrl() + "/foo/bar/" + backstageTaskId);
+                    Templates.renderTemplateFromString(config.getDeploymentStatusUrlTemplate(), templateParameters));
 
                 urlsMap.put(
                     "Service Catalog",
-                    Templates.renderTemplateFromString(config.getServiceCatalogUrlTemplate(), templateParameters)); // this.config.getUrl() + "/catalog/" + serviceName);
+                    Templates.renderTemplateFromString(config.getServiceCatalogUrlTemplate(), templateParameters));
 
                 urlsMap.put(
                     "Git Repository",
@@ -127,16 +128,31 @@ public final class BackstageModelServing implements ModelServingPort {
 
         private static final String ATTR_MODEL_NAME = "model_name";
         private static final String ATTR_MODEL_VERSION = "model_version";
-        private static final String ENVIRONMENT = "environment";
+        private static final String ATTR_ENVIRONMENT = "environment";
         private static final String ATTR_MLFLOW_INSTANCE_ID = "mlflow_instance_id";
+        private static final String ATTR_SERVICE_NAME = "service_name";
+        private static final String ATTR_MAINTAINER_NAME = "maintainer_name";
+        private static final String ATTR_MAINTAINER_EMAIL = "maintainer_email";
 
+        @JsonProperty(ATTR_MODEL_NAME)
         String modelName;
+
+        @JsonProperty(ATTR_MODEL_VERSION)
         String modelVersion;
+
+        @JsonProperty(ATTR_ENVIRONMENT)
         String environment; // TODO mw: Use enumeration?
 
+        @JsonProperty(ATTR_SERVICE_NAME)
         String serviceName;
+
+        @JsonProperty(ATTR_MLFLOW_INSTANCE_ID)
         String mlflowInstanceId;
+
+        @JsonProperty(ATTR_MAINTAINER_NAME)
         String maintainerName;
+
+        @JsonProperty(ATTR_MAINTAINER_EMAIL)
         String maintainerEmail;
 
     }
