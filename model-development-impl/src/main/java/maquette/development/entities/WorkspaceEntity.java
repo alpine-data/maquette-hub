@@ -192,7 +192,7 @@ public final class WorkspaceEntity {
                             return properties
                                 .getMlFlowConfiguration()
                                 .get()
-                                .getMlflowConfiguration(params)
+                                .getMlflowConfiguration(params);
                         })
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
                             .map(mlflowConfiguration -> {
