@@ -202,7 +202,7 @@ public final class WorkspaceEntity {
                                     modelServingPort);
                             })
                             .orElseGet(() -> {
-                                LOG.warn("No MLflow configuration available for workspace `{}`", id);
+                                LOG.warn("No MLflow configuration available for workspace `{}`.", id);
                                 return ModelEntities.noMlflowBackend(id);
                             }));
                 } else {
