@@ -43,6 +43,7 @@ public final class MaquetteModelDevelopmentAdapter implements ModelDevelopmentPo
     @Override
     public CompletionStage<Done> modelDeployedEvent(RegisterDeployedModelServiceParameters service,
                                                     RegisterDeployedModelServiceInstanceParameters instance) {
+
         var updates = instance
             .getModels()
             .stream()
@@ -55,13 +56,13 @@ public final class MaquetteModelDevelopmentAdapter implements ModelDevelopmentPo
                 var promoteToStaging = configuration
                     .getPromoteModelToStagingForEnvironments()
                     .stream()
-                    .anyMatch(env -> env.toLowerCase().equals(instance.getEnvironment().toLowerCase()));
+                    .anyMatch(env -> env.equalsIgnoreCase(instance.getEnvironment()));
 
                 // Check whether reported stage should automatically promote model to production
                 var promoteToProduction = configuration
                     .getPromoteModelToProductionForEnvironments()
                     .stream()
-                    .anyMatch(env -> env.toLowerCase().equals(instance.getEnvironment().toLowerCase()));
+                    .anyMatch(env -> env.equalsIgnoreCase(instance.getEnvironment()));
 
                 /*
                  * Update model version if required.

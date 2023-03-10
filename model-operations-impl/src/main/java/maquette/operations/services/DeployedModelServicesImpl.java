@@ -8,12 +8,17 @@ import maquette.operations.ports.ModelDevelopmentPort;
 import maquette.operations.value.DeployedModelService;
 import maquette.operations.value.RegisterDeployedModelServiceInstanceParameters;
 import maquette.operations.value.RegisterDeployedModelServiceParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DeployedModelServicesImpl implements DeployedModelServices {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DeployedModelServices.class);
 
     private final DeployedModelServiceEntities entities;
 
@@ -21,12 +26,26 @@ public final class DeployedModelServicesImpl implements DeployedModelServices {
 
     @Override
     public CompletionStage<Done> registerModelServiceInstance(
-        User user, RegisterDeployedModelServiceParameters service, RegisterDeployedModelServiceInstanceParameters instance) {
+        User user, RegisterDeployedModelServiceParameters service,
+        RegisterDeployedModelServiceInstanceParameters instance) {
 
         return entities
             .registerModelServiceInstance(service, instance)
-            // Also inform model development about the registration.
-            .thenCompose(done -> modelDevelopmentPort.modelDeployedEvent(service, instance));
+            .thenApply(done -> {
+                /*
+                 * Also inform model development about the registration.
+                 * We spawn this as a separate thread, because the result is not important for model registration.
+                 */
+                CompletableFuture.runAsync(() -> modelDevelopmentPort
+                    .modelDeployedEvent(service, instance)
+                    .exceptionally(exc -> {
+                        LOG.warn("An exception occurred while notifying model development about a new registered service instance.");
+                        return Done.getInstance();
+                    })
+                );
+
+                return done;
+            });
     }
 
     @Override
