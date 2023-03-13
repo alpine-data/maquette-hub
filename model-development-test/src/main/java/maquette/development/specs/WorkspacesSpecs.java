@@ -12,6 +12,7 @@ import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.mlprojects.MLProjectCreationPort;
 import maquette.development.ports.models.ModelOperationsPort;
 import maquette.development.ports.models.ModelServingPort;
 import maquette.development.specs.steps.WorkspaceStepDefinitions;
@@ -47,9 +48,16 @@ public abstract class WorkspacesSpecs {
         this.runtime = MaquetteRuntime.apply();
         this.runtime
             .withModule(MaquetteModelDevelopment.apply(
-                this.runtime, this.workspacesRepository, setupModelsRepository(),
-                setupSandboxesRepository(), setupInfrastructurePort(), setupDataAssetsServicePort(),
-                setupModelOperationsPort(), setupModelServingPort()))
+                this.runtime,
+                this.workspacesRepository,
+                setupModelsRepository(),
+                setupSandboxesRepository(),
+                setupInfrastructurePort(),
+                setupDataAssetsServicePort(),
+                setupModelOperationsPort(),
+                setupModelServingPort(),
+                setupMLProjectCreationPort()))
+
             .initialize(context.system, context.app);
         this.runtime.getUsersRepository().insertGlobalAuthorization(
             GrantedAuthorization.apply(
@@ -78,6 +86,8 @@ public abstract class WorkspacesSpecs {
     public abstract ModelOperationsPort setupModelOperationsPort();
 
     public abstract ModelServingPort setupModelServingPort();
+
+    public abstract MLProjectCreationPort setupMLProjectCreationPort();
 
     public abstract SandboxesRepository setupSandboxesRepository();
 

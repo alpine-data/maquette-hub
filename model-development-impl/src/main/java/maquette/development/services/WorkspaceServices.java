@@ -10,6 +10,8 @@ import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
+import maquette.development.values.mlproject.MLProjectType;
+import maquette.development.values.mlproject.MachineLearningProject;
 import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
@@ -34,6 +36,22 @@ public interface WorkspaceServices {
      * @return Done.
      */
     CompletionStage<Done> create(User user, String name, String title, String summary);
+
+    /**
+     * This service triggers the creation of a new Machine Learning Project within the company's application
+     * development platform. Thus, the result should be an initialized Git Repository with the template
+     * for developing machine learning models.
+     *
+     * @param user         The user which executes the action.
+     * @param workspace    The workspace to which the ML project should belong.
+     * @param projectName  The name of the new project/ library.
+     * @param templateType The type of the project - used to switch between different templates.
+     */
+    CompletionStage<MachineLearningProject> createMachineLearningProject(
+        User user,
+        String workspace,
+        String projectName,
+        MLProjectType templateType);
 
     /**
      * Creates a service to serve the model as an API.
@@ -72,7 +90,8 @@ public interface WorkspaceServices {
      * @param environmentType The type of the environment.
      * @return The environment variables for the workspace.
      */
-    default CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType) {
+    default CompletionStage<Map<String, String>> getEnvironment(User user, String workspace,
+                                                                EnvironmentType environmentType) {
         return getEnvironment(user, workspace, environmentType, true);
     }
 

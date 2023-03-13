@@ -26,6 +26,8 @@ import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
+import maquette.development.values.mlproject.MLProjectType;
+import maquette.development.values.mlproject.MachineLearningProject;
 import maquette.development.values.model.*;
 import maquette.development.values.model.events.Approved;
 import maquette.development.values.model.events.Rejected;
@@ -79,6 +81,14 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                     adminAddedCS, mlFlowInitializedCS,
                     (adminAdded, mlFlowInitialized) -> Done.getInstance());
             });
+    }
+
+    @Override
+    public CompletionStage<MachineLearningProject> createMachineLearningProject(User user, String workspace,
+                                                                                String projectName, MLProjectType templateType) {
+        return workspaces
+            .getWorkspaceByName(workspace)
+            .thenCompose(wks -> wks.createMachineLearningProject(user, projectName, templateType));
     }
 
     @Override
