@@ -1,35 +1,46 @@
 package maquette.development.entities.mlflow;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
-import maquette.core.common.Operators;
-import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
-import maquette.core.values.questionnaire.Questionnaire;
 import maquette.development.ports.ModelsRepository;
-import maquette.development.values.model.ModelExplainer;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
+import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.governance.GitDetails;
 import maquette.development.values.model.mlflow.ModelFromRegistry;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
+/**
+ * This class bundles functionalities to merge model information retrieved from MLflow
+ * with model information saved in own database.
+ */
 @AllArgsConstructor(staticName = "apply")
 public final class ModelCompanion {
 
-    private final UID project;
+    /**
+     * The id of the workspace a model belongs to.
+     */
+    private final UID workspaceId;
 
+    /**
+     * The model repository to access model data in own database.
+     */
     private final ModelsRepository models;
 
+    /**
+     * Merges information retrieved from MLflow with information stored in database.
+     *
+     * @param registeredModel The model as retrieved from MLflow.
+     * @return Merged model properties
+     */
     public CompletionStage<ModelProperties> mapModel(ModelFromRegistry registeredModel) {
         return models
-            .findModelByName(project, registeredModel.getName())
+            .findModelByName(workspaceId, registeredModel.getName())
             .thenApply(maybeModel -> {
                 var title = registeredModel.getName();
                 var name = registeredModel.getName();
@@ -45,16 +56,14 @@ public final class ModelCompanion {
                     .get(registeredModel
                         .getVersions()
                         .size() - 1)
-                    .getUser()
-                    .replace("michaelwellner", "michael"); // TODO ensure right user names tracked by MLflow.
+                    .getUser();
 
                 var created = ActionMetadata.apply(createdBy, registeredModel.getCreated());
 
                 var updatedBy = registeredModel
                     .getVersions()
                     .get(0)
-                    .getUser()
-                    .replace("michaelwellner", "michael"); // TODO ensure right user names tracked by MLflow.
+                    .getUser();
 
                 var updatedTime = registeredModel
                     .getVersions()
@@ -62,23 +71,18 @@ public final class ModelCompanion {
                     .getCreated();
                 var updated = ActionMetadata.apply(updatedBy, updatedTime);
 
-                var description = "";
-                var defaultQuestionnaire = getQuestionnaire();
+                var description = ""; // TODO find way to get description from MLflow API.
 
                 var versions = registeredModel
                     .getVersions()
                     .stream()
                     .map(v -> {
                         var registered = ActionMetadata.apply(
-                            v
-                                .getUser()
-                                .replace("michaelwellner", "michael"),
-                            // TODO ensure right user names tracked by MLflow.
+                            v.getUser(),
                             v.getCreated());
 
                         var version = ModelVersion.apply(
-                            v.getVersion(), v.getDescription(),
-                            registered, v.getFlavors(), v.getStage(), defaultQuestionnaire);
+                            v.getVersion(), registered, v.getFlavors(), ModelVersionStage.forValue(v.getStage()));
 
                         if (v
                             .getGitCommit()
@@ -91,32 +95,14 @@ public final class ModelCompanion {
                             version = version.withGitDetails(gitDetails);
                         }
 
-                        if (v
-                            .getExplainer()
-                            .isPresent()) {
-                            var path = Path.of(String.format(
-                                "/Users/michaelwellner/Workspaces/maquette-hub/hub/data/projects/%s/models/%s/xpl/%s" +
-                                    "/xpl.pkl",
-                                // TODO configurable Path
-                                project, name, v.getVersion()));
-
-                            Operators.suppressExceptions(() -> Files.createDirectories(path.getParent()));
-                            v
-                                .getExplainer()
-                                .get()
-                                .toFile(path);
-
-                            version = version.withExplainer(ModelExplainer.apply(path));
-                        }
+                        version = version.withExplainers(v.getExplainers());
 
                         return version;
                     })
                     .collect(Collectors.toList());
 
                 var merged = maybeModel
-                    .orElse(
-                        ModelProperties.apply(title, name, flavors, description, List.of(), versions, created, updated))
-                    .withFlavours(flavors);
+                    .orElse(ModelProperties.apply(name, description, versions, created, updated));
 
                 var versionsMap = merged
                     .getVersions()
@@ -155,20 +141,26 @@ public final class ModelCompanion {
                         }
                     })
                     .collect(Collectors.toList()));
+                return Pair.of(merged, maybeModel);
+            })
+            .thenCompose(modelProperties -> {
+                /*
+                 * Checks whether we need to update model information in our own database.
+                 * If yes, the model information is updated in database.
+                 */
+                var updatedProperties = modelProperties.getLeft();
+                var existingModelProperties = modelProperties.getRight();
+                var updateRequired = existingModelProperties.map(p -> !p.equals(updatedProperties)).orElse(true);
 
-                return merged;
+                if (updateRequired) {
+                    return this
+                        .models
+                        .insertOrUpdateModel(workspaceId, updatedProperties)
+                        .thenApply(done -> updatedProperties);
+                } else {
+                    return CompletableFuture.completedFuture(updatedProperties);
+                }
             });
-    }
-
-    private Questionnaire getQuestionnaire() {
-        // TODO mw: make path configurable
-        var classLoader = getClass().getClassLoader();
-        var inputStream = classLoader.getResourceAsStream("model-questionnaire.json");
-        var questions = Operators.suppressExceptions(() -> DefaultObjectMapperFactory
-            .apply()
-            .createJsonMapper()
-            .readValue(inputStream, JsonNode.class));
-        return Questionnaire.apply(questions);
     }
 
 }

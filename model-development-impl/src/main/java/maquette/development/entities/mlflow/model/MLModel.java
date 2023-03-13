@@ -13,7 +13,7 @@ public class MLModel {
     @JsonProperty("artifact_path")
     String artifactPath;
 
-    Map<String, Map<String, String>> flavors;
+    Map<String, Map<String, Object>> flavors;
 
     @JsonProperty("run_id")
     String runId;

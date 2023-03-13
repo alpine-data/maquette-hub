@@ -2,6 +2,7 @@ package maquette.core.common;
 
 import com.google.common.collect.Maps;
 import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.loader.StringLoader;
 import scala.jdk.javaapi.CollectionConverters;
 
 import java.io.StringWriter;
@@ -60,6 +61,25 @@ public final class Templates {
      */
     public static String renderTemplateFromResources(String resourcePath, scala.collection.Map<String, Object> values) {
         return renderTemplateFromResources(resourcePath, CollectionConverters.asJava(values));
+    }
+
+    /**
+     * Renders a template passed as string.
+     *
+     * @param template The template to be rendered.
+     * @param values The values which can be used in the template.
+     * @return The rendered template.
+     */
+    public static String renderTemplateFromString(String template, Map<String, Object> values) {
+        var engine = new PebbleEngine.Builder()
+            .autoEscaping(false)
+            .loader(new StringLoader())
+            .build();
+
+        var compiledTemplate = engine.getTemplate(template);
+        var writer = new StringWriter();
+        Operators.suppressExceptions(() -> compiledTemplate.evaluate(writer, values));
+        return writer.toString();
     }
 
 }

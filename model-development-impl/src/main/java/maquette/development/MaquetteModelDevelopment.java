@@ -12,6 +12,8 @@ import maquette.development.commands.admin.RedeployInfrastructure;
 import maquette.development.commands.applications.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
+import maquette.development.commands.models.CreateModelServiceCommand;
+import maquette.development.commands.models.GetModelViewCommand;
 import maquette.development.commands.models.GetModelsViewCommand;
 import maquette.development.commands.sandboxes.*;
 import maquette.development.configuration.ModelDevelopmentConfiguration;
@@ -22,6 +24,8 @@ import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.SandboxesRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.models.ModelOperationsPort;
+import maquette.development.ports.models.ModelServingPort;
 import maquette.development.services.SandboxServices;
 import maquette.development.services.WorkspaceServices;
 import maquette.development.services.WorkspaceServicesFactory;
@@ -29,17 +33,17 @@ import maquette.development.services.WorkspaceServicesFactory;
 import java.util.Map;
 
 @AllArgsConstructor(staticName = "apply")
-public class MaquetteModelDevelopment implements MaquetteModule {
+public final class MaquetteModelDevelopment implements MaquetteModule {
 
     public static final String MODULE_NAME = "model-development";
 
     private final WorkspaceEntities workspaces;
 
-    private final WorkspaceServices workspaceServices;
-
     private final SandboxEntities sandboxes;
 
     private final DataAssetsServicePort dataAssets;
+
+    private final ModelOperationsPort modelOperations;
 
     private MaquetteRuntime runtime;
 
@@ -50,16 +54,16 @@ public class MaquetteModelDevelopment implements MaquetteModule {
         ModelsRepository modelsRepository,
         SandboxesRepository sandboxesRepository,
         InfrastructurePort infrastructurePort,
-        DataAssetsServicePort dataAssets
-    ) {
+        DataAssetsServicePort dataAssets,
+        ModelOperationsPort modelOperations,
+        ModelServingPort modelServing) {
 
         var configuration = ModelDevelopmentConfiguration.apply();
 
-        var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort);
-        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort,
-            configuration.getStacks());
-        var workspaceServices = WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, sandboxes);
-        return apply(workspaces, workspaceServices, sandboxes, dataAssets, runtime);
+        var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort, modelServing);
+        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort, configuration.getStacks());
+
+        return apply(workspaces, sandboxes, dataAssets, modelOperations, runtime);
     }
 
     @Override
@@ -113,6 +117,8 @@ public class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("workspaces applications list", ListApplicationsCommand.class);
 
         commands.put("workspaces models view", GetModelsViewCommand.class);
+        commands.put("workspaces model view", GetModelViewCommand.class);
+        commands.put("workspaces models create-service", CreateModelServiceCommand.class);
 
         commands.put("workspaces admin redeploy", RedeployInfrastructure.class);
 
@@ -129,15 +135,15 @@ public class MaquetteModelDevelopment implements MaquetteModule {
     }
 
     public SandboxServices getSandboxServices() {
-        return WorkspaceServicesFactory
-            .createSandboxServices(
-                workspaces, dataAssets, sandboxes,
-                runtime.getModule(UserModule.class).getUsers()
-            );
+        return WorkspaceServicesFactory.createSandboxServices(
+            workspaces, dataAssets, modelOperations, sandboxes, runtime
+            .getModule(UserModule.class)
+            .getUsers());
     }
 
     public WorkspaceServices getWorkspaceServices() {
-        return workspaceServices;
+        var users = runtime.getModule(UserModule.class).getUsers();
+        return WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, modelOperations, sandboxes, users);
     }
 
     public WorkspaceEntities getWorkspaces() {

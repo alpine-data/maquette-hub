@@ -4,18 +4,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Value
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SynapseStackConfiguration extends DefaultStackConfiguration {
+public class SynapseStackConfiguration extends DefaultStackConfiguration {
 
     private static final String SPARK_SIZE = "sparkSize";
 
@@ -23,7 +21,7 @@ public final class SynapseStackConfiguration extends DefaultStackConfiguration {
      * A T-Shirt size indicating resources of the Workspace.
      */
     @JsonProperty(SPARK_SIZE)
-    private final String sparkSize;
+    String sparkSize;
 
     @JsonCreator
     public static SynapseStackConfiguration apply(

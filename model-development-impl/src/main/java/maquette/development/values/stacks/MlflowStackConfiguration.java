@@ -39,6 +39,11 @@ public class MlflowStackConfiguration extends DefaultStackConfiguration {
     public static final String PARAM_MLFLOW_TRACKING_URL = "MLFLOW_TRACKING_URI";
 
     /**
+     * Defines the S3 storage account URL where MLflow clients save their artifacts.
+     */
+    public static final String PARAM_MLFLOW_S3_ENDPOINT_URL = "MLFLOW_S3_ENDPOINT_URL";
+
+    /**
      * Defines the URL which is required by Maquette Hub and Sandboxes to access the MLFlow API.
      * <p>
      * Parameter must be set by infrastructure implementation and returned with
@@ -53,6 +58,12 @@ public class MlflowStackConfiguration extends DefaultStackConfiguration {
      * {@link maquette.development.ports.infrastructure.InfrastructurePort#getInstanceParameters(UID, String)}.
      */
     public static final String PARAM_INTERNAL_MLFLOW_TRACKING_URL = "INTERNAL_MLFLOW_TRACKING_URI";
+
+    /**
+     * Defines the S3 storage account URL where MLflow clients within internal network (sandboxes) to
+     * save their artifacts.
+     */
+    public static final String PARAM_INTERNAL_MLFLOW_S3_ENDPOINT_URL = "INTERNAL_MLFLOW_S3_ENDPOINT_URL";
 
     /**
      * The SASToken used for user authentication against MLFlows object storage.

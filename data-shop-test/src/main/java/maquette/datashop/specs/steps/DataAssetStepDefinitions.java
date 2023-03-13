@@ -1,5 +1,6 @@
 package maquette.datashop.specs.steps;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,7 @@ import maquette.datashop.commands.requests.ListAccessRequestsCommand;
 import maquette.datashop.ports.FakeWorkspacesServicePort;
 import maquette.datashop.values.access.DataAssetMemberRole;
 import maquette.datashop.values.access_requests.DataAccessRequestProperties;
-import maquette.datashop.values.metadata.DataClassification;
-import maquette.datashop.values.metadata.DataVisibility;
-import maquette.datashop.values.metadata.DataZone;
-import maquette.datashop.values.metadata.PersonalInformation;
+import maquette.datashop.values.metadata.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -104,9 +102,9 @@ public class DataAssetStepDefinitions {
                 user
                     .getId()
                     .getValue(),
-                null,
-                null,
-                null)
+                "bob",
+                AdditionalProperties.fake(),
+                JsonNodeFactory.instance.objectNode())
 
             .run(user, runtime)
             .toCompletableFuture()
@@ -133,9 +131,9 @@ public class DataAssetStepDefinitions {
                 user
                     .getId()
                     .getValue(),
-                null,
-                null,
-                null)
+                "bob",
+                AdditionalProperties.fake(),
+                JsonNodeFactory.instance.objectNode())
             .run(user, runtime)
             .toCompletableFuture()
             .get()

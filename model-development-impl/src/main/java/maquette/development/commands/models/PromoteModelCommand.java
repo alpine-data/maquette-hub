@@ -10,6 +10,7 @@ import maquette.core.server.commands.CommandResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
+import maquette.development.values.model.ModelVersionStage;
 
 import java.util.concurrent.CompletionStage;
 
@@ -24,7 +25,7 @@ public class PromoteModelCommand implements Command {
 
     String version;
 
-    String stage;
+    ModelVersionStage stage;
 
     @Override
     public CompletionStage<CommandResult> run(User user, MaquetteRuntime runtime) {
@@ -37,7 +38,7 @@ public class PromoteModelCommand implements Command {
 
     @Override
     public Command example() {
-        return apply("some-workspace", "model", "1.0", "uat");
+        return apply("some-workspace", "model", "1.0", ModelVersionStage.STAGING);
     }
 
 }

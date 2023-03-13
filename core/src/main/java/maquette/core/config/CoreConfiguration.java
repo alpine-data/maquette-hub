@@ -104,4 +104,8 @@ public class CoreConfiguration {
      */
     @Value("auth-token-secret-header-name")
     String authTokenSecretHeaderName;
+
+    @Value("enable-elastic-apm")
+    boolean enableElasticApm;
+
 }

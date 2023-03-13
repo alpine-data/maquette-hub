@@ -3,18 +3,16 @@ package maquette.development.values.stacks;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Maps;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Value
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PostgresStackConfiguration extends DefaultStackConfiguration {
+public class PostgresStackConfiguration extends DefaultStackConfiguration {
 
     private static final String DB_USERNAME = "dbUsername";
     private static final String DB_PASSWORD = "dbPassword";
@@ -22,16 +20,16 @@ public final class PostgresStackConfiguration extends DefaultStackConfiguration 
     private static final String PG_PASSWORD = "pgPassword";
 
     @JsonProperty(DB_USERNAME)
-    private final String dbUsername;
+    String dbUsername;
 
     @JsonProperty(DB_PASSWORD)
-    private final String dbPassword;
+    String dbPassword;
 
     @JsonProperty(PG_EMAIL)
-    private final String pgEmail;
+    String pgEmail;
 
     @JsonProperty(PG_PASSWORD)
-    private final String pgPassword;
+    String pgPassword;
 
     @JsonCreator
     public static PostgresStackConfiguration apply(

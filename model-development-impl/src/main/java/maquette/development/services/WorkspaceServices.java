@@ -1,7 +1,6 @@
 package maquette.development.services;
 
 import akka.Done;
-import com.fasterxml.jackson.databind.JsonNode;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.applications.model.Application;
 import maquette.core.values.authorization.Authorization;
@@ -14,12 +13,13 @@ import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
+import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.governance.CodeIssue;
+import maquette.development.values.model.services.ModelServiceProperties;
 import maquette.development.values.stacks.VolumeProperties;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 public interface WorkspaceServices {
@@ -36,6 +36,35 @@ public interface WorkspaceServices {
     CompletionStage<Done> create(User user, String name, String title, String summary);
 
     /**
+     * Creates a service to serve the model as an API.
+     * This will create a new Git repository including the required code to serve a model and the DevOps Pipeline
+     * to deploy the service.
+     *
+     * @param user      The user who executes the action.
+     * @param workspace The name of the workspace the model belongs to.
+     * @param model     The name of the model.
+     * @param version   The version of the model.
+     * @param service   The name of the service to create.
+     * @return ModelServiceProperties which contain links to the created service.
+     */
+    CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
+                                                               String version, String service);
+
+    /**
+     * Get environment variables/ properties for a workspace.
+     *
+     * @param user            The user who requests the environment.
+     * @param workspace       The name of the workspace for which the environment should be provided.
+     * @param environmentType The type of the environment.
+     * @param returnBase64    If true, all environment values are returned as Base64 string. Under some circumstances
+     *                        this is required, e.g. if Azure Storage Authentication keys are shared.
+     *                        If unsure, enable `returnBase64` and decode the response on client-side.
+     * @return The environment variables for the workspace.
+     */
+    CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType,
+                                                        boolean returnBase64);
+
+    /**
      * Get environment variables/ properties for a workspace.
      *
      * @param user            The user who requests the environment.
@@ -43,18 +72,8 @@ public interface WorkspaceServices {
      * @param environmentType The type of the environment.
      * @return The environment variables for the workspace.
      */
-    CompletionStage<Map<String, String>> environment(User user, String workspace, EnvironmentType environmentType);
-
-    /**
-     * See {@link WorkspaceServices#environment(User, String, EnvironmentType)}. The environment type defaults to
-     * {@link EnvironmentType#EXTERNAL}
-     *
-     * @param user      The user who requests the environment.
-     * @param workspace The name of the workspace for which the environment should be provided.
-     * @return The environment variables for the workspace.
-     */
-    default CompletionStage<Map<String, String>> environment(User user, String workspace) {
-        return environment(user, workspace, EnvironmentType.EXTERNAL);
+    default CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType) {
+        return getEnvironment(user, workspace, environmentType, true);
     }
 
     /**
@@ -124,37 +143,10 @@ public interface WorkspaceServices {
      * @param user        The user who updates the properties.
      * @param workspace   The name of the workspace the model belongs to.
      * @param model       The name of the model which should be updated.
-     * @param title       The new title of the model.
      * @param description The new description of the model.
      * @return Done.
      */
-    CompletionStage<Done> updateModel(User user, String workspace, String model, String title, String description);
-
-    /**
-     * Updates properties of a model version.
-     *
-     * @param user        The user who updates the properties.
-     * @param workspace   The name of the workspace the model belongs to.
-     * @param model       The name of the model.
-     * @param version     The version of the model.
-     * @param description The updated description of the version.
-     * @return Done.
-     */
-    CompletionStage<Done> updateModelVersion(User user, String workspace, String model, String version,
-                                             String description);
-
-    /**
-     * Submit responses to the model questionnaire.
-     *
-     * @param user      The user who submits the responses.
-     * @param workspace The name of the workspace the model belongs to.
-     * @param model     The name of the model.
-     * @param version   The version of the model.
-     * @param responses The responses of the questionnaire.
-     * @return Done.
-     */
-    CompletionStage<Done> answerQuestionnaire(User user, String workspace, String model, String version,
-                                              JsonNode responses);
+    CompletionStage<Done> updateModel(User user, String workspace, String model, String description);
 
     /**
      * Approve a model version for production deployment.
@@ -177,7 +169,8 @@ public interface WorkspaceServices {
      * @param stage     The stage to which the model should be promoted.
      * @return Done.
      */
-    CompletionStage<Done> promoteModel(User user, String workspace, String model, String version, String stage);
+    CompletionStage<Done> promoteModel(User user, String workspace, String model, String version,
+                                       ModelVersionStage stage);
 
     /**
      * Reject a model version for production usage.
@@ -228,16 +221,6 @@ public interface WorkspaceServices {
      * @return Done.
      */
     CompletionStage<Done> runExplainer(User user, String workspace, String model, String version);
-
-    /**
-     * Returns the questionnaire answers for the previous version of a model.
-     *
-     * @param user      The user who requests the answers.
-     * @param workspace The name of the workspace the model belongs to.
-     * @param model     The name of the model.
-     * @return The latest questionnaire answers, if present.
-     */
-    CompletionStage<Optional<JsonNode>> getLatestQuestionnaireAnswers(User user, String workspace, String model);
 
     /*
      * Manage model roles
@@ -311,11 +294,12 @@ public interface WorkspaceServices {
 
     /**
      * Create an application for app-based access to given workspace
-     * @param runtime maquette runtime
-     * @param user the user who executes the action
+     *
+     * @param runtime       maquette runtime
+     * @param user          the user who executes the action
      * @param workspaceName the workspace name
-     * @param name the application name
-     * @param metaInfo additional meta data
+     * @param name          the application name
+     * @param metaInfo      additional meta data
      * @return application object with secret
      */
     CompletionStage<Application> createApplication(MaquetteRuntime runtime, User user, String workspaceName,
@@ -352,12 +336,14 @@ public interface WorkspaceServices {
      * @param applicationName the application name
      * @return Done.
      */
-    CompletionStage<Done> removeApplication(MaquetteRuntime runtime, User user, String workspaceName, String applicationName);
+    CompletionStage<Done> removeApplication(MaquetteRuntime runtime, User user, String workspaceName,
+                                            String applicationName);
 
     /**
      * Find all applications with access to given workspace
-     * @param runtime maquette runtime
-     * @param user the user who executes the action
+     *
+     * @param runtime       maquette runtime
+     * @param user          the user who executes the action
      * @param workspaceName the workspace name
      * @return List of all applications in the workspace.
      */

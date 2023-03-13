@@ -8,7 +8,6 @@ import io.javalin.Javalin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.With;
 import maquette.core.common.Operators;
 import maquette.core.config.MaquetteConfiguration;
 import maquette.core.databind.DefaultObjectMapperFactory;
@@ -33,12 +32,13 @@ import java.util.Objects;
 
 /**
  * MaquetteRuntime encapsulates all core elements of Maquette, to enabled modules to access these (e.g. the
- * underlying Actor System,
- * the Web Server, configuration, etc.),
- * <p>
+ * underlying Actor System, the Web Server, configuration, etc.).
+ *
  * The runtime has two states: Before initialization and after initialization. Before initialization new modules (or
  * module factories) can be registered.
- * Afterwards (after initialization) all values are only for read only.
+ *
+ * Afterwards (after initialization) all values are only for read only. Be aware that this class is implemented as
+ * **mutable** class. Thus avoid to return new instances on Methods which have a return type {@link MaquetteRuntime}.
  */
 @Getter
 @Setter
@@ -50,52 +50,44 @@ public final class MaquetteRuntime {
     /**
      * The underlying webserver. This will be set and initialized during initialization.
      */
-    @With
     @Nullable
     Javalin app;
 
     /**
-     * The underlying actor system. This will be set and initilaized during intialization.
+     * The underlying actor system. This will be set and initialized during initialization.
      */
-    @With
     @Nullable
     ActorSystem system;
 
     /**
      * The application configuration of this Maquette instance.
      */
-    @With
     MaquetteConfiguration config;
 
     /**
      * The default object mapper factory of Maquette.
      */
-    @With
     ObjectMapperFactory objectMapperFactory;
 
     /**
      * The default quartz cron scheduler of Maquette.
      */
-    @With
     CronScheduler scheduler;
 
     /**
      * The authentication handler configured for the Maquette instance. It's responsible to identify (authenticate)
      * as user based on the HTTP request, received by Maquette's webserver.
      */
-    @With
     AuthenticationHandler authenticationHandler;
 
     /**
      * An instance of a database port where user information can be stored.
      */
-    @With
     UsersRepository usersRepository;
 
     /**
      * An instance of a database port where application information can be stored.
      */
-    @With
     ApplicationsRepository applicationsRepository;
 
     /**
@@ -135,6 +127,25 @@ public final class MaquetteRuntime {
 
         return apply(null, null, cfg, omf, scheduler, ath, usr, app, Lists.newArrayList(),
             Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
+    }
+
+    public MaquetteRuntime withObjectMapperFactory(ObjectMapperFactory om) {
+        this.objectMapperFactory = om;
+        return this;
+    }
+
+    public MaquetteRuntime withUsersRepository(UsersRepository users) {
+        shouldNotBeInitialized();
+
+        this.usersRepository = users;
+        return this;
+    }
+
+    public MaquetteRuntime withApplicationsRepository(ApplicationsRepository applicationsRepository) {
+        shouldNotBeInitialized();
+
+        this.applicationsRepository = applicationsRepository;
+        return this;
     }
 
     /**

@@ -102,5 +102,8 @@
 
         <module>model-development-impl</module>
         <module>model-development-test</module>
+
+        <module>model-operations-impl</module>
+        <module>model-operations-test</module>
     </modules>
 </project>

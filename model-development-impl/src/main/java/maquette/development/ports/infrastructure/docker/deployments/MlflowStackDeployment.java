@@ -139,22 +139,49 @@ public class MlflowStackDeployment implements StackDeployment {
         return Operators.compose(mlflowPortsCS, minioPortsCS, (mlflowPorts, minioPorts) -> {
             var mlflowUrl = mlflowPorts
                 .get(5000)
-                .toString()
-                .replace("localhost", "host.docker.internal");
+                .toString();
             var minioUrl = minioPorts
                 .get(9000)
-                .toString()
-                .replace("localhost", "host.docker.internal");
+                .toString();
 
             var parameters = Maps.<String, String>newHashMap();
 
-            parameters.put(MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT, mlflowUrl);
-            parameters.put(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT, mlflowUrl);
+            /*
+             * MLflow endpoint
+             */
+            parameters.put(
+                MlflowStackConfiguration.PARAM_MLFFLOW_ENDPOINT,
+                mlflowUrl.replace("host.docker.internal", "localhost"));
 
-            parameters.put(MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL, mlflowUrl);
-            parameters.put(MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL, mlflowUrl);
+            parameters.put(
+                MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_ENDPOINT,
+                mlflowUrl.replace("localhost", "host.docker.internal"));
 
-            parameters.put("MLFLOW_S3_ENDPOINT_URL", minioUrl);
+            /*
+             * MLflow tracking URI
+             */
+            parameters.put(
+                MlflowStackConfiguration.PARAM_MLFLOW_TRACKING_URL,
+                mlflowUrl.replace("host.docker.internal", "localhost"));
+
+            parameters.put(
+                MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_TRACKING_URL,
+                mlflowUrl.replace("localhost", "host.docker.internal"));
+
+            /*
+             * MLflow S3 endpoints
+             */
+            parameters.put(
+                MlflowStackConfiguration.PARAM_MLFLOW_S3_ENDPOINT_URL,
+                minioUrl.replace("host.docker.internal", "localhost"));
+
+            parameters.put(
+                MlflowStackConfiguration.PARAM_INTERNAL_MLFLOW_S3_ENDPOINT_URL,
+                minioUrl.replace("localhost", "host.docker.internal"));
+
+            /*
+             * MLflow S3 authorisation
+             */
             parameters.put("AWS_ACCESS_KEY_ID", minioAccessKey);
             parameters.put("AWS_SECRET_ACCESS_KEY", minioAccessSecret);
             parameters.put("AWS_DEFAULT_REGION", MINIO_REGION);

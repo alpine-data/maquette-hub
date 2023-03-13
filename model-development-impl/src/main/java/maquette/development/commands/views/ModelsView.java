@@ -39,24 +39,26 @@ public class ModelsView implements CommandResult {
                     .stream()
                     .max(Comparator.comparing(v -> v
                         .getRegistered()
-                        .getAt()))
-                    .map(ModelVersion::getVersion);
+                        .getAt()));
 
-                Map<String, ModelVersion> modelVersions = Maps.newHashMap();
-                m
+                var latestVersionName = latestVersion.map(ModelVersion::getVersion);
+
+                Map<String, ModelVersion> modelVersions = m
                     .getVersions()
-                    .forEach(v -> {
-                        modelVersions.put(v.getVersion(), v);
-                    });
+                    .stream()
+                    .collect(Collectors.toMap(ModelVersion::getVersion, v -> v));
 
                 modelsMapped.put(m.getName(), m);
                 versions.put(m.getName(), modelVersions);
 
                 return ModelSummary.apply(
-                    m.getTitle(), m.getName(), m.getFlavours(), m.getDescription(), m
-                        .getVersions()
-                        .size(),
-                    latestVersion.orElse("-"), m.getCreated(), m.getUpdated());
+                    m.getName(),
+                    latestVersion.map(ModelVersion::getFlavours).orElse(Set.of()),
+                    m.getDescription(),
+                    m.getVersions().size(),
+                    latestVersionName.orElse("-"),
+                    m.getCreated(),
+                    m.getUpdated());
             })
             .collect(Collectors.toList());
 
@@ -66,8 +68,6 @@ public class ModelsView implements CommandResult {
     @Value
     @AllArgsConstructor(staticName = "apply")
     public static class ModelSummary {
-
-        String title;
 
         String name;
 

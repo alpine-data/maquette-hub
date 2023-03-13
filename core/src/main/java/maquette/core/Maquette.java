@@ -64,7 +64,10 @@ public final class Maquette {
      * @return The Maquette instance itself.
      */
     public Maquette start() {
-        ElasticApmAttacher.attach();
+        if (this.runtime.getConfig().getCore().isEnableElasticApm()) {
+            ElasticApmAttacher.attach();
+        }
+
         LOG.info("Starting Maquette Core ...");
 
         /*

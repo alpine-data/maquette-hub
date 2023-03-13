@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -100,6 +101,35 @@ public final class Docker {
                 return containerId;
             })
             .thenApply(containerId -> ops.startContainer(config, containerId));
+    }
+
+    public void cleanDockerResources() {
+        this.client
+            .listContainersCmd()
+            .withFilter("name", List.of("mq--*", "mlflow--*", "mrs--"))
+            .withShowAll(true)
+            .exec()
+            .forEach(container -> {
+                LOG.info("Removing container `" + String.join(", ", container.getNames()) + "` ...");
+                try {
+                    this.client.removeContainerCmd(container.getId()).withForce(true).exec();
+                } catch (Exception e) {
+                    // Ignore ...
+                }
+            });
+
+        this.client
+            .listNetworksCmd()
+            .withNameFilter("mq--*", "mlflow--*", "mrs--")
+            .exec()
+            .forEach(network -> {
+                LOG.info("Removing network `" + network.getName() + "` ...");
+                try {
+                    this.client.removeNetworkCmd(network.getId()).exec();
+                } catch (Exception e) {
+                    // Ignore
+                }
+            });
     }
 
 }

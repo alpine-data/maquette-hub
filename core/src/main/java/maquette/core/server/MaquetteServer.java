@@ -138,6 +138,7 @@ public final class MaquetteServer {
             var cfg = runtime
                 .getConfig()
                 .getCore();
+
             try {
                 // check for application based auth
                 if (headers.containsKey(cfg.getApplicationIdHeaderName())

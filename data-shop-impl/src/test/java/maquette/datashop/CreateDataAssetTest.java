@@ -22,12 +22,8 @@ public class CreateDataAssetTest {
     }
 
     /**
-     * TODO mw: Write meaningful tests ...
-     *
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * Simple smoke test.
      */
-
     @Test
     public void smokeTest() throws ExecutionException, InterruptedException {
         context.shop

@@ -31,7 +31,7 @@ public class UpdateModelCommand implements Command {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
-            .updateModel(user, project, model, title, description)
+            .updateModel(user, project, model, description)
             .thenApply(pid -> MessageResult.apply("Successfully updated model."));
     }
 

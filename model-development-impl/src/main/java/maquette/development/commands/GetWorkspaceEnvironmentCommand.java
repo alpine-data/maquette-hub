@@ -35,7 +35,7 @@ public class GetWorkspaceEnvironmentCommand implements Command {
         return runtime
             .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
-            .environment(user, workspace, environmentType)
+            .getEnvironment(user, workspace, environmentType)
             .thenApply(properties -> {
                 var table = Table
                     .create()
@@ -47,6 +47,8 @@ public class GetWorkspaceEnvironmentCommand implements Command {
                     .forEach(p -> {
                         var row = table.appendRow();
                         row.setString(KEY, p);
+
+
                         row.setString(VALUE, properties.get(p));
                     });
 

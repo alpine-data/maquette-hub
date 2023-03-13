@@ -17,6 +17,9 @@ public class ModelDevelopmentConfiguration {
     @Value("stacks")
     private StacksConfiguration stacks;
 
+    @Value("model-serving")
+    private ModelServingConfiguration modelServing;
+
     public static ModelDevelopmentConfiguration apply() {
         return Configs.mapToConfigClass(ModelDevelopmentConfiguration.class, "maquette.model-development");
     }

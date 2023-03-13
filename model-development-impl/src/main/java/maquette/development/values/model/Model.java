@@ -12,25 +12,61 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This class represents a model.
+ */
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
 public class Model {
 
+    /**
+     * Atomic values (properties) of a model.
+     */
     ModelProperties properties;
 
+    /**
+     * Assigned user roles related to the model.
+     */
     List<GrantedAuthorization<ModelMemberRole>> members;
 
+    /**
+     * Available permissions the current user has on the model.
+     * This object instance is derived based on the requesting user.
+     */
     ModelPermissions permissions;
 
+    /**
+     * Information about deployed services. The type of the services is not
+     * specified here as the actual value is retrieved from model operations' module.
+     */
+    List<Object> services;
+
+    /**
+     * Creates a new instance based upon properties and additional required information.
+     *
+     * @param properties See {@link Model#properties}.
+     * @param members See {@link Model#members}.
+     * @param permissions See {@link Model#permissions}.
+     * @param services See {@link Model#services}.
+     * @return A new instance.
+     */
     public static Model fromProperties(ModelProperties properties,
                                        List<GrantedAuthorization<ModelMemberRole>> members,
-                                       ModelPermissions permissions) {
+                                       ModelPermissions permissions,
+                                       List<Object> services) {
         return apply(properties,
             members,
-            permissions);
+            permissions,
+            services);
     }
 
+    /**
+     * Returns a model version based on its name.
+     *
+     * @param version The name the version (as tracked in MLflow).
+     * @return The version if found.
+     */
     public Optional<ModelVersion> findVersion(String version) {
         return properties
             .getVersions()
@@ -41,6 +77,11 @@ public class Model {
             .findAny();
     }
 
+    /**
+     * Returns number of exceptions in the latest version of the model.
+     *
+     * @return Number of exceptions.
+     */
     @JsonProperty("exceptions")
     public long getExceptions() {
         return properties
@@ -66,6 +107,11 @@ public class Model {
             .orElse(0L);
     }
 
+    /**
+     * Returns a number of warnings from the latest version of the model.
+     *
+     * @return Number of warnings.
+     */
     @JsonProperty("warnings")
     public long getWarnings() {
         return properties

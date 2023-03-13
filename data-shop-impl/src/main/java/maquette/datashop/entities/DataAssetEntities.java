@@ -42,7 +42,6 @@ public final class DataAssetEntities {
             .findDataAssetByName(metadata.getName())
             .thenCompose(optEntity -> {
                 if (optEntity.isPresent()) {
-                    // TODO mw: Check for idempotent message from same.
                     return CompletableFuture.failedFuture(DataAssetAlreadyExistsException.withName(metadata.getName()));
                 } else if (customSettings != null && !providers
                     .getByName(type)
