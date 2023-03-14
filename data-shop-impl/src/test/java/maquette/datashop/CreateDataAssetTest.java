@@ -42,4 +42,24 @@ public class CreateDataAssetTest {
         assertThat(assets).hasSize(1);
     }
 
+    @Test
+    public void testWithoutStewardAndOwner() throws ExecutionException, InterruptedException {
+        context
+            .shop
+            .getServices()
+            .create(
+                mq.users.alice, FakeProvider.NAME, DataAssetMetadata.sample(), null, null, null
+            )
+            .toCompletableFuture()
+            .get();
+
+        var assets = context.shop
+            .getServices()
+            .list(mq.users.alice)
+            .toCompletableFuture()
+            .get();
+
+        assertThat(assets).hasSize(1);
+    }
+
 }

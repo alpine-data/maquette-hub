@@ -35,12 +35,16 @@ public final class AuthorizationValidator implements Validator<Authorization> {
 
     @Override
     public boolean validate(ValidationContext context, String fieldName, Authorization value) {
-        if (required && Objects.isNull(value)) {
-            context.addErrorMessage("`%s` must be set");
+        if (!required && Objects.isNull(value)) {
+            return true;
+        }
+
+        if (Objects.isNull(value)) {
+            context.addErrorMessage("`%s` must be set", fieldName);
         }
 
         if (!Objects.isNull(authType) && !authType.isInstance(value)) {
-            context.addErrorMessage("authorization type is not allowed for field `%s`");
+            context.addErrorMessage("authorization type is not allowed for field `%s`", fieldName);
         }
 
         if (!Objects.isNull(value)) {
