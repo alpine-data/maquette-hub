@@ -10,7 +10,7 @@ import maquette.core.values.UID;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
-import maquette.development.entities.mlflow.MlflowClient;
+import maquette.development.entities.mlflow.client.MlflowClient;
 import maquette.development.entities.mlflow.ModelCompanion;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.models.ModelServingPort;
@@ -20,8 +20,7 @@ import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
 import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.events.AutomaticallyPromoted;
-import maquette.development.values.model.events.ModelVersionEvent;
-import maquette.development.values.model.mlflow.ModelFromRegistry;
+import maquette.development.entities.mlflow.client.ModelFromRegistry;
 import maquette.development.values.model.services.ModelServiceProperties;
 
 import java.time.Instant;

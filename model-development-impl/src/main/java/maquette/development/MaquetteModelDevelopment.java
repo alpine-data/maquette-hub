@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
 import maquette.core.modules.users.UserModule;
+import maquette.core.scheduler.model.CronExpression;
 import maquette.core.server.commands.Command;
 import maquette.core.values.UID;
 import maquette.development.commands.*;
@@ -29,13 +30,19 @@ import maquette.development.ports.models.ModelServingPort;
 import maquette.development.services.SandboxServices;
 import maquette.development.services.WorkspaceServices;
 import maquette.development.services.WorkspaceServicesFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteModelDevelopment implements MaquetteModule {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MaquetteModelDevelopment.class);
+
     public static final String MODULE_NAME = "model-development";
+
+    private final ModelDevelopmentConfiguration configuration;
 
     private final WorkspaceEntities workspaces;
 
@@ -60,10 +67,12 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
 
         var configuration = ModelDevelopmentConfiguration.apply();
 
-        var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort, modelServing);
-        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort, configuration.getStacks());
+        var workspaces = WorkspaceEntities.apply(workspacesRepository, modelsRepository, infrastructurePort,
+            modelServing);
+        var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort,
+            configuration.getStacks());
 
-        return apply(workspaces, sandboxes, dataAssets, modelOperations, runtime);
+        return apply(configuration, workspaces, sandboxes, dataAssets, modelOperations, runtime);
     }
 
     @Override
@@ -76,6 +85,20 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         MaquetteModule.super.start(runtime);
 
         this.runtime = runtime;
+
+        if (configuration.getMlflow().isSyncEnabled()) {
+            runtime.getScheduler().schedule(
+                "workspaces--update-models",
+                CronExpression.apply(configuration.getMlflow().getSyncCron()),
+                () -> {
+                    LOG.info("Running updates of Model information from MLflow instances.");
+                    this
+                        .workspaces
+                        .refreshModelInformationFromMlflow()
+                        .thenRun(() -> LOG.info("Finished updates of Model information from MLflow instances."));
+                }
+            );
+        }
 
         runtime
             .getApp()
@@ -137,13 +160,14 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
     public SandboxServices getSandboxServices() {
         return WorkspaceServicesFactory.createSandboxServices(
             workspaces, dataAssets, modelOperations, sandboxes, runtime
-            .getModule(UserModule.class)
-            .getUsers());
+                .getModule(UserModule.class)
+                .getUsers());
     }
 
     public WorkspaceServices getWorkspaceServices() {
         var users = runtime.getModule(UserModule.class).getUsers();
-        return WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, modelOperations, sandboxes, users);
+        return WorkspaceServicesFactory.createWorkspaceServices(workspaces, dataAssets, modelOperations, sandboxes,
+            users);
     }
 
     public WorkspaceEntities getWorkspaces() {

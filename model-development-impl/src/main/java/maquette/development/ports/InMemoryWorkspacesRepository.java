@@ -74,6 +74,17 @@ public final class InMemoryWorkspacesRepository implements WorkspacesRepository 
     }
 
     @Override
+    public CompletionStage<Stream<WorkspaceProperties>> findAllWorkspaces() {
+        return CompletableFuture.completedFuture(
+            this
+                .store
+                .values()
+                .stream()
+                .map(WorkspacePersisted::getProperties)
+        );
+    }
+
+    @Override
     public CompletionStage<Optional<WorkspaceProperties>> findWorkspaceByName(String name) {
         var result = store
             .values()

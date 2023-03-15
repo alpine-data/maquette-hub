@@ -16,12 +16,16 @@ import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.exceptions.ModelNotFoundException;
 import maquette.development.values.exceptions.WorkspaceAlreadyExistsException;
 import maquette.development.values.exceptions.WorkspaceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +33,8 @@ import java.util.stream.Collectors;
  */
 @AllArgsConstructor(staticName = "apply")
 public final class WorkspaceEntities { // implements maquette.workspaces.api.WorkspaceEntities {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WorkspaceEntities.class);
 
     /**
      * Repository to store/ read workspace information.
@@ -86,6 +92,56 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
                         .insertOrUpdateWorkspace(properties)
                         .thenApply(done -> properties);
                 }
+            });
+    }
+
+    /**
+     * Use this function to trigger refresh of all model information from MLflow instances.
+     *
+     * This is a long running-process and should be triggered in background.
+     *
+     * @return Done.
+     */
+    public CompletionStage<Done> refreshModelInformationFromMlflow() {
+        var pool = Executors.newFixedThreadPool(5);
+
+        return repository
+            .findAllWorkspaces()
+            .thenCompose(workspaces -> {
+                var updates = workspaces.map(workspaceProperties -> {
+                    var workspace = WorkspaceEntity.apply(
+                        workspaceProperties.getId(), repository, models, modelServing, infrastructurePort
+                    );
+
+                    return (CompletionStage<Done>) CompletableFuture
+                        .supplyAsync(
+                            () -> {
+                                LOG.trace("Updating models for {}", workspaceProperties.getName());
+
+                                return Operators.suppressExceptions(() -> workspace
+                                    .getModels()
+                                    .thenApply(ModelEntities::getModels)
+                                    .toCompletableFuture()
+                                    .get());
+                            },
+                            pool
+                        )
+                        .thenApply(i -> Done.getInstance())
+                        .exceptionally(ex -> {
+                            LOG.warn(MessageFormat.format(
+                                "Exception occurred updating models for workspace `{0}`",
+                                workspaceProperties.getName()
+                            ));
+
+                            return Done.getInstance();
+                        });
+                });
+
+                return Operators.allOf(updates);
+            })
+            .thenApply(all -> {
+                pool.shutdown();
+                return Done.getInstance();
             });
     }
 

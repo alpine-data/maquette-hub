@@ -13,6 +13,8 @@ import java.util.concurrent.CompletionStage;
 
 public interface ModelsRepository {
 
+    CompletionStage<List<ModelProperties>> findAllModelsByWorkspace(UID workspace);
+
     CompletionStage<Done> insertOrUpdateModel(UID workspace, ModelProperties model);
 
     CompletionStage<Optional<ModelProperties>> findModelByName(UID workspace, String name);

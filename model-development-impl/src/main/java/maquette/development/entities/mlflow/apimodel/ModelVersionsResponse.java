@@ -1,4 +1,4 @@
-package maquette.development.entities.mlflow.model;
+package maquette.development.entities.mlflow.apimodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class RegisteredModelsResponse {
+public final class ModelVersionsResponse {
 
-    @JsonProperty("registered_models")
-    private List<RegisteredModel> registeredModels;
+    @JsonProperty("model_versions")
+    private List<ModelVersion> modelVersions;
 
 }
