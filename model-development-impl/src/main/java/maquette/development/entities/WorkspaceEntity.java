@@ -29,9 +29,9 @@ import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.MlflowStackConfiguration;
 import maquette.development.values.stacks.StackRuntimeState;
 import maquette.development.values.stacks.VolumeProperties;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple2;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -82,15 +82,15 @@ public final class WorkspaceEntity {
             .thenCompose(
                 properties -> mlProjectCreationPort
                     .createMachineLearningProject(properties.getName(), projectName, templateType)
-                    .thenApply(mlProject -> Tuple2.apply(properties, mlProject))
+                    .thenApply(mlProject -> Pair.of(properties, mlProject))
             )
             .thenCompose(
                 tuple -> this
                     .repository
-                    .insertOrUpdateWorkspace(tuple._1
-                        .withProject(tuple._2)
+                    .insertOrUpdateWorkspace(tuple.getLeft()
+                        .withProject(tuple.getRight())
                         .withModified(ActionMetadata.apply(user)))
-                    .thenApply(done -> tuple._2)
+                    .thenApply(done -> tuple.getRight())
             );
     }
 
