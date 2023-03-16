@@ -71,7 +71,7 @@ public final class ModelEntities {
                             companion.mapModel(model);
                         });
 
-                    LOG.info("Models updated for workspace {}", workspace);
+                    LOG.debug("Models updated for workspace {}", workspace);
                 } catch (Exception ex) {
                     LOG.warn("Unable to load models for workspace {}", workspace, ex);
                 }
