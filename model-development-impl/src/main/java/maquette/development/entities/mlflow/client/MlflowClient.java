@@ -58,7 +58,10 @@ public final class MlflowClient {
         return Optional
             .ofNullable(query("/api/2.0/preview/mlflow/registered-models/list",
                 RegisteredModelsResponse.class).getRegisteredModels())
-            .orElse(List.of())
+            .orElseGet(() -> {
+                System.out.println("Received empty list of models from " + this.mlflowConfiguration.getInternalTrackingUrl());
+                return List.of();
+            })
             .stream()
             .map(registeredModel -> ModelFromRegistry.apply(this, mlflowClient, mlflowConfiguration, registeredModel))
             .collect(Collectors.toList());
