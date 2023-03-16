@@ -23,6 +23,9 @@ public class ModelDevelopmentConfiguration {
     @Value("mlflow")
     private MlflowConfiguration mlflow;
 
+    @Value("ml-projects")
+    private MLProjectsConfiguration mlProjectsConfiguration;
+
     public static ModelDevelopmentConfiguration apply() {
         return Configs.mapToConfigClass(ModelDevelopmentConfiguration.class, "maquette.model-development");
     }

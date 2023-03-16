@@ -15,10 +15,10 @@ import maquette.development.ports.InMemoryModelsRepository;
 import maquette.development.ports.InMemorySandboxesRepository;
 import maquette.development.ports.InMemoryWorkspacesRepository;
 import maquette.development.ports.infrastructure.FakeInfrastructurePort;
+import maquette.development.ports.mlprojects.InMemoryMLProjectCreationPort;
 import maquette.development.ports.models.InMemoryModelServing;
 import maquette.operations.MaquetteModelOperations;
 import maquette.operations.ports.InMemoryDeployedModelServicesRepository;
-import maquette.operations.ports.ModelDevelopmentPort;
 
 /**
  * This object ensembles Maquette Community Edition.
@@ -48,6 +48,7 @@ public class Application {
         var dataAssetsRepository = InMemoryDataAssetsRepository.apply();
 
         var modelServing = InMemoryModelServing.apply();
+        var mlProjects = InMemoryMLProjectCreationPort.apply();
 
         var workspacesRepository = InMemoryWorkspacesRepository.apply();
         var modelsRepository = InMemoryModelsRepository.apply();
@@ -58,7 +59,7 @@ public class Application {
         var modelDevelopment = MaquetteModelDevelopment.apply(
             runtime, workspacesRepository, modelsRepository,
             sandboxesRepository, infrastructurePort,
-            dataAssetsAdapter, operationsAdapter, modelServing);
+            dataAssetsAdapter, operationsAdapter, modelServing, mlProjects);
 
         var shop = MaquetteDataShop
             .apply(dataAssetsRepository, workspacesAdapter, FakeEmailClient.apply(), FakeProvider.apply());

@@ -14,18 +14,22 @@ import maquette.core.values.user.User;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.mlprojects.MLProjectCreationPort;
 import maquette.development.ports.models.ModelServingPort;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.exceptions.VolumeAlreadyExistsException;
 import maquette.development.values.exceptions.VolumeDoesntExistException;
+import maquette.development.values.mlproject.MLProjectType;
+import maquette.development.values.mlproject.MachineLearningProject;
 import maquette.development.values.sandboxes.volumes.ExistingVolume;
 import maquette.development.values.sandboxes.volumes.NewVolume;
 import maquette.development.values.sandboxes.volumes.VolumeDefinition;
 import maquette.development.values.stacks.MlflowStackConfiguration;
 import maquette.development.values.stacks.StackRuntimeState;
 import maquette.development.values.stacks.VolumeProperties;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +59,40 @@ public final class WorkspaceEntity {
 
     private final ModelServingPort modelServingPort;
 
+    private final MLProjectCreationPort mlProjectCreationPort;
+
     private final InfrastructurePort infrastructurePort;
+
+    /**
+     * See
+     * {@link maquette.development.services.WorkspaceServices#createMachineLearningProject(User, String, String, MLProjectType)}
+     *
+     * @param user         The user executing the action.
+     * @param projectName  The name of the project to be initialized.
+     * @param templateType The type of the template which should be initialized.
+     * @return Properties for the new project.
+     */
+    public CompletionStage<MachineLearningProject> createMachineLearningProject(
+        User user,
+        String projectName,
+        MLProjectType templateType) {
+
+        return this
+            .getProperties()
+            .thenCompose(
+                properties -> mlProjectCreationPort
+                    .createMachineLearningProject(properties.getName(), projectName, templateType)
+                    .thenApply(mlProject -> Pair.of(properties, mlProject))
+            )
+            .thenCompose(
+                tuple -> this
+                    .repository
+                    .insertOrUpdateWorkspace(tuple.getLeft()
+                        .withProject(tuple.getRight())
+                        .withModified(ActionMetadata.apply(user)))
+                    .thenApply(done -> tuple.getRight())
+            );
+    }
 
     public MembersCompanion<WorkspaceMemberRole> members() {
         return MembersCompanion.apply(id, repository);
@@ -196,7 +233,8 @@ public final class WorkspaceEntity {
                         })
                         .thenApply(optMlflowConfiguration -> optMlflowConfiguration
                             .map(mlflowConfiguration -> {
-                                LOG.trace("Current MLflow configuration for workspace `{}`: {}", id, mlflowConfiguration);
+                                LOG.trace("Current MLflow configuration for workspace `{}`: {}", id,
+                                    mlflowConfiguration);
 
                                 return ModelEntities.apply(id, mlflowConfiguration, models,
                                     modelServingPort);
@@ -226,21 +264,19 @@ public final class WorkspaceEntity {
                     .getVolumes();
                 if (volume instanceof NewVolume) {
                     var newVolume = (NewVolume) volume;
-                    if (volumes != null && volumes
+                    if (volumes
                         .stream()
                         .anyMatch(v -> v
                             .getName()
                             .equals(newVolume.getName()))) {
+
                         throw VolumeAlreadyExistsException.apply(newVolume.getName(), id.getValue());
                     } else {
                         var volumeConfiguration = VolumeProperties.apply(UID.apply(),
                             UID.apply(executor.getDisplayName()), newVolume.getName(), "5Gi");
-                        // case for workspaces created before volumes feature
-                        if (volumes == null)
-                            volumes = Lists.newArrayList();
-                        volumes.add(volumeConfiguration);
+
                         var updated = properties
-                            .withVolumes(volumes)
+                            .withVolume(volumeConfiguration)
                             .withModified(ActionMetadata.apply(executor));
                         repository.insertOrUpdateWorkspace(updated);
                         return volumeConfiguration;

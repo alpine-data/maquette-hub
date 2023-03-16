@@ -6,15 +6,19 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.common.validation.api.FluentValidation;
 import maquette.core.common.validation.validators.NonEmptyStringValidator;
 import maquette.core.common.validation.validators.NotNullValidator;
+import maquette.core.common.validation.validators.RegExStringValidator;
 import maquette.core.common.validation.validators.TechnicalNameValidator;
 import maquette.core.modules.applications.model.Application;
 import maquette.core.values.authorization.Authorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
+import maquette.development.configuration.ModelDevelopmentConfiguration;
 import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
+import maquette.development.values.mlproject.MLProjectType;
+import maquette.development.values.mlproject.MachineLearningProject;
 import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
@@ -32,6 +36,8 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
 
     private final WorkspaceServices delegate;
 
+    private final ModelDevelopmentConfiguration config;
+
     @Override
     public CompletionStage<Done> create(User user, String name, String title, String summary) {
         return FluentValidation
@@ -42,6 +48,22 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
             .validate("summary", summary, NonEmptyStringValidator.apply(3))
             .checkAndFail()
             .thenCompose(done -> delegate.create(user, name, title, summary));
+    }
+
+    @Override
+    public CompletionStage<MachineLearningProject> createMachineLearningProject(User user, String workspace,
+                                                                                String projectName,
+                                                                                MLProjectType templateType) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspace, NonEmptyStringValidator.apply(3))
+            .validate("projectName", projectName, RegExStringValidator.apply(
+                config.getMlProjectsConfiguration().getMlProjectNameRegex()
+            ))
+            .validate("templateType", templateType, NotNullValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.createMachineLearningProject(user, workspace, projectName, templateType));
     }
 
     @Override
@@ -156,7 +178,8 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
-    public CompletionStage<Done> promoteModel(User user, String workspace, String model, String version, ModelVersionStage stage) {
+    public CompletionStage<Done> promoteModel(User user, String workspace, String model, String version,
+                                              ModelVersionStage stage) {
         return FluentValidation
             .apply()
             .validate("user", user, NotNullValidator.apply())
