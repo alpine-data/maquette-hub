@@ -15,6 +15,8 @@ import maquette.development.values.EnvironmentType;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
+import maquette.development.values.mlproject.MLProjectType;
+import maquette.development.values.mlproject.MachineLearningProject;
 import maquette.development.values.model.Model;
 import maquette.development.values.model.ModelMemberRole;
 import maquette.development.values.model.ModelProperties;
@@ -51,12 +53,23 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     }
 
     @Override
+    public CompletionStage<MachineLearningProject> createMachineLearningProject(User user, String workspace,
+                                                                                String projectName, MLProjectType templateType) {
+        return companion
+            .withAuthorization(
+                () -> companion.isMember(user, workspace)
+            )
+            .thenCompose(ok -> delegate.createMachineLearningProject(
+                user, workspace, projectName, templateType
+            ));
+    }
+
+    @Override
     public CompletionStage<ModelServiceProperties> createModelService(User user, String workspace, String model,
                                                                       String version, String service) {
         return companion
             .withAuthorization(
-                () -> companion.isMember(user, workspace),
-                () -> companion.isAuthenticatedUser(user))
+                () -> companion.isMember(user, workspace))
             .thenCompose(ok -> delegate.createModelService(
                 user, workspace, model, version, service
             ));

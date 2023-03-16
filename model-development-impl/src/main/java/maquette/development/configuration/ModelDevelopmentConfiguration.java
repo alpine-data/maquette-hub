@@ -20,6 +20,9 @@ public class ModelDevelopmentConfiguration {
     @Value("model-serving")
     private ModelServingConfiguration modelServing;
 
+    @Value("ml-projects")
+    private MLProjectsConfiguration mlProjectsConfiguration;
+
     public static ModelDevelopmentConfiguration apply() {
         return Configs.mapToConfigClass(ModelDevelopmentConfiguration.class, "maquette.model-development");
     }

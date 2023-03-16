@@ -10,10 +10,10 @@ import maquette.core.values.user.User;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.mlprojects.MLProjectCreationPort;
 import maquette.development.ports.models.ModelServingPort;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
-import maquette.development.values.exceptions.ModelNotFoundException;
 import maquette.development.values.exceptions.WorkspaceAlreadyExistsException;
 import maquette.development.values.exceptions.WorkspaceNotFoundException;
 
@@ -49,6 +49,8 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
      * Port to instantiate new services.
      */
     private final ModelServingPort modelServing;
+
+    private final MLProjectCreationPort mlProjects;
 
     /**
      * Creates a new workspace if it does not exist.
@@ -99,7 +101,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return repository
             .findWorkspaceById(id)
             .thenApply(maybeWorkspace -> maybeWorkspace.map(project ->
-                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, infrastructurePort)));
+                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, mlProjects, infrastructurePort)));
     }
 
     /**
@@ -112,7 +114,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return repository
             .findWorkspaceByName(name)
             .thenApply(maybeWorkspace -> maybeWorkspace.map(project ->
-                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, infrastructurePort)));
+                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, mlProjects, infrastructurePort)));
     }
 
     /**
@@ -125,7 +127,9 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return repository
             .findWorkspaceById(UID.apply(mlflowId.replace(WorkspaceEntity.MLFLOW_INSTANCE_PREFIX, "")))
             .thenApply(maybeProperties -> maybeProperties.map(properties ->
-                WorkspaceEntity.apply(properties.getId(), repository, models, modelServing, infrastructurePort)));
+                WorkspaceEntity.apply(
+                    properties.getId(), repository, models, modelServing, mlProjects, infrastructurePort
+                )));
     }
 
     /**
@@ -186,7 +190,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
             .getWorkspaces()
             .thenCompose(all -> Operators.allOf(all
                 .map(p -> WorkspaceEntity
-                    .apply(p.getId(), repository, models, modelServing, infrastructurePort)
+                    .apply(p.getId(), repository, models, modelServing, mlProjects, infrastructurePort)
                     .members()
                     .getMembers()
                     .thenApply(members -> Pair.create(p, members)))))

@@ -3,6 +3,8 @@ package maquette.development.specs;
 import maquette.development.ports.*;
 import maquette.development.ports.infrastructure.FakeInfrastructurePort;
 import maquette.development.ports.infrastructure.InfrastructurePort;
+import maquette.development.ports.mlprojects.InMemoryMLProjectCreationPort;
+import maquette.development.ports.mlprojects.MLProjectCreationPort;
 import maquette.development.ports.models.FakeModelOperationsPort;
 import maquette.development.ports.models.InMemoryModelServing;
 import maquette.development.ports.models.ModelOperationsPort;
@@ -44,6 +46,11 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
     @Override
     public ModelServingPort setupModelServingPort() {
         return InMemoryModelServing.apply();
+    }
+
+    @Override
+    public MLProjectCreationPort setupMLProjectCreationPort() {
+        return InMemoryMLProjectCreationPort.apply();
     }
 
     @Override
