@@ -99,7 +99,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
 
     /**
      * Use this function to trigger refresh of all model information from MLflow instances.
-     *
+     * <p>
      * This is a long running-process and should be triggered in background.
      *
      * @return Done.
@@ -112,7 +112,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
             .thenCompose(workspaces -> {
                 var updates = workspaces.map(workspaceProperties -> {
                     var workspace = WorkspaceEntity.apply(
-                        workspaceProperties.getId(), repository, models, modelServing, infrastructurePort
+                        workspaceProperties.getId(), repository, models, modelServing, mlProjects, infrastructurePort
                     );
 
                     return (CompletionStage<Done>) CompletableFuture
@@ -157,7 +157,8 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return repository
             .findWorkspaceById(id)
             .thenApply(maybeWorkspace -> maybeWorkspace.map(project ->
-                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, mlProjects, infrastructurePort)));
+                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, mlProjects,
+                    infrastructurePort)));
     }
 
     /**
@@ -170,7 +171,8 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
         return repository
             .findWorkspaceByName(name)
             .thenApply(maybeWorkspace -> maybeWorkspace.map(project ->
-                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, mlProjects, infrastructurePort)));
+                WorkspaceEntity.apply(project.getId(), repository, models, modelServing, mlProjects,
+                    infrastructurePort)));
     }
 
     /**

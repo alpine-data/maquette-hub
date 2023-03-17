@@ -142,6 +142,8 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("workspaces update", UpdateWorkspaceCommand.class);
         commands.put("workspaces view", WorkspaceViewCommand.class);
 
+        commands.put("workspaces create-ml-project", CreateMachineLearningProjectCommand.class);
+
         commands.put("workspaces members grant", GrantWorkspaceMemberCommand.class);
         commands.put("workspaces members revoke", RevokeWorkspaceMemberCommand.class);
 
