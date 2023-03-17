@@ -16,6 +16,7 @@ import maquette.development.commands.models.CreateModelServiceCommand;
 import maquette.development.commands.models.GetModelViewCommand;
 import maquette.development.commands.models.GetModelsViewCommand;
 import maquette.development.commands.sandboxes.*;
+import maquette.development.commands.CreateMachineLearningProjectCommand.*;
 import maquette.development.configuration.ModelDevelopmentConfiguration;
 import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
@@ -132,6 +133,8 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("workspaces models create-service", CreateModelServiceCommand.class);
 
         commands.put("workspaces admin redeploy", RedeployInfrastructure.class);
+
+        commands.put("workspaces mlprojects create-mlproject", CreateMachineLearningProjectCommand.class);
 
         commands.put("sandboxes create", CreateSandboxCommand.class);
         commands.put("sandboxes get", GetSandboxCommand.class);
