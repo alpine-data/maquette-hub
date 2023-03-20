@@ -364,7 +364,6 @@ public final class Operators {
     }
 
     public static <T> T retryWithBackOffTimeout(ExceptionalSupplier<T> supplier, int retries, int initialTimeoutSeconds) {
-        var successful = false;
         var retryCount = 0;
         var timeout = initialTimeoutSeconds;
 

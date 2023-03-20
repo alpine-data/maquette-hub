@@ -3,14 +3,19 @@ package maquette.development.entities.mlflow;
 import lombok.AllArgsConstructor;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
+import maquette.development.entities.mlflow.client.ModelFromRegistry;
+import maquette.development.entities.mlflow.client.VersionFromRegistry;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
 import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.governance.GitDetails;
-import maquette.development.values.model.mlflow.ModelFromRegistry;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -42,106 +47,18 @@ public final class ModelCompanion {
         return models
             .findModelByName(workspaceId, registeredModel.getName())
             .thenApply(maybeModel -> {
-                var title = registeredModel.getName();
-                var name = registeredModel.getName();
-                var flavors = registeredModel
-                    .getVersions()
-                    .stream()
-                    .flatMap(version -> version
-                        .getFlavors()
-                        .stream())
-                    .collect(Collectors.toSet());
-                var createdBy = registeredModel
-                    .getVersions()
-                    .get(registeredModel
-                        .getVersions()
-                        .size() - 1)
-                    .getUser();
+                if (maybeModel.isEmpty() || maybeModel.get()
+                    .getUpdated()
+                    .getAt()
+                    .compareTo(registeredModel.getUpdated()) < 0) {
 
-                var created = ActionMetadata.apply(createdBy, registeredModel.getCreated());
-
-                var updatedBy = registeredModel
-                    .getVersions()
-                    .get(0)
-                    .getUser();
-
-                var updatedTime = registeredModel
-                    .getVersions()
-                    .get(0)
-                    .getCreated();
-                var updated = ActionMetadata.apply(updatedBy, updatedTime);
-
-                var description = ""; // TODO find way to get description from MLflow API.
-
-                var versions = registeredModel
-                    .getVersions()
-                    .stream()
-                    .map(v -> {
-                        var registered = ActionMetadata.apply(
-                            v.getUser(),
-                            v.getCreated());
-
-                        var version = ModelVersion.apply(
-                            v.getVersion(), registered, v.getFlavors(), ModelVersionStage.forValue(v.getStage()));
-
-                        if (v
-                            .getGitCommit()
-                            .isPresent()) {
-                            var gitDetails = GitDetails.apply(v
-                                .getGitCommit()
-                                .orElse(null), v
-                                .getGitUrl()
-                                .orElse(null), false);
-                            version = version.withGitDetails(gitDetails);
-                        }
-
-                        version = version.withExplainers(v.getExplainers());
-
-                        return version;
-                    })
-                    .collect(Collectors.toList());
-
-                var merged = maybeModel
-                    .orElse(ModelProperties.apply(name, description, versions, created, updated));
-
-                var versionsMap = merged
-                    .getVersions()
-                    .stream()
-                    .collect(Collectors.toMap(ModelVersion::getVersion, v -> v));
-
-                merged = merged.withVersions(versions
-                    .stream()
-                    .map(versionFromRegistry -> {
-                        if (versionsMap.containsKey(versionFromRegistry.getVersion())) {
-                            var v = versionsMap.get(versionFromRegistry.getVersion());
-
-                            if (versionFromRegistry
-                                .getGitDetails()
-                                .isPresent() && v
-                                .getGitDetails()
-                                .isPresent() && v
-                                .getGitDetails()
-                                .get()
-                                .isMainBranch()) {
-                                v = v.withGitDetails(versionFromRegistry
-                                    .getGitDetails()
-                                    .get()
-                                    .withMainBranch(true));
-                            } else {
-                                v = v.withGitDetails(versionFromRegistry
-                                    .getGitDetails()
-                                    .orElse(null));
-                            }
-
-                            return v
-                                .withStage(versionFromRegistry.getStage())
-                                .withFlavours(versionFromRegistry.getFlavours());
-                        } else {
-                            return versionFromRegistry;
-                        }
-                    })
-                    .collect(Collectors.toList()));
-                return Pair.of(merged, maybeModel);
+                    return Pair.of(
+                        merge(registeredModel, maybeModel.orElse(null)),
+                        maybeModel
+                    );
+                } else {
+                    return Pair.of(maybeModel.get(), maybeModel);
+                }
             })
             .thenCompose(modelProperties -> {
                 /*
@@ -161,6 +78,106 @@ public final class ModelCompanion {
                     return CompletableFuture.completedFuture(updatedProperties);
                 }
             });
+    }
+
+    private ModelProperties merge(
+        ModelFromRegistry registeredModel,
+        @Nullable ModelProperties modelProperties) {
+
+        var maybeModel = Optional.ofNullable(modelProperties);
+        var name = registeredModel.getName();
+
+        var createdBy = registeredModel
+            .getVersions()
+            .get(registeredModel
+                .getVersions()
+                .size() - 1)
+            .getUser();
+
+        var created = ActionMetadata.apply(createdBy, registeredModel.getCreated());
+
+        var updatedBy = registeredModel
+            .getVersions()
+            .get(0)
+            .getUser();
+
+        var updatedTime = registeredModel.getUpdated();
+        var updated = ActionMetadata.apply(updatedBy, updatedTime);
+
+        var description = "";
+
+        var merged = maybeModel
+            .orElse(ModelProperties.apply(name, description, List.of(), created, updated));
+
+        /*
+         * Find versions which have been updated or added to MLflow.
+         */
+        var mergedFinal = merged;
+        var updatedVersions = registeredModel
+            .getVersions()
+            .stream()
+            .filter(
+                versionFromRegistry -> {
+                    var existingVersion = mergedFinal.findVersion(versionFromRegistry.getVersion());
+
+                    return existingVersion.isEmpty() ||
+                        existingVersion.get().getUpdated().getAt().compareTo(versionFromRegistry.getUpdated()) < 0;
+                }
+            )
+            .collect(Collectors.toList());
+
+        /*
+         * Fetch information for new/ updated versions and update model information.
+         */
+        for (var versionFromRegistry : updatedVersions) {
+            var existingVersion = merged.findVersion(versionFromRegistry.getVersion());
+
+            if (existingVersion.isEmpty()) {
+                merged = merged.withVersion(mapVersion(versionFromRegistry));
+            } else {
+                merged = merged.withVersion(
+                    existingVersion
+                        .get()
+                        .withFlavours(versionFromRegistry.getFlavors())
+                        .withStage(ModelVersionStage.forValue(versionFromRegistry.getStage()))
+                        .withExplainers(versionFromRegistry.getExplainers())
+                );
+            }
+        }
+
+        merged = merged
+            .withVersions(merged
+                .getVersions()
+                .stream()
+                .sorted(Comparator.comparing(m -> m.getUpdated().getAt()))
+                .collect(Collectors.toList()));
+
+        return merged;
+    }
+
+    private ModelVersion mapVersion(VersionFromRegistry versionFromRegistry) {
+        var registered = ActionMetadata.apply(
+            versionFromRegistry.getUser(),
+            versionFromRegistry.getCreated());
+
+        var version = ModelVersion.apply(
+            versionFromRegistry.getVersion(), registered, versionFromRegistry.getFlavors(),
+            ModelVersionStage.forValue(versionFromRegistry.getStage()));
+
+        if (versionFromRegistry
+            .getGitCommit()
+            .isPresent()) {
+            var gitDetails = GitDetails.apply(versionFromRegistry
+                .getGitCommit()
+                .orElse(null), versionFromRegistry
+                .getGitUrl()
+                .orElse(null), false);
+            version = version.withGitDetails(gitDetails);
+        }
+
+        version = version.withExplainers(versionFromRegistry.getExplainers());
+
+        return version;
     }
 
 }

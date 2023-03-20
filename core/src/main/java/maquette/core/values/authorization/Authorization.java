@@ -9,9 +9,10 @@ import maquette.core.values.user.User;
     property = "type")
 @JsonSubTypes(
     {
-        @JsonSubTypes.Type(value = RoleAuthorization.class, name = "role"),
-        @JsonSubTypes.Type(value = UserAuthorization.class, name = "user"),
         @JsonSubTypes.Type(value = ApplicationAuthorization.class, name = "application"),
+        @JsonSubTypes.Type(value = RoleAuthorization.class, name = "role"),
+        @JsonSubTypes.Type(value = SystemAuthorization.class, name = "system"),
+        @JsonSubTypes.Type(value = UserAuthorization.class, name = "user"),
         @JsonSubTypes.Type(value = WildcardAuthorization.class, name = "wildcard")
     })
 public interface Authorization {

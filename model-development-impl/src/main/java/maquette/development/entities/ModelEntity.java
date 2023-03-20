@@ -10,7 +10,7 @@ import maquette.core.values.UID;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
-import maquette.development.entities.mlflow.MlflowClient;
+import maquette.development.entities.mlflow.client.MlflowClient;
 import maquette.development.entities.mlflow.ModelCompanion;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.models.ModelServingPort;
@@ -20,8 +20,7 @@ import maquette.development.values.model.ModelProperties;
 import maquette.development.values.model.ModelVersion;
 import maquette.development.values.model.ModelVersionStage;
 import maquette.development.values.model.events.AutomaticallyPromoted;
-import maquette.development.values.model.events.ModelVersionEvent;
-import maquette.development.values.model.mlflow.ModelFromRegistry;
+import maquette.development.entities.mlflow.client.ModelFromRegistry;
 import maquette.development.values.model.services.ModelServiceProperties;
 
 import java.time.Instant;
@@ -49,7 +48,18 @@ public final class ModelEntity {
     private final String name;
 
     public CompletionStage<ModelProperties> getProperties() {
-        return getPropertiesFromRegistry().thenCompose(companion::mapModel);
+        return this.models
+            .findModelByName(workspace, name)
+            .thenCompose(maybeModel -> {
+                if (maybeModel.isPresent()) {
+                    // Trigger update in background and return current version.
+                    CompletableFuture.supplyAsync(() -> getPropertiesFromRegistry().thenCompose(companion::mapModel));
+
+                    return CompletableFuture.completedFuture(maybeModel.get());
+                } else {
+                    return getPropertiesFromRegistry().thenCompose(companion::mapModel);
+                }
+            });
     }
 
     /**
@@ -140,12 +150,12 @@ public final class ModelEntity {
     /**
      * Transfer a model version from the current stage into a new model stage.
      * The transition will be done via MLflow.
-     *
+     * <p>
      * Us this method only if the system does the promotion automatically. If the action
      * is triggered by a human user, use {@link ModelEntity#promoteModel(User, String, ModelVersionStage)}.
      *
-     * @param version  The version which should be promoted.
-     * @param stage    The new stage of the version.
+     * @param version The version which should be promoted.
+     * @param stage   The new stage of the version.
      * @return Done.
      */
     public CompletionStage<Done> promoteModel(String version, ModelVersionStage stage) {
@@ -153,10 +163,15 @@ public final class ModelEntity {
             .thenCompose(model -> {
                 mlflowClient.transitionStage(model.getName(), version, stage.getValue());
 
+                var updated = ActionMetadata.apply("system", Instant.now());
+
                 var updateModel = model
                     .withVersion(model
                         .getVersion(version)
-                        .withEvent(AutomaticallyPromoted.apply(Instant.now(), stage)));
+                        .withStage(stage)
+                        .withEvent(AutomaticallyPromoted.apply(Instant.now(), stage))
+                        .withUpdated(updated))
+                    .withUpdated(updated);
 
                 return models.insertOrUpdateModel(workspace, updateModel);
             });

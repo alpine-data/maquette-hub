@@ -20,6 +20,9 @@ public class ModelDevelopmentConfiguration {
     @Value("model-serving")
     private ModelServingConfiguration modelServing;
 
+    @Value("mlflow")
+    private MlflowConfiguration mlflow;
+
     @Value("ml-projects")
     private MLProjectsConfiguration mlProjectsConfiguration;
 

@@ -7,6 +7,7 @@ import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.WorkspaceProperties;
 import maquette.development.values.exceptions.WorkspaceNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
@@ -32,6 +33,8 @@ public interface WorkspacesRepository extends HasMembers<WorkspaceMemberRole> {
         return findWorkspaceById(id).thenApply(
             opt -> opt.orElseThrow(() -> WorkspaceNotFoundException.applyFromId(id)));
     }
+
+    CompletionStage<Stream<WorkspaceProperties>> findAllWorkspaces();
 
     /**
      * Search a workspace by its name.
