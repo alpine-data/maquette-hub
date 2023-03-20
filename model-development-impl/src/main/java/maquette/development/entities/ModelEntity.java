@@ -155,6 +155,7 @@ public final class ModelEntity {
                 var updateModel = model
                     .withVersion(model
                         .getVersion(version)
+                        .withStage(stage)
                         .withEvent(AutomaticallyPromoted.apply(Instant.now(), stage)));
 
                 return models.insertOrUpdateModel(workspace, updateModel);
