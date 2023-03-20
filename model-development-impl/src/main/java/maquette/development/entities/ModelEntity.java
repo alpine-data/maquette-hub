@@ -48,7 +48,18 @@ public final class ModelEntity {
     private final String name;
 
     public CompletionStage<ModelProperties> getProperties() {
-        return getPropertiesFromRegistry().thenCompose(companion::mapModel);
+        return this.models
+            .findModelByName(workspace, name)
+            .thenCompose(maybeModel -> {
+                if (maybeModel.isPresent()) {
+                    // Trigger update in background and return current version.
+                    CompletableFuture.supplyAsync(() -> getPropertiesFromRegistry().thenCompose(companion::mapModel));
+
+                    return CompletableFuture.completedFuture(maybeModel.get());
+                } else {
+                    return getPropertiesFromRegistry().thenCompose(companion::mapModel);
+                }
+            });
     }
 
     /**
@@ -268,6 +279,8 @@ public final class ModelEntity {
      * @return The model properties as retrieved from MLflow.
      */
     private CompletionStage<ModelFromRegistry> getPropertiesFromRegistry() {
+        return models
+            .findModelByName(workspace, name);
         var maybeModel = mlflowClient.findModel(name);
 
         return maybeModel
