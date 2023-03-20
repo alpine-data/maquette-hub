@@ -12,6 +12,7 @@ import maquette.development.values.model.ModelProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -78,7 +79,12 @@ public final class ModelEntities {
             }
         });
 
-        return models.findAllModelsByWorkspace(workspace);
+        return models
+            .findAllModelsByWorkspace(workspace)
+            .thenApply(models -> {
+                models.sort(Comparator.comparing(m -> m.getUpdated().getAt()));
+                return models;
+            });
     }
 
 }

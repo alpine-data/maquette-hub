@@ -139,12 +139,12 @@ public final class ModelEntity {
     /**
      * Transfer a model version from the current stage into a new model stage.
      * The transition will be done via MLflow.
-     *
+     * <p>
      * Us this method only if the system does the promotion automatically. If the action
      * is triggered by a human user, use {@link ModelEntity#promoteModel(User, String, ModelVersionStage)}.
      *
-     * @param version  The version which should be promoted.
-     * @param stage    The new stage of the version.
+     * @param version The version which should be promoted.
+     * @param stage   The new stage of the version.
      * @return Done.
      */
     public CompletionStage<Done> promoteModel(String version, ModelVersionStage stage) {
@@ -152,11 +152,15 @@ public final class ModelEntity {
             .thenCompose(model -> {
                 mlflowClient.transitionStage(model.getName(), version, stage.getValue());
 
+                var updated = ActionMetadata.apply("system", Instant.now());
+
                 var updateModel = model
                     .withVersion(model
                         .getVersion(version)
                         .withStage(stage)
-                        .withEvent(AutomaticallyPromoted.apply(Instant.now(), stage)));
+                        .withEvent(AutomaticallyPromoted.apply(Instant.now(), stage))
+                        .withUpdated(updated))
+                    .withUpdated(updated);
 
                 return models.insertOrUpdateModel(workspace, updateModel);
             });
