@@ -279,8 +279,6 @@ public final class ModelEntity {
      * @return The model properties as retrieved from MLflow.
      */
     private CompletionStage<ModelFromRegistry> getPropertiesFromRegistry() {
-        return models
-            .findModelByName(workspace, name);
         var maybeModel = mlflowClient.findModel(name);
 
         return maybeModel
