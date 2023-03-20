@@ -72,11 +72,16 @@ public final class MlflowClient {
     }
 
     public Optional<ModelFromRegistry> findModel(String name) {
-        return getModels()
+        return Optional
+            .ofNullable(query("/api/2.0/preview/mlflow/registered-models/list",
+                RegisteredModelsResponse.class).getRegisteredModels())
+            .orElseGet(() -> {
+                System.out.println("Received empty list of models from " + this.mlflowConfiguration.getInternalTrackingUrl());
+                return List.of();
+            })
             .stream()
-            .filter(m -> m
-                .getName()
-                .equals(name))
+            .filter(registeredModel -> registeredModel.getName().equalsIgnoreCase(name))
+            .map(registeredModel -> ModelFromRegistry.apply(this, mlflowClient, mlflowConfiguration, registeredModel))
             .findFirst();
     }
 
