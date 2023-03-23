@@ -9,7 +9,10 @@ import lombok.With;
 import maquette.core.values.ActionMetadata;
 import maquette.development.values.exceptions.ModelVersionNotFoundException;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,6 +79,15 @@ public class ModelProperties {
         @JsonProperty("CREATED") ActionMetadata created,
         @JsonProperty("UPDATED") ActionMetadata updated
     ) {
+        if (Objects.isNull(versions)) {
+            versions = List.of();
+        }
+
+        versions = versions
+            .stream()
+            .sorted(Comparator.<ModelVersion, Instant>comparing(m -> m.getRegistered().getAt()).reversed())
+            .collect(Collectors.toList());
+
         return new ModelProperties(name, description, versions, created, updated);
     }
 
