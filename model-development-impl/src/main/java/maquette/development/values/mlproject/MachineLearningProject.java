@@ -24,7 +24,7 @@ public class MachineLearningProject {
     private static final String URL = "url";
     private static final String GIT_URL = "gitUrl";
 
-    private static final String CATALOG_URL = "catalog_url";
+    private static final String CATALOG_URL = "catalogUrl";
 
     /**
      * The name of the ML project's repository.

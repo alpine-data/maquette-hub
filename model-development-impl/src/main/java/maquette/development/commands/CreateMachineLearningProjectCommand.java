@@ -8,6 +8,7 @@ import maquette.core.MaquetteRuntime;
 import maquette.core.common.Operators;
 import maquette.core.server.commands.Command;
 import maquette.core.server.commands.CommandResult;
+import maquette.core.server.commands.DataResult;
 import maquette.core.server.commands.MessageResult;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
@@ -50,7 +51,7 @@ public class CreateMachineLearningProjectCommand implements Command {
             .getModule(MaquetteModelDevelopment.class)
             .getWorkspaceServices()
             .createMachineLearningProject(user, workspace, projectName, templateType)
-            .thenApply(done -> MessageResult.apply("Successfully created workspace", done));
+            .thenApply(DataResult::apply);
     }
 
     @Override
