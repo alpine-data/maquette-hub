@@ -14,12 +14,9 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
 
     private FakeDataAssetsServicePort dataAssetsServicePort;
 
-    private InMemoryWorkspacesRepository workspacesRepository;
-
     @Override
     public WorkspacesRepository setupWorkspacesRepository() {
-        workspacesRepository = InMemoryWorkspacesRepository.apply();
-        return workspacesRepository;
+        return InMemoryWorkspacesRepository.apply();
     }
 
     @Override
@@ -57,6 +54,17 @@ public class WorkspacesSpecsTest extends WorkspacesSpecs {
     public SandboxesRepository setupSandboxesRepository() {
         return InMemorySandboxesRepository.apply();
     }
+
+    @Override
+    public WorkspacesRepository setupCentralModelRegistryWorkspacesRepository() {
+        return InMemoryWorkspacesRepository.apply();
+    }
+
+    @Override
+    public ModelsRepository setupCentralModelRegistryModelsRepository() {
+        return InMemoryModelsRepository.apply();
+    }
+
 
     @Override
     protected void create_data_access_request(String accessRequestId,

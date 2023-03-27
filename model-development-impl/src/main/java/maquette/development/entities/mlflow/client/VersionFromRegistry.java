@@ -128,8 +128,6 @@ public class VersionFromRegistry {
         return explainers;
     }
 
-    ;
-
     /**
      * The Git commit id of the training code of the model.
      */

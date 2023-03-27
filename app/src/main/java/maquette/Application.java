@@ -53,13 +53,18 @@ public class Application {
         var workspacesRepository = InMemoryWorkspacesRepository.apply();
         var modelsRepository = InMemoryModelsRepository.apply();
         var sandboxesRepository = InMemorySandboxesRepository.apply();
+        var cmrWorkspacesRepository = InMemoryWorkspacesRepository.apply();
+        var cmrModelsRepository = InMemoryModelsRepository.apply();
         var infrastructurePort = FakeInfrastructurePort.apply();
         var deployedModelServicesRepository = InMemoryDeployedModelServicesRepository.apply();
 
         var modelDevelopment = MaquetteModelDevelopment.apply(
-            runtime, workspacesRepository, modelsRepository,
-            sandboxesRepository, infrastructurePort,
-            dataAssetsAdapter, operationsAdapter, modelServing, mlProjects);
+            runtime,
+            workspacesRepository, modelsRepository, sandboxesRepository,
+            cmrWorkspacesRepository, cmrModelsRepository,
+            infrastructurePort,
+            dataAssetsAdapter, operationsAdapter, modelServing, mlProjects
+        );
 
         var shop = MaquetteDataShop
             .apply(dataAssetsRepository, workspacesAdapter, FakeEmailClient.apply(), FakeProvider.apply());

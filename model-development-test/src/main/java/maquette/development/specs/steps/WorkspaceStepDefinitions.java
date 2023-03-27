@@ -14,6 +14,7 @@ import maquette.development.commands.*;
 import maquette.development.commands.applications.*;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
+import maquette.development.commands.registry.ImportToRegistryCommand;
 import maquette.development.commands.sandboxes.CreateSandboxCommand;
 import maquette.development.commands.sandboxes.GetSandboxCommand;
 import maquette.development.commands.sandboxes.RemoveSandboxCommand;
@@ -331,5 +332,19 @@ public class WorkspaceStepDefinitions {
                 .get()
                 .toPlainText(runtime)
         );
+    }
+
+    public void $_imports_model_$_of_version_$_from_$_to_central_model_registry(
+        AuthenticatedUser user, String modelName, String version, String workspaceName) throws ExecutionException,
+        InterruptedException {
+        var result = ImportToRegistryCommand
+            .apply(workspaceName, modelName, version)
+            .run(user, runtime)
+            .toCompletableFuture()
+            .get()
+            .toPlainText(runtime);
+
+        mentionedWorkspace = workspaceName;
+        results.add(result);
     }
 }

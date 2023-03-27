@@ -11,6 +11,7 @@ import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
+import maquette.development.entities.mlflow.MlflowConfiguration;
 import maquette.development.ports.ModelsRepository;
 import maquette.development.ports.WorkspacesRepository;
 import maquette.development.ports.infrastructure.InfrastructurePort;
@@ -307,6 +308,15 @@ public final class WorkspaceEntity {
                         .getValue()
                         .equals(user.getDisplayName()))
                     .collect(Collectors.toList())
+            );
+    }
+
+    public CompletionStage<Optional<MlflowConfiguration>> getMlFlowConfiguration(WorkspaceProperties properties) {
+        return
+            infrastructurePort
+            .getInstanceParameters(this.getId(), getMlflowStackName(id))
+            .thenApply(params -> properties
+                .getMlFlowConfiguration().flatMap(a -> a.getMlflowConfiguration(params))
             );
     }
 }

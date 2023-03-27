@@ -6,6 +6,7 @@ import maquette.development.values.stacks.StackConfiguration;
 import maquette.development.values.stacks.StackInstanceParameters;
 import maquette.development.values.stacks.StackInstanceStatus;
 
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 public interface InfrastructurePort {
@@ -51,5 +52,28 @@ public interface InfrastructurePort {
      * @return The current deployment status.
      */
     CompletionStage<StackInstanceStatus> getStackInstanceStatus(String name);
+
+
+    /**
+     * Import model from source workspace to destination workspace
+     * @param sourceWorkspace source workspace
+     * @param sourceModelName source model name
+     * @param sourceModelVersion  source model version
+     * @param destinationWorkspace destination workspace
+     * @param destinationModelName destination model name
+     * @param destinationExperimentId destination experiment id
+     * @param sourceEnv source environment variables
+     * @param destinationEnv destination environment variables
+     * @return done
+     */
+    CompletionStage<Done> importModel(
+                                      UID sourceWorkspace,
+                                      String sourceModelName,
+                                      String sourceModelVersion,
+                                      UID destinationWorkspace,
+                                      String destinationModelName,
+                                      String destinationExperimentId,
+                                      Map<String, String> sourceEnv,
+                                      Map<String, String> destinationEnv);
 
 }

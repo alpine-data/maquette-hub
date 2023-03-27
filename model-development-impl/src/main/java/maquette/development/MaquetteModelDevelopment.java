@@ -19,8 +19,9 @@ import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.models.CreateModelServiceCommand;
 import maquette.development.commands.models.GetModelViewCommand;
 import maquette.development.commands.models.GetModelsViewCommand;
+import maquette.development.commands.registry.GetRegistryModelsCommand;
+import maquette.development.commands.registry.ImportToRegistryCommand;
 import maquette.development.commands.sandboxes.*;
-import maquette.development.commands.CreateMachineLearningProjectCommand.*;
 import maquette.development.configuration.ModelDevelopmentConfiguration;
 import maquette.development.entities.SandboxEntities;
 import maquette.development.entities.WorkspaceEntities;
@@ -32,9 +33,7 @@ import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.ports.mlprojects.MLProjectCreationPort;
 import maquette.development.ports.models.ModelOperationsPort;
 import maquette.development.ports.models.ModelServingPort;
-import maquette.development.services.SandboxServices;
-import maquette.development.services.WorkspaceServices;
-import maquette.development.services.WorkspaceServicesFactory;
+import maquette.development.services.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +56,8 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
 
     private final ModelOperationsPort modelOperations;
 
+    private CentralModelRegistryServices centralModelRegistryServices;
+
     private MaquetteRuntime runtime;
 
 
@@ -65,6 +66,8 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         WorkspacesRepository workspacesRepository,
         ModelsRepository modelsRepository,
         SandboxesRepository sandboxesRepository,
+        WorkspacesRepository cmrWorkspacesRepository,
+        ModelsRepository cmrModelsRepository,
         InfrastructurePort infrastructurePort,
         DataAssetsServicePort dataAssets,
         ModelOperationsPort modelOperations,
@@ -73,7 +76,6 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
 
         var configuration = ModelDevelopmentConfiguration.apply();
 
-
         var workspaces = WorkspaceEntities.apply(
             workspacesRepository,
             modelsRepository,
@@ -81,10 +83,23 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
             modelServing,
             mlProjects);
 
+        var cmrWorkspaces = WorkspaceEntities.apply(
+            cmrWorkspacesRepository,
+            cmrModelsRepository,
+            infrastructurePort,
+            modelServing,
+            mlProjects
+        );
+
         var sandboxes = SandboxEntities.apply(workspacesRepository, sandboxesRepository, infrastructurePort,
             configuration.getStacks());
 
-        return apply(configuration, workspaces, sandboxes, dataAssets, modelOperations, runtime);
+        var cmr = CentralModelRegistryFactory.createCentralModelRegistryServices(
+            cmrWorkspaces,
+            workspaces,
+            infrastructurePort);
+
+        return apply(configuration, workspaces, sandboxes, dataAssets, modelOperations, cmr, runtime);
     }
 
     @Override
@@ -97,6 +112,8 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         MaquetteModule.super.start(runtime);
 
         this.runtime = runtime;
+
+        centralModelRegistryServices.initialize();
 
         if (configuration.getMlflow().isSyncEnabled()) {
             runtime.getScheduler().schedule(
@@ -166,6 +183,9 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         commands.put("sandboxes stacks", GetStacksCommand.class);
         commands.put("sandboxes list", ListSandboxesCommand.class);
         commands.put("sandboxes remove", RemoveSandboxCommand.class);
+
+        commands.put("registry list", GetRegistryModelsCommand.class);
+        commands.put("registry import", ImportToRegistryCommand.class);
         return commands;
     }
 
@@ -187,6 +207,10 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
         return WorkspaceServicesFactory.createWorkspaceServices(
             workspaces, dataAssets, modelOperations, sandboxes, users, configuration
         );
+    }
+
+    public CentralModelRegistryServices getCentralModelRegistryServices() {
+        return centralModelRegistryServices;
     }
 
     public WorkspaceEntities getWorkspaces() {

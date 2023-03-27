@@ -3,11 +3,6 @@ package maquette.development.ports.infrastructure;
 import akka.Done;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.transport.DockerHttpClient;
-import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
@@ -222,4 +217,11 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
         }
     }
 
+    @Override
+    public CompletionStage<Done> importModel(UID sourceWorkspace, String sourceModelName, String sourceModelVersion,
+                                             UID destinationWorkspace, String destinationModelName,
+                                             String destinationExperimentId, Map<String, String> sourceEnv,
+                                             Map<String, String> destinationEnv) {
+        return CompletableFuture.completedFuture(Done.getInstance());
+    }
 }

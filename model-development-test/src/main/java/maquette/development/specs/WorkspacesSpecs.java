@@ -42,16 +42,21 @@ public abstract class WorkspacesSpecs {
     private WorkspacesRepository workspacesRepository;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws ExecutionException, InterruptedException {
         this.context = MaquetteContext.apply();
         this.workspacesRepository = setupWorkspacesRepository();
+        ModelsRepository modelsRepository = setupModelsRepository();
+        WorkspacesRepository cmrWorkspacesRepository = setupCentralModelRegistryWorkspacesRepository();
+        ModelsRepository cmrModelsRepository = setupCentralModelRegistryModelsRepository();
         this.runtime = MaquetteRuntime.apply();
         this.runtime
             .withModule(MaquetteModelDevelopment.apply(
                 this.runtime,
                 this.workspacesRepository,
-                setupModelsRepository(),
+                modelsRepository,
                 setupSandboxesRepository(),
+                cmrWorkspacesRepository,
+                cmrModelsRepository,
                 setupInfrastructurePort(),
                 setupDataAssetsServicePort(),
                 setupModelOperationsPort(),
@@ -66,6 +71,12 @@ public abstract class WorkspacesSpecs {
                 GlobalRole.ADMIN
             )
         );
+        this
+            .runtime
+            .getModule(MaquetteModelDevelopment.class)
+            .getCentralModelRegistryServices()
+            .initialize()
+            .toCompletableFuture().get();
         this.steps = new WorkspaceStepDefinitions(this.runtime);
     }
 
@@ -79,6 +90,13 @@ public abstract class WorkspacesSpecs {
 
     public abstract ModelsRepository setupModelsRepository();
 
+    public abstract SandboxesRepository setupSandboxesRepository();
+
+    public abstract WorkspacesRepository setupCentralModelRegistryWorkspacesRepository();
+
+    public abstract ModelsRepository setupCentralModelRegistryModelsRepository();
+
+
     public abstract InfrastructurePort setupInfrastructurePort();
 
     public abstract DataAssetsServicePort setupDataAssetsServicePort();
@@ -89,7 +107,6 @@ public abstract class WorkspacesSpecs {
 
     public abstract MLProjectCreationPort setupMLProjectCreationPort();
 
-    public abstract SandboxesRepository setupSandboxesRepository();
 
     /**
      * Workspaces are always private and can be accessed only by the members
@@ -536,6 +553,26 @@ public abstract class WorkspacesSpecs {
         // then volume shouldn't be deleted
         steps.the_output_should_contain("my-volume");
         steps.the_output_has_exactly_$_volume(1);
+    }
+
+    @Test
+    public void centralModelRegistry() throws ExecutionException, InterruptedException {
+        steps.$_creates_a_workspace_with_name_$(context.users.alice, "cmr-test");
+        steps.$_grants_$_access_to_the_$_workspace_for_$(context.users.alice, WorkspaceMemberRole.MEMBER, "cmr-test", context.users.bob);
+
+        // assert that Bob who is not an admin cannot import into Central Model Registry
+        var thrown = Assertions.assertThrows(ExecutionException.class, () ->
+            steps.$_imports_model_$_of_version_$_from_$_to_central_model_registry(context.users.bob, "model-1", "1", "cmr-test")
+        );
+        Assertions.assertEquals(thrown.getMessage(), "maquette.core.common.exceptions.NotAuthorizedException: You are" +
+            " not authorized to execute this action.");
+
+        thrown = Assertions.assertThrows(ExecutionException.class, () ->
+            steps.$_imports_model_$_of_version_$_from_$_to_central_model_registry(context.users.alice, "model-1", "1", "cmr-test")
+        );
+
+        // Alice should have access although model doesn't exist
+        Assertions.assertEquals(thrown.getMessage(), "maquette.development.values.exceptions.ModelNotFoundException: Model `model-1` does not exist.");
     }
 
     protected void there_is_$_access_request_for_$_data_asset_within_$_workspace(String accessRequestId,
