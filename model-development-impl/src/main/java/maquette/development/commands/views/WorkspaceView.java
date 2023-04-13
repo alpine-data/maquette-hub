@@ -2,6 +2,7 @@ package maquette.development.commands.views;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.core.modules.applications.model.Application;
 import maquette.core.server.commands.CommandResult;
 import maquette.development.values.Workspace;
 import maquette.development.values.WorkspacePermissions;
@@ -21,4 +22,5 @@ public class WorkspaceView implements CommandResult {
 
     WorkspacePermissions permissions;
 
+    List<Application> applications;
 }

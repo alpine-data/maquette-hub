@@ -59,8 +59,12 @@ public class WorkspaceViewCommand implements Command {
 
         var workspacePermissionsCS = workspaceCS.thenApply(wks -> wks.getWorkspacePermissions(user));
 
+        var workspaceApplicationsCS = services
+            .getWorkspaceServices()
+            .findApplicationsInWorkspace(runtime, user, name);
+
         return Operators.compose(
-            workspaceCS, stacksCS, sandboxOwnedCountCS, workspacePermissionsCS,
+            workspaceCS, stacksCS, sandboxOwnedCountCS, workspacePermissionsCS, workspaceApplicationsCS,
             WorkspaceView::apply);
     }
 
