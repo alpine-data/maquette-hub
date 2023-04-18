@@ -19,6 +19,8 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
     private static final String VERSION = "version";
     private static final String MEMORY_REQUEST = "memoryRequest";
 
+    private static final String USER_EMAIL = "userEmail";
+
 
     /**
      * A list of MARS managed resource groups which are related to this instance.
@@ -40,6 +42,10 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
     @JsonProperty(MEMORY_REQUEST)
     String memoryRequest;
 
+    @JsonProperty(USER_EMAIL)
+    @With
+    String userEmail;
+
 
     @JsonCreator
     public static PythonStackConfiguration apply(
@@ -47,6 +53,7 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
         @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
         @JsonProperty(MEMORY_REQUEST) String memoryRequest,
         @JsonProperty(VERSION) String version,
+        @JsonProperty(USER_EMAIL) String userEmail,
         @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
 
         if (Objects.isNull(environmentVariables)) {
@@ -61,7 +68,7 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
             memoryRequest = "4Gi";
         }
 
-        var instance = new PythonStackConfiguration(resourceGroups, version, memoryRequest);
+        var instance = new PythonStackConfiguration(resourceGroups, version, memoryRequest, userEmail);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
         return instance;

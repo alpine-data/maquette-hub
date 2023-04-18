@@ -20,6 +20,8 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
     private static final String VERSION = "version";
     private static final String SIZE = "size";
 
+    private static final String USER_EMAIL = "userEmail";
+
 
     /**
      * A list of MARS managed resource groups which are related to this instance.
@@ -41,12 +43,16 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
     @JsonProperty(SIZE)
     String size;
 
+    @JsonProperty(USER_EMAIL)
+    String userEmail;
+
     @JsonCreator
     public static PythonGPUStackConfiguration apply(
         @JsonProperty(NAME) String name,
         @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
         @JsonProperty(SIZE) String size,
         @JsonProperty(VERSION) String version,
+        @JsonProperty(USER_EMAIL) String userEmail,
         @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
 
         if (Objects.isNull(environmentVariables)) {
@@ -61,7 +67,7 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
             size = "gpusmall";
         }
 
-        var instance = new PythonGPUStackConfiguration(resourceGroups, version, size);
+        var instance = new PythonGPUStackConfiguration(resourceGroups, version, size, userEmail);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
         return instance;
