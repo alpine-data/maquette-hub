@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.Objects;
 
 @Value
-@EqualsAndHashCode(callSuper = true)
-public class PythonStackConfiguration extends DefaultStackConfiguration {
+@EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class MLWorkspaceStackConfiguration extends DefaultStackConfiguration {
 
     private static final String RESOURCE_GROUPS = "resourceGroups";
-    private static final String VERSION = "version";
     private static final String MEMORY_REQUEST = "memoryRequest";
 
 
@@ -27,25 +27,17 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
     List<String> resourceGroups;
 
     /**
-     * The python version.
-     */
-    @JsonProperty(VERSION)
-    String version;
-
-    /**
      * Memory to requested and used for the container in the following format
      * <a href="https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/">k8s docs</a>
      */
     @JsonProperty(MEMORY_REQUEST)
     String memoryRequest;
 
-
     @JsonCreator
-    public static PythonStackConfiguration apply(
+    public static MLWorkspaceStackConfiguration apply(
         @JsonProperty(NAME) String name,
         @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
         @JsonProperty(MEMORY_REQUEST) String memoryRequest,
-        @JsonProperty(VERSION) String version,
         @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
         @JsonProperty(USER_EMAIL) String userEmail) {
 
@@ -61,11 +53,11 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
             memoryRequest = "4Gi";
         }
 
-        var instance = new PythonStackConfiguration(resourceGroups, version, memoryRequest);
+        var instance = new MLWorkspaceStackConfiguration(resourceGroups, memoryRequest);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
         instance.userEmail = userEmail;
-
+        
         return instance;
     }
 

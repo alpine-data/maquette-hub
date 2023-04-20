@@ -13,14 +13,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Overview of available explainers
  * --------------------------------
  *
- * {@link ShapashExplainer} to retrieve artifacts generated with Shapash (https://github.com/MAIF/shapash).
+ * {@link HtmlExplainerReport} to retrieve artifacts generated with Shapash (https://github.com/MAIF/shapash).
  */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     property = "type")
 @JsonSubTypes(
     {
-        @JsonSubTypes.Type(value = ShapashExplainer.class, name = "shapash"),
+        @JsonSubTypes.Type(value = HtmlExplainerReport.class, name = "shapash"),
     })
 public interface ExplainerArtifact {
 }

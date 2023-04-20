@@ -85,6 +85,11 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
     }
 
     @Override
+    public CompletionStage<Map<String, String>> getEnvironment(User user, String workspace, EnvironmentType environmentType) {
+        return WorkspaceServices.super.getEnvironment(user, workspace, environmentType);
+    }
+
+    @Override
     public CompletionStage<List<WorkspaceProperties>> list(User user) {
         return delegate
             .list(user)
@@ -222,6 +227,13 @@ public final class WorkspaceServicesSecured implements WorkspaceServices {
         return companion
             .withAuthorization(() -> companion.isMember(user, workspace))
             .thenCompose(ok -> delegate.runExplainer(user, workspace, model, version));
+    }
+
+    @Override
+    public CompletionStage<String> getExplainer(User user, String workspace, String model, String version, String artifactPath) {
+        return companion
+            .withAuthorization(() -> companion.isMember(user, workspace))
+            .thenCompose(ok -> delegate.getExplainer(user, workspace, model,version, artifactPath));
     }
 
     @Override

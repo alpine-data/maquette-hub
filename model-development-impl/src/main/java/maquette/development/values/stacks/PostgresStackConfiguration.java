@@ -38,7 +38,8 @@ public class PostgresStackConfiguration extends DefaultStackConfiguration {
         @JsonProperty(DB_PASSWORD) String dbPassword,
         @JsonProperty(PG_EMAIL) String pgEmail,
         @JsonProperty(PG_PASSWORD) String pgPassword,
-        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
+        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
+        @JsonProperty(USER_EMAIL) String userEmail) {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
@@ -47,6 +48,8 @@ public class PostgresStackConfiguration extends DefaultStackConfiguration {
         var instance = new PostgresStackConfiguration(dbUsername, dbPassword, pgEmail, pgPassword);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
+        instance.userEmail = userEmail;
+
         return instance;
     }
 

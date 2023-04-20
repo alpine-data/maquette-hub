@@ -245,6 +245,19 @@ public final class WorkspaceServicesValidated implements WorkspaceServices {
     }
 
     @Override
+    public CompletionStage<String> getExplainer(User user, String workspace, String model, String version, String artifactPath) {
+        return FluentValidation
+            .apply()
+            .validate("user", user, NotNullValidator.apply())
+            .validate("workspace", workspace, NonEmptyStringValidator.apply())
+            .validate("model", model, NonEmptyStringValidator.apply())
+            .validate("version", version, NonEmptyStringValidator.apply())
+            .validate("artifactPath", artifactPath, NonEmptyStringValidator.apply())
+            .checkAndFail()
+            .thenCompose(done -> delegate.getExplainer(user, workspace, model, version, artifactPath));
+    }
+
+    @Override
     public CompletionStage<Done> grantModelRole(User user, String workspace, String model,
                                                 UserAuthorization authorization, ModelMemberRole role) {
         return FluentValidation

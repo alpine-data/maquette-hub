@@ -27,7 +27,8 @@ public class SynapseStackConfiguration extends DefaultStackConfiguration {
     public static SynapseStackConfiguration apply(
         @JsonProperty(NAME) String name,
         @JsonProperty(SPARK_SIZE) String sparkSize,
-        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
+        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
+        @JsonProperty(USER_EMAIL) String userEmail) {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
@@ -36,6 +37,8 @@ public class SynapseStackConfiguration extends DefaultStackConfiguration {
         var instance = new SynapseStackConfiguration(sparkSize);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
+        instance.userEmail = userEmail;
+
         return instance;
     }
 

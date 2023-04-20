@@ -11,11 +11,13 @@ import maquette.core.values.binary.BinaryObject;
 import maquette.core.values.binary.BinaryObjects;
 import maquette.development.entities.mlflow.MlflowConfiguration;
 import maquette.development.entities.mlflow.apimodel.RegisteredModelsResponse;
+import maquette.development.entities.mlflow.explainer.ExplainerArtifact;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
+import org.mlflow.api.proto.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -137,7 +139,23 @@ public final class MlflowClient {
         }, RETRIES, INITIAL_RETRY_TIMEOUT_SECONDS);
     }
 
-    String download(String url) {
+    /**
+     * downloads artifacts
+     * @return artifact as string
+     */
+    public String downloadArtifact(String artifactPath, String runId){
+
+        var downloadUrl = String.format(
+                "%s/get-artifact?path=%s&run_uuid=%s",
+                mlflowConfiguration.getMlflowBasePath(),
+                artifactPath,
+                runId);
+
+        return this.download(downloadUrl);
+
+    }
+
+    public String download(String url) {
         var request = new Request.Builder()
             .url(String.format("%s%s", mlflowConfiguration.getInternalTrackingUrl(), url))
             .get()

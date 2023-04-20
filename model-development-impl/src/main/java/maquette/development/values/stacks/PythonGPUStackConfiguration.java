@@ -38,13 +38,10 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
 
     /**
      * Memory to requested and used for the container in the following format
-     * https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/
+     * <a href="https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/">k8s docs</a>
      */
     @JsonProperty(SIZE)
     String size;
-
-    @JsonProperty(USER_EMAIL)
-    String userEmail;
 
     @JsonCreator
     public static PythonGPUStackConfiguration apply(
@@ -52,8 +49,8 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
         @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
         @JsonProperty(SIZE) String size,
         @JsonProperty(VERSION) String version,
-        @JsonProperty(USER_EMAIL) String userEmail,
-        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
+        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
+        @JsonProperty(USER_EMAIL) String userEmail) {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
@@ -67,9 +64,11 @@ public class PythonGPUStackConfiguration extends DefaultStackConfiguration {
             size = "gpusmall";
         }
 
-        var instance = new PythonGPUStackConfiguration(resourceGroups, version, size, userEmail);
+        var instance = new PythonGPUStackConfiguration(resourceGroups, version, size);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
+        instance.userEmail = userEmail;
+
         return instance;
     }
 

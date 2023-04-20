@@ -17,6 +17,7 @@ public final class Stacks {
         var stacks = Lists.<Stack<?>>newArrayList();
         stacks.add(PythonStack.apply());
         stacks.add(PostgresStack.apply());
+        stacks.add(MLWorkspaceStack.apply());
         stacks.add(SynapseStack.apply());
         stacks.add(PythonGPUStack.apply());
 

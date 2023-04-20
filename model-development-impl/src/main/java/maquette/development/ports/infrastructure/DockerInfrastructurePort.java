@@ -12,10 +12,7 @@ import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.values.UID;
 import maquette.development.ports.infrastructure.docker.Deployment;
 import maquette.development.ports.infrastructure.docker.Docker;
-import maquette.development.ports.infrastructure.docker.deployments.MlflowStackDeployment;
-import maquette.development.ports.infrastructure.docker.deployments.PythonStackDeployment;
-import maquette.development.ports.infrastructure.docker.deployments.StackDeployment;
-import maquette.development.ports.infrastructure.docker.deployments.StackDeploymentList;
+import maquette.development.ports.infrastructure.docker.deployments.*;
 import maquette.development.values.exceptions.StackConfigurationNotFoundException;
 import maquette.development.values.stacks.*;
 import org.apache.commons.io.FileUtils;
@@ -71,6 +68,8 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
             return createOrUpdateMlflow(workspace, (MlflowStackConfiguration) configuration);
         } else if (configuration instanceof PythonStackConfiguration) {
             return createOrUpdatePython(workspace, (PythonStackConfiguration) configuration);
+        } else if (configuration instanceof MLWorkspaceStackConfiguration) {
+            return createOrUpdateMLWorkspace(workspace, (MLWorkspaceStackConfiguration) configuration);
         } else {
             return CompletableFuture.failedFuture(new RuntimeException(
                 String.format("Unknown stack type `%s`", configuration
@@ -153,6 +152,11 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
 
     private CompletionStage<Done> createOrUpdatePython(UID workspace, PythonStackConfiguration configuration) {
         insertOrUpdate(PythonStackDeployment.apply(configuration));
+        return getStackInstanceStatus(configuration.getStackInstanceName()).thenApply(i -> Done.getInstance());
+    }
+
+    private CompletionStage<Done> createOrUpdateMLWorkspace(UID workspace, MLWorkspaceStackConfiguration configuration) {
+        insertOrUpdate(MLWorkspaceDeployment.apply(configuration));
         return getStackInstanceStatus(configuration.getStackInstanceName()).thenApply(i -> Done.getInstance());
     }
 

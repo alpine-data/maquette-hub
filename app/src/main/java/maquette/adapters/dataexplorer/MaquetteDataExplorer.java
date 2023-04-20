@@ -38,7 +38,7 @@ public final class MaquetteDataExplorer implements DataExplorer {
 
     public static MaquetteDataExplorer apply(ObjectMapper om, String baseUrl) {
         OkHttpClient client = new OkHttpClient.Builder()
-            .readTimeout(3, TimeUnit.MINUTES)
+            .readTimeout(10, TimeUnit.MINUTES)
             .build();
 
         return apply(om, baseUrl, client);
@@ -68,9 +68,11 @@ public final class MaquetteDataExplorer implements DataExplorer {
                 .build();
 
             try {
-                var response = Operators.suppressExceptions(() -> client
-                    .newCall(request)
-                    .execute());
+                var response = Operators.retryWithBackOffTimeout(
+                    () -> client.newCall(request).execute(),
+                    1,
+                    5
+                );
 
                 if (!response.isSuccessful()) {
                     var body = response.body();

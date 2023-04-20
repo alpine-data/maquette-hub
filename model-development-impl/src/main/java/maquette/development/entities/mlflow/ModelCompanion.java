@@ -141,6 +141,7 @@ public final class ModelCompanion {
                         .withFlavours(versionFromRegistry.getFlavors())
                         .withStage(ModelVersionStage.forValue(versionFromRegistry.getStage()))
                         .withExplainers(versionFromRegistry.getExplainers())
+                        .withRunId(versionFromRegistry.getRunId())
                 );
             }
         }
@@ -162,7 +163,7 @@ public final class ModelCompanion {
 
         var version = ModelVersion.apply(
             versionFromRegistry.getVersion(), registered, versionFromRegistry.getFlavors(),
-            ModelVersionStage.forValue(versionFromRegistry.getStage()));
+            ModelVersionStage.forValue(versionFromRegistry.getStage()), versionFromRegistry.getRunId());
 
         if (versionFromRegistry
             .getGitCommit()

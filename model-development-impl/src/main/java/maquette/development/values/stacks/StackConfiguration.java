@@ -20,7 +20,8 @@ import java.util.Optional;
     @JsonSubTypes.Type(value = PostgresStackConfiguration.class, name = PostgresStack.STACK_NAME),
     @JsonSubTypes.Type(value = PythonStackConfiguration.class, name = PythonStack.STACK_NAME),
     @JsonSubTypes.Type(value = PythonGPUStackConfiguration.class, name = PythonGPUStack.STACK_NAME),
-    @JsonSubTypes.Type(value = SynapseStackConfiguration.class, name = SynapseStack.STACK_NAME)
+    @JsonSubTypes.Type(value = SynapseStackConfiguration.class, name = SynapseStack.STACK_NAME),
+    @JsonSubTypes.Type(value = MLWorkspaceStackConfiguration.class, name = MLWorkspaceStack.STACK_NAME)
 })
 public interface StackConfiguration {
 
@@ -50,6 +51,13 @@ public interface StackConfiguration {
      * @return A map with environment variables.
      */
     Map<String, String> getEnvironmentVariables();
+
+    /**
+     * Returns the E-Mail address of the user who owns the sandbox. Might not always be provided.
+     *
+     * @return The user email, if present.
+     */
+    Optional<String> getUserEmail();
 
     /**
      * Provides a volume ID for stack that will be mounted.
@@ -104,5 +112,15 @@ public interface StackConfiguration {
      * @return A new instance of this configuration with updated cost
      */
     StackConfiguration withCost(double cost);
+
+    /**
+     * Add the email of the user who owns this stack.
+     *
+     * This might be used for authentication purposes on the sandbox.
+     *
+     * @param userEmail The email address of the user.
+     * @return Stack config with updated userEmail.
+     */
+    StackConfiguration withEmail(String userEmail);
 
 }

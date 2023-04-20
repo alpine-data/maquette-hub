@@ -64,13 +64,9 @@ public final class SandboxServicesImpl implements SandboxServices {
                         .thenCompose(sdbx -> sandboxes.getSandboxById(sdbx.getWorkspace(), sdbx.getId()))
                         .thenCompose(sdbx -> sdbx
                             .getProperties()
-                            .thenApply(prop -> sdbx.addStacks(stacks.stream().map(stack -> {
-                                if (stack instanceof PythonStackConfiguration)
-                                    return ((PythonStackConfiguration) stack).withUserEmail(profile.getEmail());
-                                if (stack instanceof PythonGPUStackConfiguration)
-                                    return ((PythonGPUStackConfiguration) stack).withUserEmail(profile.getEmail());
-                                return stack;
-                            }).collect(Collectors.toList()), prop))
+                            .thenApply(prop -> sdbx.addStacks(stacks.stream()
+                                .map(stack -> stack.withEmail(profile.getEmail()))
+                                .collect(Collectors.toList()), prop))
                             .thenCompose(d -> sdbx.getProperties())));
     }
 

@@ -343,6 +343,17 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 
+    @Override
+    public CompletionStage<String> getExplainer(User user, String workspace, String model,
+                                             String version, String artifactPath) {
+        return workspaces
+                .getWorkspaceByName(workspace)
+                .thenCompose(WorkspaceEntity::getModels)
+                .thenApply(models -> models.getModel(model))
+                .thenCompose(m -> m.getExplainer(user, version, artifactPath));
+    }
+
+
     /*
      * Manage model members
      */

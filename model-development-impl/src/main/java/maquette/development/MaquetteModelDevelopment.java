@@ -1,6 +1,7 @@
 package maquette.development;
 
 import com.google.common.collect.Maps;
+import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import lombok.AllArgsConstructor;
 import maquette.core.MaquetteRuntime;
 import maquette.core.modules.MaquetteModule;
@@ -8,6 +9,7 @@ import maquette.core.modules.users.UserModule;
 import maquette.core.scheduler.model.CronExpression;
 import maquette.core.server.commands.Command;
 import maquette.core.values.UID;
+import maquette.core.values.user.User;
 import maquette.development.commands.*;
 import maquette.development.commands.admin.RedeployInfrastructure;
 import maquette.development.commands.applications.CreateApplicationCommand;
@@ -38,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
 
 @AllArgsConstructor(staticName = "apply")
 public final class MaquetteModelDevelopment implements MaquetteModule {
@@ -141,7 +144,34 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
                     .toCompletableFuture();
 
                 ctx.json(result);
-            });
+            })
+            .get("/api/workspaces/:workspace/models/:model/:version/explainer", OpenApiBuilder.documented(
+                OpenApiBuilder
+                    .document()
+                    .operation(op -> {
+                        op.summary("Get Explainer HTML Page of a model.");
+                        op.description("Downloads from a revision of a logged model.");
+                        op.addTagsItem("Models");
+                    })
+                    .pathParam("workspace", String.class, p -> p.description("The name of the workspace"))
+                    .pathParam("model", String.class, p -> p.description("The name of the model"))
+                    .pathParam("artifactPath", String.class, p -> p.description("The artifactPath of the chosen explainer (usually explainer.html)."))
+                    .json("200", String.class),
+                ctx -> {
+                    var model = ctx.pathParam("model");
+                    var artifact = ctx.queryParam("artifactPath");
+                    var workspaceName = ctx.pathParam("workspace");
+                    var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+                    var version = ctx.pathParam("version");
+
+                    var result = getWorkspaceServices()
+                        .getExplainer(user, workspaceName, model, version, artifact)
+                        .toCompletableFuture();
+
+                    ctx.header("Content-Type", "text/html");
+                    ctx.result(result);
+                })
+            );
     }
 
     @Override

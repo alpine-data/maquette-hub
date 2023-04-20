@@ -68,10 +68,7 @@ public final class ModelEntities {
                 try {
                     mlflowClient
                         .getModels()
-                        .forEach(model -> {
-                            System.out.println(model);
-                            companion.mapModel(model);
-                        });
+                        .forEach(companion::mapModel);
 
                     LOG.debug("Models updated for workspace {}", workspace);
                 } catch (Exception ex) {

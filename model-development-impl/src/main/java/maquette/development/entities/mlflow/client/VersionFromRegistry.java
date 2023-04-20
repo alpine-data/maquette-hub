@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.development.entities.mlflow.MlflowConfiguration;
+import maquette.development.entities.mlflow.apimodel.ListArtifactsResponse;
 import maquette.development.entities.mlflow.apimodel.MLModel;
 import maquette.development.entities.mlflow.apimodel.ModelVersion;
+import maquette.development.entities.mlflow.apimodel.ModelVersionsResponse;
 import maquette.development.entities.mlflow.explainer.ExplainerArtifact;
-import maquette.development.entities.mlflow.explainer.ShapashExplainer;
+import maquette.development.entities.mlflow.explainer.HtmlExplainerReport;
 import org.apache.commons.compress.utils.Lists;
 import org.mlflow.api.proto.Service;
 
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Model version information as extracted from MLflow.
@@ -113,14 +116,17 @@ public class VersionFromRegistry {
         if (Objects.isNull(this.explainers)) {
             explainers = Lists.newArrayList();
 
-            var explainerPath = String.format(
-                "%s/get-artifact?path=xpl.pkl&run_uuid=%s",
-                configuration.getMlflowBasePath(),
-                mlflowVersion.getRunId());
+            var artifactsListPath = String.format("%s/api/2.0/mlflow/artifacts/list?run_uuid=%s",
+                                        configuration.getMlflowBasePath(),
+                                        this.mlflowVersion.getRunId());
 
-            client.downloadFile(explainerPath).ifPresent(
-                file -> explainers.add(ShapashExplainer.apply("xpl.pkl"))
-            );
+            explainers = client
+                            .query(artifactsListPath, ListArtifactsResponse.class)
+                            .getFiles()
+                            .stream()
+                            .filter(fileinfo -> fileinfo.getPath().endsWith("explainer.html"))
+                            .map(fileinfo-> HtmlExplainerReport.apply(fileinfo.getPath()))
+                            .collect(Collectors.toList());
 
             explainers = List.copyOf(explainers);
         }
@@ -164,6 +170,10 @@ public class VersionFromRegistry {
         }
 
         return this.run;
+    }
+
+    public String getRunId(){
+        return this.getRun().getInfo().getRunId();
     }
 
     private synchronized MLModel getModel() {

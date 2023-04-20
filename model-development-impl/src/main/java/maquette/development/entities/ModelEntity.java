@@ -5,11 +5,13 @@ import akka.japi.Function;
 import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.common.exceptions.ApplicationException;
+import maquette.core.databind.DefaultObjectMapperFactory;
 import maquette.core.values.ActionMetadata;
 import maquette.core.values.UID;
 import maquette.core.values.authorization.GrantedAuthorization;
 import maquette.core.values.authorization.UserAuthorization;
 import maquette.core.values.user.User;
+import maquette.development.entities.mlflow.apimodel.MLModel;
 import maquette.development.entities.mlflow.client.MlflowClient;
 import maquette.development.entities.mlflow.ModelCompanion;
 import maquette.development.ports.ModelsRepository;
@@ -285,6 +287,27 @@ public final class ModelEntity {
             .<CompletionStage<ModelFromRegistry>>map(CompletableFuture::completedFuture)
             .orElseGet(() -> CompletableFuture.failedFuture(ModelNotFoundException.apply(name)));
     }
+
+    /**
+     * Get explainer html of a model.
+     *
+     * @param executor The user executing the action.
+     * @param version The version of the model.
+     * @param artifactPath The path of the model.
+     * @return textstring that contains the explainer.
+    */
+    public CompletionStage<String> getExplainer(User executor, String version, String artifactPath) {
+        return getProperties()
+                .thenCompose(model-> {
+                    var runId = model.getVersion(version).getRunId();
+                    return CompletableFuture.completedFuture(mlflowClient.downloadArtifact(artifactPath, runId));
+                });
+    }
+
+
+    /**
+     * get explainer file
+     */
 
     /**
      * Specific exceptions thrown if member role assignments cannot be full-filled.

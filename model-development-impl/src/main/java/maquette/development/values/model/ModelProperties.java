@@ -7,8 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import maquette.core.values.ActionMetadata;
+import maquette.development.entities.mlflow.explainer.ExplainerArtifact;
 import maquette.development.values.exceptions.ModelVersionNotFoundException;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,6 +59,7 @@ public class ModelProperties {
      */
     @JsonProperty(UPDATED)
     ActionMetadata updated;
+
 
     /**
      * Creates a new instance. Also used to create instances from JSON representation.

@@ -241,6 +241,8 @@ public interface WorkspaceServices {
      */
     CompletionStage<Done> runExplainer(User user, String workspace, String model, String version);
 
+    CompletionStage<String> getExplainer(User user, String workspace, String model, String version, String artifactPath);
+
     /*
      * Manage model roles
      */

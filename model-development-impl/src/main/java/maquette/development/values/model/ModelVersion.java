@@ -49,6 +49,8 @@ public class ModelVersion {
     private final static String DATA_DEPENDENCY_SUMMARY = "dataDependencySummary";
     private final static String STATE = "state";
 
+    private final static String RUN_ID= "runId";
+
     /**
      * The version identifier as listed in MLflow.
      */
@@ -111,6 +113,12 @@ public class ModelVersion {
     @JsonProperty(EVENTS)
     List<ModelVersionEvent> events;
 
+    /**
+     * Information about a model explainer which might have been logged with MLflow.
+     */
+    @JsonProperty(RUN_ID)
+    String runId;
+
 
     /**
      * Creates a new instance (from JSON).
@@ -137,7 +145,8 @@ public class ModelVersion {
         @JsonProperty(GIT_DETAILS) GitDetails gitDetails,
         @JsonProperty(DATA_DEPENDENCIES) DataDependencies dataDependencies,
         @JsonProperty(EXPLAINERS) List<ExplainerArtifact> explainers,
-        @JsonProperty(EVENTS) List<ModelVersionEvent> events
+        @JsonProperty(EVENTS) List<ModelVersionEvent> events,
+        @JsonProperty(RUN_ID) String runId
     ) {
         if (Objects.isNull(explainers)) {
             explainers = List.of();
@@ -149,7 +158,7 @@ public class ModelVersion {
 
         return new ModelVersion(
             version, registered, updated, Set.copyOf(flavours), stage,
-            codeQuality, gitDetails, dataDependencies, List.copyOf(explainers), List.copyOf(events)
+            codeQuality, gitDetails, dataDependencies, List.copyOf(explainers), List.copyOf(events), runId
         );
     }
 
@@ -163,9 +172,9 @@ public class ModelVersion {
      * @return A new instance.
      */
     public static ModelVersion apply(
-        String version, ActionMetadata registered, Set<String> flavours, ModelVersionStage stage) {
+        String version, ActionMetadata registered, Set<String> flavours, ModelVersionStage stage, String runId) {
         return apply(
-            version, registered, registered, flavours, stage, null, null, null, List.of(), List.of(Registered.apply(registered)));
+            version, registered, registered, flavours, stage, null, null, null, List.of(), List.of(Registered.apply(registered)), runId);
     }
 
     /**
@@ -174,13 +183,13 @@ public class ModelVersion {
      * @return A new dummy instance.
      */
     public static ModelVersion fake() {
-        return apply("1", ActionMetadata.apply("egon"), Set.of("python", "java"), ModelVersionStage.NONE);
+        return apply("1", ActionMetadata.apply("egon"), Set.of("python", "java"), ModelVersionStage.NONE, "");
     }
 
     /**
      * Returns a set of potential next actions for the model version. The actions are selected
      * based upon current state of the model.
-     *
+     * <p>
      * This method does not decide whether a user who requests the model version has the authorization
      * to execute these actions. The UI will only display actions according to related authorizations,
      * the service layer will ensure that actions are only executed by authorized users.

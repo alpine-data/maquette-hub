@@ -52,12 +52,12 @@ public final class DatasetEntity {
                         .getMetadata()
                         .getName(), revision.getVersion(), authTokenId, authTokenSecret)
                     .thenApply(revision::withStatistics)
-                    .thenCompose(r -> repository.insertOrUpdateRevision(entity.getId(), r)))
-            .thenCompose(done -> done)
-            .thenApply(done -> {
-                LOG.info("Successfully analyzed dataset version {}", version);
-                return done;
-            });
+                    .thenCompose(r -> repository.insertOrUpdateRevision(entity.getId(), r))
+                    .thenApply(done -> {
+                        LOG.info("Successfully analyzed dataset `{}` version `{}`", dataset.getMetadata().getName(), version);
+                        return done;
+                    }))
+            .thenCompose(done -> done);
     }
 
     public CompletionStage<CommittedRevision> commit(User executor, UID revisionId, String message) {
