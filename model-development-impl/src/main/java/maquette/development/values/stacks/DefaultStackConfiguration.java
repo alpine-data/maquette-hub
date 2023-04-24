@@ -22,6 +22,8 @@ public abstract class DefaultStackConfiguration implements StackConfiguration {
     protected static final String COST = "cost";
     protected static final String USER_EMAIL = "userEmail";
 
+    protected static final String SECURED = "secured";
+
     /**
      * The name of the Python instance.
      */
@@ -49,6 +51,9 @@ public abstract class DefaultStackConfiguration implements StackConfiguration {
     @JsonProperty(USER_EMAIL)
     String userEmail;
 
+    @JsonProperty(SECURED)
+    boolean secured;
+
     @Override
     public String getStackInstanceName() {
         return name;
@@ -73,6 +78,11 @@ public abstract class DefaultStackConfiguration implements StackConfiguration {
     @Override
     public Optional<String> getUserEmail() {
         return Optional.ofNullable(this.userEmail);
+    }
+
+    @Override
+    public boolean isSecured() {
+        return Boolean.TRUE.equals(this.secured);
     }
 
     @Override

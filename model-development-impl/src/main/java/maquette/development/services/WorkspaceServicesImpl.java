@@ -75,7 +75,7 @@ public final class WorkspaceServicesImpl implements WorkspaceServices {
                     .members()
                     .addMember(executor, executor.toAuthorization(), WorkspaceMemberRole.ADMIN);
 
-                var mlFlowInitializedCS = workspace.initializeMlflowEnvironment();
+                var mlFlowInitializedCS = workspace.initializeMlflowEnvironment("", false);
 
                 return Operators.compose(
                     adminAddedCS, mlFlowInitializedCS,

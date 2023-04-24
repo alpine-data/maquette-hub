@@ -60,6 +60,13 @@ public interface StackConfiguration {
     Optional<String> getUserEmail();
 
     /**
+     * Returns whether the stack is to be secured with oauth2 proxy
+     *
+     * @return True if stack is to be secured
+     */
+    boolean isSecured();
+
+    /**
      * Provides a volume ID for stack that will be mounted.
      *
      * @return A volume ID if a stack supports it, otherwise empty

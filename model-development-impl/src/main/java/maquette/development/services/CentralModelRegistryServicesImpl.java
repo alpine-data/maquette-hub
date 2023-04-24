@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import maquette.core.common.Operators;
 import maquette.core.values.user.SystemUser;
 import maquette.core.values.user.User;
-import maquette.development.entities.*;
+import maquette.development.entities.ModelEntities;
+import maquette.development.entities.WorkspaceEntities;
+import maquette.development.entities.WorkspaceEntity;
 import maquette.development.ports.infrastructure.InfrastructurePort;
 import maquette.development.values.WorkspaceMemberRole;
 import maquette.development.values.model.ModelProperties;
@@ -40,7 +42,7 @@ public class CentralModelRegistryServicesImpl implements CentralModelRegistrySer
                     .members()
                     .addMember(user, user.toAuthorization(), WorkspaceMemberRole.ADMIN);
 
-                var mlFlowInitializedCS = workspace.initializeMlflowEnvironment();
+                var mlFlowInitializedCS = workspace.initializeMlflowEnvironment("", false);
 
                 return Operators.compose(
                     adminAddedCS, mlFlowInitializedCS,

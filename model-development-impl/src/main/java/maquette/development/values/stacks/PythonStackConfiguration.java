@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,8 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
         @JsonProperty(MEMORY_REQUEST) String memoryRequest,
         @JsonProperty(VERSION) String version,
         @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
-        @JsonProperty(USER_EMAIL) String userEmail) {
+        @JsonProperty(USER_EMAIL) String userEmail,
+        @JsonProperty(SECURED) Boolean secured) {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
@@ -65,6 +67,7 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
         instance.name = name;
         instance.environmentVariables = environmentVariables;
         instance.userEmail = userEmail;
+        instance.secured = Boolean.TRUE.equals(secured);
 
         return instance;
     }

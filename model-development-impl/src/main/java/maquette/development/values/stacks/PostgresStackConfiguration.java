@@ -3,7 +3,10 @@ package maquette.development.values.stacks;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Maps;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +42,8 @@ public class PostgresStackConfiguration extends DefaultStackConfiguration {
         @JsonProperty(PG_EMAIL) String pgEmail,
         @JsonProperty(PG_PASSWORD) String pgPassword,
         @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
-        @JsonProperty(USER_EMAIL) String userEmail) {
+        @JsonProperty(USER_EMAIL) String userEmail,
+        @JsonProperty(SECURED) Boolean secured) {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
@@ -49,6 +53,7 @@ public class PostgresStackConfiguration extends DefaultStackConfiguration {
         instance.name = name;
         instance.environmentVariables = environmentVariables;
         instance.userEmail = userEmail;
+        instance.secured = Boolean.TRUE.equals(secured);
 
         return instance;
     }

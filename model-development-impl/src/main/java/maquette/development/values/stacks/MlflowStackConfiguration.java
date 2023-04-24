@@ -85,7 +85,9 @@ public class MlflowStackConfiguration extends DefaultStackConfiguration {
         @JsonProperty(NAME) String name,
         @JsonProperty(SAS_EXPIRY_TOKEN) Instant sasTokenExpiry,
         @JsonProperty(RESOURCE_GROUPS) List<String> resourceGroups,
-        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables) {
+        @JsonProperty(ENVIRONMENT) Map<String, String> environmentVariables,
+        @JsonProperty(USER_EMAIL) String userEmail,
+        @JsonProperty(SECURED) Boolean secured) {
 
         if (Objects.isNull(environmentVariables)) {
             environmentVariables = Maps.newHashMap();
@@ -94,6 +96,8 @@ public class MlflowStackConfiguration extends DefaultStackConfiguration {
         var instance = new MlflowStackConfiguration(sasTokenExpiry, resourceGroups);
         instance.name = name;
         instance.environmentVariables = environmentVariables;
+        instance.userEmail = userEmail;
+        instance.secured = Boolean.TRUE.equals(secured);
         return instance;
     }
 

@@ -11,7 +11,10 @@ import maquette.core.values.user.AuthenticatedUser;
 import maquette.core.values.user.User;
 import maquette.development.MaquetteModelDevelopment;
 import maquette.development.commands.*;
-import maquette.development.commands.applications.*;
+import maquette.development.commands.applications.CreateApplicationCommand;
+import maquette.development.commands.applications.ListApplicationsCommand;
+import maquette.development.commands.applications.OauthGetSelfCommand;
+import maquette.development.commands.applications.RemoveApplicationCommand;
 import maquette.development.commands.members.GrantWorkspaceMemberCommand;
 import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.registry.ImportToRegistryCommand;
@@ -212,8 +215,9 @@ public class WorkspaceStepDefinitions {
             }
             var result = CreateSandboxCommand
                 .apply(mentionedWorkspace, sandboxName, sandboxName, volume, List.of(
-                    PythonStackConfiguration.apply(sandboxName, Lists.newArrayList(), "4Gi", "3.8",
-                        Maps.<String, String>newHashMap(), "john.doe@zurich.ch")))
+                    PythonStackConfiguration.apply(
+                        sandboxName, Lists.newArrayList(), "4Gi", "3.8",
+                        Maps.<String, String>newHashMap(), "john.doe@zurich.ch", false)))
                 .run(user, runtime)
                 .toCompletableFuture()
                 .get()
@@ -286,7 +290,8 @@ public class WorkspaceStepDefinitions {
     public void $_creates_a_sandbox_$_with_and_advanced_stack(AuthenticatedUser user, String sandboxName) throws ExecutionException, InterruptedException {
         results.add(CreateSandboxCommand
             .apply(mentionedWorkspace, sandboxName, sandboxName, NewVolume.apply("new-gpu"), List.of(
-                PythonGPUStackConfiguration.apply(sandboxName, List.of(), "gpusmall", "3.10", Map.of(), "john.doe@zurich.ch")
+                PythonGPUStackConfiguration.apply(sandboxName, List.of(), "gpusmall", "3.10", Map.of(), "john" +
+                    ".doe@zurich.ch", false)
             ))
             .run(user, runtime)
             .toCompletableFuture()

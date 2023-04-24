@@ -130,14 +130,16 @@ public final class WorkspaceEntity {
             });
     }
 
-    public CompletionStage<Done> initializeMlflowEnvironment() {
+    public CompletionStage<Done> initializeMlflowEnvironment(String userEmail, boolean secured) {
         var config = MlflowStackConfiguration.apply(
             getMlflowStackName(id),
             Instant
                 .now()
                 .plus(5, ChronoUnit.DAYS),
             Lists.newArrayList(getWorkspaceResourceGroupName()),
-            Maps.newHashMap());
+            Maps.newHashMap(),
+            userEmail,
+            secured);
 
         return infrastructurePort
             .createOrUpdateStackInstance(id, config)
