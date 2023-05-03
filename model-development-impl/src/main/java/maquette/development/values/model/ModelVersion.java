@@ -146,7 +146,12 @@ public class ModelVersion {
         @JsonProperty(DATA_DEPENDENCIES) DataDependencies dataDependencies,
         @JsonProperty(EXPLAINERS) List<ExplainerArtifact> explainers,
         @JsonProperty(EVENTS) List<ModelVersionEvent> events,
-        @JsonProperty(RUN_ID) String runId
+        @JsonProperty(RUN_ID) String runId,
+        @JsonProperty(ACTIONS) Object ignoreActions,
+        @JsonProperty(DATA_DEPENDENCY_CHECKS) Object ignoreDataDependencyChecks,
+        @JsonProperty(DATA_DEPENDENCY_SUMMARY) Object ignoreDataDependencySummary,
+        @JsonProperty(CODE_QUALITY_CHECKS) Object ignoreCodeQualityChecks,
+        @JsonProperty(CODE_QUALITY_SUMMARY) Object ignoreCodeQualitySummary
     ) {
         if (Objects.isNull(explainers)) {
             explainers = List.of();
@@ -160,6 +165,22 @@ public class ModelVersion {
             version, registered, updated, Set.copyOf(flavours), stage,
             codeQuality, gitDetails, dataDependencies, List.copyOf(explainers), List.copyOf(events), runId
         );
+    }
+
+    public static ModelVersion apply(
+        String version,
+        ActionMetadata registered,
+        ActionMetadata updated,
+        Set<String> flavours,
+        ModelVersionStage stage,
+        CodeQuality codeQuality,
+        GitDetails gitDetails,
+        DataDependencies dataDependencies,
+        List<ExplainerArtifact> explainers,
+        List<ModelVersionEvent> events,
+        String runId
+    ) {
+        return apply(version, registered, updated, flavours, stage, codeQuality, gitDetails, dataDependencies, explainers, events, runId, null, null, null, null, null);
     }
 
     /**
