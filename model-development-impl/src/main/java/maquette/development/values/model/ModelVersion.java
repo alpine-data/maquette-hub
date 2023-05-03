@@ -207,14 +207,6 @@ public class ModelVersion {
         return apply("1", ActionMetadata.apply("egon"), Set.of("python", "java"), ModelVersionStage.NONE, "");
     }
 
-    @JsonProperty("actions")
-    @SuppressWarnings("unused")
-    private void setActions(List<ModelAction> actions) {
-        System.out.println(actions);
-        System.out.println("HUHU!");
-        // ignore
-    }
-
     /**
      * Returns a set of potential next actions for the model version. The actions are selected
      * based upon current state of the model.
