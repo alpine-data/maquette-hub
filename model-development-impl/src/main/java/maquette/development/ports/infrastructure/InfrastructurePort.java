@@ -34,7 +34,7 @@ public interface InfrastructurePort {
      *
      * @return Done.
      */
-    CompletionStage<Done> checkState();
+    CompletionStage<Done> checkState(boolean forceUpdate);
 
     /**
      * Receive runtime parameters from infrastructure.

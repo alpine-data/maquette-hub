@@ -25,7 +25,7 @@ public class FakeInfrastructurePort implements InfrastructurePort {
     }
 
     @Override
-    public CompletionStage<Done> checkState() {
+    public CompletionStage<Done> checkState(boolean forceUpdate) {
         return CompletableFuture.completedFuture(Done.getInstance());
     }
 

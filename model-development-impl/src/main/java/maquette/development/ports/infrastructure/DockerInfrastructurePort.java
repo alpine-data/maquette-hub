@@ -102,7 +102,7 @@ public final class DockerInfrastructurePort implements InfrastructurePort {
     }
 
     @Override
-    public CompletionStage<Done> checkState() {
+    public CompletionStage<Done> checkState(boolean forceUpdate) {
         return CompletableFuture.supplyAsync(() -> {
             getDeployedStackConfigurations().forEach(deployed -> docker.runDeployment(deployed.getDeploymentConfig()));
             return Done.getInstance();

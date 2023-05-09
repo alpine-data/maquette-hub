@@ -285,7 +285,7 @@ public final class WorkspaceEntities { // implements maquette.workspaces.api.Wor
      * @return Done (Request has been accepted, but actual deployment might take longer).
      */
     public CompletionStage<Done> redeployInfrastructure() {
-        return infrastructurePort.checkState();
+        return infrastructurePort.checkState(false);
     }
 
 }
