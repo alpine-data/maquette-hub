@@ -67,7 +67,7 @@ public class PythonStackConfiguration extends DefaultStackConfiguration {
         instance.name = name;
         instance.environmentVariables = environmentVariables;
         instance.userEmail = userEmail;
-        instance.secured = Boolean.TRUE.equals(secured);
+        instance.secured = secured == null || Boolean.TRUE.equals(secured);
 
         return instance;
     }
