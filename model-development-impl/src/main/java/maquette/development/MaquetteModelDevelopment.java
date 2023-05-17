@@ -21,6 +21,7 @@ import maquette.development.commands.members.RevokeWorkspaceMemberCommand;
 import maquette.development.commands.models.CreateModelServiceCommand;
 import maquette.development.commands.models.GetModelViewCommand;
 import maquette.development.commands.models.GetModelsViewCommand;
+import maquette.development.commands.registry.GetRegistryModelCommand;
 import maquette.development.commands.registry.GetRegistryModelsCommand;
 import maquette.development.commands.registry.ImportToRegistryCommand;
 import maquette.development.commands.sandboxes.*;
@@ -171,6 +172,35 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
                     ctx.header("Content-Type", "text/html");
                     ctx.result(result);
                 })
+
+            )
+            .get("/api/workspacesCentral/:workspace/models/:model/:version/explainer", OpenApiBuilder.documented(
+                OpenApiBuilder
+                    .document()
+                    .operation(op -> {
+                        op.summary("Get Explainer HTML Page of a model.");
+                        op.description("Downloads from a revision of a logged model.");
+                        op.addTagsItem("Models");
+                    })
+                    .pathParam("workspace", String.class, p -> p.description("The name of the workspace"))
+                    .pathParam("model", String.class, p -> p.description("The name of the model"))
+                    .pathParam("artifactPath", String.class, p -> p.description("The artifactPath of the chosen explainer (usually explainer.html)."))
+                    .json("200", String.class),
+                ctx -> {
+                    var model = ctx.pathParam("model");
+                    var artifact = ctx.queryParam("artifactPath");
+                    var workspaceName = ctx.pathParam("workspace");
+                    var user = (User) Objects.requireNonNull(ctx.attribute("user"));
+                    var version = ctx.pathParam("version");
+
+                    var result = getCentralModelRegistryServices()
+                        .getExplainer(user, workspaceName, model, version, artifact)
+                        .toCompletableFuture();
+
+                    ctx.header("Content-Type", "text/html");
+                    ctx.result(result);
+                })
+
             );
     }
 
@@ -216,6 +246,7 @@ public final class MaquetteModelDevelopment implements MaquetteModule {
 
         commands.put("registry list", GetRegistryModelsCommand.class);
         commands.put("registry import", ImportToRegistryCommand.class);
+        commands.put("registry model view", GetRegistryModelCommand.class);
         return commands;
     }
 

@@ -148,6 +148,10 @@ public final class WorkspaceEntity {
     }
 
     public CompletionStage<Map<String, String>> getEnvironment(User user, EnvironmentType environmentType) {
+        return this.getEnvironment(user, environmentType, null);
+    }
+
+    public CompletionStage<Map<String, String>> getEnvironment(User user, EnvironmentType environmentType, Map<String, String> additionalEny) {
         return infrastructurePort
             .getInstanceParameters(id, getMlflowStackName(id))
             .thenApply(parameters -> {
@@ -183,7 +187,13 @@ public final class WorkspaceEntity {
                  * Add username information used by MLflow.
                  */
                 if (user instanceof AuthenticatedUser) {
-                    result.put("LOGNAME", ((AuthenticatedUser) user).getId().getValue());
+                    result.put("LOGNAME", ((AuthenticatedUser) user)
+                        .getId()
+                        .getValue());
+                }
+
+                if (additionalEny != null && !additionalEny.isEmpty()) {
+                    result.putAll(additionalEny);
                 }
 
                 return result;
